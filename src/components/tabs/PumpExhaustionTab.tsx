@@ -17,14 +17,13 @@ interface PumpCandidate {
   last_updated: string;
 }
 
-interface PumpDetail {
-  current_state: string;
-  simulated_state: string;
-  ret_7d_pct: number | null;
+interface UniversePump {
+  symbol: string;
+  ret_7d_pct: number;
   exhaustion_score: number;
-  threshold: number;
+  state: string;
   source: string;
-  in_sleeve?: boolean;
+  current_price: number | null;
 }
 
 interface PumpExhaustionResponse {
@@ -37,8 +36,7 @@ interface PumpExhaustionResponse {
     weight_pct: number;
   };
   candidates: PumpCandidate[];
-  sleeve: string[];
-  detail: Record<string, PumpDetail>;
+  universe_pumps: UniversePump[];
 }
 
 const stateBadge = (state: string) => {
@@ -108,7 +106,7 @@ const candidateColumns: Column<PumpCandidate>[] = [
     header: "From Peak",
     render: (r) => {
       if (!r.current_price || r.peak_price <= 0) return "-";
-      const dd = ((r.current_price / r.peak_price - 1) * 100);
+      const dd = (r.current_price / r.peak_price - 1) * 100;
       return (
         <span className={dd < 0 ? "text-green-400" : "text-red-400"}>
           {dd.toFixed(1)}%
@@ -151,16 +149,7 @@ const candidateColumns: Column<PumpCandidate>[] = [
   },
 ];
 
-interface DetailRow {
-  symbol: string;
-  source: string;
-  ret_7d_pct: number | null;
-  exhaustion_score: number;
-  simulated_state: string;
-  in_sleeve: boolean;
-}
-
-const detailColumns: Column<DetailRow>[] = [
+const pumpColumns: Column<UniversePump>[] = [
   {
     key: "symbol",
     header: "Symbol",
@@ -169,7 +158,7 @@ const detailColumns: Column<DetailRow>[] = [
         <span className="font-medium text-gray-200">
           {r.symbol.replace("USDT", "")}
         </span>
-        {r.in_sleeve && <Badge variant="success">Sleeve</Badge>}
+        {r.exhaustion_score >= 0.35 && stateBadge(r.state)}
       </div>
     ),
     sortKey: (r) => r.symbol,
@@ -187,13 +176,10 @@ const detailColumns: Column<DetailRow>[] = [
   {
     key: "ret_7d_pct",
     header: "7d Return",
-    render: (r) =>
-      r.ret_7d_pct !== null ? (
-        <span className="text-red-400">+{r.ret_7d_pct.toFixed(1)}%</span>
-      ) : (
-        "-"
-      ),
-    sortKey: (r) => r.ret_7d_pct ?? 0,
+    render: (r) => (
+      <span className="text-red-400 font-mono">+{r.ret_7d_pct.toFixed(1)}%</span>
+    ),
+    sortKey: (r) => r.ret_7d_pct,
     align: "right",
   },
   {
@@ -216,12 +202,12 @@ const detailColumns: Column<DetailRow>[] = [
     align: "right",
   },
   {
-    key: "simulated_state",
-    header: "Simulated",
-    render: (r) => (
-      <span className="text-gray-400 text-xs">{r.simulated_state}</span>
-    ),
-    sortKey: (r) => r.simulated_state,
+    key: "current_price",
+    header: "Price",
+    render: (r) =>
+      r.current_price ? `$${r.current_price.toFixed(4)}` : "-",
+    sortKey: (r) => r.current_price ?? 0,
+    align: "right",
   },
 ];
 
@@ -244,20 +230,13 @@ export function PumpExhaustionTab() {
 
   if (!data) return null;
 
-  const detailRows: DetailRow[] = Object.entries(data.detail)
-    .map(([sym, d]) => ({
-      symbol: sym,
-      source: d.source,
-      ret_7d_pct: d.ret_7d_pct,
-      exhaustion_score: d.exhaustion_score,
-      simulated_state: d.simulated_state,
-      in_sleeve: d.in_sleeve ?? false,
-    }))
-    .sort((a, b) => b.exhaustion_score - a.exhaustion_score);
+  const aboveThreshold = data.universe_pumps.filter(
+    (p) => p.exhaustion_score >= data.config.threshold
+  );
 
   return (
     <div className="space-y-4 p-4">
-      {/* Status & Config */}
+      {/* Config Cards */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
         <ConfigCard
           label="Scanner"
@@ -281,44 +260,46 @@ export function PumpExhaustionTab() {
           value={`${data.config.weight_pct}% NAV`}
         />
         <ConfigCard
-          label="Sleeve"
-          value={data.sleeve.length > 0 ? data.sleeve.map(s => s.replace("USDT","")).join(", ") : "Empty"}
-          color={data.sleeve.length > 0 ? "text-green-400" : "text-gray-500"}
+          label="Pumping"
+          value={`${data.universe_pumps.length} tokens`}
+          color={data.universe_pumps.length > 0 ? "text-yellow-400" : "text-gray-500"}
         />
       </div>
 
-      {/* Tactical Sleeve */}
-      {data.sleeve.length > 0 && (
+      {/* Sleeve-ready candidates */}
+      {aboveThreshold.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Tactical Sleeve ({data.sleeve.length}/{data.config.max_included})</CardTitle>
+            <CardTitle>
+              Sleeve Candidates ({aboveThreshold.length} above {data.config.threshold} threshold, {data.config.max_included} slots)
+            </CardTitle>
           </CardHeader>
           <div className="p-4 pt-0">
-            <div className="flex gap-3">
-              {data.sleeve.map((sym) => {
-                const d = data.detail[sym];
-                return (
-                  <div
-                    key={sym}
-                    className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3 flex-1"
-                  >
-                    <div className="text-green-400 font-medium">
-                      {sym.replace("USDT", "")}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      Score: {d?.exhaustion_score.toFixed(3) ?? "?"} | 7d:{" "}
-                      {d?.ret_7d_pct ? `+${d.ret_7d_pct.toFixed(1)}%` : "?"} |{" "}
-                      {d?.source ?? "?"}
-                    </div>
+            <div className="flex gap-3 flex-wrap">
+              {aboveThreshold.slice(0, data.config.max_included).map((p) => (
+                <div
+                  key={p.symbol}
+                  className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3 min-w-[180px]"
+                >
+                  <div className="text-green-400 font-medium">
+                    {p.symbol.replace("USDT", "")}
                   </div>
-                );
-              })}
+                  <div className="text-xs text-gray-400 mt-1">
+                    Score: {p.exhaustion_score.toFixed(3)} | 7d: +{p.ret_7d_pct.toFixed(1)}% | {p.source}
+                  </div>
+                </div>
+              ))}
             </div>
+            {aboveThreshold.length > data.config.max_included && (
+              <div className="text-xs text-gray-500 mt-2">
+                +{aboveThreshold.length - data.config.max_included} more above threshold (capped at {data.config.max_included})
+              </div>
+            )}
           </div>
         </Card>
       )}
 
-      {/* Persisted States */}
+      {/* Active Scanner States */}
       {data.candidates.length > 0 && (
         <Card>
           <CardHeader>
@@ -331,33 +312,33 @@ export function PumpExhaustionTab() {
               columns={candidateColumns}
               data={data.candidates}
               defaultSort="exhaustion_score"
-                            maxHeight="320px"
+              maxHeight="320px"
             />
           </div>
         </Card>
       )}
 
-      {/* Dry-Run Detail */}
-      {detailRows.length > 0 && (
+      {/* All Pumping Tokens */}
+      {data.universe_pumps.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>
-              Pump Candidates — Dry Run ({detailRows.length} tokens)
+              All Pumping Tokens ({data.universe_pumps.length} with 7d return &gt;{data.config.detect_threshold_pct}%)
             </CardTitle>
           </CardHeader>
           <div className="p-4 pt-0">
             <DataTable
-              columns={detailColumns}
-              data={detailRows}
-              defaultSort="exhaustion_score"
-                            maxHeight="480px"
+              columns={pumpColumns}
+              data={data.universe_pumps}
+              defaultSort="ret_7d_pct"
+              maxHeight="480px"
             />
           </div>
         </Card>
       )}
 
       {/* Empty state */}
-      {data.candidates.length === 0 && detailRows.length === 0 && (
+      {data.candidates.length === 0 && data.universe_pumps.length === 0 && (
         <Card>
           <div className="p-8 text-center text-gray-500">
             No pump candidates detected. Scanner monitors excluded tokens and
