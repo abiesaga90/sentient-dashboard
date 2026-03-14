@@ -59,7 +59,7 @@ export function RecentTrades({ trades }: RecentTradesProps) {
                   {formatUSD(t.notional)}
                 </td>
                 <td className="px-2 py-1.5 text-right">
-                  {t.pnl !== 0 ? <PnlText value={t.pnl} className="text-xs" /> : "—"}
+                  {t.action === "OPEN" ? "—" : <PnlText value={t.pnl} className="text-xs" />}
                 </td>
               </tr>
             ))}
