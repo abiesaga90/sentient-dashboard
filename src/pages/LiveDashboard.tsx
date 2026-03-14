@@ -6,7 +6,6 @@ import { OverviewTab } from "../components/tabs/OverviewTab";
 import { PositionsTab } from "../components/tabs/PositionsTab";
 import { ShortSelectionTab } from "../components/tabs/ShortSelectionTab";
 import { NextRebalanceTab } from "../components/tabs/NextRebalanceTab";
-import { PlaceholderTab } from "../components/tabs/PlaceholderTab";
 import { PumpExhaustionTab } from "../components/tabs/PumpExhaustionTab";
 import { ExecutionTab } from "../components/tabs/ExecutionTab";
 import { LongSignalsTab } from "../components/tabs/LongSignalsTab";
@@ -14,6 +13,10 @@ import { FundamentalsTab } from "../components/tabs/FundamentalsTab";
 import { PerformanceTab } from "../components/tabs/PerformanceTab";
 import { AttributionTab } from "../components/tabs/AttributionTab";
 import { ThesisTab } from "../components/tabs/ThesisTab";
+import { PairsTab } from "../components/tabs/PairsTab";
+import { RiskStressTab } from "../components/tabs/RiskStressTab";
+import { MacroRegimeTab } from "../components/tabs/MacroRegimeTab";
+import { CycleTab } from "../components/tabs/CycleTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -87,18 +90,24 @@ function TabContent({
     case "thesis":
       return <ThesisTab />;
     case "pairs":
-      return <PlaceholderTab name="Pairs" description="Phase 3: Pair mapping with correlation scores" />;
+      return <PairsTab />;
     case "risk-stress":
-      return <PlaceholderTab name="Risk & Stress" description="Phase 4: DD gauge, stress scenarios, VaR" />;
+      return <RiskStressTab />;
     case "macro":
-      return <PlaceholderTab name="Macro Regime" description="Phase 4: 14-indicator composite" />;
+      return <MacroRegimeTab />;
     case "cycle":
-      return <PlaceholderTab name="Cycle Awareness" description="Phase 4: MVRV, 200 WMA, Mayer Multiple" />;
+      return <CycleTab />;
     case "execution":
       return <ExecutionTab />;
     case "pump-exhaustion":
       return <PumpExhaustionTab />;
     default:
-      return <PlaceholderTab name="Unknown Tab" />;
+      return (
+        <div className="p-4">
+          <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+            Unknown tab
+          </div>
+        </div>
+      );
   }
 }

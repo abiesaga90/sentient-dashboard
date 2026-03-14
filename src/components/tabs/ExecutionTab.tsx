@@ -2,8 +2,22 @@ import { useQuery } from "@tanstack/react-query";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
-import { formatUSD } from "../../lib/utils";
+import { formatUSD, formatPct } from "../../lib/utils";
 import type { ExecutionQualityResponse } from "../../types/api";
+
+interface RiskExitMethodology {
+  tp_pct: number;
+  sl_pct: number;
+  fee_bps: number;
+  spread_bps: number;
+  round_trip_bps: number;
+  min_drift_threshold: number;
+  min_alpha_hurdle_bps: number;
+}
+
+interface RiskCostModel {
+  exit_methodology?: RiskExitMethodology;
+}
 
 export function ExecutionTab() {
   const { client, engine } = useEngine();
@@ -12,6 +26,13 @@ export function ExecutionTab() {
     queryFn: () =>
       client.get<ExecutionQualityResponse>("/api/execution_quality"),
     refetchInterval: 60_000,
+  });
+
+  const { data: riskData } = useQuery<RiskCostModel>({
+    queryKey: ["risk-cost-model", engine.id],
+    queryFn: () => client.get("/api/risk"),
+    refetchInterval: 120_000,
+    staleTime: 60_000,
   });
 
   if (isLoading) {
@@ -116,23 +137,43 @@ export function ExecutionTab() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-xs">
           <div>
             <div className="text-gray-500">Fee</div>
-            <div className="text-gray-200 font-medium">2.0 bps</div>
+            <div className="text-gray-200 font-medium">
+              {riskData?.exit_methodology?.fee_bps != null
+                ? `${riskData.exit_methodology.fee_bps.toFixed(1)} bps`
+                : "2.0 bps"}
+            </div>
           </div>
           <div>
             <div className="text-gray-500">Spread</div>
-            <div className="text-gray-200 font-medium">2.0 bps</div>
+            <div className="text-gray-200 font-medium">
+              {riskData?.exit_methodology?.spread_bps != null
+                ? `${riskData.exit_methodology.spread_bps.toFixed(1)} bps`
+                : "2.0 bps"}
+            </div>
           </div>
           <div>
             <div className="text-gray-500">Round-trip Cost</div>
-            <div className="text-gray-200 font-medium">4.0 bps</div>
+            <div className="text-gray-200 font-medium">
+              {riskData?.exit_methodology?.round_trip_bps != null
+                ? `${riskData.exit_methodology.round_trip_bps.toFixed(1)} bps`
+                : "4.0 bps"}
+            </div>
           </div>
           <div>
             <div className="text-gray-500">Min Drift Threshold</div>
-            <div className="text-gray-200 font-medium">0.05%</div>
+            <div className="text-gray-200 font-medium">
+              {riskData?.exit_methodology?.min_drift_threshold != null
+                ? formatPct(riskData.exit_methodology.min_drift_threshold * 100)
+                : "0.05%"}
+            </div>
           </div>
           <div>
             <div className="text-gray-500">Min Alpha Hurdle</div>
-            <div className="text-gray-200 font-medium">5.0 bps</div>
+            <div className="text-gray-200 font-medium">
+              {riskData?.exit_methodology?.min_alpha_hurdle_bps != null
+                ? `${riskData.exit_methodology.min_alpha_hurdle_bps.toFixed(1)} bps`
+                : "5.0 bps"}
+            </div>
           </div>
         </div>
       </Card>

@@ -1,19 +1,54 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { PnlText } from "../shared/PnlText";
 import { formatUSD, formatPct } from "../../lib/utils";
 import type { BasketComparison } from "../../types/api";
 
+const PERIODS = ["daily", "weekly", "mtd", "qtd", "ytd", "all"] as const;
+type Period = (typeof PERIODS)[number];
+
 interface BasketSummaryProps {
   basket: BasketComparison;
 }
 
-export function BasketSummary({ basket }: BasketSummaryProps) {
+export function BasketSummary({ basket: defaultBasket }: BasketSummaryProps) {
+  const [period, setPeriod] = useState<Period>("all");
+  const { client, engine } = useEngine();
+
+  const { data: periodBasket } = useQuery<BasketComparison>({
+    queryKey: ["basket-comparison", engine.id, period],
+    queryFn: () => client.get("/api/basket_comparison", { period }),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+    enabled: period !== "all",
+  });
+
+  const basket = period === "all" ? defaultBasket : (periodBasket ?? defaultBasket);
   const { long_basket, short_basket, comparison } = basket;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Basket Comparison</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Basket Comparison</CardTitle>
+          <div className="flex gap-1">
+            {PERIODS.map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`px-2 py-0.5 text-[10px] rounded uppercase tracking-wider transition-colors ${
+                  period === p
+                    ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                    : "text-gray-500 hover:text-gray-300 border border-transparent"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
       </CardHeader>
       <div className="grid grid-cols-2 gap-4">
         <BasketSide title="Longs" data={long_basket} color="text-green-400" />
@@ -37,6 +72,27 @@ export function BasketSummary({ basket }: BasketSummaryProps) {
           <PnlText value={comparison.net_unrealized_pnl} className="font-medium text-sm" />
         </div>
       </div>
+      {/* Period summary */}
+      {basket.period_summary && (
+        <div className="mt-3 pt-3 border-t border-[var(--border)] grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          <div>
+            <span className="text-gray-500">Beta Gap</span>
+            <div className="text-gray-200 font-medium">{comparison.beta_gap.toFixed(3)}</div>
+          </div>
+          <div>
+            <span className="text-gray-500">Long Realized P&L</span>
+            <PnlText value={basket.period_summary.long_realized_pnl} className="text-xs" />
+          </div>
+          <div>
+            <span className="text-gray-500">Short Realized P&L</span>
+            <PnlText value={basket.period_summary.short_realized_pnl} className="text-xs" />
+          </div>
+          <div>
+            <span className="text-gray-500">Net Realized P&L</span>
+            <PnlText value={basket.period_summary.net_realized_pnl} className="text-xs" />
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
