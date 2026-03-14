@@ -7,6 +7,7 @@ import { PositionsTab } from "../components/tabs/PositionsTab";
 import { ShortSelectionTab } from "../components/tabs/ShortSelectionTab";
 import { NextRebalanceTab } from "../components/tabs/NextRebalanceTab";
 import { PlaceholderTab } from "../components/tabs/PlaceholderTab";
+import { PumpExhaustionTab } from "../components/tabs/PumpExhaustionTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -87,6 +88,8 @@ function TabContent({
       return <PlaceholderTab name="Macro Regime" description="Phase 4: 14-indicator composite" />;
     case "cycle":
       return <PlaceholderTab name="Cycle Awareness" description="Phase 4: MVRV, 200 WMA, Mayer Multiple" />;
+    case "pump-exhaustion":
+      return <PumpExhaustionTab />;
     default:
       return <PlaceholderTab name="Unknown Tab" />;
   }
