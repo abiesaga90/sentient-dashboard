@@ -40,7 +40,13 @@ export function RecentTrades({ trades }: RecentTradesProps) {
                   {t.symbol.replace("USDT", "")}
                 </td>
                 <td className="px-2 py-1.5">
-                  <span className={t.action === "OPEN" ? "text-blue-400" : "text-gray-400"}>
+                  <span className={
+                    t.action === "OPEN" ? "text-blue-400" :
+                    t.action === "CLOSE" ? "text-orange-400" :
+                    t.action === "TRIM" ? "text-yellow-400" :
+                    t.action === "EXPAND" ? "text-cyan-400" :
+                    "text-gray-400"
+                  }>
                     {t.action}
                   </span>
                 </td>
