@@ -124,6 +124,20 @@ export function LongSignalsTab() {
     staleTime: 60_000,
   });
 
+  const { data: protocolDirect } = useQuery<{
+    direct_apis: {
+      hyperliquid?: { daily_volume: number; daily_buyback_est: number; monthly_buyback_est: number; total_users: number };
+      ethena?: { protocol_yield_pct: number; staking_yield_pct: number; avg_30d_protocol_yield: number };
+      pendle?: { total_markets: number; active_markets: number; total_tvl_usd: number };
+    };
+    dune_queries: { configured: number; total: number };
+  }>({
+    queryKey: ["protocol-direct", engine.id],
+    queryFn: () => client.get("/api/protocol-direct"),
+    refetchInterval: 300_000,
+    staleTime: 120_000,
+  });
+
   const accrualMap = new Map(accrual?.tokens.map(t => [t.symbol, t]) || []);
 
   if (loadingSignals) {
@@ -195,6 +209,41 @@ export function LongSignalsTab() {
           Tilt = max(0.25, {signals.config?.base || 2.0}^(adjusted_score)) · adjusted_score = raw × confidence × aggression
         </div>
       </Card>
+
+      {/* Protocol Health (Direct APIs) */}
+      {protocolDirect?.direct_apis && (
+        <Card>
+          <CardHeader><CardTitle>Protocol Health (Direct APIs)</CardTitle></CardHeader>
+          <div className="grid grid-cols-3 gap-4 text-xs">
+            {protocolDirect.direct_apis.hyperliquid && (
+              <div className="space-y-1">
+                <div className="text-gray-500 uppercase tracking-wider text-[10px]">Hyperliquid</div>
+                <div className="flex justify-between"><span className="text-gray-400">Daily Volume</span><span>${(protocolDirect.direct_apis.hyperliquid.daily_volume / 1e9).toFixed(1)}B</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Monthly Buyback</span><span className="text-green-400">${(protocolDirect.direct_apis.hyperliquid.monthly_buyback_est / 1e6).toFixed(1)}M</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Users</span><span>{(protocolDirect.direct_apis.hyperliquid.total_users / 1e6).toFixed(1)}M</span></div>
+              </div>
+            )}
+            {protocolDirect.direct_apis.ethena && (
+              <div className="space-y-1">
+                <div className="text-gray-500 uppercase tracking-wider text-[10px]">Ethena</div>
+                <div className="flex justify-between"><span className="text-gray-400">Protocol Yield</span><span>{protocolDirect.direct_apis.ethena.protocol_yield_pct.toFixed(1)}%</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">Staking Yield</span><span className="text-green-400">{protocolDirect.direct_apis.ethena.staking_yield_pct.toFixed(1)}%</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">30d Avg</span><span>{protocolDirect.direct_apis.ethena.avg_30d_protocol_yield.toFixed(1)}%</span></div>
+              </div>
+            )}
+            {protocolDirect.direct_apis.pendle && (
+              <div className="space-y-1">
+                <div className="text-gray-500 uppercase tracking-wider text-[10px]">Pendle</div>
+                <div className="flex justify-between"><span className="text-gray-400">Markets</span><span>{protocolDirect.direct_apis.pendle.active_markets} active</span></div>
+                <div className="flex justify-between"><span className="text-gray-400">TVL</span><span>${(protocolDirect.direct_apis.pendle.total_tvl_usd / 1e6).toFixed(0)}M</span></div>
+              </div>
+            )}
+          </div>
+          <div className="mt-2 text-[10px] text-gray-600">
+            Dune queries: {protocolDirect.dune_queries?.configured || 0}/{protocolDirect.dune_queries?.total || 0} configured for on-chain buyback verification
+          </div>
+        </Card>
+      )}
 
       {/* Token Table */}
       <Card>
