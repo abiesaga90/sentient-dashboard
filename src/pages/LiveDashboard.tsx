@@ -9,6 +9,9 @@ import { NextRebalanceTab } from "../components/tabs/NextRebalanceTab";
 import { PlaceholderTab } from "../components/tabs/PlaceholderTab";
 import { PumpExhaustionTab } from "../components/tabs/PumpExhaustionTab";
 import { ExecutionTab } from "../components/tabs/ExecutionTab";
+import { LongSignalsTab } from "../components/tabs/LongSignalsTab";
+import { FundamentalsTab } from "../components/tabs/FundamentalsTab";
+import { PerformanceTab } from "../components/tabs/PerformanceTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -72,9 +75,9 @@ function TabContent({
     case "next-rebalance":
       return <NextRebalanceTab />;
     case "fundamentals":
-      return <PlaceholderTab name="Fundamentals" description="Phase 2: 258 tokens with score breakdowns" />;
+      return <FundamentalsTab />;
     case "long-signals":
-      return <PlaceholderTab name="Long Signals" description="Phase 2: VA + SM tilt scores per token" />;
+      return <LongSignalsTab />;
     case "performance":
       return <PlaceholderTab name="Performance" description="Phase 3: Rolling Sharpe/Sortino, DD duration" />;
     case "attribution":
