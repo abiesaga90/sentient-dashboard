@@ -8,13 +8,12 @@ interface PnlReconciliationProps {
 
 export function PnlReconciliation({ pnl }: PnlReconciliationProps) {
   const unrealized = pnl.all_time.unrealized_pnl;
-  const realized = pnl.all_time.realized_pnl;
-  const funding = pnl.all_time.funding_pnl;
   const exchange = pnl.all_time.exchange_income || {};
-  // API returns COMMISSION, FUNDING_FEE, REALIZED_PNL (Binance income types)
-  const commission = exchange.COMMISSION ?? exchange.maker_rebates ?? 0;
-  const netCommission = commission;
-  const totalPnl = unrealized + realized + funding + netCommission;
+  // Use Binance exchange income as source of truth (not internal tracking)
+  const realized = exchange.REALIZED_PNL ?? pnl.all_time.realized_pnl ?? 0;
+  const funding = exchange.FUNDING_FEE ?? pnl.all_time.funding_pnl ?? 0;
+  const commission = exchange.COMMISSION ?? 0;
+  const totalPnl = unrealized + realized + funding + commission;
   const navPnl = pnl.all_time.total_return;
   const residual = navPnl - totalPnl;
 
