@@ -13,6 +13,7 @@ import { LongSignalsTab } from "../components/tabs/LongSignalsTab";
 import { FundamentalsTab } from "../components/tabs/FundamentalsTab";
 import { PerformanceTab } from "../components/tabs/PerformanceTab";
 import { AttributionTab } from "../components/tabs/AttributionTab";
+import { ThesisTab } from "../components/tabs/ThesisTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -84,7 +85,7 @@ function TabContent({
     case "attribution":
       return <AttributionTab />;
     case "thesis":
-      return <PlaceholderTab name="Thesis" description="Phase 3: Return comparison bars" />;
+      return <ThesisTab />;
     case "pairs":
       return <PlaceholderTab name="Pairs" description="Phase 3: Pair mapping with correlation scores" />;
     case "risk-stress":
