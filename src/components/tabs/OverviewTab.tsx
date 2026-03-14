@@ -2,11 +2,14 @@ import { KpiRow } from "../overview/KpiRow";
 import { EquityCurve } from "../overview/EquityCurve";
 import { PnlSummary } from "../overview/PnlSummary";
 import { Movers } from "../overview/Movers";
+import { Allocation } from "../overview/Allocation";
 import { ExposureCharts } from "../overview/ExposureCharts";
 import { PositionsTable } from "../overview/PositionsTable";
+import { BasketSummary } from "../overview/BasketSummary";
+import { PnlReconciliation } from "../overview/PnlReconciliation";
+import { RecentTrades } from "../overview/RecentTrades";
 import { MonthlyReturns } from "../overview/MonthlyReturns";
 import { DailyPnlChart } from "../overview/DailyPnlChart";
-import { BasketSummary } from "../overview/BasketSummary";
 import { AdlMonitor } from "../overview/AdlMonitor";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { usePnl, useRiskHistory } from "../../hooks/useDashboardQuery";
@@ -22,8 +25,12 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
   return (
     <div className="space-y-4 p-4">
-      {/* KPI Cards */}
-      <KpiRow portfolio={data.portfolio} risk={data.risk} />
+      {/* KPI Cards + Compliance + NT dual view */}
+      <KpiRow
+        portfolio={data.portfolio}
+        risk={data.risk}
+        ntRisk={data.nt_risk as Record<string, unknown> | undefined}
+      />
 
       {/* Equity Curve */}
       <EquityCurve
@@ -31,22 +38,30 @@ export function OverviewTab({ data }: OverviewTabProps) {
         startingCapital={data.portfolio.starting_capital}
       />
 
-      {/* P&L Summary */}
-      {pnl && <PnlSummary pnl={pnl} />}
-
       {/* Movers */}
       <Movers
         positions={data.positions.positions}
         bySymbol={pnl?.by_symbol}
       />
 
+      {/* P&L Summary (All-Time, WTD, MTD, QTD, YTD) */}
+      {pnl && <PnlSummary pnl={pnl} />}
+
+      {/* Allocation + P&L Reconciliation side by side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <Allocation risk={data.risk} />
+        {pnl && (
+          <PnlReconciliation pnl={pnl} />
+        )}
+      </div>
+
+      {/* Basket Comparison */}
+      <BasketSummary basket={data.basket_comparison} />
+
       {/* Exposure History */}
       {riskHistory?.history && riskHistory.history.length > 0 && (
         <ExposureCharts history={riskHistory.history} />
       )}
-
-      {/* Basket Comparison */}
-      <BasketSummary basket={data.basket_comparison} />
 
       {/* Positions Table */}
       <Card>
@@ -57,7 +72,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
             </CardTitle>
             <div className="flex gap-3 text-xs">
               <span className="text-green-400">
-                W: {data.positions.winners_count} (${data.positions.winners_total_pnl.toFixed(2)})
+                W: {data.positions.winners_count} (+${data.positions.winners_total_pnl.toFixed(2)})
               </span>
               <span className="text-red-400">
                 L: {data.positions.losers_count} (${data.positions.losers_total_pnl.toFixed(2)})
@@ -70,6 +85,9 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
       {/* Monthly Returns */}
       {pnl && <MonthlyReturns monthly={pnl.monthly} />}
+
+      {/* Recent Trades */}
+      <RecentTrades trades={data.trades.trades} />
 
       {/* Daily P&L */}
       {pnl && pnl.daily.length > 0 && <DailyPnlChart daily={pnl.daily} />}
