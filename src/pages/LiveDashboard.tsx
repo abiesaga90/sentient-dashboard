@@ -79,7 +79,7 @@ function TabContent({
     case "long-signals":
       return <LongSignalsTab />;
     case "performance":
-      return <PlaceholderTab name="Performance" description="Phase 3: Rolling Sharpe/Sortino, DD duration" />;
+      return <PerformanceTab />;
     case "attribution":
       return <PlaceholderTab name="Attribution" description="Phase 3: Factor decomposition waterfall" />;
     case "thesis":
