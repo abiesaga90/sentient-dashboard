@@ -1,6 +1,7 @@
 import { KpiRow } from "../overview/KpiRow";
 import { EquityCurve } from "../overview/EquityCurve";
 import { PnlSummary } from "../overview/PnlSummary";
+import { Movers } from "../overview/Movers";
 import { ExposureCharts } from "../overview/ExposureCharts";
 import { PositionsTable } from "../overview/PositionsTable";
 import { MonthlyReturns } from "../overview/MonthlyReturns";
@@ -32,6 +33,12 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
       {/* P&L Summary */}
       {pnl && <PnlSummary pnl={pnl} />}
+
+      {/* Movers */}
+      <Movers
+        positions={data.positions.positions}
+        bySymbol={pnl?.by_symbol}
+      />
 
       {/* Exposure History */}
       {riskHistory?.history && riskHistory.history.length > 0 && (
