@@ -12,6 +12,7 @@ import { ExecutionTab } from "../components/tabs/ExecutionTab";
 import { LongSignalsTab } from "../components/tabs/LongSignalsTab";
 import { FundamentalsTab } from "../components/tabs/FundamentalsTab";
 import { PerformanceTab } from "../components/tabs/PerformanceTab";
+import { AttributionTab } from "../components/tabs/AttributionTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -81,7 +82,7 @@ function TabContent({
     case "performance":
       return <PerformanceTab />;
     case "attribution":
-      return <PlaceholderTab name="Attribution" description="Phase 3: Factor decomposition waterfall" />;
+      return <AttributionTab />;
     case "thesis":
       return <PlaceholderTab name="Thesis" description="Phase 3: Return comparison bars" />;
     case "pairs":

@@ -11,9 +11,9 @@ export function PnlReconciliation({ pnl }: PnlReconciliationProps) {
   const realized = pnl.all_time.realized_pnl;
   const funding = pnl.all_time.funding_pnl;
   const exchange = pnl.all_time.exchange_income || {};
-  const makerRebates = exchange.maker_rebates ?? 0;
-  const takerFees = exchange.taker_fees ?? 0;
-  const netCommission = makerRebates + takerFees;
+  // API returns COMMISSION, FUNDING_FEE, REALIZED_PNL (Binance income types)
+  const commission = exchange.COMMISSION ?? exchange.maker_rebates ?? 0;
+  const netCommission = commission;
   const totalPnl = unrealized + realized + funding + netCommission;
   const navPnl = pnl.all_time.total_return;
   const residual = navPnl - totalPnl;
@@ -27,9 +27,7 @@ export function PnlReconciliation({ pnl }: PnlReconciliationProps) {
         <RecRow label="Unrealized P&L" value={unrealized} />
         <RecRow label="Realized P&L" value={realized} />
         <RecRow label="Funding P&L" value={funding} />
-        {makerRebates !== 0 && <RecRow label="Maker Rebates" value={makerRebates} />}
-        {takerFees !== 0 && <RecRow label="Taker Fees" value={takerFees} />}
-        <RecRow label="Net Commission" value={netCommission} />
+        {commission !== 0 && <RecRow label="Commission" value={commission} />}
         <div className="border-t border-[var(--border)] pt-1 mt-1">
           <RecRow label="Total P&L" value={totalPnl} bold />
         </div>

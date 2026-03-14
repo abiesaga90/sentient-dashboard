@@ -13,7 +13,7 @@ export function PnlText({ value, format = "usd", className }: PnlTextProps) {
   const formatted =
     format === "pct"
       ? `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`
-      : `${value >= 0 ? "+" : ""}$${Math.abs(value).toFixed(2)}`;
+      : `${value >= 0 ? "+" : "-"}$${Math.abs(value).toFixed(2)}`;
 
   return <span className={cn(pnlColor(value), className)}>{formatted}</span>;
 }
