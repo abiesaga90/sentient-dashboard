@@ -405,6 +405,7 @@ export interface SignalInventoryResponse {
 
 // ── Execution Quality ──
 export interface ExecutionReport {
+  id: number;
   timestamp: string;
   symbol: string;
   side: string;
@@ -412,7 +413,9 @@ export interface ExecutionReport {
   arrival_price: number;
   fill_price: number;
   slippage_bps: number;
-  execution_time_s: number;
+  intended_notional: number;
+  actual_notional: number;
+  execution_time_secs: number;
 }
 
 export interface ExecutionQualityResponse {
@@ -420,8 +423,9 @@ export interface ExecutionQualityResponse {
     avg_slippage_bps: number;
     median_slippage_bps: number;
     total_cost_usd: number;
-    worst_symbol: string;
-    count: number;
+    worst_slippage_symbol: string;
+    n_trades: number;
+    avg_execution_time_secs: number;
   };
   recent_reports: ExecutionReport[];
 }

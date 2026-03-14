@@ -28,7 +28,7 @@ function buildColumns(opts: { showStatus: boolean }): Column<RankingCandidate>[]
           <span className="font-medium text-gray-200">
             {r.symbol.replace("USDT", "")}
           </span>
-          {r.quality_tags
+          {(r.quality_tags || [])
             .filter((t) => t.startsWith("sector:"))
             .map((t) => (
               <Badge key={t} variant="default" className="text-[10px] px-1 py-0">
@@ -172,7 +172,7 @@ export function ShortSelectionTab() {
 
   // Split candidates into basket (in_targets) and full list
   const basket = data.candidates
-    .filter((c) => c.status.includes("in_targets"))
+    .filter((c) => (c.status || []).includes("in_targets"))
     .map((c, i) => ({ ...c, _idx: i + 1 }));
 
   const allCandidates = data.candidates.map((c, i) => ({
@@ -336,7 +336,7 @@ export function ShortSelectionTab() {
             />
             <MetricBox
               label="Worst Symbol"
-              value={execQuality.summary.worst_symbol?.replace("USDT", "") || "—"}
+              value={execQuality.summary.worst_slippage_symbol?.replace("USDT", "") || "—"}
             />
           </div>
           {execQuality.recent_reports.length > 0 && (
@@ -390,7 +390,7 @@ export function ShortSelectionTab() {
                         {r.slippage_bps.toFixed(1)}
                       </td>
                       <td className="px-2 py-1 text-right text-gray-400">
-                        {r.execution_time_s.toFixed(1)}
+                        {r.execution_time_secs.toFixed(1)}
                       </td>
                     </tr>
                   ))}
@@ -433,22 +433,22 @@ function StatusBadges({
 }) {
   return (
     <div className="flex flex-wrap gap-1">
-      {status.includes("in_basket") && (
+      {(status || []).includes("in_basket") && (
         <Badge variant="info" className="text-[10px]">ACTIVE</Badge>
       )}
-      {status.includes("in_targets") && (
+      {(status || []).includes("in_targets") && (
         <Badge variant="success" className="text-[10px]">TARGET</Badge>
       )}
-      {status.includes("excluded") && (
+      {(status || []).includes("excluded") && (
         <Badge variant="danger" className="text-[10px]">EXCLUDED</Badge>
       )}
-      {status.includes("vol_sl_cooldown") && (
+      {(status || []).includes("vol_sl_cooldown") && (
         <Badge variant="warning" className="text-[10px]">SL COOLDOWN</Badge>
       )}
-      {status.includes("long_bench") && (
+      {(status || []).includes("long_bench") && (
         <Badge variant="default" className="text-[10px]">LONG BENCH</Badge>
       )}
-      {filter_reasons.map((r) => (
+      {(filter_reasons || []).map((r) => (
         <span key={r} className="text-[10px] text-gray-600">
           {r === "low_corr"
             ? "Corr < 0.50"
