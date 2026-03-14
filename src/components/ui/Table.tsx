@@ -31,7 +31,7 @@ export function Th({
 }
 
 export function Tbody(props: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <tbody className="divide-y divide-[var(--border)]" {...props} />;
+  return <tbody className="divide-y divide-[var(--border)]/50" {...props} />;
 }
 
 export function Tr({
