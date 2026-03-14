@@ -320,27 +320,108 @@ export interface RiskHistoryPoint {
 }
 
 // ── Rankings ──
+export interface VaSignalDetail {
+  value: number | null;
+  boost: number | null;
+}
+
 export interface RankingCandidate {
-  rank: number;
   symbol: string;
   score: number;
-  correlation: number;
+  corr: number;
   beta: number;
-  daily_vol: number;
-  tags: string[];
-  in_basket: boolean;
-  excluded: boolean;
-  exclusion_reason: string | null;
-  va_signals?: Record<string, number>;
-  [key: string]: unknown;
+  beta_penalty: number;
+  volume_24h: number;
+  va_signals: {
+    dilution: VaSignalDetail;
+    supply_momentum: VaSignalDetail;
+    buyback_intensity: VaSignalDetail;
+    revenue_capture: VaSignalDetail;
+    fee_momentum: VaSignalDetail;
+    unlock_pressure: VaSignalDetail;
+  };
+  va_total_boost: number | null;
+  fdv_mcap_ratio: number | null;
+  dilution_boost: number | null;
+  unlock_pressure: number | null;
+  unlock_boost: number | null;
+  ath_drawdown_pct: number | null;
+  ath_date: string | null;
+  momentum_signal: number | null;
+  eligible: boolean;
+  filter_reasons: string[];
+  status: string[];
+  quality_tags: string[];
 }
 
 export interface RankingsResponse {
-  rankings: RankingCandidate[];
+  candidates: RankingCandidate[];
   count: number;
+  universe_size: number;
+  excluded_count: number;
   n_shorts: number;
+  diversity_cap: number;
+  diversity_penalty: number;
+  min_beta: number;
+  min_volume: number;
+  lookback_hours: number;
+  momentum_weight: number;
+  momentum_lookback_hours: number;
+  va_short_dilution_weight: number;
+  va_short_dilution_threshold: number;
+  va_short_supply_momentum_weight: number;
+  va_short_buyback_weight: number;
+  va_short_revenue_capture_weight: number;
+  va_short_fee_momentum_weight: number;
+  va_short_unlock_weight: number;
   correlation_method: string;
-  signal_weights: Record<string, number>;
-  signal_thresholds: Record<string, number>;
+  data_quality_enabled: boolean;
+  shrunk_diversity_enabled: boolean;
+  stale_symbols_filtered: string[];
   timestamp: string;
+}
+
+// ── Signal Inventory ──
+export interface SignalInfo {
+  name: string;
+  type: string;
+  description: string;
+  weight?: number;
+  threshold?: number;
+  status: string;
+  category: string;
+  sources?: string[];
+}
+
+export interface SignalInventoryResponse {
+  short_signals: SignalInfo[];
+  long_signals: SignalInfo[];
+  active_count: number;
+  planned_count: number;
+  total_short_signals: number;
+  total_long_signals: number;
+  data_sources: string[];
+}
+
+// ── Execution Quality ──
+export interface ExecutionReport {
+  timestamp: string;
+  symbol: string;
+  side: string;
+  action: string;
+  arrival_price: number;
+  fill_price: number;
+  slippage_bps: number;
+  execution_time_s: number;
+}
+
+export interface ExecutionQualityResponse {
+  summary: {
+    avg_slippage_bps: number;
+    median_slippage_bps: number;
+    total_cost_usd: number;
+    worst_symbol: string;
+    count: number;
+  };
+  recent_reports: ExecutionReport[];
 }
