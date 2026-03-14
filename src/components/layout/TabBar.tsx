@@ -13,6 +13,7 @@ import {
   Activity,
   Clock,
   Zap,
+  Gauge,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -28,6 +29,7 @@ export const DASHBOARD_TABS = [
   { id: "risk-stress", label: "Risk & Stress", icon: <ShieldAlert size={14} /> },
   { id: "macro", label: "Macro Regime", icon: <Globe size={14} /> },
   { id: "cycle", label: "Cycle", icon: <Activity size={14} /> },
+  { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
   { id: "pump-exhaustion", label: "Pump Scanner", icon: <Zap size={14} /> },
   { id: "next-rebalance", label: "Next Rebalance", icon: <Clock size={14} /> },
 ] as const;

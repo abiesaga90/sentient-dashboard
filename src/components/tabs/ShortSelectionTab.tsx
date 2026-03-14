@@ -8,7 +8,6 @@ import type {
   RankingCandidate,
   RankingsResponse,
   SignalInventoryResponse,
-  ExecutionQualityResponse,
 } from "../../types/api";
 
 // ── Shared column builder — used by BOTH tables ──
@@ -151,13 +150,6 @@ export function ShortSelectionTab() {
     queryFn: () =>
       client.get<SignalInventoryResponse>("/api/signal-inventory"),
     refetchInterval: 300_000,
-  });
-
-  const { data: execQuality } = useQuery({
-    queryKey: ["execution-quality", engine.id],
-    queryFn: () =>
-      client.get<ExecutionQualityResponse>("/api/execution_quality"),
-    refetchInterval: 120_000,
   });
 
   if (isLoading) {
@@ -315,92 +307,6 @@ export function ShortSelectionTab() {
         </Card>
       )}
 
-      {/* Execution Quality */}
-      {execQuality && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Execution Quality</CardTitle>
-          </CardHeader>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <MetricBox
-              label="Avg Slippage"
-              value={`${execQuality.summary.avg_slippage_bps.toFixed(1)} bps`}
-            />
-            <MetricBox
-              label="Median Slippage"
-              value={`${execQuality.summary.median_slippage_bps.toFixed(1)} bps`}
-            />
-            <MetricBox
-              label="Total Cost"
-              value={formatUSD(execQuality.summary.total_cost_usd)}
-            />
-            <MetricBox
-              label="Worst Symbol"
-              value={execQuality.summary.worst_slippage_symbol?.replace("USDT", "") || "—"}
-            />
-          </div>
-          {execQuality.recent_reports.length > 0 && (
-            <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
-              <table className="w-full text-xs">
-                <thead className="border-b border-[var(--border)]">
-                  <tr>
-                    <th className="px-2 py-1 text-left text-gray-500">Time</th>
-                    <th className="px-2 py-1 text-left text-gray-500">Symbol</th>
-                    <th className="px-2 py-1 text-left text-gray-500">Side</th>
-                    <th className="px-2 py-1 text-left text-gray-500">Action</th>
-                    <th className="px-2 py-1 text-right text-gray-500">Arrival</th>
-                    <th className="px-2 py-1 text-right text-gray-500">Fill</th>
-                    <th className="px-2 py-1 text-right text-gray-500">Slip (bps)</th>
-                    <th className="px-2 py-1 text-right text-gray-500">Time (s)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border)]">
-                  {execQuality.recent_reports.map((r, i) => (
-                    <tr key={i} className="hover:bg-[var(--bg-card-hover)]">
-                      <td className="px-2 py-1 text-gray-400">
-                        {new Date(r.timestamp).toLocaleTimeString()}
-                      </td>
-                      <td className="px-2 py-1 text-gray-200">
-                        {r.symbol.replace("USDT", "")}
-                      </td>
-                      <td className="px-2 py-1">
-                        <Badge
-                          variant={r.side === "LONG" ? "success" : "danger"}
-                          className="text-[10px]"
-                        >
-                          {r.side}
-                        </Badge>
-                      </td>
-                      <td className="px-2 py-1 text-gray-400">{r.action}</td>
-                      <td className="px-2 py-1 text-right text-gray-300">
-                        {r.arrival_price.toFixed(r.arrival_price < 1 ? 4 : 2)}
-                      </td>
-                      <td className="px-2 py-1 text-right text-gray-300">
-                        {r.fill_price.toFixed(r.fill_price < 1 ? 4 : 2)}
-                      </td>
-                      <td
-                        className={`px-2 py-1 text-right ${
-                          r.slippage_bps > 50
-                            ? "text-red-400"
-                            : r.slippage_bps < -50
-                              ? "text-green-400"
-                              : "text-gray-300"
-                        }`}
-                      >
-                        {r.slippage_bps.toFixed(1)}
-                      </td>
-                      <td className="px-2 py-1 text-right text-gray-400">
-                        {r.execution_time_secs.toFixed(1)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
-      )}
-
       {/* Key Parameters */}
       <Card>
         <CardHeader>
@@ -485,14 +391,6 @@ function SignalRow({ signal }: { signal: { name: string; status: string; descrip
   );
 }
 
-function MetricBox({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="text-sm font-medium text-gray-200">{value}</div>
-    </div>
-  );
-}
 
 function ParamRow({ label, value }: { label: string; value: string }) {
   return (
