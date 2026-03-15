@@ -9,8 +9,9 @@ interface PairMapping {
   long: string;
   short: string;
   match_score: number;
-  correlation: number;
-  beta_gap: number;
+  correlation?: number;
+  beta_gap?: number;
+  match_details?: { sector?: number; mcap?: number; vol?: number; beta?: number; corr?: number };
 }
 
 interface PairsResponse {
@@ -60,19 +61,25 @@ const pairColumns: Column<PairMapping>[] = [
   {
     key: "correlation",
     header: "Correlation",
-    render: (r) => (
-      <span className="font-mono text-gray-300">{r.correlation.toFixed(3)}</span>
-    ),
-    sortKey: (r) => r.correlation,
+    render: (r) => {
+      const corr = r.correlation ?? r.match_details?.corr;
+      return (
+        <span className="font-mono text-gray-300">{corr != null ? corr.toFixed(3) : "—"}</span>
+      );
+    },
+    sortKey: (r) => r.correlation ?? r.match_details?.corr ?? 0,
     align: "right",
   },
   {
     key: "beta_gap",
-    header: "Beta Gap",
-    render: (r) => (
-      <span className="font-mono text-gray-300">{r.beta_gap.toFixed(3)}</span>
-    ),
-    sortKey: (r) => r.beta_gap,
+    header: "Beta",
+    render: (r) => {
+      const beta = r.beta_gap ?? r.match_details?.beta;
+      return (
+        <span className="font-mono text-gray-300">{beta != null ? beta.toFixed(3) : "—"}</span>
+      );
+    },
+    sortKey: (r) => r.beta_gap ?? r.match_details?.beta ?? 0,
     align: "right",
   },
 ];

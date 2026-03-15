@@ -3,50 +3,51 @@ import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { KpiCard } from "../shared/KpiCard";
-import { ChartContainer } from "../shared/ChartContainer";
 import { formatPct } from "../../lib/utils";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-} from "recharts";
 
-interface CycleChartPoint {
-  date: string;
+interface ZoneInfo {
+  zone: string;
+  label: string;
+  color: string;
+}
+
+interface CycleCurrent {
   mvrv: number | null;
-  wma_200_ratio: number | null;
+  mvrv_date: string | null;
+  mvrv_zone: ZoneInfo | null;
+  btc_price: number | null;
+  wma200: number | null;
+  wma200_ratio: number | null;
+  wma200_zone: ZoneInfo | null;
+  sma200: number | null;
+  mayer_multiple: number | null;
+  mayer_zone: ZoneInfo | null;
+  drawdown_pct: number | null;
+  drawdown_zone: ZoneInfo | null;
+  peak_price: number | null;
+  price_date: string | null;
 }
 
 interface CycleResponse {
-  mvrv: number | null;
-  wma_200_ratio: number | null;
-  mayer_multiple: number | null;
-  btc_drawdown_pct: number | null;
-  bear_market_overlay: boolean;
-  cycle_phase: string;
-  chart: CycleChartPoint[];
+  updated_at: string;
+  current: CycleCurrent;
+  zone_thresholds?: Record<string, Record<string, [number, number]>>;
+  cycle_peaks?: Record<string, unknown>;
   error?: string;
 }
 
-const phaseBadgeVariant = (phase: string): "success" | "danger" | "warning" | "info" | "default" => {
-  switch (phase.toLowerCase()) {
-    case "accumulation":
-      return "info";
-    case "markup":
-    case "bull":
-      return "success";
-    case "distribution":
-      return "warning";
-    case "markdown":
-    case "bear":
-      return "danger";
-    default:
-      return "default";
-  }
+const zoneBadge = (zone: ZoneInfo | null) => {
+  if (!zone) return <Badge variant="default">—</Badge>;
+  const variant =
+    zone.zone === "undervalued" || zone.zone === "accumulation" ? "success" :
+    zone.zone === "overheated" || zone.zone === "extreme_greed" ? "danger" :
+    zone.zone === "fair_value" ? "success" :
+    "warning";
+  return (
+    <Badge variant={variant} style={{ backgroundColor: zone.color + "22", color: zone.color, borderColor: zone.color + "44" }}>
+      {zone.label}
+    </Badge>
+  );
 };
 
 export function CycleTab() {
@@ -68,7 +69,6 @@ export function CycleTab() {
 
   if (!data) return null;
 
-  // Handle pending state
   if (data.error === "pending") {
     return (
       <div className="p-4">
@@ -82,152 +82,127 @@ export function CycleTab() {
     );
   }
 
+  const c = data.current;
+
   return (
     <div className="space-y-4 p-4">
-      {/* ── Phase Badge ── */}
+      {/* BTC Price Context */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Cycle Awareness</CardTitle>
-            <div className="flex items-center gap-3">
-              <Badge variant={phaseBadgeVariant(data.cycle_phase)} className="text-sm px-3 py-1">
-                {data.cycle_phase}
-              </Badge>
-              {data.bear_market_overlay && (
-                <Badge variant="danger" className="text-sm px-3 py-1">
-                  Bear Overlay Active
-                </Badge>
-              )}
-            </div>
+            <span className="text-xs text-gray-500">
+              Updated: {data.updated_at?.slice(0, 16).replace("T", " ")}
+            </span>
           </div>
         </CardHeader>
-      </Card>
-
-      {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard
-          label="MVRV Z-Score"
-          value={data.mvrv != null ? data.mvrv.toFixed(2) : "—"}
-          valueColor={
-            data.mvrv != null
-              ? data.mvrv > 3
-                ? "text-red-400"
-                : data.mvrv < 1
-                  ? "text-green-400"
-                  : "text-gray-100"
-              : "text-gray-500"
-          }
-        />
-        <KpiCard
-          label="200 WMA Ratio"
-          value={data.wma_200_ratio != null ? data.wma_200_ratio.toFixed(3) : "—"}
-          valueColor={
-            data.wma_200_ratio != null
-              ? data.wma_200_ratio < 1
-                ? "text-green-400"
-                : data.wma_200_ratio > 3
-                  ? "text-red-400"
-                  : "text-gray-100"
-              : "text-gray-500"
-          }
-        />
-        <KpiCard
-          label="Mayer Multiple"
-          value={data.mayer_multiple != null ? data.mayer_multiple.toFixed(3) : "—"}
-          valueColor={
-            data.mayer_multiple != null
-              ? data.mayer_multiple < 0.8
-                ? "text-green-400"
-                : data.mayer_multiple > 2.4
-                  ? "text-red-400"
-                  : "text-gray-100"
-              : "text-gray-500"
-          }
-        />
-        <KpiCard
-          label="BTC Drawdown"
-          value={data.btc_drawdown_pct != null ? formatPct(data.btc_drawdown_pct) : "—"}
-          valueColor={
-            data.btc_drawdown_pct != null
-              ? data.btc_drawdown_pct < -30
-                ? "text-red-400"
-                : data.btc_drawdown_pct < -10
-                  ? "text-yellow-400"
-                  : "text-green-400"
-              : "text-gray-500"
-          }
-        />
-      </div>
-
-      {/* ── Bear Market Overlay ── */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Bear Market Overlay</CardTitle>
-        </CardHeader>
-        <div className="px-4 pb-4 flex items-center gap-3">
-          <div
-            className={`w-4 h-4 rounded-full ${
-              data.bear_market_overlay ? "bg-red-500 animate-pulse" : "bg-green-500"
-            }`}
-          />
-          <span className={`text-sm font-medium ${data.bear_market_overlay ? "text-red-400" : "text-green-400"}`}>
-            {data.bear_market_overlay
-              ? "Bear overlay is ACTIVE — position sizing reduced"
-              : "No bear overlay — normal position sizing"}
-          </span>
+        <div className="px-4 pb-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+          <div>
+            <div className="text-gray-500">BTC Price</div>
+            <div className="text-gray-200 font-medium text-lg">
+              ${c.btc_price?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "—"}
+            </div>
+          </div>
+          <div>
+            <div className="text-gray-500">ATH Peak</div>
+            <div className="text-gray-200 font-medium">
+              ${c.peak_price?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "—"}
+            </div>
+          </div>
+          <div>
+            <div className="text-gray-500">From Peak</div>
+            <div className={`font-medium ${(c.drawdown_pct ?? 0) < -20 ? "text-red-400" : (c.drawdown_pct ?? 0) < -10 ? "text-yellow-400" : "text-green-400"}`}>
+              {c.drawdown_pct != null ? formatPct(c.drawdown_pct) : "—"}
+            </div>
+          </div>
+          <div>
+            <div className="text-gray-500">Drawdown Zone</div>
+            {zoneBadge(c.drawdown_zone)}
+          </div>
         </div>
       </Card>
 
-      {/* ── Historical Chart ── */}
-      {data.chart && data.chart.length > 0 && (
-        <ChartContainer title="Cycle Indicators (Historical)" height={300}>
-          <LineChart data={data.chart}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-            <XAxis
-              dataKey="date"
-              tick={{ fill: "#6b7280", fontSize: 10 }}
-              tickFormatter={(d: string) => d.slice(5)}
-            />
-            <YAxis
-              yAxisId="mvrv"
-              tick={{ fill: "#6b7280", fontSize: 10 }}
-              orientation="left"
-            />
-            <YAxis
-              yAxisId="wma"
-              tick={{ fill: "#6b7280", fontSize: 10 }}
-              orientation="right"
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#111827",
-                border: "1px solid #374151",
-                borderRadius: 8,
-                fontSize: 12,
-              }}
-              labelStyle={{ color: "#9ca3af" }}
-            />
-            <Legend wrapperStyle={{ fontSize: 11, color: "#9ca3af" }} />
-            <Line
-              yAxisId="mvrv"
-              type="monotone"
-              dataKey="mvrv"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={false}
-              name="MVRV"
-            />
-            <Line
-              yAxisId="wma"
-              type="monotone"
-              dataKey="wma_200_ratio"
-              stroke="#f59e0b"
-              strokeWidth={2}
-              dot={false}
-              name="200 WMA Ratio"
-            />
-          </LineChart>
-        </ChartContainer>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div>
+          <KpiCard
+            label="MVRV Z-Score"
+            value={c.mvrv != null ? c.mvrv.toFixed(2) : "—"}
+            valueColor={
+              c.mvrv != null
+                ? c.mvrv > 3 ? "text-red-400" : c.mvrv < 1 ? "text-green-400" : "text-gray-100"
+                : "text-gray-500"
+            }
+          />
+          <div className="mt-1 px-2">{zoneBadge(c.mvrv_zone)}</div>
+        </div>
+        <div>
+          <KpiCard
+            label="200 WMA Ratio"
+            value={c.wma200_ratio != null ? c.wma200_ratio.toFixed(3) : "—"}
+            valueColor={
+              c.wma200_ratio != null
+                ? c.wma200_ratio < 1 ? "text-green-400" : c.wma200_ratio > 3 ? "text-red-400" : "text-gray-100"
+                : "text-gray-500"
+            }
+          />
+          <div className="mt-1 px-2">{zoneBadge(c.wma200_zone)}</div>
+        </div>
+        <div>
+          <KpiCard
+            label="Mayer Multiple"
+            value={c.mayer_multiple != null ? c.mayer_multiple.toFixed(3) : "—"}
+            valueColor={
+              c.mayer_multiple != null
+                ? c.mayer_multiple < 0.8 ? "text-green-400" : c.mayer_multiple > 2.4 ? "text-red-400" : "text-gray-100"
+                : "text-gray-500"
+            }
+          />
+          <div className="mt-1 px-2">{zoneBadge(c.mayer_zone)}</div>
+        </div>
+        <div>
+          <KpiCard
+            label="200 WMA"
+            value={c.wma200 != null ? `$${c.wma200.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "—"}
+          />
+          <KpiCard
+            label="200 SMA"
+            value={c.sma200 != null ? `$${c.sma200.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "—"}
+          />
+        </div>
+      </div>
+
+      {/* Zone Thresholds */}
+      {data.zone_thresholds && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Zone Thresholds</CardTitle>
+          </CardHeader>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-3 py-2 text-left text-gray-500">Metric</th>
+                  <th className="px-3 py-2 text-left text-gray-500">Zone</th>
+                  <th className="px-3 py-2 text-right text-gray-500">Range</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {Object.entries(data.zone_thresholds).map(([metric, zones]) =>
+                  Object.entries(zones).map(([zone, [lo, hi]]) => (
+                    <tr key={`${metric}-${zone}`} className="hover:bg-[var(--bg-card-hover)]">
+                      <td className="px-3 py-1.5 text-gray-300">{metric}</td>
+                      <td className="px-3 py-1.5 text-gray-400">{zone}</td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-300">
+                        {lo} – {hi}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
     </div>
   );

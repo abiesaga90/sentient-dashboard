@@ -37,9 +37,9 @@ interface RiskResponse {
   vol_ratio: number | null;
   combined_vol_scale: number;
   effective_scale: number;
-  recovery_scale: number;
-  recovery_stage: string;
-  cooldown_until: string;
+  recovery_scale?: number;
+  recovery_stage?: string;
+  cooldown_until?: string;
   limits: { dd_stop_pct: number; max_leverage_pct: number; max_net_pct: number };
   compliance: { max_dd_ok: boolean; gross_ok: boolean; net_ok: boolean };
   correlation_regime?: CorrelationRegime;
@@ -287,7 +287,7 @@ export function RiskStressTab() {
           </div>
           <div>
             <div className="text-gray-500">Recovery Scale</div>
-            <div className="text-gray-200 font-medium">{risk.recovery_scale.toFixed(3)}</div>
+            <div className="text-gray-200 font-medium">{risk.recovery_scale?.toFixed(3) ?? "—"}</div>
           </div>
           <div>
             <div className="text-gray-500">Effective Scale</div>
@@ -304,7 +304,7 @@ export function RiskStressTab() {
                     : "warning"
               }
             >
-              {risk.recovery_stage}
+              {risk.recovery_stage || "NORMAL"}
             </Badge>
           </div>
         </div>

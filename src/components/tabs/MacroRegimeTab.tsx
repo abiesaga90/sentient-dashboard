@@ -1,36 +1,33 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEngine } from "../../hooks/useEngine";
-import { Card, CardHeader, CardTitle } from "../ui/Card";
-import { Badge } from "../ui/Badge";
-import { ChartContainer } from "../shared/ChartContainer";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
   Tooltip,
-  ReferenceArea,
   CartesianGrid,
+  ReferenceLine,
 } from "recharts";
+import { useEngine } from "../../hooks/useEngine";
+import { Card, CardHeader, CardTitle } from "../ui/Card";
+import { Badge } from "../ui/Badge";
+import { ChartContainer } from "../shared/ChartContainer";
 
-interface MacroIndicator {
-  name: string;
-  value: number | null;
-  threshold: number;
-  direction: string;
-  available: boolean;
+interface Indicator {
+  key: string;
+  label: string;
+  category: string;
+  type: string;
+  weight: number;
+  description: string;
+  score: number | null;
+  raw_value: number | string | null;
 }
 
 interface ChartPoint {
-  date: string;
+  timestamp: string;
   composite_score: number;
   regime: string;
-}
-
-interface RegimeThresholds {
-  risk_on: number;
-  neutral: number;
-  risk_off: number;
 }
 
 interface MacroRegimeResponse {
@@ -38,19 +35,13 @@ interface MacroRegimeResponse {
   regime: string;
   regime_label: string;
   regime_color: string;
-  indicators: MacroIndicator[];
+  indicators: Indicator[];
   chart: ChartPoint[];
-  regime_thresholds: RegimeThresholds;
+  regime_thresholds: Record<string, [number, number]>;
   sources_available: number;
   sources_total: number;
   error?: string;
 }
-
-const directionArrow = (dir: string) => {
-  if (dir === "bullish" || dir === "up") return "text-green-400";
-  if (dir === "bearish" || dir === "down") return "text-red-400";
-  return "text-gray-400";
-};
 
 export function MacroRegimeTab() {
   const { client, engine } = useEngine();
@@ -71,7 +62,6 @@ export function MacroRegimeTab() {
 
   if (!data) return null;
 
-  // Handle pending state
   if (data.error === "pending") {
     return (
       <div className="p-4">
@@ -87,9 +77,14 @@ export function MacroRegimeTab() {
 
   const regimeColor = data.regime_color || "#6b7280";
 
+  const chartData = (data.chart || []).map((p) => ({
+    ...p,
+    date: p.timestamp?.slice(5, 10) || "",
+  }));
+
   return (
     <div className="space-y-4 p-4">
-      {/* ── Composite Score + Regime Badge ── */}
+      {/* Composite Score + Regime Badge */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -110,57 +105,50 @@ export function MacroRegimeTab() {
         </CardHeader>
         <div className="px-4 pb-4">
           <div className="flex items-center gap-4">
-            <div
-              className="text-4xl font-bold"
-              style={{ color: regimeColor }}
-            >
-              {data.composite_score.toFixed(2)}
+            <div className="text-4xl font-bold" style={{ color: regimeColor }}>
+              {data.composite_score.toFixed(1)}
             </div>
             <div className="text-xs text-gray-500 space-y-0.5">
-              <div>Risk-On threshold: {data.regime_thresholds.risk_on}</div>
-              <div>Neutral threshold: {data.regime_thresholds.neutral}</div>
-              <div>Risk-Off threshold: {data.regime_thresholds.risk_off}</div>
+              {Object.entries(data.regime_thresholds || {}).map(([name, [lo, hi]]) => (
+                <div key={name}>{name}: {lo}–{hi}</div>
+              ))}
             </div>
           </div>
         </div>
       </Card>
 
-      {/* ── Indicator Table ── */}
+      {/* Indicator Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Indicators ({data.indicators.length})</CardTitle>
+          <CardTitle>Indicators ({data.indicators?.length || 0})</CardTitle>
         </CardHeader>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead className="border-b border-[var(--border)]">
               <tr>
                 <th className="px-3 py-2 text-left text-gray-500">Indicator</th>
-                <th className="px-3 py-2 text-right text-gray-500">Value</th>
-                <th className="px-3 py-2 text-right text-gray-500">Threshold</th>
-                <th className="px-3 py-2 text-center text-gray-500">Direction</th>
-                <th className="px-3 py-2 text-center text-gray-500">Status</th>
+                <th className="px-3 py-2 text-left text-gray-500">Category</th>
+                <th className="px-3 py-2 text-right text-gray-500">Raw</th>
+                <th className="px-3 py-2 text-right text-gray-500">Score</th>
+                <th className="px-3 py-2 text-right text-gray-500">Weight</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {data.indicators.map((ind) => (
-                <tr key={ind.name} className="hover:bg-[var(--bg-card-hover)]">
-                  <td className="px-3 py-2 text-gray-200">{ind.name}</td>
+              {(data.indicators || []).map((ind) => (
+                <tr key={ind.key} className="hover:bg-[var(--bg-card-hover)]">
+                  <td className="px-3 py-2 text-gray-200">{ind.label}</td>
+                  <td className="px-3 py-2 text-gray-500">{ind.category}</td>
                   <td className="px-3 py-2 text-right font-mono text-gray-300">
-                    {ind.value != null ? ind.value.toFixed(3) : "—"}
+                    {ind.raw_value != null ? String(ind.raw_value) : "—"}
                   </td>
-                  <td className="px-3 py-2 text-right font-mono text-gray-500">
-                    {ind.threshold.toFixed(3)}
+                  <td className={`px-3 py-2 text-right font-mono ${
+                    ind.score != null
+                      ? ind.score >= 60 ? "text-green-400" : ind.score <= 40 ? "text-red-400" : "text-yellow-400"
+                      : "text-gray-600"
+                  }`}>
+                    {ind.score != null ? ind.score.toFixed(1) : "—"}
                   </td>
-                  <td className={`px-3 py-2 text-center font-medium ${directionArrow(ind.direction)}`}>
-                    {ind.direction}
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    {ind.available ? (
-                      <span className="inline-block w-2 h-2 rounded-full bg-green-400" />
-                    ) : (
-                      <span className="inline-block w-2 h-2 rounded-full bg-gray-600" />
-                    )}
-                  </td>
+                  <td className="px-3 py-2 text-right text-gray-500">{ind.weight}</td>
                 </tr>
               ))}
             </tbody>
@@ -168,19 +156,18 @@ export function MacroRegimeTab() {
         </div>
       </Card>
 
-      {/* ── 30-Day Regime Chart ── */}
-      {data.chart && data.chart.length > 0 && (
+      {/* Chart */}
+      {chartData.length > 0 && (
         <ChartContainer title="Composite Score (30d)" height={300}>
-          <LineChart data={data.chart}>
+          <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
             <XAxis
               dataKey="date"
               tick={{ fill: "#6b7280", fontSize: 10 }}
-              tickFormatter={(d: string) => d.slice(5)}
             />
             <YAxis
               tick={{ fill: "#6b7280", fontSize: 10 }}
-              domain={[-1, 1]}
+              domain={[0, 100]}
             />
             <Tooltip
               contentStyle={{
@@ -191,25 +178,8 @@ export function MacroRegimeTab() {
               }}
               labelStyle={{ color: "#9ca3af" }}
             />
-            {/* Regime bands */}
-            <ReferenceArea
-              y1={data.regime_thresholds.risk_on}
-              y2={1}
-              fill="#22c55e"
-              fillOpacity={0.05}
-            />
-            <ReferenceArea
-              y1={data.regime_thresholds.risk_off}
-              y2={data.regime_thresholds.risk_on}
-              fill="#eab308"
-              fillOpacity={0.05}
-            />
-            <ReferenceArea
-              y1={-1}
-              y2={data.regime_thresholds.risk_off}
-              fill="#ef4444"
-              fillOpacity={0.05}
-            />
+            <ReferenceLine y={55} stroke="#22c55e" strokeDasharray="3 3" label={{ value: "Bull", fill: "#22c55e", fontSize: 10 }} />
+            <ReferenceLine y={35} stroke="#ef4444" strokeDasharray="3 3" label={{ value: "Bear", fill: "#ef4444", fontSize: 10 }} />
             <Line
               type="monotone"
               dataKey="composite_score"
