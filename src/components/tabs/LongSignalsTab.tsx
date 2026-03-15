@@ -421,6 +421,52 @@ export function LongSignalsTab() {
           )}
         </div>
 
+        {/* Pillar 3: Blockworks Token Signals — prominent summary */}
+        {p3Symbols.length > 0 && (
+          <Card className="border-orange-800/30">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>
+                  <span className="text-orange-400">Pillar 3</span> — Blockworks Token Signals
+                </CardTitle>
+                <Badge variant="info">{tokenSignals?.coverage.enabled ?? 0} active / {p3Symbols.length} tokens</Badge>
+              </div>
+            </CardHeader>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+              {p3Symbols.map(sym => {
+                const d = tokenMap[sym];
+                const displaySym = sym.replace("USDT", "");
+                const sig = d?.signal;
+                const hasData = sig != null;
+                return (
+                  <button
+                    key={sym}
+                    onClick={() => setSubTab(sym)}
+                    className="flex items-center justify-between gap-2 px-3 py-2.5 rounded border border-[var(--border)] hover:border-orange-600/50 hover:bg-orange-900/10 transition-colors text-left"
+                  >
+                    <div>
+                      <div className="text-sm font-medium text-gray-200">{displaySym}</div>
+                      <div className="text-[10px] text-gray-500">
+                        {d ? Object.keys(d.components).length + " signals" : "awaiting"}
+                      </div>
+                    </div>
+                    {hasData ? (
+                      <div className={`text-sm font-mono font-semibold ${sig > 0 ? "text-green-400" : sig < 0 ? "text-red-400" : "text-gray-500"}`}>
+                        {sig > 0 ? "+" : ""}{sig.toFixed(2)}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-gray-600">—</div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-2 text-[10px] text-gray-500">
+              Click any token for full Pillar 3 signal breakdown. Revenue data blends into VA fee_momentum (50/50 DL + Blockworks).
+            </div>
+          </Card>
+        )}
+
         {/* Signal Architecture Map */}
         <Card>
           <CardHeader><CardTitle>Signal Architecture</CardTitle></CardHeader>
@@ -453,7 +499,7 @@ export function LongSignalsTab() {
             <div>
               <div className="text-gray-500 mb-2 uppercase tracking-wider text-[10px]">Pillar 3: Token Signals ({p3Symbols.length} tokens)</div>
               <div className="space-y-1">
-                {["Revenue/Fee Growth (Blockworks)", "Protocol Activity (DEX vol, AUM)", "MEV & Burn Metrics", "Stablecoin Supply Growth"].map((s, i) => (
+                {["Revenue → VA fee_momentum (Blockworks blend)", "Protocol Activity (DEX vol, AUM, supply)", "MEV & Burn Metrics (Jito, EIP-1559)", "Unique per-token signals (bribes, GHO)"].map((s, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-400">
                     <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />{s}
                   </div>
@@ -537,7 +583,13 @@ export function LongSignalsTab() {
                         <td className="py-2.5 pl-2">
                           <span className="font-medium text-gray-200">{t.symbol.replace("USDT", "")}</span>
                           {hasCorrection && <span className="ml-1 text-yellow-500">*</span>}
-                          {p3 && p3.enabled && <span className="ml-1 text-orange-500" title="Pillar 3 active">P3</span>}
+                          {p3 && p3.enabled && (
+                            <span
+                              className="ml-1 text-[10px] font-semibold text-orange-400 bg-orange-500/10 px-1 rounded cursor-pointer hover:bg-orange-500/20"
+                              title={`Pillar 3: ${Object.keys(p3.components).length} signals — click for detail`}
+                              onClick={(e) => { e.stopPropagation(); setSubTab(t.symbol); }}
+                            >P3</span>
+                          )}
                         </td>
                         <td className="py-2.5">{a ? mechanismBadge(a.mechanism) : <span className="text-gray-600">{"\u2014"}</span>}</td>
                         <td className={`py-2.5 text-right font-mono font-semibold ${tiltColor(t.tilt)}`}>{t.tilt.toFixed(2)}x</td>
