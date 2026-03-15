@@ -14,6 +14,7 @@ import {
   Clock,
   Zap,
   Gauge,
+  Search,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -22,6 +23,7 @@ export const DASHBOARD_TABS = [
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },
   { id: "fundamentals", label: "Fundamentals", icon: <BookOpen size={14} /> },
   { id: "long-signals", label: "Long Signals", icon: <Zap size={14} /> },
+  { id: "token-signals", label: "Token Signals", icon: <Search size={14} /> },
   { id: "performance", label: "Performance", icon: <TrendingUp size={14} /> },
   { id: "attribution", label: "Attribution", icon: <BarChart3 size={14} /> },
   { id: "thesis", label: "Thesis", icon: <Target size={14} /> },
