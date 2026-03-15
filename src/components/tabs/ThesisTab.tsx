@@ -232,12 +232,10 @@ function TokenReturnTable({
                 {PERIODS.map((p) => {
                   const val = t[p];
                   if (val == null) return <td key={p} className="px-1.5 py-1 text-right text-gray-700">—</td>;
-                  // For shorts, negative return = good (thesis working)
-                  const good = side === "long" ? val > 0 : val < 0;
                   return (
                     <td
                       key={p}
-                      className={`px-1.5 py-1 text-right ${good ? "text-green-400" : "text-red-400"}`}
+                      className={`px-1.5 py-1 text-right ${val >= 0 ? "text-green-400" : "text-red-400"}`}
                     >
                       {val >= 0 ? "+" : ""}{val.toFixed(1)}%
                     </td>
