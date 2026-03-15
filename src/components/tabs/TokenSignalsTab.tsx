@@ -165,8 +165,6 @@ export function TokenSignalsTab() {
     ([, a], [, b]) => Math.abs(b.signal ?? 0) - Math.abs(a.signal ?? 0)
   );
 
-  const enabledTokens = Object.values(tokens).filter((t) => t.enabled);
-
   return (
     <div className="space-y-4 p-4">
       {/* KPI Row */}
