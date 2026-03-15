@@ -202,11 +202,10 @@ export function ThesisTab() {
 function TokenReturnTable({
   title,
   tokens,
-  side,
 }: {
   title: string;
   tokens: TokenReturn[];
-  side: "long" | "short";
+  side?: "long" | "short";
 }) {
   return (
     <Card>
