@@ -134,127 +134,189 @@ const scoreBar = (score: number, maxWidth = 48) => {
   );
 };
 
-function SignalBar({ value, className }: { value: number; className?: string }) {
-  const pct = Math.abs(value) * 50;
-  const isPositive = value >= 0;
-  return (
-    <div className={`relative h-3 w-24 bg-gray-800 rounded overflow-hidden ${className}`}>
-      {isPositive ? (
-        <div
-          className="absolute left-1/2 h-full bg-green-500/70 rounded-r"
-          style={{ width: `${pct}%` }}
-        />
-      ) : (
-        <div
-          className="absolute right-1/2 h-full bg-red-500/70 rounded-l"
-          style={{ width: `${pct}%` }}
-        />
-      )}
-      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-600" />
-    </div>
-  );
-}
 
-function TokenDetailView({ symbol, tokenData }: { symbol: string; tokenData: TokenSignal }) {
+function TokenDetailView({
+  symbol, tokenData, longToken, accrualToken, base,
+}: {
+  symbol: string;
+  tokenData: TokenSignal | undefined;
+  longToken: LongToken | undefined;
+  accrualToken: AccrualToken | undefined;
+  base: number;
+}) {
   const displaySymbol = symbol.replace("USDT", "");
-  const components = Object.entries(tokenData.components);
+  const p3Components = tokenData ? Object.entries(tokenData.components) : [];
+  const t = longToken;
+  const a = accrualToken;
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>{displaySymbol} — Pillar 3 Signal Detail</CardTitle>
-          <div className="flex items-center gap-2">
-            <Badge variant={tokenData.source === "custom" ? "info" : "default"}>
-              {tokenData.source === "custom" ? "Custom" : "Blockworks"}
-            </Badge>
-            <Badge variant={tokenData.enabled ? "success" : "default"}>
-              {tokenData.enabled ? `w=${tokenData.weight}` : "OFF"}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
-      <div className="space-y-4">
-        {/* Summary KPIs */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-            <div className="text-xs text-gray-500 uppercase">Combined Signal</div>
-            <div className={`text-lg font-mono font-semibold ${
-              tokenData.signal != null && tokenData.signal > 0 ? "text-green-400" :
-              tokenData.signal != null && tokenData.signal < 0 ? "text-red-400" : "text-gray-400"
-            }`}>
-              {tokenData.signal != null ? `${tokenData.signal > 0 ? "+" : ""}${tokenData.signal.toFixed(3)}` : "N/A"}
+    <div className="space-y-4">
+      {/* Header KPIs */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>{displaySymbol} — Full Tilt Breakdown</CardTitle>
+            <div className="flex items-center gap-2">
+              {a && mechanismBadge(a.mechanism)}
+              {a && confidenceBadge(a.confidence)}
+              {tokenData?.enabled && (
+                <Badge variant="info">{tokenData.source === "custom" ? "Custom P3" : "Blockworks P3"}</Badge>
+              )}
             </div>
           </div>
-          <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-            <div className="text-xs text-gray-500 uppercase">Tilt Contribution</div>
-            <div className="text-lg font-mono font-semibold text-gray-200">
-              {tokenData.tilt_contribution > 0 ? `+${tokenData.tilt_contribution.toFixed(4)}` : tokenData.tilt_contribution.toFixed(4)}
+        </CardHeader>
+        {t ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+            <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Tilt</div>
+              <div className={`text-xl font-mono font-bold ${tiltColor(t.tilt)}`}>{t.tilt.toFixed(2)}x</div>
             </div>
-          </div>
-          <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-            <div className="text-xs text-gray-500 uppercase">Components</div>
-            <div className="text-lg font-mono font-semibold text-gray-200">
-              {components.length}
+            <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Raw Score</div>
+              <div className={`text-lg font-mono font-semibold ${t.raw_score > 0 ? "text-green-400" : t.raw_score < 0 ? "text-red-400" : "text-gray-400"}`}>
+                {t.raw_score > 0 ? "+" : ""}{t.raw_score.toFixed(3)}
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Signal Components */}
-        {components.length > 0 ? (
-          <div>
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Signal Components</div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {components.map(([name, comp]) => (
-                <div
-                  key={name}
-                  className="flex items-center gap-3 px-4 py-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      {name.replace(/_/g, " ")}
-                    </div>
-                    <div className="text-sm text-gray-300 truncate">
-                      {comp.label}
-                    </div>
-                    {comp.value != null && (
-                      <div className="text-[10px] text-gray-600 font-mono mt-0.5">
-                        raw={comp.value.toFixed(2)}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <SignalBar value={comp.signal} className="w-20" />
-                    <span
-                      className={`font-mono text-sm w-14 text-right ${
-                        comp.signal > 0 ? "text-green-400" :
-                        comp.signal < 0 ? "text-red-400" : "text-gray-400"
-                      }`}
-                    >
-                      {comp.signal > 0 ? "+" : ""}{comp.signal.toFixed(3)}
-                    </span>
-                  </div>
-                </div>
-              ))}
+            <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Confidence</div>
+              <div className="text-lg font-mono font-semibold text-gray-200">{(t.confidence * 100).toFixed(0)}%</div>
+            </div>
+            <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Fees 30d</div>
+              <div className="text-lg font-mono font-semibold text-gray-200">{fmt(t.fees_30d)}</div>
+            </div>
+            <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Holders Rev</div>
+              <div className={`text-lg font-mono font-semibold ${a && !a.defillama_accurate ? "text-yellow-400" : "text-gray-200"}`}>
+                {a?.corrected_holders_revenue_30d != null ? fmt(a.corrected_holders_revenue_30d) : fmt(t.holders_revenue_30d)}
+              </div>
+            </div>
+            <div className="text-center p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Signals</div>
+              <div className="text-lg font-mono font-semibold">
+                <span className="text-purple-400">{t.va_count}</span>
+                <span className="text-gray-600">/</span>
+                <span className="text-blue-400">{t.sm_count}</span>
+                <span className="text-gray-600">/</span>
+                <span className="text-orange-400">{p3Components.length}</span>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="text-gray-500 text-sm text-center py-6">
-            No signal data available yet. Data will populate after the next rebalance cycle.
-          </div>
+          <div className="text-gray-500 text-sm py-4">No long signal data for {displaySymbol}.</div>
         )}
+      </Card>
 
-        {tokenData.error && (
-          <div className="text-xs text-red-400 bg-red-900/20 rounded px-3 py-2 border border-red-800/30">
-            Error: {tokenData.error}
+      {/* Three-Pillar Signal Breakdown */}
+      <div className="grid md:grid-cols-3 gap-4">
+        {/* Pillar 1: Value Accrual */}
+        <Card>
+          <CardHeader><CardTitle><span className="text-purple-400">P1</span> Value Accrual</CardTitle></CardHeader>
+          <div className="space-y-2">
+            {t && Object.entries(t.signals)
+              .filter(([k]) => !["sm_netflow", "sm_holders", "sm_perp_pressure"].includes(k))
+              .map(([key, sig]) => (
+                <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 bg-[var(--bg-secondary)] rounded">
+                  <span className="text-gray-400 truncate flex-1">{sig.label}</span>
+                  {scoreBar(sig.score, 48)}
+                </div>
+              ))}
+            {(!t || t.va_count === 0) && <div className="text-xs text-gray-600 py-2">No VA signals</div>}
           </div>
-        )}
+          {a && (
+            <div className="mt-3 pt-3 border-t border-gray-800 space-y-1 text-xs">
+              <div className="flex justify-between"><span className="text-gray-500">Mechanism</span>{mechanismBadge(a.mechanism)}</div>
+              <div className="flex justify-between"><span className="text-gray-500">Capture %</span>
+                <span className={a.revenue_capture_pct && a.revenue_capture_pct > 50 ? "text-green-400" : a.revenue_capture_pct && a.revenue_capture_pct > 10 ? "text-yellow-400" : "text-red-400"}>
+                  {a.revenue_capture_pct ? `${a.revenue_capture_pct.toFixed(1)}%` : "\u2014"}
+                </span>
+              </div>
+              {a.defillama_issue && <p className="text-yellow-500/80 text-[10px]">DL: {a.defillama_issue}</p>}
+              {a.correction_reason && a.correction_reason !== `verified (${a.mechanism})` && (
+                <p className="text-yellow-400 text-[10px]">Fix: {a.correction_reason}</p>
+              )}
+              <p className="text-gray-600 text-[10px]">{a.description}</p>
+            </div>
+          )}
+        </Card>
 
-        <div className="text-[10px] text-gray-600 font-mono">
-          boost = TOKEN_SIGNAL_BOOST({tokenData.token_boost.toFixed(3)}) x signal({tokenData.signal?.toFixed(3) ?? "null"}) = tilt_contribution({tokenData.tilt_contribution.toFixed(4)})
-        </div>
+        {/* Pillar 2: Smart Money */}
+        <Card>
+          <CardHeader><CardTitle><span className="text-blue-400">P2</span> Smart Money</CardTitle></CardHeader>
+          <div className="space-y-2">
+            {t && Object.entries(t.signals)
+              .filter(([k]) => ["sm_netflow", "sm_holders", "sm_perp_pressure"].includes(k))
+              .map(([key, sig]) => (
+                <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 bg-[var(--bg-secondary)] rounded">
+                  <span className="text-gray-400 truncate flex-1">{sig.label}</span>
+                  {scoreBar(sig.score, 48)}
+                </div>
+              ))}
+            {(!t || t.sm_count === 0) && <div className="text-xs text-gray-600 py-2">No Nansen data available</div>}
+          </div>
+        </Card>
+
+        {/* Pillar 3: Token Signals */}
+        <Card className={tokenData?.enabled ? "border-orange-800/30" : ""}>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle><span className="text-orange-400">P3</span> Token Signals</CardTitle>
+              {tokenData && <Badge variant={tokenData.enabled ? "success" : "default"}>{tokenData.enabled ? "ON" : "OFF"}</Badge>}
+            </div>
+          </CardHeader>
+          <div className="space-y-2">
+            {p3Components.length > 0 ? p3Components.map(([name, comp]) => (
+              <div key={name} className="px-2 py-2 bg-[var(--bg-secondary)] rounded">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-400 truncate flex-1">{comp.label}</span>
+                  {scoreBar(comp.signal, 48)}
+                </div>
+                {comp.value != null && (
+                  <div className="text-[10px] text-gray-600 font-mono mt-0.5 pl-1">raw={comp.value.toFixed(2)}</div>
+                )}
+              </div>
+            )) : (
+              <div className="text-xs text-gray-600 py-2">{tokenData ? "Awaiting data" : "No Blockworks data"}</div>
+            )}
+          </div>
+          {tokenData?.error && (
+            <div className="mt-2 text-[10px] text-red-400 bg-red-900/20 rounded px-2 py-1 border border-red-800/30">
+              {tokenData.error}
+            </div>
+          )}
+        </Card>
       </div>
-    </Card>
+
+      {/* Tilt Formula */}
+      {t && (
+        <Card>
+          <CardHeader><CardTitle>Tilt Computation</CardTitle></CardHeader>
+          <div className="space-y-2 text-xs font-mono">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+              <span className="text-gray-500">VA score</span>
+              <span>{t.raw_score > 0 ? "+" : ""}{t.raw_score.toFixed(4)} (from {t.va_count} signals)</span>
+              <span className="text-gray-500">+ SM contribution</span>
+              <span>0.15 × {t.sm_count > 0 ? "avg" : "0"} SM signals</span>
+              {tokenData?.enabled && tokenData.signal != null && (
+                <>
+                  <span className="text-gray-500">+ P3 contribution</span>
+                  <span>{(tokenData.token_boost * tokenData.signal).toFixed(4)} ({tokenData.token_boost.toFixed(2)} × {tokenData.signal.toFixed(3)})</span>
+                </>
+              )}
+              <span className="text-gray-500">= raw_score</span>
+              <span className="font-semibold">{t.raw_score > 0 ? "+" : ""}{t.raw_score.toFixed(4)}</span>
+              <span className="text-gray-500">× confidence</span>
+              <span>{(t.confidence * 100).toFixed(0)}%</span>
+              <span className="text-gray-500">= adjusted_score</span>
+              <span className="font-semibold">{t.adjusted_score > 0 ? "+" : ""}{t.adjusted_score.toFixed(4)}</span>
+            </div>
+            <div className="pt-2 border-t border-gray-800 text-gray-400">
+              tilt = max(0.25, {base}^{t.adjusted_score.toFixed(4)}) = <span className={`font-bold ${tiltColor(t.tilt)}`}>{t.tilt.toFixed(4)}x</span>
+            </div>
+          </div>
+        </Card>
+      )}
+    </div>
   );
 }
 
@@ -325,7 +387,6 @@ export function LongSignalsTab() {
 
   // Per-symbol subtab view
   if (subTab !== "overview") {
-    const tok = tokenMap[subTab];
     return (
       <div className="space-y-4">
         {/* Subtab Bar */}
@@ -362,13 +423,13 @@ export function LongSignalsTab() {
         </div>
 
         <div className="p-4">
-          {tok ? (
-            <TokenDetailView symbol={subTab} tokenData={tok} />
-          ) : (
-            <div className="text-gray-500 text-sm text-center py-8">
-              No Pillar 3 data available for {subTab.replace("USDT", "")}.
-            </div>
-          )}
+          <TokenDetailView
+            symbol={subTab}
+            tokenData={tokenMap[subTab]}
+            longToken={signals?.tokens.find(x => x.symbol === subTab)}
+            accrualToken={accrualMap.get(subTab)}
+            base={signals?.config?.base || 2.0}
+          />
         </div>
       </div>
     );
