@@ -103,7 +103,7 @@ const columns: Column<Position>[] = [
     key: "daily_vol",
     header: "Vol",
     render: (r) =>
-      r.daily_vol_pct != null ? `${(r.daily_vol_pct * 100).toFixed(1)}%` : "—",
+      r.daily_vol_pct != null ? `${r.daily_vol_pct.toFixed(1)}%` : "—",
     sortKey: (r) => r.daily_vol_pct ?? 0,
     align: "right",
   },
