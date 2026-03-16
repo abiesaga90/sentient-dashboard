@@ -11,17 +11,19 @@ import type {
 } from "../../types/api";
 
 // ── Signal bar — inline sparkline for 0-1 signals ──
-function SignalBar({ value, label }: { value: number | null; label?: string }) {
-  if (value == null) return <span className="text-gray-700 text-[10px]">—</span>;
-  const pct = Math.max(0, Math.min(100, value * 100));
+function SignalBar({ value, label, max }: { value: number | null; label?: string; max?: number }) {
+  if (value == null) return <span className="text-gray-700 text-[11px]">—</span>;
+  // Scale bar width: default 0-1, or 0-max if provided (for raw values like FDV/MCap)
+  const scaled = max ? Math.min(1, value / max) : Math.max(0, Math.min(1, value));
+  const pct = scaled * 100;
   const color =
     pct > 60 ? "bg-red-500" : pct > 30 ? "bg-yellow-500" : "bg-gray-600";
   return (
-    <div className="flex items-center gap-1.5 min-w-[60px]">
+    <div className="flex items-center gap-1.5 min-w-[70px]">
       <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
         <div className={`h-full ${color} rounded-full`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[10px] text-gray-400 w-7 text-right">
+      <span className="text-[11px] text-gray-400 w-8 text-right">
         {label ?? value.toFixed(2)}
       </span>
     </div>
@@ -51,7 +53,7 @@ function buildColumns(opts: {
           {(r.quality_tags || [])
             .filter((t) => t.startsWith("sector:"))
             .map((t) => (
-              <Badge key={t} variant="default" className="text-[10px] px-1 py-0">
+              <Badge key={t} variant="default" className="text-[11px] px-1 py-0">
                 {t.replace("sector:", "")}
               </Badge>
             ))}
@@ -89,7 +91,7 @@ function buildColumns(opts: {
         key: "confidence",
         header: "Conf",
         render: (r) => (
-          <span className="text-gray-400 text-xs">
+          <span className="text-gray-400 text-sm">
             {r.n_fund_signals}/6
           </span>
         ),
@@ -100,7 +102,7 @@ function buildColumns(opts: {
         key: "score",
         header: "Final",
         render: (r) => (
-          <span className="text-gray-300 text-xs">
+          <span className="text-gray-300 text-sm">
             {r.score.toFixed(3)}
           </span>
         ),
@@ -109,9 +111,9 @@ function buildColumns(opts: {
       },
       {
         key: "dilution",
-        header: "Dilution",
-        render: (r) => <SignalBar value={r.va_signals.dilution.signal} label={r.fdv_mcap_ratio != null ? `${r.fdv_mcap_ratio.toFixed(1)}x` : undefined} />,
-        sortKey: (r) => r.va_signals.dilution.signal ?? -1,
+        header: "FDV/MCap",
+        render: (r) => <SignalBar value={r.fdv_mcap_ratio} label={r.fdv_mcap_ratio != null ? `${r.fdv_mcap_ratio.toFixed(1)}x` : undefined} max={10} />,
+        sortKey: (r) => r.fdv_mcap_ratio ?? -1,
         align: "right",
       },
       {
@@ -152,21 +154,21 @@ function buildColumns(opts: {
       {
         key: "corr",
         header: "Corr",
-        render: (r) => <span className="text-gray-500">{r.corr.toFixed(2)}</span>,
+        render: (r) => <span className="text-gray-500 text-sm">{r.corr.toFixed(2)}</span>,
         sortKey: (r) => r.corr,
         align: "right",
       },
       {
         key: "beta",
         header: "Beta",
-        render: (r) => <span className="text-gray-500">{r.beta.toFixed(2)}</span>,
+        render: (r) => <span className="text-gray-500 text-sm">{r.beta.toFixed(2)}</span>,
         sortKey: (r) => r.beta,
         align: "right",
       },
       {
         key: "volume",
         header: "Volume",
-        render: (r) => <span className="text-gray-500">{formatUSD(r.volume_24h, 0)}</span>,
+        render: (r) => <span className="text-gray-500 text-sm">{formatUSD(r.volume_24h, 0)}</span>,
         sortKey: (r) => r.volume_24h,
         align: "right",
       }
