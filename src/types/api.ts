@@ -46,6 +46,23 @@ export interface Position {
   volume_24h_usd: number | null;
   volume_rank: number | null;
   open_interest_usd: number | null;
+  beta: number | null;
+  correlation: number | null;
+  annualized_vol: number | null;
+  inv_vol_weight: number | null;
+}
+
+export interface BetaAggregate {
+  long_basket_beta: number | null;
+  short_basket_beta: number | null;
+  long_beta_notional: number;
+  short_beta_notional: number;
+  net_beta_usd: number;
+  net_beta_pct: number;
+  avg_long_beta: number | null;
+  avg_short_beta: number | null;
+  beta_ratio: number | null;
+  short_basket_avg_corr: number | null;
 }
 
 // ── Portfolio ──

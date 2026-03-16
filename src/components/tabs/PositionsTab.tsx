@@ -6,7 +6,7 @@ import { DataTable, type Column } from "../shared/DataTable";
 import { PnlText } from "../shared/PnlText";
 import { Badge } from "../ui/Badge";
 import { formatUSD, formatPct } from "../../lib/utils";
-import type { Position } from "../../types/api";
+import type { Position, BetaAggregate } from "../../types/api";
 
 type SideFilter = "all" | "LONG" | "SHORT";
 
@@ -114,6 +114,28 @@ const columns: Column<Position>[] = [
     sortKey: (r) => r.volume_rank ?? 999,
     align: "right",
   },
+  {
+    key: "beta",
+    header: "Beta",
+    render: (r) => (
+      <span className={r.beta != null && r.beta > 1.2 ? "text-red-400" : r.beta != null && r.beta < 0.8 ? "text-blue-400" : "text-gray-300"}>
+        {r.beta != null ? r.beta.toFixed(2) : "—"}
+      </span>
+    ),
+    sortKey: (r) => r.beta ?? 0,
+    align: "right",
+  },
+  {
+    key: "correlation",
+    header: "Corr",
+    render: (r) => (
+      <span className={r.correlation != null && r.correlation > 0.8 ? "text-green-400" : r.correlation != null && r.correlation < 0.5 ? "text-yellow-400" : "text-gray-300"}>
+        {r.correlation != null ? r.correlation.toFixed(2) : "—"}
+      </span>
+    ),
+    sortKey: (r) => r.correlation ?? 0,
+    align: "right",
+  },
 ];
 
 export function PositionsTab() {
@@ -123,7 +145,7 @@ export function PositionsTab() {
   const { data, isLoading } = useQuery({
     queryKey: ["positions", engine.id],
     queryFn: () =>
-      client.get<{ positions: Position[]; count: number }>("/api/positions"),
+      client.get<{ positions: Position[]; count: number; beta?: BetaAggregate }>("/api/positions"),
     refetchInterval: 30_000,
   });
 
@@ -136,13 +158,62 @@ export function PositionsTab() {
   }
 
   const positions = data?.positions ?? [];
+  const beta = data?.beta;
   const filtered =
     sideFilter === "all"
       ? positions
       : positions.filter((p) => p.side === sideFilter);
 
   return (
-    <div className="p-4">
+    <div className="p-4 space-y-4">
+      {/* Beta Hedging Summary */}
+      {beta && (
+        <Card>
+          <CardHeader><CardTitle>Beta Hedging</CardTitle></CardHeader>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 text-xs">
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Long Basket Beta</div>
+              <div className="text-lg font-mono font-semibold text-green-400">
+                {beta.long_basket_beta?.toFixed(3) ?? "—"}
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Short Basket Beta</div>
+              <div className="text-lg font-mono font-semibold text-red-400">
+                {beta.short_basket_beta?.toFixed(3) ?? "—"}
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Net Beta $</div>
+              <div className={`text-lg font-mono font-semibold ${Math.abs(beta.net_beta_usd) < 500 ? "text-green-400" : "text-yellow-400"}`}>
+                {formatUSD(beta.net_beta_usd)}
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Net Beta %</div>
+              <div className={`text-lg font-mono font-semibold ${Math.abs(beta.net_beta_pct) < 2 ? "text-green-400" : "text-yellow-400"}`}>
+                {beta.net_beta_pct > 0 ? "+" : ""}{beta.net_beta_pct.toFixed(2)}%
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Beta Ratio</div>
+              <div className="text-lg font-mono font-semibold text-gray-200">
+                {beta.beta_ratio?.toFixed(3) ?? "—"}
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Short Avg Corr</div>
+              <div className="text-lg font-mono font-semibold text-gray-200">
+                {beta.short_basket_avg_corr?.toFixed(3) ?? "—"}
+              </div>
+            </div>
+          </div>
+          <div className="mt-2 text-[10px] text-gray-600">
+            Long beta×notional = {formatUSD(beta.long_beta_notional)} | Short beta×notional = {formatUSD(beta.short_beta_notional)} | Net = {formatUSD(beta.net_beta_usd)} ({beta.net_beta_pct > 0 ? "+" : ""}{beta.net_beta_pct.toFixed(2)}% of NAV)
+          </div>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
