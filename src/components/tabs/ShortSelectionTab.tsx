@@ -171,6 +171,13 @@ function buildColumns(opts: {
         render: (r) => <span className="text-gray-500 text-sm">{formatUSD(r.volume_24h, 0)}</span>,
         sortKey: (r) => r.volume_24h,
         align: "right",
+      },
+      {
+        key: "sl_freq",
+        header: "SL Freq",
+        render: (r) => <SignalBar value={r.sl_freq_penalty} />,
+        sortKey: (r) => r.sl_freq_penalty ?? -1,
+        align: "right",
       }
     );
   } else {
@@ -235,6 +242,13 @@ function buildColumns(opts: {
           );
         },
         sortKey: (r) => r.va_total_boost ?? 0,
+        align: "right",
+      },
+      {
+        key: "sl_freq",
+        header: "SL Freq",
+        render: (r) => <SignalBar value={r.sl_freq_penalty} />,
+        sortKey: (r) => r.sl_freq_penalty ?? -1,
         align: "right",
       }
     );

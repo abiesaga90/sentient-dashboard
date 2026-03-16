@@ -369,6 +369,7 @@ export interface RankingCandidate {
   ath_drawdown_pct: number | null;
   ath_date: string | null;
   momentum_signal: number | null;
+  sl_freq_penalty: number | null;
   eligible: boolean;
   filter_reasons: string[];
   status: string[];
