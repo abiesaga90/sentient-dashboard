@@ -374,6 +374,11 @@ export interface RankingCandidate {
   filter_reasons: string[];
   status: string[];
   quality_tags: string[];
+  nansen_signals?: {
+    sm_netflow: number | null;
+    perp_funding_rate: number | null;
+  };
+  nansen_stale?: boolean;
 }
 
 export interface FundWeights {
@@ -413,6 +418,11 @@ export interface RankingsResponse {
   data_quality_enabled: boolean;
   shrunk_diversity_enabled: boolean;
   stale_symbols_filtered: string[];
+  nansen_status?: {
+    fresh_count: number;
+    stale_count: number;
+    oldest_update: string | null;
+  };
   timestamp: string;
 }
 

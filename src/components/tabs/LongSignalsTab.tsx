@@ -45,6 +45,11 @@ interface AccrualToken {
 interface LongSignalsResponse {
   tokens: LongToken[];
   config: Record<string, number>;
+  nansen_status?: {
+    fresh_count: number;
+    stale_count: number;
+    oldest_update: string | null;
+  };
 }
 
 interface AccrualResponse {
@@ -214,7 +219,7 @@ function TokenDetailView({
           <CardHeader><CardTitle><span className="text-purple-400">P1</span> Value Accrual</CardTitle></CardHeader>
           <div className="space-y-2">
             {t && Object.entries(t.signals)
-              .filter(([k]) => !["sm_netflow", "sm_holders", "sm_perp_pressure"].includes(k))
+              .filter(([k]) => !["sm_netflow", "sm_holders", "perp_pressure", "perp_funding"].includes(k))
               .map(([key, sig]) => (
                 <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 bg-[var(--bg-secondary)] rounded">
                   <span className="text-gray-400 truncate flex-1">{sig.label}</span>
@@ -245,7 +250,7 @@ function TokenDetailView({
           <CardHeader><CardTitle><span className="text-blue-400">P2</span> Smart Money</CardTitle></CardHeader>
           <div className="space-y-2">
             {t && Object.entries(t.signals)
-              .filter(([k]) => ["sm_netflow", "sm_holders", "sm_perp_pressure"].includes(k))
+              .filter(([k]) => ["sm_netflow", "sm_holders", "perp_pressure", "perp_funding"].includes(k))
               .map(([key, sig]) => (
                 <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 bg-[var(--bg-secondary)] rounded">
                   <span className="text-gray-400 truncate flex-1">{sig.label}</span>
@@ -466,6 +471,16 @@ export function LongSignalsTab() {
       </div>
 
       <div className="p-4 space-y-4">
+        {/* Nansen Staleness Banner */}
+        {signals.nansen_status && signals.nansen_status.stale_count > 0 && (
+          <div className="rounded-lg border border-yellow-800/50 bg-yellow-950/30 px-4 py-2 flex items-center gap-2 text-xs text-yellow-400">
+            <span className="text-yellow-500 text-sm">&#x26A0;</span>
+            Nansen data stale for {signals.nansen_status.stale_count} tokens
+            {signals.nansen_status.oldest_update && ` (oldest: ${new Date(signals.nansen_status.oldest_update).toLocaleDateString()})`}
+            {" "}&mdash; SM signals excluded for stale tokens
+          </div>
+        )}
+
         {/* KPI Row */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <KpiCard label="Avg Tilt" value={`${avgTilt.toFixed(2)}x`} />
@@ -543,9 +558,9 @@ export function LongSignalsTab() {
               </div>
             </div>
             <div>
-              <div className="text-gray-500 mb-2 uppercase tracking-wider text-[10px]">Pillar 2: Smart Money (3 signals)</div>
+              <div className="text-gray-500 mb-2 uppercase tracking-wider text-[10px]">Pillar 2: Smart Money (4 signals)</div>
               <div className="space-y-1">
-                {["SM Netflow 30d (Nansen)", "SM Holders (relative to median)", "Perp Net Pressure (positioning)"].map((s, i) => (
+                {["SM Netflow 30d (Nansen)", "SM Holders (relative to median)", "Perp Net Pressure (positioning)", "Perp Funding Rate (crowding)"].map((s, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-400">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />{s}
                   </div>
@@ -660,7 +675,7 @@ export function LongSignalsTab() {
                           <span className="text-purple-400">{t.va_count}</span>
                           <span className="text-gray-600">/5 </span>
                           <span className="text-blue-400">{t.sm_count}</span>
-                          <span className="text-gray-600">/3 </span>
+                          <span className="text-gray-600">/4 </span>
                           <span className={p3Count > 0 ? "text-orange-400" : "text-gray-600"}>{p3Count}</span>
                         </td>
                         <td className="py-2.5 text-right text-gray-400">{fmt(t.fees_30d)}</td>

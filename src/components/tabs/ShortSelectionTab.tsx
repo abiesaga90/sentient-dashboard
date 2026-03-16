@@ -173,6 +173,30 @@ function buildColumns(opts: {
         align: "right",
       },
       {
+        key: "sm_flow",
+        header: "SM Flow",
+        render: (r) => {
+          const nf = r.nansen_signals?.sm_netflow;
+          if (nf == null) return <span className="text-gray-700 text-[11px]">—</span>;
+          const color = nf < 0 ? "text-red-400" : nf > 0 ? "text-green-400" : "text-gray-400";
+          return <span className={`text-[11px] ${color}`}>{nf < 0 ? "" : "+"}{(nf / 1e6).toFixed(1)}M</span>;
+        },
+        sortKey: (r) => r.nansen_signals?.sm_netflow ?? 0,
+        align: "right",
+      },
+      {
+        key: "funding",
+        header: "Funding",
+        render: (r) => {
+          const fr = r.nansen_signals?.perp_funding_rate;
+          if (fr == null) return <span className="text-gray-700 text-[11px]">—</span>;
+          const color = fr > 0 ? "text-red-400" : fr < 0 ? "text-green-400" : "text-gray-400";
+          return <span className={`text-[11px] ${color}`}>{(fr * 100).toFixed(4)}%</span>;
+        },
+        sortKey: (r) => r.nansen_signals?.perp_funding_rate ?? 0,
+        align: "right",
+      },
+      {
         key: "sl_freq",
         header: "SL Freq",
         render: (r) => <SignalBar value={r.sl_freq_penalty} />,
@@ -320,6 +344,16 @@ export function ShortSelectionTab() {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Nansen Staleness Banner */}
+      {data.nansen_status && data.nansen_status.stale_count > 0 && (
+        <div className="rounded-lg border border-yellow-800/50 bg-yellow-950/30 px-4 py-2 flex items-center gap-2 text-xs text-yellow-400">
+          <span className="text-yellow-500 text-sm">&#x26A0;</span>
+          Nansen data stale for {data.nansen_status.stale_count} tokens
+          {data.nansen_status.oldest_update && ` (oldest: ${new Date(data.nansen_status.oldest_update).toLocaleDateString()})`}
+          {" "}&mdash; signals excluded for stale tokens
+        </div>
+      )}
+
       {/* Selection Mode Banner */}
       <div className={`rounded-lg border px-4 py-3 ${fundFirst ? "border-red-900/50 bg-red-950/30" : "border-gray-800 bg-gray-900/50"}`}>
         <div className="flex items-center justify-between">
