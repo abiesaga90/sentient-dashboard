@@ -339,7 +339,9 @@ export interface RiskHistoryPoint {
 // ── Rankings ──
 export interface VaSignalDetail {
   value: number | null;
-  boost: number | null;
+  signal: number | null;
+  weight: number;
+  boost?: number | null;
 }
 
 export interface RankingCandidate {
@@ -349,6 +351,10 @@ export interface RankingCandidate {
   beta: number;
   beta_penalty: number;
   volume_24h: number;
+  fund_score: number;
+  fund_score_raw: number;
+  n_fund_signals: number;
+  fund_confidence: number;
   va_signals: {
     dilution: VaSignalDetail;
     supply_momentum: VaSignalDetail;
@@ -359,9 +365,7 @@ export interface RankingCandidate {
   };
   va_total_boost: number | null;
   fdv_mcap_ratio: number | null;
-  dilution_boost: number | null;
   unlock_pressure: number | null;
-  unlock_boost: number | null;
   ath_drawdown_pct: number | null;
   ath_date: string | null;
   momentum_signal: number | null;
@@ -369,6 +373,15 @@ export interface RankingCandidate {
   filter_reasons: string[];
   status: string[];
   quality_tags: string[];
+}
+
+export interface FundWeights {
+  dilution: number;
+  fee_mom: number;
+  unlock: number;
+  supply_mom: number;
+  rev_cap: number;
+  buyback: number;
 }
 
 export interface RankingsResponse {
@@ -384,6 +397,10 @@ export interface RankingsResponse {
   lookback_hours: number;
   momentum_weight: number;
   momentum_lookback_hours: number;
+  fund_first_shorts: boolean;
+  short_corr_floor: number;
+  short_fund_confidence_floor: number;
+  fund_weights: FundWeights;
   va_short_dilution_weight: number;
   va_short_dilution_threshold: number;
   va_short_supply_momentum_weight: number;
