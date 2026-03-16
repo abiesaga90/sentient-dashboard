@@ -129,6 +129,27 @@ function buildColumns(opts: {
         align: "right",
       },
       {
+        key: "supply_mom",
+        header: "Supply",
+        render: (r) => <SignalBar value={r.va_signals.supply_momentum.signal} />,
+        sortKey: (r) => r.va_signals.supply_momentum.signal ?? -1,
+        align: "right",
+      },
+      {
+        key: "rev_cap",
+        header: "Rev Cap",
+        render: (r) => <SignalBar value={r.va_signals.revenue_capture.signal} />,
+        sortKey: (r) => r.va_signals.revenue_capture.signal ?? -1,
+        align: "right",
+      },
+      {
+        key: "buyback",
+        header: "Buyback",
+        render: (r) => <SignalBar value={r.va_signals.buyback_intensity.signal} />,
+        sortKey: (r) => r.va_signals.buyback_intensity.signal ?? -1,
+        align: "right",
+      },
+      {
         key: "corr",
         header: "Corr",
         render: (r) => <span className="text-gray-500">{r.corr.toFixed(2)}</span>,
