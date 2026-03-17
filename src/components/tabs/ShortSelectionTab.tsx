@@ -91,8 +91,6 @@ function buildColumns(opts: {
         key: "confidence",
         header: "Conf",
         render: (r) => {
-          const smCount = r.sm_signals ? Object.keys(r.sm_signals).length : 0;
-          const total = (r.inversion_applied ? r.n_fund_signals : r.n_fund_signals) ;
           const denom = r.inversion_applied ? `${r.n_fund_signals}` : "6";
           return (
             <span className="text-gray-400 text-sm" title={r.inversion_applied ? `${r.n_fund_signals} signals (VA+SM inverted)` : `${r.n_fund_signals}/6 VA signals`}>
