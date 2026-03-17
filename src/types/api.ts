@@ -463,6 +463,57 @@ export interface SignalInventoryResponse {
   data_sources: string[];
 }
 
+// ── Hedge Quality ──
+
+export interface HedgeQualityKpis {
+  down_day_capture_rate: number;
+  beta_hedge_ratio_pct: number;
+  net_beta_usd: number;
+  net_beta_pct: number;
+  tracking_error_ann: number;
+  information_ratio: number;
+  downside_beta_ratio: number;
+}
+
+export interface RollingHedgeRatioPoint {
+  date: string;
+  hedge_ratio_pct: number;
+}
+
+export interface PerShortHedge {
+  symbol: string;
+  beta: number;
+  downside_beta: number;
+  correlation: number;
+  notional: number;
+  hedge_score: number;
+  unrealized_pnl: number;
+}
+
+export interface CorrelationHeatmap {
+  symbols: string[];
+  sides: string[];
+  matrix: number[][];
+}
+
+export interface LsCorrelationPoint {
+  date: string;
+  corr_7d: number | null;
+  corr_30d: number | null;
+}
+
+export interface HedgeQualityResponse {
+  kpis: HedgeQualityKpis;
+  rolling_hedge_ratio: RollingHedgeRatioPoint[];
+  per_short_hedge: PerShortHedge[];
+  correlation_heatmap: CorrelationHeatmap;
+  ls_correlation_trend: {
+    corr_7d: number | null;
+    corr_30d: number | null;
+    series: LsCorrelationPoint[];
+  };
+}
+
 // ── Execution Quality ──
 export interface ExecutionReport {
   id: number;

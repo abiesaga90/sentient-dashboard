@@ -1,11 +1,23 @@
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ReferenceLine,
+} from "recharts";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { DataTable, type Column } from "../shared/DataTable";
+import { KpiCard } from "../shared/KpiCard";
+import { ChartContainer } from "../shared/ChartContainer";
 import { AdlMonitor } from "../overview/AdlMonitor";
-import { formatUSD, formatPct } from "../../lib/utils";
-import type { AdlData } from "../../types/api";
+import { formatUSD, formatPct, pnlColor } from "../../lib/utils";
+import type { AdlData, HedgeQualityResponse, PerShortHedge } from "../../types/api";
 
 // ── Risk types ──
 
@@ -174,6 +186,14 @@ export function RiskStressTab() {
     queryFn: () => client.get("/api/adl"),
     refetchInterval: 60_000,
     staleTime: 30_000,
+  });
+
+  const { data: hedgeData } = useQuery<HedgeQualityResponse>({
+    queryKey: ["hedge-quality", engine.id],
+    queryFn: () => client.get("/api/hedge-quality"),
+    refetchInterval: 300_000,
+    staleTime: 120_000,
+    retry: false,
   });
 
   if (riskLoading) {
@@ -360,6 +380,9 @@ export function RiskStressTab() {
       {/* ── ADL Monitor ── */}
       {adl && <AdlMonitor adl={adl} />}
 
+      {/* ── Hedge Quality Analytics ── */}
+      {hedgeData && <HedgeQualitySection data={hedgeData} />}
+
       {/* ── Stress Scenarios (LP_REPORTING gated) ── */}
       {stress && stress.scenarios && stress.scenarios.length > 0 && (
         <Card>
@@ -477,6 +500,270 @@ export function RiskStressTab() {
         </Card>
       )}
     </div>
+  );
+}
+
+// ── Hedge Quality Section ──
+
+const perShortColumns: Column<PerShortHedge>[] = [
+  {
+    key: "symbol",
+    header: "Symbol",
+    render: (r) => <span className="font-medium text-gray-200">{r.symbol.replace("USDT", "")}</span>,
+    sortKey: (r) => r.symbol,
+  },
+  {
+    key: "beta",
+    header: "Beta",
+    render: (r) => <span className="font-mono text-gray-300">{r.beta.toFixed(3)}</span>,
+    sortKey: (r) => r.beta,
+    align: "right",
+  },
+  {
+    key: "downside_beta",
+    header: "DS Beta",
+    render: (r) => <span className="font-mono text-gray-300">{r.downside_beta.toFixed(3)}</span>,
+    sortKey: (r) => r.downside_beta,
+    align: "right",
+  },
+  {
+    key: "correlation",
+    header: "Corr",
+    render: (r) => <span className="font-mono text-gray-300">{r.correlation.toFixed(3)}</span>,
+    sortKey: (r) => r.correlation,
+    align: "right",
+  },
+  {
+    key: "notional",
+    header: "Notional",
+    render: (r) => <span className="font-mono text-gray-300">{formatUSD(r.notional)}</span>,
+    sortKey: (r) => r.notional,
+    align: "right",
+  },
+  {
+    key: "hedge_score",
+    header: "Hedge Score",
+    render: (r) => {
+      const color = r.hedge_score >= 0.5 ? "text-green-400" : r.hedge_score >= 0.2 ? "text-yellow-400" : "text-red-400";
+      return <span className={`font-mono font-semibold ${color}`}>{r.hedge_score.toFixed(3)}</span>;
+    },
+    sortKey: (r) => r.hedge_score,
+    align: "right",
+  },
+  {
+    key: "unrealized_pnl",
+    header: "Unreal P&L",
+    render: (r) => <span className={`font-mono ${pnlColor(r.unrealized_pnl)}`}>{formatUSD(r.unrealized_pnl)}</span>,
+    sortKey: (r) => r.unrealized_pnl,
+    align: "right",
+  },
+];
+
+function heatmapColor(corr: number): string {
+  // blue (-1) → white (0) → red (+1)
+  const clamped = Math.max(-1, Math.min(1, corr));
+  if (clamped >= 0) {
+    const t = clamped;
+    const r = 255;
+    const g = Math.round(255 * (1 - t));
+    const b = Math.round(255 * (1 - t));
+    return `rgb(${r},${g},${b})`;
+  } else {
+    const t = -clamped;
+    const r = Math.round(255 * (1 - t));
+    const g = Math.round(255 * (1 - t));
+    const b = 255;
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
+function HedgeQualitySection({ data }: { data: HedgeQualityResponse }) {
+  const { kpis } = data;
+  const [hoveredCell, setHoveredCell] = useState<{ row: number; col: number } | null>(null);
+
+  const longCount = useMemo(
+    () => data.correlation_heatmap.sides.filter((s) => s === "LONG").length,
+    [data.correlation_heatmap.sides],
+  );
+
+  return (
+    <>
+      {/* ── Hedge Quality KPIs ── */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <KpiCard
+          label="Down-Day Capture"
+          value={`${kpis.down_day_capture_rate.toFixed(1)}%`}
+          valueColor={kpis.down_day_capture_rate >= 60 ? "text-green-400" : kpis.down_day_capture_rate >= 40 ? "text-yellow-400" : "text-red-400"}
+        />
+        <KpiCard
+          label="Beta Hedge Ratio"
+          value={`${kpis.beta_hedge_ratio_pct.toFixed(1)}%`}
+          valueColor={
+            kpis.beta_hedge_ratio_pct >= 90 && kpis.beta_hedge_ratio_pct <= 110
+              ? "text-green-400"
+              : kpis.beta_hedge_ratio_pct >= 80 && kpis.beta_hedge_ratio_pct <= 120
+                ? "text-yellow-400"
+                : "text-red-400"
+          }
+          sub="Target: 100%"
+        />
+        <KpiCard
+          label="Net Beta Exposure"
+          value={`${Math.abs(kpis.net_beta_pct).toFixed(1)}%`}
+          sub={formatUSD(kpis.net_beta_usd)}
+          valueColor={Math.abs(kpis.net_beta_pct) < 5 ? "text-green-400" : Math.abs(kpis.net_beta_pct) < 15 ? "text-yellow-400" : "text-red-400"}
+        />
+        <KpiCard
+          label="Tracking Error"
+          value={`${kpis.tracking_error_ann.toFixed(1)}%`}
+          sub="Annualized"
+        />
+        <KpiCard
+          label="Information Ratio"
+          value={kpis.information_ratio.toFixed(2)}
+          valueColor={kpis.information_ratio > 0.5 ? "text-green-400" : kpis.information_ratio > 0 ? "text-yellow-400" : "text-red-400"}
+        />
+        <KpiCard
+          label="DS Beta Ratio"
+          value={kpis.downside_beta_ratio.toFixed(2)}
+          valueColor={
+            kpis.downside_beta_ratio >= 0.8 && kpis.downside_beta_ratio <= 1.2
+              ? "text-green-400"
+              : kpis.downside_beta_ratio >= 0.6 && kpis.downside_beta_ratio <= 1.4
+                ? "text-yellow-400"
+                : "text-red-400"
+          }
+          sub="DS / Symmetric"
+        />
+      </div>
+
+      {/* ── Rolling Hedge Ratio Chart ── */}
+      {data.rolling_hedge_ratio.length > 0 && (
+        <ChartContainer title="Rolling Hedge Ratio" height={250}>
+          <LineChart data={data.rolling_hedge_ratio}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#888" }} tickFormatter={(v) => v.slice(5)} />
+            <YAxis tick={{ fontSize: 10, fill: "#888" }} domain={[0, "auto"]} />
+            <Tooltip
+              contentStyle={{ background: "#1a1a2e", border: "1px solid #333", fontSize: 12 }}
+              formatter={(v: unknown) => [`${Number(v).toFixed(1)}%`, "Hedge Ratio"]}
+              labelFormatter={(l) => `Date: ${l}`}
+            />
+            <ReferenceLine y={100} stroke="#22c55e" strokeDasharray="6 3" label={{ value: "100% Target", fill: "#22c55e", fontSize: 10 }} />
+            <Line type="monotone" dataKey="hedge_ratio_pct" stroke="#3b82f6" dot={false} strokeWidth={2} />
+          </LineChart>
+        </ChartContainer>
+      )}
+
+      {/* ── Per-Short Hedge Contribution Table ── */}
+      {data.per_short_hedge.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Per-Short Hedge Contribution ({data.per_short_hedge.length})</CardTitle>
+          </CardHeader>
+          <div className="p-4 pt-0">
+            <DataTable
+              columns={perShortColumns}
+              data={data.per_short_hedge}
+              defaultSort="hedge_score"
+              defaultDir="desc"
+              maxHeight="max-h-[400px]"
+            />
+          </div>
+        </Card>
+      )}
+
+      {/* ── Correlation Heatmap ── */}
+      {data.correlation_heatmap.symbols.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Position Correlation Heatmap ({data.correlation_heatmap.symbols.length})</CardTitle>
+          </CardHeader>
+          <div className="p-4 pt-0 overflow-x-auto">
+            <div className="inline-block">
+              {/* Column headers */}
+              <div className="flex" style={{ marginLeft: 60 }}>
+                {data.correlation_heatmap.symbols.map((sym, j) => (
+                  <div
+                    key={j}
+                    className="text-[8px] text-gray-500 overflow-hidden"
+                    style={{
+                      width: 20,
+                      height: 50,
+                      transform: "rotate(-45deg)",
+                      transformOrigin: "bottom left",
+                      whiteSpace: "nowrap",
+                      marginLeft: j === longCount && longCount > 0 ? 2 : 0,
+                    }}
+                  >
+                    {sym.replace("USDT", "")}
+                  </div>
+                ))}
+              </div>
+              {/* Rows */}
+              {data.correlation_heatmap.matrix.map((row, i) => (
+                <div key={i} className="flex items-center" style={{ marginTop: i === longCount && longCount > 0 ? 2 : 0 }}>
+                  <div className="text-[8px] text-gray-500 w-[60px] text-right pr-1 truncate">
+                    {data.correlation_heatmap.symbols[i].replace("USDT", "")}
+                  </div>
+                  {row.map((corr, j) => (
+                    <div
+                      key={j}
+                      className="relative cursor-crosshair"
+                      style={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: i === j ? "#333" : heatmapColor(corr),
+                        marginLeft: j === longCount && longCount > 0 ? 2 : 0,
+                      }}
+                      onMouseEnter={() => setHoveredCell({ row: i, col: j })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                    >
+                      {hoveredCell?.row === i && hoveredCell?.col === j && (
+                        <div className="absolute z-10 -top-8 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-[10px] text-gray-200 whitespace-nowrap">
+                          {data.correlation_heatmap.symbols[i].replace("USDT", "")} / {data.correlation_heatmap.symbols[j].replace("USDT", "")}: {corr.toFixed(3)}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+              {/* Legend */}
+              <div className="flex items-center gap-2 mt-3 text-[10px] text-gray-500">
+                <span>-1</span>
+                <div className="flex h-3">
+                  {Array.from({ length: 20 }).map((_, i) => (
+                    <div key={i} style={{ width: 8, backgroundColor: heatmapColor(-1 + (i / 19) * 2) }} />
+                  ))}
+                </div>
+                <span>+1</span>
+                <span className="ml-2">|</span>
+                <span className="ml-2">L = Long, S = Short</span>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* ── L/S Basket Correlation Trend ── */}
+      {data.ls_correlation_trend.series.length > 0 && (
+        <ChartContainer title="L/S Basket Correlation Trend" height={200}>
+          <LineChart data={data.ls_correlation_trend.series}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#888" }} tickFormatter={(v) => v.slice(5)} />
+            <YAxis tick={{ fontSize: 10, fill: "#888" }} domain={[-0.5, 1.0]} />
+            <Tooltip
+              contentStyle={{ background: "#1a1a2e", border: "1px solid #333", fontSize: 12 }}
+              formatter={(v: unknown) => [v != null ? Number(v).toFixed(3) : "—"]}
+              labelFormatter={(l) => `Date: ${l}`}
+            />
+            <ReferenceLine y={0} stroke="#666" strokeDasharray="4 4" />
+            <Line type="monotone" dataKey="corr_7d" stroke="#f97316" dot={false} strokeWidth={2} name="7d Corr" connectNulls />
+            <Line type="monotone" dataKey="corr_30d" stroke="#3b82f6" dot={false} strokeWidth={2} name="30d Corr" connectNulls />
+          </LineChart>
+        </ChartContainer>
+      )}
+    </>
   );
 }
 
