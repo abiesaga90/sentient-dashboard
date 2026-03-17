@@ -344,6 +344,11 @@ export interface VaSignalDetail {
   boost?: number | null;
 }
 
+export interface SmSignalDetail {
+  value: number | null;
+  signal: number | null;
+}
+
 export interface RankingCandidate {
   symbol: string;
   score: number;
@@ -363,6 +368,16 @@ export interface RankingCandidate {
     fee_momentum: VaSignalDetail;
     unlock_pressure: VaSignalDetail;
   };
+  sm_signals?: {
+    netflow_30d?: SmSignalDetail;
+    holders_relative?: SmSignalDetail;
+    perp_pressure?: SmSignalDetail;
+    perp_funding?: SmSignalDetail;
+    dat_accumulation?: SmSignalDetail;
+    arkham_exchange_flow?: SmSignalDetail;
+  } | null;
+  inversion_applied?: boolean;
+  long_raw_score?: number | null;
   va_total_boost: number | null;
   fdv_mcap_ratio: number | null;
   unlock_pressure: number | null;

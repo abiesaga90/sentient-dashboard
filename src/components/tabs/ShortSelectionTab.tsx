@@ -90,11 +90,16 @@ function buildColumns(opts: {
       {
         key: "confidence",
         header: "Conf",
-        render: (r) => (
-          <span className="text-gray-400 text-sm">
-            {r.n_fund_signals}/6
-          </span>
-        ),
+        render: (r) => {
+          const smCount = r.sm_signals ? Object.keys(r.sm_signals).length : 0;
+          const total = (r.inversion_applied ? r.n_fund_signals : r.n_fund_signals) ;
+          const denom = r.inversion_applied ? `${r.n_fund_signals}` : "6";
+          return (
+            <span className="text-gray-400 text-sm" title={r.inversion_applied ? `${r.n_fund_signals} signals (VA+SM inverted)` : `${r.n_fund_signals}/6 VA signals`}>
+              {denom}{r.inversion_applied && <span className="text-blue-400 text-[10px] ml-0.5">inv</span>}
+            </span>
+          );
+        },
         sortKey: (r) => r.n_fund_signals,
         align: "right",
       },
@@ -176,24 +181,46 @@ function buildColumns(opts: {
         key: "sm_flow",
         header: "SM Flow",
         render: (r) => {
+          const sm = r.sm_signals?.netflow_30d;
+          if (sm?.signal != null) {
+            // Three-pillar signal bar (inverted: negative signal = distribution = good short)
+            return <SignalBar value={Math.abs(sm.signal)} label={sm.value != null ? `${(sm.value / 1e6).toFixed(1)}M` : undefined} />;
+          }
           const nf = r.nansen_signals?.sm_netflow;
           if (nf == null) return <span className="text-gray-700 text-[11px]">—</span>;
           const color = nf < 0 ? "text-red-400" : nf > 0 ? "text-green-400" : "text-gray-400";
           return <span className={`text-[11px] ${color}`}>{nf < 0 ? "" : "+"}{(nf / 1e6).toFixed(1)}M</span>;
         },
-        sortKey: (r) => r.nansen_signals?.sm_netflow ?? 0,
+        sortKey: (r) => r.sm_signals?.netflow_30d?.signal ?? r.nansen_signals?.sm_netflow ?? 0,
+        align: "right",
+      },
+      {
+        key: "sm_holders",
+        header: "SM Holders",
+        render: (r) => {
+          const sm = r.sm_signals?.holders_relative;
+          if (sm?.signal == null) return <span className="text-gray-700 text-[11px]">—</span>;
+          const color = sm.signal > 0 ? "text-green-400" : sm.signal < 0 ? "text-red-400" : "text-gray-400";
+          return <span className={`text-[11px] ${color}`}>{sm.signal > 0 ? "+" : ""}{sm.signal.toFixed(2)}</span>;
+        },
+        sortKey: (r) => r.sm_signals?.holders_relative?.signal ?? 0,
         align: "right",
       },
       {
         key: "funding",
         header: "Funding",
         render: (r) => {
+          const sm = r.sm_signals?.perp_funding;
+          if (sm?.value != null) {
+            const color = sm.value > 0 ? "text-red-400" : sm.value < 0 ? "text-green-400" : "text-gray-400";
+            return <span className={`text-[11px] ${color}`}>{(sm.value * 100).toFixed(4)}%</span>;
+          }
           const fr = r.nansen_signals?.perp_funding_rate;
           if (fr == null) return <span className="text-gray-700 text-[11px]">—</span>;
           const color = fr > 0 ? "text-red-400" : fr < 0 ? "text-green-400" : "text-gray-400";
           return <span className={`text-[11px] ${color}`}>{(fr * 100).toFixed(4)}%</span>;
         },
-        sortKey: (r) => r.nansen_signals?.perp_funding_rate ?? 0,
+        sortKey: (r) => r.sm_signals?.perp_funding?.signal ?? r.nansen_signals?.perp_funding_rate ?? 0,
         align: "right",
       },
       {
@@ -372,7 +399,7 @@ export function ShortSelectionTab() {
         </div>
         <p className="text-[11px] text-gray-500 mt-1.5">
           {fundFirst
-            ? "Shorts ranked by fundamental weakness (dilution, fee decay, unlocks). Correlation is a floor filter only. Beta neutrality enforced at portfolio level via sizing."
+            ? "Shorts ranked by inverted long-side VA + SM scoring. Tokens that score poorly on longs = natural short candidates. Correlation is a floor filter. No new data needed."
             : "Shorts ranked by correlation to the long basket. VA signals added as small boosts. Beta neutrality through selection."}
         </p>
       </div>
@@ -388,8 +415,9 @@ export function ShortSelectionTab() {
             <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
               <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Score Formula</div>
               <code className="text-xs text-gray-300">
-                score = weighted_avg(6 VA signals) × confidence(n/6) × liquidity_gate × momentum
+                score = -1 × (VA_score + 0.15 × SM_score) × confidence × aggression × liquidity × momentum
               </code>
+              <div className="text-[10px] text-gray-600 mt-1">Inverted long-side three-pillar scoring (VA + SM). Tokens bad on longs = good shorts.</div>
             </div>
 
             {/* Floors */}
@@ -407,7 +435,7 @@ export function ShortSelectionTab() {
               <div className="text-center">
                 <div className="text-[10px] text-gray-600 uppercase">Confidence Floor</div>
                 <div className="text-sm font-medium text-gray-300">{data.short_fund_confidence_floor?.toFixed(2) ?? "0.30"}</div>
-                <div className="text-[10px] text-gray-600">min {Math.round((data.short_fund_confidence_floor ?? 0.3) * 6)} of 6 signals</div>
+                <div className="text-[10px] text-gray-600">VA+SM signals</div>
               </div>
             </div>
 
