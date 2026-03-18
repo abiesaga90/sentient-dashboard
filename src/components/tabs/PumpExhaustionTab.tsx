@@ -230,6 +230,19 @@ export function PumpExhaustionTab() {
 
   if (!data) return null;
 
+  if (!data.enabled || !data.config) {
+    return (
+      <div className="p-4">
+        <Card className="flex flex-col items-center justify-center h-64">
+          <div className="text-lg font-medium text-gray-400">Pump Scanner Disabled</div>
+          <div className="text-sm text-gray-600 mt-2">
+            Set PUMP_EXHAUSTION_ENABLED=true to activate.
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   const aboveThreshold = data.universe_pumps.filter(
     (p) => p.exhaustion_score >= data.config.threshold
   );

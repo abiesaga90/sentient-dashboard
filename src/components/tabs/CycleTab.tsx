@@ -28,10 +28,16 @@ interface CycleCurrent {
   price_date: string | null;
 }
 
+interface ZoneThreshold {
+  max: number;
+  label: string;
+  color: string;
+}
+
 interface CycleResponse {
   updated_at: string;
   current: CycleCurrent;
-  zone_thresholds?: Record<string, Record<string, [number, number]>>;
+  zone_thresholds?: Record<string, Record<string, ZoneThreshold>>;
   cycle_peaks?: Record<string, unknown>;
   error?: string;
 }
@@ -189,12 +195,14 @@ export function CycleTab() {
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
                 {Object.entries(data.zone_thresholds).map(([metric, zones]) =>
-                  Object.entries(zones).map(([zone, [lo, hi]]) => (
+                  Object.entries(zones).map(([zone, info]) => (
                     <tr key={`${metric}-${zone}`} className="hover:bg-[var(--bg-card-hover)]">
                       <td className="px-3 py-1.5 text-gray-300">{metric}</td>
-                      <td className="px-3 py-1.5 text-gray-400">{zone}</td>
+                      <td className="px-3 py-1.5">
+                        <span style={{ color: info.color }}>{info.label}</span>
+                      </td>
                       <td className="px-3 py-1.5 text-right font-mono text-gray-300">
-                        {lo} – {hi}
+                        ≤ {info.max}
                       </td>
                     </tr>
                   ))
