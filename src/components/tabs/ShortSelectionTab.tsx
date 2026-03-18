@@ -205,6 +205,18 @@ function buildColumns(opts: {
         align: "right",
       },
       {
+        key: "dex_net",
+        header: "DEX Net",
+        render: (r) => {
+          const sm = r.sm_signals?.dex_net_volume;
+          if (sm?.value == null) return <span className="text-gray-700 text-[11px]">—</span>;
+          const color = sm.value < 0 ? "text-red-400" : sm.value > 0 ? "text-green-400" : "text-gray-400";
+          return <span className={`text-[11px] ${color}`}>{sm.value < 0 ? "" : "+"}{(sm.value / 1e6).toFixed(2)}M</span>;
+        },
+        sortKey: (r) => r.sm_signals?.dex_net_volume?.signal ?? 0,
+        align: "right",
+      },
+      {
         key: "funding",
         header: "Funding",
         render: (r) => {
@@ -413,9 +425,9 @@ export function ShortSelectionTab() {
             <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
               <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Score Formula</div>
               <code className="text-xs text-gray-300">
-                score = -1 × (VA_score + 0.15 × SM_score) × confidence × aggression × liquidity × momentum
+                score = -1 × (VA + 0.15 × SM) × confidence × aggression × liquidity × momentum × perp_crowding
               </code>
-              <div className="text-[10px] text-gray-600 mt-1">Inverted long-side three-pillar scoring (VA + SM). Tokens bad on longs = good shorts.</div>
+              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (on-chain fundamentals), SM = smart money (Nansen + Arkham). Perp crowding dampens crowded shorts.</div>
             </div>
 
             {/* Floors */}
@@ -457,10 +469,31 @@ export function ShortSelectionTab() {
               </div>
             </div>
 
+            {/* SM Signal Weights */}
+            <div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Smart Money Signals <span className="text-gray-700">(SM pillar, weight 0.15)</span></div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[
+                  { label: "SM Netflow 30d", source: "Nansen" },
+                  { label: "SM Holders (rel)", source: "Nansen" },
+                  { label: "Perp Pressure", source: "Nansen" },
+                  { label: "Perp Funding", source: "Nansen" },
+                  { label: "DEX Net Volume", source: "Nansen" },
+                  { label: "Exchange Flow", source: "Arkham" },
+                ].map(({ label, source }) => (
+                  <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
+                    <span className="text-[11px] text-gray-400">{label}</span>
+                    <span className="text-[10px] text-gray-600">{source}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, normalized to [-1, +1]. Inverted for short scoring.</div>
+            </div>
+
             {/* Modifiers */}
             <div>
               <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Score Modifiers</div>
-              <div className="grid grid-cols-3 gap-2 text-[11px]">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Liquidity</span>
                   <span className="text-gray-300 float-right">min(1, vol/${formatUSD(data.min_volume, 0)})</span>
@@ -468,6 +501,10 @@ export function ShortSelectionTab() {
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Momentum</span>
                   <span className="text-gray-300 float-right">{data.momentum_weight.toFixed(2)}</span>
+                </div>
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">Perp Crowding</span>
+                  <span className="text-gray-300 float-right">dampen if crowded</span>
                 </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Diversity</span>

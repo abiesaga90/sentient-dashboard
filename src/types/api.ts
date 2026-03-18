@@ -373,6 +373,7 @@ export interface RankingCandidate {
     holders_relative?: SmSignalDetail;
     perp_pressure?: SmSignalDetail;
     perp_funding?: SmSignalDetail;
+    dex_net_volume?: SmSignalDetail;
     dat_accumulation?: SmSignalDetail;
     arkham_exchange_flow?: SmSignalDetail;
   } | null;
