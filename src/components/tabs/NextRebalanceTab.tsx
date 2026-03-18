@@ -76,83 +76,80 @@ export function NextRebalanceTab() {
   const current = cycles?.current_cycle;
   const summary = cycles?.summary;
   const completed = cycles?.completed_cycles || [];
+  const hasCycleData = current || completed.length > 0;
 
   return (
     <div className="p-4 space-y-4">
-      {/* Countdown + Current Cycle */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="text-center py-6">
-          <CardHeader>
-            <CardTitle>Next Rebalance</CardTitle>
-          </CardHeader>
-          <div className="text-4xl font-bold text-blue-400 my-4">
-            {countdown || "\u2014"}
-          </div>
-          <div className="text-xs text-gray-500 space-y-1">
-            {nextRebalance && (
-              <div>
-                Scheduled: {new Date(nextRebalance).toLocaleString()}
-              </div>
-            )}
-            {lastRebalance && (
-              <div>Last rebalance: {timeAgo(lastRebalance)}</div>
-            )}
-          </div>
-        </Card>
+      {/* Countdown — full width, always visible */}
+      <Card className="text-center py-8">
+        <CardHeader>
+          <CardTitle>Next Rebalance</CardTitle>
+        </CardHeader>
+        <div className="text-4xl font-bold text-blue-400 my-4">
+          {countdown || "\u2014"}
+        </div>
+        <div className="text-xs text-gray-500 space-y-1">
+          {nextRebalance && (
+            <div>Scheduled: {new Date(nextRebalance).toLocaleString()}</div>
+          )}
+          {lastRebalance && (
+            <div>Last rebalance: {timeAgo(lastRebalance)}</div>
+          )}
+        </div>
+      </Card>
 
-        {current && (
-          <Card className="py-6">
-            <CardHeader>
-              <CardTitle>
-                Current Cycle #{current.cycle_number}
-              </CardTitle>
-            </CardHeader>
-            <div className="px-4 space-y-3">
-              <div className="flex items-baseline gap-2">
-                <span className="text-xs text-gray-500">P&L</span>
-                <span className="text-2xl font-bold">
+      {/* Current Cycle */}
+      {current && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Current Cycle #{current.cycle_number}</CardTitle>
+          </CardHeader>
+          <div className="px-4 pb-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-xs">
+              <div>
+                <div className="text-gray-500">Cycle P&L</div>
+                <div className="text-lg font-semibold">
                   <PnlText value={current.cycle_pnl} format="usd" />
-                </span>
-                <span className="text-sm">
+                </div>
+                <div className="text-sm">
                   <PnlText value={current.cycle_pnl_pct} format="pct" />
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div>
-                  <div className="text-gray-500">Start NAV</div>
-                  <div className="text-gray-200">
-                    ${current.start_nav?.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Current NAV</div>
-                  <div className="text-gray-200">
-                    ${current.end_nav?.toLocaleString(undefined, { maximumFractionDigits: 0 }) || "\u2014"}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Trades</div>
-                  <div className="text-gray-200">{current.n_trades ?? 0}</div>
                 </div>
               </div>
-              <div className="text-xs text-gray-500">
-                Started: {new Date(current.start_time).toLocaleString()}
+              <div>
+                <div className="text-gray-500">Start NAV</div>
+                <div className="text-gray-200 font-medium">
+                  ${current.start_nav?.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </div>
+              </div>
+              <div>
+                <div className="text-gray-500">Current NAV</div>
+                <div className="text-gray-200 font-medium">
+                  ${current.end_nav?.toLocaleString(undefined, { maximumFractionDigits: 0 }) || "\u2014"}
+                </div>
+              </div>
+              <div>
+                <div className="text-gray-500">Realized</div>
+                <div><PnlText value={current.realized_pnl} format="usd" /></div>
+              </div>
+              <div>
+                <div className="text-gray-500">Trades</div>
+                <div className="text-gray-200 font-medium">{current.n_trades ?? 0}</div>
               </div>
             </div>
-          </Card>
-        )}
-      </div>
+          </div>
+        </Card>
+      )}
 
       {/* Cycle Summary KPIs */}
       {summary && summary.total_cycles > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <KpiCard
-            label="Cycles"
+            label="Completed Cycles"
             value={`${summary.total_cycles}`}
             sub={`${summary.winning_cycles}W / ${summary.losing_cycles}L`}
           />
           <KpiCard
-            label="Win Rate"
+            label="Cycle Win Rate"
             value={`${summary.win_rate_pct.toFixed(0)}%`}
             valueColor={
               summary.win_rate_pct >= 50 ? "text-green-400" : "text-red-400"
@@ -160,7 +157,7 @@ export function NextRebalanceTab() {
           />
           <KpiCard
             label="Avg Cycle P&L"
-            value={`$${summary.avg_cycle_pnl.toFixed(2)}`}
+            value={`$${summary.avg_cycle_pnl >= 0 ? "+" : ""}${summary.avg_cycle_pnl.toFixed(2)}`}
             sub={formatPct(summary.avg_cycle_pnl_pct)}
             valueColor={
               summary.avg_cycle_pnl >= 0 ? "text-green-400" : "text-red-400"
@@ -168,7 +165,7 @@ export function NextRebalanceTab() {
           />
           <KpiCard
             label="Best Cycle"
-            value={`$${summary.best_cycle_pnl.toFixed(2)}`}
+            value={`+$${summary.best_cycle_pnl.toFixed(2)}`}
             valueColor="text-green-400"
           />
           <KpiCard
@@ -257,8 +254,8 @@ export function NextRebalanceTab() {
         </Card>
       )}
 
-      {/* Empty state — always show when no cycles exist */}
-      {completed.length === 0 && !current && (
+      {/* Empty state */}
+      {!hasCycleData && (
         <Card className="flex flex-col items-center justify-center h-48">
           <div className="text-sm text-gray-400">No cycle data yet</div>
           <div className="text-xs text-gray-600 mt-1">
