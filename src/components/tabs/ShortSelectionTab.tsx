@@ -425,7 +425,7 @@ export function ShortSelectionTab() {
             <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
               <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Score Formula</div>
               <code className="text-xs text-gray-300">
-                score = -1 × (VA + 0.15 × SM) × confidence × aggression × liquidity × momentum × perp_crowding
+                score = -1 × (VA + 0.50 × SM) × confidence × aggression × liquidity × momentum × perp_crowding
               </code>
               <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (on-chain fundamentals), SM = smart money (Nansen + Arkham). Perp crowding dampens crowded shorts.</div>
             </div>
@@ -471,7 +471,7 @@ export function ShortSelectionTab() {
 
             {/* SM Signal Weights */}
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Smart Money Signals <span className="text-gray-700">(SM pillar, weight 0.15)</span></div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Smart Money Signals <span className="text-gray-700">(SM pillar, weight 0.50 &mdash; 33% of base score)</span></div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {[
                   { label: "SM Netflow 30d", source: "Nansen" },
