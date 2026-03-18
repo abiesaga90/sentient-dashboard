@@ -257,8 +257,8 @@ export function NextRebalanceTab() {
         </Card>
       )}
 
-      {/* Empty state */}
-      {(!cycles || (summary?.total_cycles === 0 && !current)) && (
+      {/* Empty state — always show when no cycles exist */}
+      {completed.length === 0 && !current && (
         <Card className="flex flex-col items-center justify-center h-48">
           <div className="text-sm text-gray-400">No cycle data yet</div>
           <div className="text-xs text-gray-600 mt-1">
