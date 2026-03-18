@@ -368,8 +368,10 @@ export function LongSignalsTab() {
   const accrualMap = new Map(accrual?.tokens.map(t => [t.symbol, t]) || []);
   const tokenMap = tokenSignals?.tokens ?? {};
 
-  // Build subtab list: overview + per-symbol for tokens with P3 data
+  // Build subtab list: overview + per-symbol for tokens with P3 data (long basket only)
+  const longBasketSymbols = new Set(signals?.tokens?.map(t => t.symbol) ?? []);
   const p3Symbols = Object.entries(tokenMap)
+    .filter(([sym]) => longBasketSymbols.has(sym))
     .sort(([, a], [, b]) => Math.abs(b.signal ?? 0) - Math.abs(a.signal ?? 0))
     .map(([sym]) => sym);
 
