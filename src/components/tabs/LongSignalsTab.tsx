@@ -622,7 +622,7 @@ export function LongSignalsTab() {
                   </div>
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
                     <span className="text-gray-500">Confidence</span>
-                    <span className="text-gray-400 float-right">n_va/5 + 0.50 × n_sm</span>
+                    <span className="text-gray-400 float-right">n_va/5 + 0.50 × n_sm/6</span>
                   </div>
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
                     <span className="text-gray-500">Aggression</span>
