@@ -381,7 +381,7 @@ export function RiskStressTab() {
       {adl && <AdlMonitor adl={adl} />}
 
       {/* ── Hedge Quality Analytics ── */}
-      {hedgeData && <HedgeQualitySection data={hedgeData} />}
+      {hedgeData && hedgeData.kpis && <HedgeQualitySection data={hedgeData} />}
 
       {/* ── Stress Scenarios (LP_REPORTING gated) ── */}
       {stress && stress.scenarios && stress.scenarios.length > 0 && (
