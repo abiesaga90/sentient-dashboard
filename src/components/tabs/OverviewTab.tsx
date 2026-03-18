@@ -24,6 +24,51 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
   return (
     <div className="space-y-4 p-4">
+      {/* L/S Alpha Spread */}
+      {data.portfolio.ls_spread && data.portfolio.ls_spread.spread_24h_pct != null && (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <Card>
+            <CardTitle>L/S Spread Today</CardTitle>
+            <div className={`text-2xl font-bold mt-1 ${
+              data.portfolio.ls_spread.spread_24h_pct >= 0 ? "text-green-400" : "text-red-400"
+            }`}>
+              {data.portfolio.ls_spread.spread_24h_pct >= 0 ? "+" : ""}
+              {data.portfolio.ls_spread.spread_24h_pct.toFixed(2)}%
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              Longs: {data.portfolio.ls_spread.long_24h_pct >= 0 ? "+" : ""}
+              {data.portfolio.ls_spread.long_24h_pct.toFixed(2)}% | Shorts: {data.portfolio.ls_spread.short_24h_pct >= 0 ? "+" : ""}
+              {data.portfolio.ls_spread.short_24h_pct.toFixed(2)}%
+            </div>
+          </Card>
+          <Card>
+            <CardTitle>Cumulative Alpha</CardTitle>
+            <div className={`text-2xl font-bold mt-1 ${
+              data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "text-green-400" : "text-red-400"
+            }`}>
+              {data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "+" : ""}
+              {data.portfolio.ls_spread.cumulative_spread_pct.toFixed(2)}%
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              Since inception
+            </div>
+          </Card>
+          <Card>
+            <CardTitle>Info Ratio</CardTitle>
+            <div className={`text-2xl font-bold mt-1 ${
+              data.portfolio.ls_spread.information_ratio > 1 ? "text-green-400"
+                : data.portfolio.ls_spread.information_ratio > 0 ? "text-yellow-400"
+                : "text-red-400"
+            }`}>
+              {data.portfolio.ls_spread.information_ratio.toFixed(2)}
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              Down-day capture: {data.portfolio.ls_spread.down_day_capture_pct.toFixed(0)}%
+            </div>
+          </Card>
+        </div>
+      )}
+
       {/* KPI Cards + Compliance + NT dual view */}
       <KpiRow
         portfolio={data.portfolio}

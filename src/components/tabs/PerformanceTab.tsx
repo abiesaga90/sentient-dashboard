@@ -56,6 +56,15 @@ interface PerformanceResponse {
     hedge_score: number;
     unrealized_pnl: number;
   }>;
+  ls_alpha?: {
+    cumulative_spread_pct: number;
+    information_ratio: number;
+    down_day_capture_pct: number;
+    tracking_error_ann: number;
+    long_max_dd_pct: number;
+    short_max_dd_pct: number;
+    trading_days: number;
+  };
 }
 
 export function PerformanceTab() {
@@ -211,6 +220,55 @@ export function PerformanceTab() {
           </div>
         </div>
       </Card>
+
+      {/* L/S Alpha */}
+      {data.ls_alpha && (
+        <Card>
+          <CardHeader>
+            <CardTitle>L/S Alpha</CardTitle>
+          </CardHeader>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <div className="text-xs text-gray-500">Cumulative Spread</div>
+              <div className={`text-lg font-bold ${data.ls_alpha.cumulative_spread_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
+                {data.ls_alpha.cumulative_spread_pct >= 0 ? "+" : ""}{data.ls_alpha.cumulative_spread_pct.toFixed(2)}%
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Information Ratio</div>
+              <div className={`text-lg font-bold ${data.ls_alpha.information_ratio > 1 ? "text-green-400" : data.ls_alpha.information_ratio > 0 ? "text-yellow-400" : "text-red-400"}`}>
+                {data.ls_alpha.information_ratio.toFixed(2)}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Down-Day Capture</div>
+              <div className="text-lg font-bold text-gray-200">
+                {data.ls_alpha.down_day_capture_pct.toFixed(1)}%
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Tracking Error (ann.)</div>
+              <div className="text-lg font-bold text-gray-200">
+                {data.ls_alpha.tracking_error_ann.toFixed(2)}%
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-[var(--border)]">
+            <div>
+              <div className="text-xs text-gray-500">Long Max DD</div>
+              <div className="text-sm text-red-400">{data.ls_alpha.long_max_dd_pct.toFixed(2)}%</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Short Max DD</div>
+              <div className="text-sm text-red-400">{data.ls_alpha.short_max_dd_pct.toFixed(2)}%</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Trading Days</div>
+              <div className="text-sm text-gray-300">{data.ls_alpha.trading_days}</div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Hedge Effectiveness */}
       <Card>
