@@ -301,7 +301,7 @@ function TokenDetailView({
               <span className="text-gray-500">VA score</span>
               <span>{t.raw_score > 0 ? "+" : ""}{t.raw_score.toFixed(4)} (from {t.va_count} signals)</span>
               <span className="text-gray-500">+ SM contribution</span>
-              <span>0.15 × {t.sm_count > 0 ? "avg" : "0"} SM signals</span>
+              <span>0.50 × {t.sm_count > 0 ? "avg" : "0"} SM signals</span>
               {tokenData?.enabled && tokenData.signal != null && (
                 <>
                   <span className="text-gray-500">+ P3 contribution</span>
@@ -558,9 +558,9 @@ export function LongSignalsTab() {
               </div>
             </div>
             <div>
-              <div className="text-gray-500 mb-2 uppercase tracking-wider text-[10px]">Pillar 2: Smart Money (4 signals)</div>
+              <div className="text-gray-500 mb-2 uppercase tracking-wider text-[10px]">Pillar 2: Smart Money (6 signals, weight 0.50)</div>
               <div className="space-y-1">
-                {["SM Netflow 30d (Nansen)", "SM Holders (relative to median)", "Perp Net Pressure (positioning)", "Perp Funding Rate (crowding)"].map((s, i) => (
+                {["SM Netflow 30d (Nansen)", "SM Holders (relative to median)", "Perp Net Pressure (positioning)", "Perp Funding Rate (crowding)", "DEX Net Volume (Nansen)", "Exchange Flow (Arkham)"].map((s, i) => (
                   <div key={i} className="flex items-center gap-2 text-gray-400">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />{s}
                   </div>
