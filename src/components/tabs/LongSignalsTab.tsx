@@ -543,51 +543,92 @@ export function LongSignalsTab() {
           </Card>
         )}
 
-        {/* Signal Architecture Map */}
+        {/* Scoring Architecture */}
         <Card>
-          <CardHeader><CardTitle>Signal Architecture</CardTitle></CardHeader>
-          <div className="grid grid-cols-3 gap-4 text-xs">
+          <CardHeader><CardTitle>Scoring Architecture</CardTitle></CardHeader>
+          <div className="space-y-3">
+            {/* Formula */}
+            <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
+              <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Tilt Formula</div>
+              <code className="text-xs text-gray-300">
+                tilt = max(0.25, {signals.config?.base || 2.0}^(adjusted_score))
+              </code>
+              <div className="text-[10px] text-gray-600 mt-1">
+                adjusted_score = (VA + 0.50 × SM + P3) × confidence × aggression. Positive score = overweight, negative = underweight.
+              </div>
+            </div>
+
+            {/* VA Signal Weights */}
             <div>
-              <div className="text-gray-500 mb-2 uppercase tracking-wider text-[10px]">Pillar 1: Value Accrual (5 signals)</div>
-              <div className="space-y-1">
-                {["FDV/MCap (dilution overhang)", "Supply Momentum (7d/30d blend)", "Buyback Intensity (holder rev yield)", "Revenue Capture (holders_rev / fees)", "Fee Momentum (30d + 7d blend)"].map((s, i) => (
-                  <div key={i} className="flex items-center gap-2 text-gray-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />{s}
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Pillar 1: Value Accrual Weights</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[
+                  { label: "Buyback Intensity", weight: "30%" },
+                  { label: "Revenue Capture", weight: "25%" },
+                  { label: "Fee Momentum", weight: "25%" },
+                  { label: "Dilution (FDV/MCap)", weight: "10%" },
+                  { label: "Supply Momentum", weight: "10%" },
+                ].map(({ label, weight }) => (
+                  <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
+                    <span className="text-[11px] text-gray-400">{label}</span>
+                    <span className="text-xs font-medium text-gray-200">{weight}</span>
                   </div>
                 ))}
               </div>
             </div>
+
+            {/* SM Signal Weights */}
             <div>
-              <div className="text-gray-500 mb-2 uppercase tracking-wider text-[10px]">Pillar 2: Smart Money (6 signals, weight 0.50)</div>
-              <div className="space-y-1">
-                {["SM Netflow 30d (Nansen)", "SM Holders (relative to median)", "Perp Net Pressure (positioning)", "Perp Funding Rate (crowding)", "DEX Net Volume (Nansen)", "Exchange Flow (Arkham)"].map((s, i) => (
-                  <div key={i} className="flex items-center gap-2 text-gray-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />{s}
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Pillar 2: Smart Money <span className="text-gray-700">(weight 0.50 &mdash; 33% of base score)</span></div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {[
+                  { label: "SM Netflow 30d", source: "Nansen" },
+                  { label: "SM Holders (rel)", source: "Nansen" },
+                  { label: "Perp Pressure", source: "Nansen" },
+                  { label: "Perp Funding", source: "Nansen" },
+                  { label: "DEX Net Volume", source: "Nansen" },
+                  { label: "Exchange Flow", source: "Arkham" },
+                ].map(({ label, source }) => (
+                  <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
+                    <span className="text-[11px] text-gray-400">{label}</span>
+                    <span className="text-[10px] text-gray-600">{source}</span>
                   </div>
                 ))}
               </div>
-              <div className="text-gray-500 mt-3 mb-2 uppercase tracking-wider text-[10px]">VA Gate</div>
-              <div className="text-gray-400 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-                Caps positive VA signals if no holder revenue mechanism
-              </div>
+              <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, normalized to [-1, +1].</div>
             </div>
-            <div>
-              <div className="text-gray-500 mb-2 uppercase tracking-wider text-[10px]">Pillar 3: Token Signals ({p3Symbols.length} tokens)</div>
-              <div className="space-y-1">
-                {["Revenue → VA fee_momentum (Blockworks blend)", "Protocol Activity (DEX vol, AUM, supply)", "MEV & Burn Metrics (Jito, EIP-1559)", "Unique per-token signals (bribes, GHO)"].map((s, i) => (
-                  <div key={i} className="flex items-center gap-2 text-gray-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />{s}
+
+            {/* Pillar 3 + Modifiers */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Pillar 3: Token Signals</div>
+                <div className="grid grid-cols-1 gap-2 text-[11px]">
+                  {["Revenue (Blockworks blend)", "Protocol Activity (DEX vol, AUM)", "MEV & Burn Metrics", "Per-token bespoke signals"].map((s, i) => (
+                    <div key={i} className="flex items-center gap-2 bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />{s}
+                    </div>
+                  ))}
+                  <div className="text-[10px] text-gray-600">{tokenSignals?.coverage.enabled ?? 0} enabled / {p3Symbols.length} tokens</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Modifiers</div>
+                <div className="grid grid-cols-1 gap-2 text-[11px]">
+                  <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
+                    <span className="text-gray-500">VA Gate</span>
+                    <span className="text-gray-400 float-right">caps if no holder revenue</span>
                   </div>
-                ))}
-              </div>
-              <div className="mt-2 text-[10px] text-gray-600">
-                {tokenSignals?.coverage.enabled ?? 0} enabled / {tokenSignals?.coverage.with_signals ?? 0} configured
+                  <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
+                    <span className="text-gray-500">Confidence</span>
+                    <span className="text-gray-400 float-right">n_va/5 + 0.50 × n_sm</span>
+                  </div>
+                  <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
+                    <span className="text-gray-500">Aggression</span>
+                    <span className="text-gray-400 float-right">{signals.config?.aggression?.toFixed(1) ?? "1.0"}×</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="mt-3 text-[10px] text-gray-600">
-            Tilt = max(0.25, {signals.config?.base || 2.0}^(adjusted_score)) · adjusted_score = raw × confidence × aggression
           </div>
         </Card>
 
