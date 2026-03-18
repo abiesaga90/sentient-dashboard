@@ -87,10 +87,10 @@ export function NextRebalanceTab() {
   const nextRebalance = status?.feature_health?.next_rebalance_at;
   const lastRebalance = status?.feature_health?.last_rebalance;
 
-  // Dry-run query (admin-protected, 5 min refetch)
+  // Dry-run query — manual only (compute-heavy, no auto-refetch)
   const {
     data: dryRun,
-    isLoading: dryRunLoading,
+    isFetching: dryRunFetching,
     error: dryRunError,
     refetch: refetchDryRun,
   } = useQuery<DryRunResponse>({
@@ -99,8 +99,8 @@ export function NextRebalanceTab() {
       client.getWithHeaders("/api/rebalance/dry-run", {
         "X-Admin-Secret": engine.adminSecret,
       }),
-    refetchInterval: 300_000,
-    staleTime: 120_000,
+    enabled: false,
+    staleTime: Infinity,
     retry: 1,
   });
 
@@ -257,13 +257,21 @@ export function NextRebalanceTab() {
             />
           </>
         )}
-        {!dryRun && !dryRunLoading && (
-          <Card className="col-span-3 flex items-center justify-center text-sm text-gray-500">
-            {dryRunError ? "Dry-run unavailable" : "Loading preview…"}
+        {!dryRun && !dryRunFetching && (
+          <Card className="col-span-3 flex flex-col items-center justify-center gap-3 py-4">
+            <div className="text-sm text-gray-500">
+              {dryRunError ? "Dry-run failed — try again" : "Preview what changes at the next rebalance"}
+            </div>
+            <button
+              onClick={() => refetchDryRun()}
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
+            >
+              Load Rebalance Preview
+            </button>
           </Card>
         )}
-        {dryRunLoading && (
-          <Card className="col-span-3 flex items-center justify-center text-sm text-gray-500">
+        {dryRunFetching && !dryRun && (
+          <Card className="col-span-3 flex items-center justify-center text-sm text-gray-500 py-4">
             <div className="animate-pulse">Computing rebalance preview…</div>
           </Card>
         )}
@@ -432,9 +440,15 @@ export function NextRebalanceTab() {
         <div className="flex justify-center">
           <button
             onClick={() => refetchDryRun()}
-            className="text-xs text-gray-500 hover:text-blue-400 transition-colors px-3 py-1.5 rounded border border-[var(--border)] hover:border-[var(--border-hover)]"
+            disabled={dryRunFetching}
+            className={cn(
+              "text-xs transition-colors px-3 py-1.5 rounded border",
+              dryRunFetching
+                ? "text-gray-600 border-gray-700 cursor-not-allowed"
+                : "text-gray-500 hover:text-blue-400 border-[var(--border)] hover:border-[var(--border-hover)]",
+            )}
           >
-            Refresh Preview
+            {dryRunFetching ? "Refreshing…" : "Refresh Preview"}
           </button>
         </div>
       )}
