@@ -378,7 +378,7 @@ export function LongSignalsTab() {
   }
 
   if (!signals?.tokens?.length) {
-    return <div className="p-4 text-gray-500 text-sm">No long signal data available. Dynamic tilts may be disabled (SM_TILT_WEIGHT=0).</div>;
+    return <div className="p-4 text-gray-500 text-sm">No long signal data available.</div>;
   }
 
   const sorted = [...signals.tokens].sort((a, b) => b.tilt - a.tilt);
@@ -675,7 +675,7 @@ export function LongSignalsTab() {
                           <span className="text-purple-400">{t.va_count}</span>
                           <span className="text-gray-600">/5 </span>
                           <span className="text-blue-400">{t.sm_count}</span>
-                          <span className="text-gray-600">/4 </span>
+                          <span className="text-gray-600">/6 </span>
                           <span className={p3Count > 0 ? "text-orange-400" : "text-gray-600"}>{p3Count}</span>
                         </td>
                         <td className="py-2.5 text-right text-gray-400">{fmt(t.fees_30d)}</td>
