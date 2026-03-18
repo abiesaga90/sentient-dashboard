@@ -24,11 +24,11 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
   return (
     <div className="space-y-4 p-4">
-      {/* L/S Alpha Spread */}
+      {/* L/S Spread */}
       {data.portfolio.ls_spread && data.portfolio.ls_spread.spread_24h_pct != null && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <Card>
-            <CardTitle>L/S Spread Today</CardTitle>
+            <CardTitle>L/S Spread 24h</CardTitle>
             <div className={`text-2xl font-bold mt-1 ${
               data.portfolio.ls_spread.spread_24h_pct >= 0 ? "text-green-400" : "text-red-400"
             }`}>
@@ -36,34 +36,31 @@ export function OverviewTab({ data }: OverviewTabProps) {
               {data.portfolio.ls_spread.spread_24h_pct.toFixed(2)}%
             </div>
             <div className="text-[10px] text-gray-600 mt-1">
-              Longs: {data.portfolio.ls_spread.long_24h_pct >= 0 ? "+" : ""}
-              {data.portfolio.ls_spread.long_24h_pct.toFixed(2)}% | Shorts: {data.portfolio.ls_spread.short_24h_pct >= 0 ? "+" : ""}
+              {data.portfolio.ls_spread.spread_24h_pct >= 0 ? "Longs outperform" : "Shorts outperform"}
+            </div>
+          </Card>
+          <Card>
+            <CardTitle>Long Basket 24h</CardTitle>
+            <div className={`text-2xl font-bold mt-1 ${
+              data.portfolio.ls_spread.long_24h_pct >= 0 ? "text-green-400" : "text-red-400"
+            }`}>
+              {data.portfolio.ls_spread.long_24h_pct >= 0 ? "+" : ""}
+              {data.portfolio.ls_spread.long_24h_pct.toFixed(2)}%
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              Notional-weighted avg return
+            </div>
+          </Card>
+          <Card>
+            <CardTitle>Short Basket 24h</CardTitle>
+            <div className={`text-2xl font-bold mt-1 ${
+              data.portfolio.ls_spread.short_24h_pct >= 0 ? "text-green-400" : "text-red-400"
+            }`}>
+              {data.portfolio.ls_spread.short_24h_pct >= 0 ? "+" : ""}
               {data.portfolio.ls_spread.short_24h_pct.toFixed(2)}%
             </div>
-          </Card>
-          <Card>
-            <CardTitle>Cumulative Alpha</CardTitle>
-            <div className={`text-2xl font-bold mt-1 ${
-              data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "text-green-400" : "text-red-400"
-            }`}>
-              {data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "+" : ""}
-              {data.portfolio.ls_spread.cumulative_spread_pct.toFixed(2)}%
-            </div>
             <div className="text-[10px] text-gray-600 mt-1">
-              Since inception
-            </div>
-          </Card>
-          <Card>
-            <CardTitle>Info Ratio</CardTitle>
-            <div className={`text-2xl font-bold mt-1 ${
-              data.portfolio.ls_spread.information_ratio > 1 ? "text-green-400"
-                : data.portfolio.ls_spread.information_ratio > 0 ? "text-yellow-400"
-                : "text-red-400"
-            }`}>
-              {data.portfolio.ls_spread.information_ratio.toFixed(2)}
-            </div>
-            <div className="text-[10px] text-gray-600 mt-1">
-              Down-day capture: {data.portfolio.ls_spread.down_day_capture_pct.toFixed(0)}%
+              Notional-weighted avg return
             </div>
           </Card>
         </div>
