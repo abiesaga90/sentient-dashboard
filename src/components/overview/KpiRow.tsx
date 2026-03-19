@@ -12,7 +12,7 @@ export function KpiRow({ portfolio, risk, ntRisk }: KpiRowProps) {
   return (
     <div className="space-y-3">
       {/* Main KPI row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {/* NAV */}
         <Card>
           <CardTitle>NAV</CardTitle>
@@ -24,6 +24,20 @@ export function KpiRow({ portfolio, risk, ntRisk }: KpiRowProps) {
           </div>
           <div className="text-[10px] text-gray-600 mt-1 space-y-0.5">
             <div>Cash: {formatUSD(portfolio.nav - risk.gross_long - risk.gross_short)} | Notional: {formatUSD(portfolio.starting_capital * 2, 0)} | Leverage: {(risk.gross_pct / 100).toFixed(1)}x</div>
+          </div>
+        </Card>
+
+        {/* Daily Return */}
+        <Card>
+          <CardTitle>Daily Return</CardTitle>
+          <div className={cn(
+            "text-xl font-bold mt-1",
+            (portfolio.daily_return_pct ?? 0) > 0 ? "text-green-400" : (portfolio.daily_return_pct ?? 0) < 0 ? "text-red-400" : "text-gray-400"
+          )}>
+            {(portfolio.daily_return_pct ?? 0) > 0 ? "+" : ""}{(portfolio.daily_return_pct ?? 0).toFixed(2)}%
+          </div>
+          <div className="text-[10px] text-gray-600 mt-1">
+            NAV vs previous day close
           </div>
         </Card>
 

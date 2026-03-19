@@ -83,6 +83,7 @@ export interface Portfolio {
   paper_trading: boolean;
   starting_capital: number;
   total_return_pct: number;
+  daily_return_pct?: number;
   ls_spread?: {
     spread_24h_pct: number;
     long_24h_pct: number;
