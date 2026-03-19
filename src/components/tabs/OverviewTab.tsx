@@ -24,46 +24,55 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
   return (
     <div className="space-y-4 p-4">
-      {/* L/S Spread */}
-      {data.portfolio.ls_spread && data.portfolio.ls_spread.spread_24h_pct != null && (
-        <div className="grid grid-cols-3 gap-3">
-          <Card>
-            <CardTitle>L/S Spread 24h</CardTitle>
-            <div className={`text-2xl font-bold mt-1 ${
-              data.portfolio.ls_spread.spread_24h_pct >= 0 ? "text-green-400" : "text-red-400"
-            }`}>
-              {data.portfolio.ls_spread.spread_24h_pct >= 0 ? "+" : ""}
-              {data.portfolio.ls_spread.spread_24h_pct.toFixed(2)}%
-            </div>
-            <div className="text-[10px] text-gray-600 mt-1">
-              {data.portfolio.ls_spread.spread_24h_pct >= 0 ? "Longs outperform" : "Shorts outperform"}
-            </div>
-          </Card>
-          <Card>
-            <CardTitle>Long Basket 24h</CardTitle>
-            <div className={`text-2xl font-bold mt-1 ${
-              data.portfolio.ls_spread.long_24h_pct >= 0 ? "text-green-400" : "text-red-400"
-            }`}>
-              {data.portfolio.ls_spread.long_24h_pct >= 0 ? "+" : ""}
-              {data.portfolio.ls_spread.long_24h_pct.toFixed(2)}%
-            </div>
-            <div className="text-[10px] text-gray-600 mt-1">
-              Notional-weighted avg return
-            </div>
-          </Card>
-          <Card>
-            <CardTitle>Short Basket 24h</CardTitle>
-            <div className={`text-2xl font-bold mt-1 ${
-              data.portfolio.ls_spread.short_24h_pct >= 0 ? "text-green-400" : "text-red-400"
-            }`}>
-              {data.portfolio.ls_spread.short_24h_pct >= 0 ? "+" : ""}
-              {data.portfolio.ls_spread.short_24h_pct.toFixed(2)}%
-            </div>
-            <div className="text-[10px] text-gray-600 mt-1">
-              Notional-weighted avg return
-            </div>
-          </Card>
-        </div>
+      {/* L/S Spread — Multi-Horizon */}
+      {data.portfolio.ls_spread && data.portfolio.ls_spread.horizons && (
+        <Card>
+          <CardTitle>L/S Spread (notional-weighted)</CardTitle>
+          <div className="mt-2 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-gray-500 text-xs border-b border-gray-800">
+                  <th className="text-left py-1 pr-4"></th>
+                  {Object.keys(data.portfolio.ls_spread.horizons).map((h) => (
+                    <th key={h} className="text-right py-1 px-2 font-medium">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-gray-800/50">
+                  <td className="text-gray-400 py-1.5 pr-4 font-medium">Spread</td>
+                  {Object.entries(data.portfolio.ls_spread.horizons).map(([h, v]) => (
+                    <td key={h} className={`text-right py-1.5 px-2 font-bold ${
+                      v.spread_pct >= 0 ? "text-green-400" : "text-red-400"
+                    }`}>
+                      {v.spread_pct >= 0 ? "+" : ""}{v.spread_pct.toFixed(2)}%
+                    </td>
+                  ))}
+                </tr>
+                <tr className="border-b border-gray-800/50">
+                  <td className="text-gray-500 py-1.5 pr-4">Longs</td>
+                  {Object.entries(data.portfolio.ls_spread.horizons).map(([h, v]) => (
+                    <td key={h} className={`text-right py-1.5 px-2 ${
+                      v.long_pct >= 0 ? "text-green-400/70" : "text-red-400/70"
+                    }`}>
+                      {v.long_pct >= 0 ? "+" : ""}{v.long_pct.toFixed(2)}%
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="text-gray-500 py-1.5 pr-4">Shorts</td>
+                  {Object.entries(data.portfolio.ls_spread.horizons).map(([h, v]) => (
+                    <td key={h} className={`text-right py-1.5 px-2 ${
+                      v.short_pct >= 0 ? "text-green-400/70" : "text-red-400/70"
+                    }`}>
+                      {v.short_pct >= 0 ? "+" : ""}{v.short_pct.toFixed(2)}%
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
 
       {/* KPI Cards + Compliance + NT dual view */}

@@ -91,6 +91,7 @@ export interface Portfolio {
     cumulative_spread_pct: number;
     information_ratio: number;
     down_day_capture_pct: number;
+    horizons?: Record<string, { spread_pct: number; long_pct: number; short_pct: number }>;
   };
 }
 
