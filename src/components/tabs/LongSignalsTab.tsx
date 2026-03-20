@@ -3,6 +3,7 @@ import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { KpiCard } from "../shared/KpiCard";
+import { SignalFlowDiagram } from "../shared/SignalFlowDiagram";
 import { useState } from "react";
 
 interface Signal {
@@ -44,7 +45,17 @@ interface AccrualToken {
 
 interface LongSignalsResponse {
   tokens: LongToken[];
+  va_weights?: Record<string, number>;
   config: Record<string, number>;
+  summary?: {
+    avg_tilt: number;
+    max_tilt: number;
+    min_tilt: number;
+    avg_confidence: number;
+    full_va_coverage: number;
+    with_sm: number;
+    total: number;
+  };
   nansen_status?: {
     fresh_count: number;
     stale_count: number;
@@ -549,33 +560,48 @@ export function LongSignalsTab() {
         <Card>
           <CardHeader><CardTitle>Scoring Architecture</CardTitle></CardHeader>
           <div className="space-y-3">
-            {/* Formula */}
-            <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
-              <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Tilt Formula</div>
-              <code className="text-xs text-gray-300">
-                tilt = max(0.25, {signals.config?.base || 2.0}^(adjusted_score))
-              </code>
-              <div className="text-[10px] text-gray-600 mt-1">
-                adjusted_score = (VA + 0.50 × SM + P3) × confidence × aggression. Positive score = overweight, negative = underweight.
-              </div>
-            </div>
+            {/* Signal Flow Diagram */}
+            <SignalFlowDiagram
+              token={expanded ? sorted.find(x => x.symbol === expanded) ?? null : null}
+              vaWeights={signals.va_weights}
+              config={signals.config}
+            />
 
-            {/* VA Signal Weights */}
+            {/* VA Signal Weights (dynamic from backend) */}
             <div>
               <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Pillar 1: Value Accrual Weights</div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {[
-                  { label: "Buyback Intensity", weight: "30%" },
-                  { label: "Revenue Capture", weight: "25%" },
-                  { label: "Fee Momentum", weight: "25%" },
-                  { label: "Dilution (FDV/MCap)", weight: "10%" },
-                  { label: "Supply Momentum", weight: "10%" },
-                ].map(({ label, weight }) => (
-                  <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
-                    <span className="text-[11px] text-gray-400">{label}</span>
-                    <span className="text-xs font-medium text-gray-200">{weight}</span>
-                  </div>
-                ))}
+                {signals.va_weights ? Object.entries(signals.va_weights).map(([key, weight]) => {
+                  const labelMap: Record<string, string> = {
+                    dilution: "Dilution (FDV/MCap)",
+                    supply_delta: "Supply Momentum",
+                    unlock: "Unlock Pressure",
+                    buyback: "Buyback Intensity",
+                    rev_capture: "Revenue Capture",
+                    fee_momentum: "Fee Momentum",
+                  };
+                  return (
+                    <div key={key} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
+                      <span className="text-[11px] text-gray-400">{labelMap[key] ?? key}</span>
+                      <span className="text-xs font-medium text-gray-200">{(weight * 100).toFixed(0)}%</span>
+                    </div>
+                  );
+                }) : (
+                  // Fallback if backend hasn't returned weights yet
+                  [
+                    { label: "Dilution (FDV/MCap)", weight: "20%" },
+                    { label: "Supply Momentum", weight: "20%" },
+                    { label: "Unlock Pressure", weight: "20%" },
+                    { label: "Buyback Intensity", weight: "20%" },
+                    { label: "Revenue Capture", weight: "10%" },
+                    { label: "Fee Momentum", weight: "10%" },
+                  ].map(({ label, weight }) => (
+                    <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
+                      <span className="text-[11px] text-gray-400">{label}</span>
+                      <span className="text-xs font-medium text-gray-200">{weight}</span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -622,7 +648,7 @@ export function LongSignalsTab() {
                   </div>
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
                     <span className="text-gray-500">Confidence</span>
-                    <span className="text-gray-400 float-right">n_va/5 + 0.50 × n_sm/6</span>
+                    <span className="text-gray-400 float-right">n_va/6 + 0.50 × n_sm/6</span>
                   </div>
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
                     <span className="text-gray-500">Aggression</span>
@@ -716,7 +742,7 @@ export function LongSignalsTab() {
                         <td className="py-2.5 text-right text-gray-400">{(t.confidence * 100).toFixed(0)}%</td>
                         <td className="py-2.5 text-center">
                           <span className="text-purple-400">{t.va_count}</span>
-                          <span className="text-gray-600">/5 </span>
+                          <span className="text-gray-600">/6 </span>
                           <span className="text-blue-400">{t.sm_count}</span>
                           <span className="text-gray-600">/6 </span>
                           <span className={p3Count > 0 ? "text-orange-400" : "text-gray-600"}>{p3Count}</span>
