@@ -469,7 +469,7 @@ export function ShortSelectionTab() {
               <code className="text-xs text-gray-300">
                 score = -1 × (VA + 0.50 × SM) × confidence × aggression × liquidity × momentum
               </code>
-              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (Supply Health composite + buyback + rev capture + fee momentum), SM = smart money (Nansen + Arkham). Symmetric with long-side scoring: same composite, z-scoring, and freshness-weighted confidence.</div>
+              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (Supply Health composite + buyback + rev capture + fee momentum), SM = smart money (5 Nansen + 4 Arkham signals). Symmetric with long-side scoring: same composite, z-scoring, and freshness-weighted confidence.</div>
             </div>
 
             {/* Floors */}
@@ -546,6 +546,9 @@ export function ShortSelectionTab() {
                   { label: "Perp Funding", source: "Nansen" },
                   { label: "DEX Net Volume", source: "Nansen" },
                   { label: "Exchange Flow", source: "Arkham" },
+                  { label: "Fund Distributions", source: "Arkham" },
+                  { label: "Concentration", source: "Arkham" },
+                  { label: "Whale Direction", source: "Arkham" },
                 ].map(({ label, source }) => (
                   <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
                     <span className="text-[11px] text-gray-400">{label}</span>
@@ -553,7 +556,7 @@ export function ShortSelectionTab() {
                   </div>
                 ))}
               </div>
-              <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, normalized to [-1, +1]. Inverted for short scoring.</div>
+              <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, normalized to [-1, +1]. Inverted for short scoring. Exchange flow deduped: Nansen 24h first, Arkham 7d fallback.</div>
             </div>
 
             {/* Modifiers */}

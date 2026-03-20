@@ -179,7 +179,7 @@ const VA_SIGNAL_LABELS: Record<string, string> = {
   fee_momentum: "Fee Momentum",
 };
 
-const SM_SIGNAL_KEYS = new Set(["sm_netflow", "sm_holders", "perp_pressure", "perp_funding", "dex_net_volume"]);
+const SM_SIGNAL_KEYS = new Set(["sm_netflow", "sm_holders", "perp_pressure", "perp_funding", "dex_net_volume", "arkham_exchange_flow", "arkham_fund_flow", "arkham_concentration", "arkham_whale_direction"]);
 
 const freshnessDot = (f: number | undefined) => {
   if (f == null) return null;
@@ -332,7 +332,7 @@ function TokenDetailView({
                   {scoreBar(sig.score, 48)}
                 </div>
               ))}
-            {(!t || t.sm_count === 0) && <div className="text-xs text-gray-600 py-2">No Nansen data available</div>}
+            {(!t || t.sm_count === 0) && <div className="text-xs text-gray-600 py-2">No SM data available</div>}
           </div>
         </Card>
 
@@ -797,6 +797,9 @@ export function LongSignalsTab() {
                   { label: "Perp Funding", source: "Nansen" },
                   { label: "DEX Net Volume", source: "Nansen" },
                   { label: "Exchange Flow", source: "Arkham" },
+                  { label: "Fund Distributions", source: "Arkham" },
+                  { label: "Concentration", source: "Arkham" },
+                  { label: "Whale Direction", source: "Arkham" },
                 ].map(({ label, source }) => (
                   <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
                     <span className="text-[11px] text-gray-400">{label}</span>
@@ -804,7 +807,7 @@ export function LongSignalsTab() {
                   </div>
                 ))}
               </div>
-              <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, normalized to [-1, +1].</div>
+              <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, normalized to [-1, +1]. Exchange flow deduped: Nansen 24h first, Arkham 7d fallback.</div>
             </div>
 
             {/* Pillar 3 + Modifiers */}

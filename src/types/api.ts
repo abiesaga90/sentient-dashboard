@@ -381,6 +381,9 @@ export interface RankingCandidate {
     dex_net_volume?: SmSignalDetail;
     dat_accumulation?: SmSignalDetail;
     arkham_exchange_flow?: SmSignalDetail;
+    arkham_fund_flow?: SmSignalDetail;
+    arkham_concentration?: SmSignalDetail;
+    arkham_whale_direction?: SmSignalDetail;
   } | null;
   supply_health_composite?: number | null;
   va_weights_effective?: Record<string, number> | null;
