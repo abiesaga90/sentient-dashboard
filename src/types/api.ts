@@ -352,6 +352,8 @@ export interface VaSignalDetail {
   signal: number | null;
   weight: number;
   boost?: number | null;
+  z_score?: number | null;
+  freshness?: number | null;
 }
 
 export interface SmSignalDetail {
@@ -370,14 +372,7 @@ export interface RankingCandidate {
   fund_score_raw: number;
   n_fund_signals: number;
   fund_confidence: number;
-  va_signals: {
-    dilution: VaSignalDetail;
-    supply_momentum: VaSignalDetail;
-    buyback_intensity: VaSignalDetail;
-    revenue_capture: VaSignalDetail;
-    fee_momentum: VaSignalDetail;
-    unlock_pressure: VaSignalDetail;
-  };
+  va_signals: Record<string, VaSignalDetail>;
   sm_signals?: {
     netflow_30d?: SmSignalDetail;
     holders_relative?: SmSignalDetail;
@@ -387,6 +382,8 @@ export interface RankingCandidate {
     dat_accumulation?: SmSignalDetail;
     arkham_exchange_flow?: SmSignalDetail;
   } | null;
+  supply_health_composite?: number | null;
+  va_weights_effective?: Record<string, number> | null;
   inversion_applied?: boolean;
   long_raw_score?: number | null;
   va_total_boost: number | null;

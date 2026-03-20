@@ -113,45 +113,87 @@ function buildColumns(opts: {
         align: "right",
       },
       {
+        key: "supply_health",
+        header: "Supply H.",
+        render: (r) => {
+          const sh = r.supply_health_composite;
+          if (sh == null) return <span className="text-gray-700 text-[11px]">—</span>;
+          return <SignalBar value={Math.abs(sh)} label={sh.toFixed(2)} />;
+        },
+        sortKey: (r) => r.supply_health_composite ?? -1,
+        align: "right",
+      },
+      {
         key: "dilution",
         header: "FDV/MCap",
-        render: (r) => <SignalBar value={r.fdv_mcap_ratio} label={r.fdv_mcap_ratio != null ? `${r.fdv_mcap_ratio.toFixed(1)}x` : undefined} max={10} />,
+        render: (r) => {
+          const sig = r.va_signals?.dilution;
+          const zs = sig?.z_score;
+          return (
+            <div className="flex items-center gap-1">
+              <SignalBar value={r.fdv_mcap_ratio} label={r.fdv_mcap_ratio != null ? `${r.fdv_mcap_ratio.toFixed(1)}x` : undefined} max={10} />
+              {zs != null && <span className={`text-[9px] ${zs > 0 ? "text-green-500" : "text-red-500"}`}>z{zs > 0 ? "+" : ""}{zs.toFixed(1)}</span>}
+            </div>
+          );
+        },
         sortKey: (r) => r.fdv_mcap_ratio ?? -1,
         align: "right",
       },
       {
         key: "fee_mom",
         header: "Fee Mom",
-        render: (r) => <SignalBar value={r.va_signals.fee_momentum.signal} />,
-        sortKey: (r) => r.va_signals.fee_momentum.signal ?? -1,
+        render: (r) => {
+          const sig = r.va_signals?.fee_momentum;
+          return (
+            <div className="flex items-center gap-1">
+              <SignalBar value={sig?.signal} />
+              {sig?.z_score != null && <span className={`text-[9px] ${sig.z_score > 0 ? "text-green-500" : "text-red-500"}`}>z{sig.z_score > 0 ? "+" : ""}{sig.z_score.toFixed(1)}</span>}
+            </div>
+          );
+        },
+        sortKey: (r) => r.va_signals?.fee_momentum?.signal ?? -1,
         align: "right",
       },
       {
         key: "unlock",
         header: "Unlock",
-        render: (r) => <SignalBar value={r.va_signals.unlock_pressure.signal} />,
-        sortKey: (r) => r.va_signals.unlock_pressure.signal ?? -1,
+        render: (r) => {
+          const sig = r.va_signals?.unlock;
+          const fallback = r.va_signals?.unlock_pressure;
+          const s = sig ?? fallback;
+          return <SignalBar value={s?.signal} />;
+        },
+        sortKey: (r) => (r.va_signals?.unlock ?? r.va_signals?.unlock_pressure)?.signal ?? -1,
         align: "right",
       },
       {
         key: "supply_mom",
         header: "Supply",
-        render: (r) => <SignalBar value={r.va_signals.supply_momentum.signal} />,
-        sortKey: (r) => r.va_signals.supply_momentum.signal ?? -1,
+        render: (r) => {
+          const sig = r.va_signals?.supply_delta ?? r.va_signals?.supply_momentum;
+          return <SignalBar value={sig?.signal} />;
+        },
+        sortKey: (r) => (r.va_signals?.supply_delta ?? r.va_signals?.supply_momentum)?.signal ?? -1,
         align: "right",
       },
       {
         key: "rev_cap",
         header: "Rev Cap",
-        render: (r) => <SignalBar value={r.va_signals.revenue_capture.signal} />,
-        sortKey: (r) => r.va_signals.revenue_capture.signal ?? -1,
+        render: (r) => {
+          const sig = r.va_signals?.rev_capture ?? r.va_signals?.revenue_capture;
+          return <SignalBar value={sig?.signal} />;
+        },
+        sortKey: (r) => (r.va_signals?.rev_capture ?? r.va_signals?.revenue_capture)?.signal ?? -1,
         align: "right",
       },
       {
         key: "buyback",
         header: "Buyback",
-        render: (r) => <SignalBar value={r.va_signals.buyback_intensity.signal} />,
-        sortKey: (r) => r.va_signals.buyback_intensity.signal ?? -1,
+        render: (r) => {
+          const sig = r.va_signals?.buyback ?? r.va_signals?.buyback_intensity;
+          return <SignalBar value={sig?.signal} />;
+        },
+        sortKey: (r) => (r.va_signals?.buyback ?? r.va_signals?.buyback_intensity)?.signal ?? -1,
         align: "right",
       },
       {
@@ -425,9 +467,9 @@ export function ShortSelectionTab() {
             <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
               <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Score Formula</div>
               <code className="text-xs text-gray-300">
-                score = -1 × (VA + 0.50 × SM) × confidence × aggression × liquidity × momentum × perp_crowding
+                score = -1 × (VA + 0.50 × SM) × confidence × aggression × liquidity × momentum
               </code>
-              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (on-chain fundamentals), SM = smart money (Nansen + Arkham). Perp crowding dampens crowded shorts.</div>
+              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (Supply Health composite + buyback + rev capture + fee momentum), SM = smart money (Nansen + Arkham). Symmetric with long-side scoring: same composite, z-scoring, and freshness-weighted confidence.</div>
             </div>
 
             {/* Floors */}
@@ -449,23 +491,47 @@ export function ShortSelectionTab() {
               </div>
             </div>
 
-            {/* Signal Weights */}
+            {/* Signal Weights — show effective weights (composite when active) */}
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Fundamental Signal Weights</div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
+                Fundamental Signal Weights (VA Pillar)
+                {data.candidates?.[0]?.supply_health_composite != null && (
+                  <span className="text-purple-400 ml-2">(Supply Health composite active)</span>
+                )}
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {data.fund_weights && Object.entries({
-                  "Dilution (FDV/MCap)": data.fund_weights.dilution,
-                  "Fee Momentum": data.fund_weights.fee_mom,
-                  "Unlock Pressure": data.fund_weights.unlock,
-                  "Supply Momentum": data.fund_weights.supply_mom,
-                  "Revenue Capture": data.fund_weights.rev_cap,
-                  "Buyback Intensity": data.fund_weights.buyback,
-                }).map(([label, weight]) => (
-                  <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
-                    <span className="text-[11px] text-gray-400">{label}</span>
-                    <span className="text-xs font-medium text-gray-200">{(weight * 100).toFixed(0)}%</span>
-                  </div>
-                ))}
+                {data.candidates?.[0]?.supply_health_composite != null ? (
+                  // Composite mode: 4 effective signals
+                  [
+                    { label: "Supply Health (composite)", weight: 0.40, composite: true },
+                    { label: "Buyback Intensity", weight: 0.20, composite: false },
+                    { label: "Revenue Capture", weight: 0.20, composite: false },
+                    { label: "Fee Momentum", weight: 0.20, composite: false },
+                  ].map(({ label, weight, composite }) => (
+                    <div key={label} className={`flex items-center justify-between rounded px-2 py-1.5 ${composite ? "bg-purple-900/30 border border-purple-800/30" : "bg-gray-900/50"}`}>
+                      <span className={`text-[11px] ${composite ? "text-purple-300" : "text-gray-400"}`}>{label}</span>
+                      <span className="text-xs font-medium text-gray-200">{(weight * 100).toFixed(0)}%</span>
+                    </div>
+                  ))
+                ) : data.fund_weights ? (
+                  // Legacy 6-signal mode
+                  Object.entries({
+                    "Dilution (FDV/MCap)": data.fund_weights.dilution,
+                    "Fee Momentum": data.fund_weights.fee_mom,
+                    "Unlock Pressure": data.fund_weights.unlock,
+                    "Supply Momentum": data.fund_weights.supply_mom,
+                    "Revenue Capture": data.fund_weights.rev_cap,
+                    "Buyback Intensity": data.fund_weights.buyback,
+                  }).map(([label, weight]) => (
+                    <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
+                      <span className="text-[11px] text-gray-400">{label}</span>
+                      <span className="text-xs font-medium text-gray-200">{(weight * 100).toFixed(0)}%</span>
+                    </div>
+                  ))
+                ) : null}
+              </div>
+              <div className="text-[10px] text-gray-600 mt-1">
+                Signals z-scored across full universe. Freshness-weighted confidence discounts stale data.
               </div>
             </div>
 
