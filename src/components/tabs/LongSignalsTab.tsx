@@ -10,6 +10,9 @@ interface Signal {
   value: number | null;
   score: number;
   label: string;
+  z_score?: number;
+  freshness?: number;
+  is_composite?: boolean;
 }
 
 interface LongToken {
@@ -46,7 +49,13 @@ interface AccrualToken {
 interface LongSignalsResponse {
   tokens: LongToken[];
   va_weights?: Record<string, number>;
-  config: Record<string, number>;
+  va_weights_effective?: Record<string, number>;
+  config: Record<string, number> & {
+    use_supply_composite?: boolean;
+    use_zscore?: boolean;
+    use_freshness_confidence?: boolean;
+    zscore_clamp?: number;
+  };
   summary?: {
     avg_tilt: number;
     max_tilt: number;
@@ -172,6 +181,13 @@ const VA_SIGNAL_LABELS: Record<string, string> = {
 
 const SM_SIGNAL_KEYS = new Set(["sm_netflow", "sm_holders", "perp_pressure", "perp_funding", "dex_net_volume"]);
 
+const freshnessDot = (f: number | undefined) => {
+  if (f == null) return null;
+  const color = f >= 1.0 ? "bg-green-500" : f >= 0.5 ? "bg-yellow-500" : "bg-red-500";
+  const title = f >= 1.0 ? "Fresh (<48h)" : f >= 0.5 ? "Aging (48-96h)" : "Stale (>96h)";
+  return <span className={`inline-block w-1.5 h-1.5 rounded-full ${color} shrink-0`} title={title} />;
+};
+
 function TokenDetailView({
   symbol, tokenData, longToken, accrualToken, base, vaWeights,
 }: {
@@ -251,16 +267,34 @@ function TokenDetailView({
         <Card>
           <CardHeader><CardTitle><span className="text-purple-400">P1</span> Value Accrual</CardTitle></CardHeader>
           <div className="space-y-2">
+            {/* Supply Health Composite (if present) */}
+            {t && t.signals.supply_health && t.signals.supply_health.is_composite && (
+              <div className="flex items-center justify-between text-xs px-2 py-1.5 bg-purple-900/20 rounded border border-purple-800/30">
+                <span className="text-purple-300 truncate flex-1">Supply Health (composite)</span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[10px] text-purple-400">40%</span>
+                  {scoreBar(t.signals.supply_health.score, 48)}
+                </div>
+              </div>
+            )}
             {t && Object.entries(t.signals)
-              .filter(([k]) => !SM_SIGNAL_KEYS.has(k))
+              .filter(([k]) => !SM_SIGNAL_KEYS.has(k) && k !== "supply_health")
               .map(([key, sig]) => {
                 // Find weight for this signal
                 const wKey = Object.entries(VA_WEIGHT_TO_SIGNAL).find(([, sk]) => sk === key)?.[0];
                 const weight = wKey && vaWeights ? vaWeights[wKey] : undefined;
                 return (
                   <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 bg-[var(--bg-secondary)] rounded">
-                    <span className="text-gray-400 truncate flex-1">{sig.label}</span>
+                    <div className="flex items-center gap-1.5 truncate flex-1">
+                      {freshnessDot(sig.freshness)}
+                      <span className="text-gray-400 truncate">{sig.label}</span>
+                    </div>
                     <div className="flex items-center gap-2 shrink-0">
+                      {sig.z_score != null && (
+                        <span className={`text-[10px] font-mono ${sig.z_score > 0 ? "text-green-500" : sig.z_score < 0 ? "text-red-500" : "text-gray-600"}`}>
+                          z={sig.z_score > 0 ? "+" : ""}{sig.z_score.toFixed(1)}
+                        </span>
+                      )}
                       {weight != null && <span className="text-[10px] text-gray-600">{(weight * 100).toFixed(0)}%</span>}
                       {scoreBar(sig.score, 48)}
                     </div>
@@ -375,18 +409,42 @@ function TokenDetailView({
               <div>
                 <div className="text-[10px] text-purple-400 uppercase tracking-wider mb-1.5 font-semibold">P1: Value Accrual (weighted)</div>
                 <div className="space-y-0.5">
+                  {/* Supply Health Composite Row (if active) */}
+                  {t.signals.supply_health?.is_composite && (
+                    <div className="grid grid-cols-[1fr_50px_60px_70px] gap-2 font-mono px-2 py-1 bg-purple-900/20 rounded items-center border border-purple-800/30">
+                      <span className="text-purple-300">Supply Health</span>
+                      <span className="text-purple-400 text-right">40%</span>
+                      <span className={`text-right ${t.signals.supply_health.score > 0 ? "text-green-400" : t.signals.supply_health.score < 0 ? "text-red-400" : "text-gray-600"}`}>
+                        {t.signals.supply_health.score > 0 ? "+" : ""}{t.signals.supply_health.score.toFixed(3)}
+                      </span>
+                      <span className={`text-right ${t.signals.supply_health.score > 0 ? "text-green-400" : t.signals.supply_health.score < 0 ? "text-red-400" : "text-gray-600"}`}>
+                        → {(0.40 * t.signals.supply_health.score) > 0 ? "+" : ""}{(0.40 * t.signals.supply_health.score).toFixed(4)}
+                      </span>
+                    </div>
+                  )}
                   {vaRows.map(r => {
                     const sig = t.signals[VA_WEIGHT_TO_SIGNAL[r.name]];
                     const hasData = sig && sig.value !== null;
+                    const isSupplyChild = t.signals.supply_health?.is_composite && ["dilution", "supply_delta", "unlock"].includes(r.name);
                     return (
-                      <div key={r.name} className="grid grid-cols-[1fr_50px_60px_70px] gap-2 font-mono px-2 py-1 bg-[var(--bg-secondary)] rounded items-center">
-                        <span className={hasData ? "text-gray-400" : "text-gray-600"}>{r.label}</span>
-                        <span className="text-gray-600 text-right">{(r.weight * 100).toFixed(0)}%</span>
+                      <div key={r.name} className={`grid grid-cols-[1fr_50px_60px_70px] gap-2 font-mono px-2 py-1 bg-[var(--bg-secondary)] rounded items-center ${isSupplyChild ? "opacity-50 text-[10px]" : ""}`}>
+                        <div className="flex items-center gap-1">
+                          {freshnessDot(sig?.freshness)}
+                          <span className={hasData ? "text-gray-400" : "text-gray-600"}>
+                            {isSupplyChild ? "↳ " : ""}{r.label}
+                          </span>
+                          {sig?.z_score != null && (
+                            <span className={`text-[9px] ${sig.z_score > 0 ? "text-green-500" : "text-red-500"}`}>
+                              z{sig.z_score > 0 ? "+" : ""}{sig.z_score.toFixed(1)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-gray-600 text-right">{isSupplyChild ? "—" : `${(r.weight * 100).toFixed(0)}%`}</span>
                         <span className={`text-right ${r.score > 0 ? "text-green-400" : r.score < 0 ? "text-red-400" : "text-gray-600"}`}>
                           {hasData ? `${r.score > 0 ? "+" : ""}${r.score.toFixed(3)}` : "—"}
                         </span>
                         <span className={`text-right ${r.contribution > 0 ? "text-green-400" : r.contribution < 0 ? "text-red-400" : "text-gray-600"}`}>
-                          {hasData ? `→ ${r.contribution > 0 ? "+" : ""}${r.contribution.toFixed(4)}` : ""}
+                          {hasData && !isSupplyChild ? `→ ${r.contribution > 0 ? "+" : ""}${r.contribution.toFixed(4)}` : ""}
                         </span>
                       </div>
                     );
@@ -697,10 +755,17 @@ export function LongSignalsTab() {
 
             {/* VA Signal Weights (dynamic from backend) */}
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Pillar 1: Value Accrual Weights</div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
+                Pillar 1: Value Accrual Weights
+                {signals.va_weights_effective && signals.config?.use_supply_composite && (
+                  <span className="text-purple-400 ml-2">(Supply Health composite active)</span>
+                )}
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {signals.va_weights ? Object.entries(signals.va_weights).map(([key, weight]) => {
+                {(() => {
+                  const effectiveWeights = signals.va_weights_effective ?? signals.va_weights;
                   const labelMap: Record<string, string> = {
+                    supply_health: "Supply Health (composite)",
                     dilution: "Dilution (FDV/MCap)",
                     supply_delta: "Supply Momentum",
                     unlock: "Unlock Pressure",
@@ -708,29 +773,17 @@ export function LongSignalsTab() {
                     rev_capture: "Revenue Capture",
                     fee_momentum: "Fee Momentum",
                   };
-                  return (
-                    <div key={key} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
-                      <span className="text-[11px] text-gray-400">{labelMap[key] ?? key}</span>
+                  return effectiveWeights ? Object.entries(effectiveWeights).map(([key, weight]) => (
+                    <div key={key} className={`flex items-center justify-between rounded px-2 py-1.5 ${key === "supply_health" ? "bg-purple-900/30 border border-purple-800/30" : "bg-gray-900/50"}`}>
+                      <span className={`text-[11px] ${key === "supply_health" ? "text-purple-300" : "text-gray-400"}`}>{labelMap[key] ?? key}</span>
                       <span className="text-xs font-medium text-gray-200">{(weight * 100).toFixed(0)}%</span>
                     </div>
-                  );
-                }) : (
-                  // Fallback if backend hasn't returned weights yet
-                  [
-                    { label: "Dilution (FDV/MCap)", weight: "20%" },
-                    { label: "Supply Momentum", weight: "20%" },
-                    { label: "Unlock Pressure", weight: "20%" },
-                    { label: "Buyback Intensity", weight: "20%" },
-                    { label: "Revenue Capture", weight: "10%" },
-                    { label: "Fee Momentum", weight: "10%" },
-                  ].map(({ label, weight }) => (
-                    <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
-                      <span className="text-[11px] text-gray-400">{label}</span>
-                      <span className="text-xs font-medium text-gray-200">{weight}</span>
-                    </div>
-                  ))
-                )}
+                  )) : null;
+                })()}
               </div>
+              {signals.config?.use_zscore && (
+                <div className="text-[10px] text-gray-600 mt-1">Z-scored across basket (clamped ±{signals.config?.zscore_clamp ?? 2}σ)</div>
+              )}
             </div>
 
             {/* SM Signal Weights */}
@@ -776,7 +829,9 @@ export function LongSignalsTab() {
                   </div>
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
                     <span className="text-gray-500">Confidence</span>
-                    <span className="text-gray-400 float-right">n_va/6 + 0.50 × n_sm/6</span>
+                    <span className="text-gray-400 float-right">
+                      {signals.config?.use_freshness_confidence ? "freshness-weighted" : "n_va/6 + 0.50 × n_sm/6"}
+                    </span>
                   </div>
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
                     <span className="text-gray-500">Aggression</span>
