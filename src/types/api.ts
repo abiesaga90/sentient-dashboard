@@ -359,6 +359,15 @@ export interface VaSignalDetail {
 export interface SmSignalDetail {
   value: number | null;
   signal: number | null;
+  z_score?: number | null;
+  freshness?: number | null;
+}
+
+export interface P3SignalDetail {
+  value: number | null;
+  signal: number | null;
+  z_score?: number | null;
+  freshness?: number | null;
 }
 
 export interface RankingCandidate {
@@ -385,6 +394,7 @@ export interface RankingCandidate {
     arkham_concentration?: SmSignalDetail;
     arkham_whale_direction?: SmSignalDetail;
   } | null;
+  p3_signals?: Record<string, P3SignalDetail> | null;
   supply_health_composite?: number | null;
   va_weights_effective?: Record<string, number> | null;
   inversion_applied?: boolean;
