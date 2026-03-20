@@ -545,6 +545,7 @@ export function ShortSelectionTab() {
                   { label: "Perp Pressure", source: "Nansen" },
                   { label: "Perp Funding", source: "Nansen" },
                   { label: "DEX Net Volume", source: "Nansen" },
+                  { label: "DAT Accumulation", source: "Arkham+CG" },
                   { label: "Exchange Flow", source: "Arkham" },
                   { label: "Fund Distributions", source: "Arkham" },
                   { label: "Concentration", source: "Arkham" },
