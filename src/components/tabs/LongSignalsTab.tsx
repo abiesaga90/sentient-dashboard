@@ -151,14 +151,36 @@ const scoreBar = (score: number, maxWidth = 48) => {
 };
 
 
+// Maps backend va_weights keys to signal entry keys
+const VA_WEIGHT_TO_SIGNAL: Record<string, string> = {
+  dilution: "fdv_mcap",
+  supply_delta: "supply_delta",
+  unlock: "unlock_pressure",
+  buyback: "buyback_intensity",
+  rev_capture: "rev_capture",
+  fee_momentum: "fee_momentum",
+};
+
+const VA_SIGNAL_LABELS: Record<string, string> = {
+  dilution: "Dilution (FDV/MCap)",
+  supply_delta: "Supply Momentum",
+  unlock: "Unlock Pressure",
+  buyback: "Buyback Intensity",
+  rev_capture: "Revenue Capture",
+  fee_momentum: "Fee Momentum",
+};
+
+const SM_SIGNAL_KEYS = new Set(["sm_netflow", "sm_holders", "perp_pressure", "perp_funding", "dex_net_volume"]);
+
 function TokenDetailView({
-  symbol, tokenData, longToken, accrualToken, base,
+  symbol, tokenData, longToken, accrualToken, base, vaWeights,
 }: {
   symbol: string;
   tokenData: TokenSignal | undefined;
   longToken: LongToken | undefined;
   accrualToken: AccrualToken | undefined;
   base: number;
+  vaWeights?: Record<string, number>;
 }) {
   const displaySymbol = symbol.replace("USDT", "");
   const p3Components = tokenData ? Object.entries(tokenData.components) : [];
@@ -230,13 +252,21 @@ function TokenDetailView({
           <CardHeader><CardTitle><span className="text-purple-400">P1</span> Value Accrual</CardTitle></CardHeader>
           <div className="space-y-2">
             {t && Object.entries(t.signals)
-              .filter(([k]) => !["sm_netflow", "sm_holders", "perp_pressure", "perp_funding"].includes(k))
-              .map(([key, sig]) => (
-                <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 bg-[var(--bg-secondary)] rounded">
-                  <span className="text-gray-400 truncate flex-1">{sig.label}</span>
-                  {scoreBar(sig.score, 48)}
-                </div>
-              ))}
+              .filter(([k]) => !SM_SIGNAL_KEYS.has(k))
+              .map(([key, sig]) => {
+                // Find weight for this signal
+                const wKey = Object.entries(VA_WEIGHT_TO_SIGNAL).find(([, sk]) => sk === key)?.[0];
+                const weight = wKey && vaWeights ? vaWeights[wKey] : undefined;
+                return (
+                  <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 bg-[var(--bg-secondary)] rounded">
+                    <span className="text-gray-400 truncate flex-1">{sig.label}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {weight != null && <span className="text-[10px] text-gray-600">{(weight * 100).toFixed(0)}%</span>}
+                      {scoreBar(sig.score, 48)}
+                    </div>
+                  </div>
+                );
+              })}
             {(!t || t.va_count === 0) && <div className="text-xs text-gray-600 py-2">No VA signals</div>}
           </div>
           {a && (
@@ -261,7 +291,7 @@ function TokenDetailView({
           <CardHeader><CardTitle><span className="text-blue-400">P2</span> Smart Money</CardTitle></CardHeader>
           <div className="space-y-2">
             {t && Object.entries(t.signals)
-              .filter(([k]) => ["sm_netflow", "sm_holders", "perp_pressure", "perp_funding"].includes(k))
+              .filter(([k]) => SM_SIGNAL_KEYS.has(k))
               .map(([key, sig]) => (
                 <div key={key} className="flex items-center justify-between text-xs px-2 py-1.5 bg-[var(--bg-secondary)] rounded">
                   <span className="text-gray-400 truncate flex-1">{sig.label}</span>
@@ -303,35 +333,132 @@ function TokenDetailView({
         </Card>
       </div>
 
-      {/* Tilt Formula */}
-      {t && (
-        <Card>
-          <CardHeader><CardTitle>Tilt Computation</CardTitle></CardHeader>
-          <div className="space-y-2 text-xs font-mono">
-            <div className="grid grid-cols-2 gap-x-8 gap-y-1">
-              <span className="text-gray-500">VA score</span>
-              <span>{t.raw_score > 0 ? "+" : ""}{t.raw_score.toFixed(4)} (from {t.va_count} signals)</span>
-              <span className="text-gray-500">+ SM contribution</span>
-              <span>0.50 × {t.sm_count > 0 ? "avg" : "0"} SM signals</span>
-              {tokenData?.enabled && tokenData.signal != null && (
-                <>
-                  <span className="text-gray-500">+ P3 contribution</span>
-                  <span>{(tokenData.token_boost * tokenData.signal).toFixed(4)} ({tokenData.token_boost.toFixed(2)} × {tokenData.signal.toFixed(3)})</span>
-                </>
+      {/* Tilt Computation Waterfall */}
+      {t && (() => {
+        // Compute VA weighted score from individual signals
+        const weights = vaWeights ?? { dilution: 0.20, supply_delta: 0.20, unlock: 0.20, buyback: 0.20, rev_capture: 0.10, fee_momentum: 0.10 };
+        let vaWeightedSum = 0;
+        let vaWeightSum = 0;
+        const vaRows: { name: string; label: string; score: number; weight: number; contribution: number }[] = [];
+        for (const [wKey, w] of Object.entries(weights)) {
+          const sigKey = VA_WEIGHT_TO_SIGNAL[wKey];
+          const sig = sigKey ? t.signals[sigKey] : undefined;
+          const score = sig?.score ?? 0;
+          const hasSignal = sig && sig.value !== null;
+          if (hasSignal) {
+            vaWeightedSum += w * score;
+            vaWeightSum += w;
+          }
+          vaRows.push({ name: wKey, label: VA_SIGNAL_LABELS[wKey] ?? wKey, score, weight: w, contribution: hasSignal ? w * score : 0 });
+        }
+        const vaScore = vaWeightSum > 0 ? vaWeightedSum / vaWeightSum : 0;
+
+        // Compute SM average from SM signals
+        const smEntries = Object.entries(t.signals).filter(([k]) => SM_SIGNAL_KEYS.has(k));
+        const smActive = smEntries.filter(([, s]) => s.value !== null);
+        const smAvg = smActive.length > 0 ? smActive.reduce((sum, [, s]) => sum + s.score, 0) / smActive.length : 0;
+        const smWeight = 0.50;
+        const smContrib = smWeight * smAvg;
+
+        // P3 contribution
+        const p3Signal = tokenData?.enabled && tokenData?.signal != null ? tokenData.signal : null;
+        const p3Boost = tokenData?.token_boost ?? 0.10;
+        const p3Contrib = p3Signal != null ? p3Boost * p3Signal : 0;
+
+        const rawScore = vaScore + smContrib + p3Contrib;
+
+        return (
+          <Card>
+            <CardHeader><CardTitle>Tilt Computation</CardTitle></CardHeader>
+            <div className="space-y-3 text-xs">
+              {/* P1: VA Weighted Breakdown */}
+              <div>
+                <div className="text-[10px] text-purple-400 uppercase tracking-wider mb-1.5 font-semibold">P1: Value Accrual (weighted)</div>
+                <div className="space-y-0.5">
+                  {vaRows.map(r => {
+                    const sig = t.signals[VA_WEIGHT_TO_SIGNAL[r.name]];
+                    const hasData = sig && sig.value !== null;
+                    return (
+                      <div key={r.name} className="grid grid-cols-[1fr_50px_60px_70px] gap-2 font-mono px-2 py-1 bg-[var(--bg-secondary)] rounded items-center">
+                        <span className={hasData ? "text-gray-400" : "text-gray-600"}>{r.label}</span>
+                        <span className="text-gray-600 text-right">{(r.weight * 100).toFixed(0)}%</span>
+                        <span className={`text-right ${r.score > 0 ? "text-green-400" : r.score < 0 ? "text-red-400" : "text-gray-600"}`}>
+                          {hasData ? `${r.score > 0 ? "+" : ""}${r.score.toFixed(3)}` : "—"}
+                        </span>
+                        <span className={`text-right ${r.contribution > 0 ? "text-green-400" : r.contribution < 0 ? "text-red-400" : "text-gray-600"}`}>
+                          {hasData ? `→ ${r.contribution > 0 ? "+" : ""}${r.contribution.toFixed(4)}` : ""}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between font-mono px-2 pt-1 text-gray-300">
+                  <span>VA Score ({t.va_count}/6 signals)</span>
+                  <span className={`font-semibold ${vaScore > 0 ? "text-green-400" : vaScore < 0 ? "text-red-400" : "text-gray-400"}`}>
+                    {vaScore > 0 ? "+" : ""}{vaScore.toFixed(4)}
+                  </span>
+                </div>
+              </div>
+
+              {/* P2: SM */}
+              <div>
+                <div className="text-[10px] text-blue-400 uppercase tracking-wider mb-1.5 font-semibold">P2: Smart Money (×{smWeight.toFixed(2)})</div>
+                <div className="space-y-0.5">
+                  {smEntries.map(([key, sig]) => (
+                    <div key={key} className="grid grid-cols-[1fr_60px] gap-2 font-mono px-2 py-1 bg-[var(--bg-secondary)] rounded items-center">
+                      <span className={sig.value !== null ? "text-gray-400" : "text-gray-600"}>{sig.label}</span>
+                      <span className={`text-right ${sig.score > 0 ? "text-green-400" : sig.score < 0 ? "text-red-400" : "text-gray-600"}`}>
+                        {sig.value !== null ? `${sig.score > 0 ? "+" : ""}${sig.score.toFixed(3)}` : "—"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between font-mono px-2 pt-1 text-gray-300">
+                  <span>SM avg × {smWeight.toFixed(2)} ({smActive.length}/{smEntries.length} signals)</span>
+                  <span className={`font-semibold ${smContrib > 0 ? "text-green-400" : smContrib < 0 ? "text-red-400" : "text-gray-400"}`}>
+                    {smContrib > 0 ? "+" : ""}{smContrib.toFixed(4)}
+                  </span>
+                </div>
+              </div>
+
+              {/* P3: Token Signals */}
+              {p3Signal != null && (
+                <div>
+                  <div className="text-[10px] text-orange-400 uppercase tracking-wider mb-1.5 font-semibold">P3: Token Signal</div>
+                  <div className="flex justify-between font-mono px-2 text-gray-300">
+                    <span>{p3Boost.toFixed(2)} × {p3Signal.toFixed(3)}</span>
+                    <span className={`font-semibold ${p3Contrib > 0 ? "text-green-400" : p3Contrib < 0 ? "text-red-400" : "text-gray-400"}`}>
+                      {p3Contrib > 0 ? "+" : ""}{p3Contrib.toFixed(4)}
+                    </span>
+                  </div>
+                </div>
               )}
-              <span className="text-gray-500">= raw_score</span>
-              <span className="font-semibold">{t.raw_score > 0 ? "+" : ""}{t.raw_score.toFixed(4)}</span>
-              <span className="text-gray-500">× confidence</span>
-              <span>{(t.confidence * 100).toFixed(0)}%</span>
-              <span className="text-gray-500">= adjusted_score</span>
-              <span className="font-semibold">{t.adjusted_score > 0 ? "+" : ""}{t.adjusted_score.toFixed(4)}</span>
+
+              {/* Final computation */}
+              <div className="border-t border-gray-800 pt-2 font-mono space-y-1 px-2">
+                <div className="flex justify-between text-gray-300">
+                  <span>raw_score = VA + SM + P3</span>
+                  <span className={`font-semibold ${rawScore > 0 ? "text-green-400" : rawScore < 0 ? "text-red-400" : "text-gray-400"}`}>
+                    {rawScore > 0 ? "+" : ""}{rawScore.toFixed(4)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-gray-300">
+                  <span>× confidence ({t.va_count}/6 + {smWeight}×{smActive.length}/{smEntries.length})</span>
+                  <span>{(t.confidence * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex justify-between text-gray-300">
+                  <span>= adjusted_score</span>
+                  <span className="font-semibold">{t.adjusted_score > 0 ? "+" : ""}{t.adjusted_score.toFixed(4)}</span>
+                </div>
+                <div className="flex justify-between pt-1 border-t border-gray-800 text-gray-200">
+                  <span>tilt = max(0.25, {base}^{t.adjusted_score.toFixed(4)})</span>
+                  <span className={`font-bold text-lg ${tiltColor(t.tilt)}`}>{t.tilt.toFixed(4)}x</span>
+                </div>
+              </div>
             </div>
-            <div className="pt-2 border-t border-gray-800 text-gray-400">
-              tilt = max(0.25, {base}^{t.adjusted_score.toFixed(4)}) = <span className={`font-bold ${tiltColor(t.tilt)}`}>{t.tilt.toFixed(4)}x</span>
-            </div>
-          </div>
-        </Card>
-      )}
+          </Card>
+        );
+      })()}
     </div>
   );
 }
@@ -447,6 +574,7 @@ export function LongSignalsTab() {
             longToken={signals?.tokens.find(x => x.symbol === subTab)}
             accrualToken={accrualMap.get(subTab)}
             base={signals?.config?.base || 2.0}
+            vaWeights={signals?.va_weights}
           />
         </div>
       </div>
@@ -790,7 +918,7 @@ export function LongSignalsTab() {
                 <div>
                   <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Pillar 1: Value Accrual</div>
                   <div className="space-y-2">
-                    {Object.entries(t.signals).filter(([k]) => !["sm_netflow", "sm_holders", "sm_perp_pressure"].includes(k)).map(([key, sig]) => (
+                    {Object.entries(t.signals).filter(([k]) => !SM_SIGNAL_KEYS.has(k)).map(([key, sig]) => (
                       <div key={key} className="flex items-center justify-between text-xs">
                         <span className="text-gray-400">{sig.label}</span>
                         {scoreBar(sig.score, 64)}
@@ -802,7 +930,7 @@ export function LongSignalsTab() {
                 <div>
                   <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Pillar 2: Smart Money</div>
                   <div className="space-y-2">
-                    {Object.entries(t.signals).filter(([k]) => ["sm_netflow", "sm_holders", "sm_perp_pressure"].includes(k)).map(([key, sig]) => (
+                    {Object.entries(t.signals).filter(([k]) => SM_SIGNAL_KEYS.has(k)).map(([key, sig]) => (
                       <div key={key} className="flex items-center justify-between text-xs">
                         <span className="text-gray-400">{sig.label}</span>
                         {scoreBar(sig.score, 64)}
