@@ -696,52 +696,6 @@ export function LongSignalsTab() {
           )}
         </div>
 
-        {/* Pillar 3: Blockworks Token Signals — prominent summary */}
-        {p3Symbols.length > 0 && (
-          <Card className="border-orange-800/30">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>
-                  <span className="text-orange-400">Pillar 3</span> — Blockworks Token Signals
-                </CardTitle>
-                <Badge variant="info">{tokenSignals?.coverage.enabled ?? 0} active / {p3Symbols.length} tokens</Badge>
-              </div>
-            </CardHeader>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-              {p3Symbols.map(sym => {
-                const d = tokenMap[sym];
-                const displaySym = sym.replace("USDT", "");
-                const sig = d?.signal;
-                const hasData = sig != null;
-                return (
-                  <button
-                    key={sym}
-                    onClick={() => setSubTab(sym)}
-                    className="flex items-center justify-between gap-2 px-3 py-2.5 rounded border border-[var(--border)] hover:border-orange-600/50 hover:bg-orange-900/10 transition-colors text-left"
-                  >
-                    <div>
-                      <div className="text-sm font-medium text-gray-200">{displaySym}</div>
-                      <div className="text-[10px] text-gray-500">
-                        {d ? Object.keys(d.components).length + " signals" : "awaiting"}
-                      </div>
-                    </div>
-                    {hasData ? (
-                      <div className={`text-sm font-mono font-semibold ${sig > 0 ? "text-green-400" : sig < 0 ? "text-red-400" : "text-gray-500"}`}>
-                        {sig > 0 ? "+" : ""}{sig.toFixed(2)}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-gray-600">—</div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="mt-2 text-[10px] text-gray-500">
-              Click any token for full Pillar 3 signal breakdown. Revenue data blends into VA fee_momentum (50/50 DL + Blockworks).
-            </div>
-          </Card>
-        )}
-
         {/* Scoring Architecture */}
         <Card>
           <CardHeader><CardTitle>Scoring Architecture</CardTitle></CardHeader>
