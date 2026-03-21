@@ -178,7 +178,7 @@ export function ThesisTab() {
           <CardTitle>Kingmaker Alignment</CardTitle>
         </CardHeader>
         <div className="text-xs text-gray-400 mb-3">{data.kingmaker.thesis}</div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <div className="text-gray-500 text-xs">Long Alignment</div>
             <div className="text-2xl font-bold text-green-400">
@@ -193,6 +193,28 @@ export function ThesisTab() {
             </div>
             <div className="text-[10px] text-gray-600">{data.kingmaker.n_shorts} shorts</div>
           </div>
+        </div>
+        {/* Category breakdown */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
+          {[
+            { key: "long_btc", label: "BTC", color: "text-orange-400" },
+            { key: "long_hype", label: "HYPE", color: "text-cyan-400" },
+            { key: "long_defi", label: "DeFi", color: "text-purple-400" },
+            { key: "long_ai_compute", label: "AI Compute", color: "text-blue-400" },
+            { key: "long_infra", label: "Infra", color: "text-gray-300" },
+            { key: "long_privacy", label: "Privacy", color: "text-green-400" },
+          ].map(({ key, label, color }) => {
+            const tokens = (data.kingmaker.categories as Record<string, string[]>)?.[key] ?? [];
+            return (
+              <div key={key} className="bg-gray-900/50 rounded px-2 py-1.5">
+                <span className={`${color} font-medium`}>{label}</span>
+                <span className="text-gray-500 ml-1">({tokens.length})</span>
+                <div className="text-[10px] text-gray-600 mt-0.5">
+                  {tokens.length > 0 ? tokens.map(s => s.replace("USDT", "")).join(", ") : "—"}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </Card>
     </div>
@@ -212,9 +234,9 @@ function TokenReturnTable({
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+      <div className="overflow-x-auto">
         <table className="w-full text-[10px]">
-          <thead className="border-b border-[var(--border)] sticky top-0 bg-[var(--bg-card)]">
+          <thead className="border-b border-[var(--border)]">
             <tr>
               <th className="px-1.5 py-1 text-left text-gray-500">Token</th>
               {PERIODS.map((p) => (
