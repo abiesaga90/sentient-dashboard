@@ -19,6 +19,31 @@ interface RiskCostModel {
   exit_methodology?: RiskExitMethodology;
 }
 
+interface TpCycle {
+  symbol: string;
+  side: string;
+  exit_price: number;
+  reentry_price: number;
+  spread_pct: number;
+  exit_ts: string;
+  reentry_ts: string;
+  hours_to_reentry: number;
+  volume_tier: string;
+}
+
+interface TpCyclesResponse {
+  cycles: TpCycle[];
+  by_symbol: Record<string, { count: number; avg_spread_pct: number; spreads: number[] }>;
+  by_tier: Record<string, { count: number; avg_spread_pct: number }>;
+  summary: {
+    total_cycles: number;
+    avg_spread_pct: number;
+    avg_hours_to_reentry: number;
+    profitable_reentries: number;
+    costly_reentries: number;
+  };
+}
+
 export function ExecutionTab() {
   const { client, engine } = useEngine();
   const { data, isLoading } = useQuery({
@@ -31,6 +56,13 @@ export function ExecutionTab() {
   const { data: riskData } = useQuery<RiskCostModel>({
     queryKey: ["risk-cost-model", engine.id],
     queryFn: () => client.get("/api/risk"),
+    refetchInterval: 120_000,
+    staleTime: 60_000,
+  });
+
+  const { data: tpCycles } = useQuery<TpCyclesResponse>({
+    queryKey: ["tp-cycles", engine.id],
+    queryFn: () => client.get("/api/tp_cycles?days=30"),
     refetchInterval: 120_000,
     staleTime: 60_000,
   });
@@ -125,6 +157,159 @@ export function ExecutionTab() {
                 ))}
               </tbody>
             </table>
+          </div>
+        </Card>
+      )}
+
+      {/* TP Cycle Analysis */}
+      {tpCycles && tpCycles.summary.total_cycles > 0 && (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <MetricCard label="TP Cycles" value={String(tpCycles.summary.total_cycles)} />
+            <MetricCard
+              label="Avg Spread"
+              value={`${tpCycles.summary.avg_spread_pct > 0 ? "+" : ""}${tpCycles.summary.avg_spread_pct.toFixed(2)}%`}
+            />
+            <MetricCard label="Avg Re-entry" value={`${tpCycles.summary.avg_hours_to_reentry.toFixed(0)}h`} />
+            <MetricCard label="Profitable" value={String(tpCycles.summary.profitable_reentries)} />
+            <MetricCard label="Costly" value={String(tpCycles.summary.costly_reentries)} />
+          </div>
+
+          {/* By Volume Tier */}
+          <Card>
+            <CardHeader>
+              <CardTitle>TP Cycle Cost by Volume Tier</CardTitle>
+            </CardHeader>
+            <div className="grid grid-cols-3 gap-4 p-3 text-xs">
+              {(["HIGH", "MED", "LOW"] as const).map((tier) => {
+                const d = tpCycles.by_tier[tier];
+                if (!d) return (
+                  <div key={tier} className="text-center text-gray-600">
+                    <div className="text-gray-500 font-medium">{tier}</div>
+                    <div>No data</div>
+                  </div>
+                );
+                const color = d.avg_spread_pct >= 0 ? "text-green-400" : "text-red-400";
+                return (
+                  <div key={tier} className="text-center">
+                    <div className="text-gray-500 font-medium">{tier}</div>
+                    <div className={`text-lg font-semibold ${color}`}>
+                      {d.avg_spread_pct > 0 ? "+" : ""}{d.avg_spread_pct.toFixed(2)}%
+                    </div>
+                    <div className="text-gray-500">{d.count} cycles</div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* By Symbol */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>TP Cycle Cost by Symbol</CardTitle>
+                <span className="text-xs text-gray-500">Last 30 days</span>
+              </div>
+            </CardHeader>
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <table className="w-full text-xs">
+                <thead className="border-b border-[var(--border)] sticky top-0 bg-[var(--bg-card)]">
+                  <tr>
+                    <th className="px-2 py-1.5 text-left text-gray-500">Symbol</th>
+                    <th className="px-2 py-1.5 text-right text-gray-500">Cycles</th>
+                    <th className="px-2 py-1.5 text-right text-gray-500">Avg Spread</th>
+                    <th className="px-2 py-1.5 text-right text-gray-500">Min</th>
+                    <th className="px-2 py-1.5 text-right text-gray-500">Max</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {Object.entries(tpCycles.by_symbol)
+                    .sort(([, a], [, b]) => a.avg_spread_pct - b.avg_spread_pct)
+                    .map(([sym, d]) => (
+                      <tr key={sym} className="hover:bg-[var(--bg-card-hover)]">
+                        <td className="px-2 py-1.5 text-gray-200 font-medium">
+                          {sym.replace("USDT", "")}
+                        </td>
+                        <td className="px-2 py-1.5 text-right text-gray-400">{d.count}</td>
+                        <td className={`px-2 py-1.5 text-right font-mono ${
+                          d.avg_spread_pct >= 0 ? "text-green-400" : "text-red-400"
+                        }`}>
+                          {d.avg_spread_pct > 0 ? "+" : ""}{d.avg_spread_pct.toFixed(2)}%
+                        </td>
+                        <td className="px-2 py-1.5 text-right font-mono text-gray-400">
+                          {d.spreads.length > 0 ? `${Math.min(...d.spreads).toFixed(2)}%` : "—"}
+                        </td>
+                        <td className="px-2 py-1.5 text-right font-mono text-gray-400">
+                          {d.spreads.length > 0 ? `${Math.max(...d.spreads).toFixed(2)}%` : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+
+          {/* Recent Cycles */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent TP Cycles</CardTitle>
+            </CardHeader>
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <table className="w-full text-xs">
+                <thead className="border-b border-[var(--border)] sticky top-0 bg-[var(--bg-card)]">
+                  <tr>
+                    <th className="px-2 py-1.5 text-left text-gray-500">Symbol</th>
+                    <th className="px-2 py-1.5 text-left text-gray-500">Side</th>
+                    <th className="px-2 py-1.5 text-right text-gray-500">Exit</th>
+                    <th className="px-2 py-1.5 text-right text-gray-500">Re-entry</th>
+                    <th className="px-2 py-1.5 text-right text-gray-500">Spread</th>
+                    <th className="px-2 py-1.5 text-right text-gray-500">Gap</th>
+                    <th className="px-2 py-1.5 text-left text-gray-500">Tier</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {tpCycles.cycles.slice().reverse().map((c, i) => (
+                    <tr key={i} className="hover:bg-[var(--bg-card-hover)]">
+                      <td className="px-2 py-1.5 text-gray-200 font-medium">
+                        {c.symbol.replace("USDT", "")}
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Badge variant={c.side === "LONG" ? "success" : "danger"} className="text-[10px]">
+                          {c.side}
+                        </Badge>
+                      </td>
+                      <td className="px-2 py-1.5 text-right font-mono text-gray-300">
+                        {formatPrice(c.exit_price)}
+                      </td>
+                      <td className="px-2 py-1.5 text-right font-mono text-gray-300">
+                        {formatPrice(c.reentry_price)}
+                      </td>
+                      <td className={`px-2 py-1.5 text-right font-mono ${
+                        c.spread_pct >= 0 ? "text-green-400" : "text-red-400"
+                      }`}>
+                        {c.spread_pct > 0 ? "+" : ""}{c.spread_pct.toFixed(2)}%
+                      </td>
+                      <td className="px-2 py-1.5 text-right text-gray-400">
+                        {c.hours_to_reentry.toFixed(0)}h
+                      </td>
+                      <td className="px-2 py-1.5">
+                        <Badge variant={c.volume_tier === "HIGH" ? "success" : c.volume_tier === "LOW" ? "danger" : "default"} className="text-[10px]">
+                          {c.volume_tier}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </>
+      )}
+
+      {tpCycles && tpCycles.summary.total_cycles === 0 && (
+        <Card>
+          <div className="p-6 text-center text-gray-500 text-sm">
+            No TP cycles recorded yet. Data will appear after positions hit take-profit and re-enter.
           </div>
         </Card>
       )}
