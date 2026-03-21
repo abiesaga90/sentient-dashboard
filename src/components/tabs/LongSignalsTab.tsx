@@ -391,12 +391,12 @@ function TokenDetailView({
         const smEntries = Object.entries(t.signals).filter(([k]) => SM_SIGNAL_KEYS.has(k));
         const smActive = smEntries.filter(([, s]) => s.value !== null);
         const smAvg = smActive.length > 0 ? smActive.reduce((sum, [, s]) => sum + s.score, 0) / smActive.length : 0;
-        const smWeight = 0.50;
+        const smWeight = 0.50;  // SM_PILLAR_WEIGHT
         const smContrib = smWeight * smAvg;
 
         // P3 contribution
         const p3Signal = tokenData?.enabled && tokenData?.signal != null ? tokenData.signal : null;
-        const p3Boost = tokenData?.token_boost ?? 0.10;
+        const p3Boost = tokenData?.token_boost ?? 0.30;  // P3_PILLAR_WEIGHT
         const p3Contrib = p3Signal != null ? p3Boost * p3Signal : 0;
 
         const rawScore = vaScore + smContrib + p3Contrib;

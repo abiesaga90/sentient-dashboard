@@ -148,9 +148,10 @@ export function SignalFlowDiagram({
   const [p1Expanded, setP1Expanded] = useState(false);
 
   const smMultiplier = config?.SM_MULTIPLIER ?? 0.5;
+  const p3Multiplier = config?.P3_MULTIPLIER ?? 0.3;
 
   // Build resolved formula strings when token is selected
-  const rawFormula = `Raw Score = VA + ${smMultiplier.toFixed(2)}×SM + P3`;
+  const rawFormula = `Raw Score = VA + ${smMultiplier.toFixed(2)}×SM + ${p3Multiplier.toFixed(2)}×P3`;
   const rawResolved = token
     ? `= ${token.va_count} signals + ${smMultiplier.toFixed(2)}×${token.sm_count} signals → ${token.raw_score.toFixed(3)}`
     : undefined;
@@ -242,7 +243,7 @@ export function SignalFlowDiagram({
 
         <PillarBox
           title="P3: Token Signals"
-          subtitle="per-token bespoke"
+          subtitle={`per-token bespoke, ×${p3Multiplier.toFixed(2)}`}
           accent="orange"
         />
       </div>
