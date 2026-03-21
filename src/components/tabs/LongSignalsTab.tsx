@@ -501,7 +501,7 @@ function TokenDetailView({
                   </span>
                 </div>
                 <div className="flex justify-between text-gray-300">
-                  <span>× confidence ({t.va_count}/6 + {smWeight}×{smActive.length}/{smEntries.length})</span>
+                  <span>× confidence ({t.va_count}/6 + {smWeight}×{smActive.length}/10)</span>
                   <span>{(t.confidence * 100).toFixed(0)}%</span>
                 </div>
                 <div className="flex justify-between text-gray-300">
@@ -788,7 +788,7 @@ export function LongSignalsTab() {
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
                     <span className="text-gray-500">Confidence</span>
                     <span className="text-gray-400 float-right">
-                      {signals.config?.use_freshness_confidence ? "freshness-weighted" : "n_va/6 + 0.50 × n_sm/6"}
+                      {signals.config?.use_freshness_confidence ? "freshness-weighted" : "n_va/6 + 0.50 × n_sm/10"}
                     </span>
                   </div>
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
@@ -885,7 +885,7 @@ export function LongSignalsTab() {
                           <span className="text-purple-400">{t.va_count}</span>
                           <span className="text-gray-600">/6 </span>
                           <span className="text-blue-400">{t.sm_count}</span>
-                          <span className="text-gray-600">/6 </span>
+                          <span className="text-gray-600">/10 </span>
                           <span className={p3Count > 0 ? "text-orange-400" : "text-gray-600"}>{p3Count}</span>
                         </td>
                         <td className="py-2.5 text-right text-gray-400">{fmt(t.fees_30d)}</td>

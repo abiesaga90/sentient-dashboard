@@ -234,10 +234,10 @@ export function SignalFlowDiagram({
 
         <PillarBox
           title="P2: Smart Money"
-          subtitle={`${token ? token.sm_count : 6} signals, ×${smMultiplier.toFixed(2)}`}
+          subtitle={`${token ? token.sm_count : 10} signals, ×${smMultiplier.toFixed(2)}`}
           accent="blue"
           filled={token ? token.sm_count : undefined}
-          total={token ? 6 : undefined}
+          total={token ? 10 : undefined}
         />
 
         <PillarBox
