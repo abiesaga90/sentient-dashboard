@@ -467,9 +467,9 @@ export function ShortSelectionTab() {
             <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
               <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Score Formula</div>
               <code className="text-xs text-gray-300">
-                score = -1 × (VA + 0.50 × SM) × confidence × aggression × liquidity × momentum
+                score = -1 × (VA + 0.50 × SM + 0.10 × P3) × confidence × aggression × liquidity × momentum
               </code>
-              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (Supply Health composite + buyback + rev capture + fee momentum), SM = smart money (5 Nansen + 4 Arkham signals). Symmetric with long-side scoring: same composite, z-scoring, and freshness-weighted confidence.</div>
+              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (Supply Health composite + buyback + rev capture + fee momentum), SM = smart money (5 Nansen + 1 DAT + 4 Arkham = 10 signals), P3 = token-specific bespoke signals. All signals z-scored cross-sectionally, freshness-weighted confidence.</div>
             </div>
 
             {/* Floors */}
@@ -557,7 +557,7 @@ export function ShortSelectionTab() {
                   </div>
                 ))}
               </div>
-              <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, normalized to [-1, +1]. Inverted for short scoring. Exchange flow deduped: Nansen 24h first, Arkham 7d fallback.</div>
+              <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, z-scored cross-sectionally, normalized to [-1, +1]. Inverted for short scoring. Exchange flow deduped: Nansen 24h first, Arkham 7d fallback.</div>
             </div>
 
             {/* Modifiers */}
