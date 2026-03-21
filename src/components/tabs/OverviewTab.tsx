@@ -71,7 +71,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
                 <span>IR: <span className="text-gray-300 font-medium">{data.portfolio.ls_spread.information_ratio.toFixed(2)}</span></span>
               )}
               {data.portfolio.ls_spread.down_day_capture_pct != null && (
-                <span>Down-day capture: <span className="text-gray-300 font-medium">{(data.portfolio.ls_spread.down_day_capture_pct * 100).toFixed(0)}%</span></span>
+                <span>Down-day capture: <span className="text-gray-300 font-medium">{data.portfolio.ls_spread.down_day_capture_pct.toFixed(0)}%</span></span>
               )}
               {data.portfolio.ls_spread.cumulative_spread_pct != null && (
                 <span>Cumulative: <span className={`font-medium ${data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
