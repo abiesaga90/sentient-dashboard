@@ -24,53 +24,61 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
   return (
     <div className="space-y-4 p-4">
-      {/* L/S Spread — Multi-Horizon */}
-      {data.portfolio.ls_spread && data.portfolio.ls_spread.horizons && (
+      {/* L/S Spread */}
+      {data.portfolio.ls_spread && (
         <Card>
-          <CardTitle>L/S Spread (notional-weighted)</CardTitle>
+          <CardTitle>L/S Spread</CardTitle>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-gray-500 text-xs border-b border-gray-800">
                   <th className="text-left py-1 pr-4"></th>
-                  {Object.keys(data.portfolio.ls_spread.horizons).map((h) => (
+                  {/* Intraday horizons */}
+                  {data.portfolio.ls_spread.horizons && Object.keys(data.portfolio.ls_spread.horizons).map((h) => (
                     <th key={h} className="text-right py-1 px-2 font-medium">{h}</th>
+                  ))}
+                  {/* Period-based */}
+                  {data.portfolio.ls_spread.periods && Object.keys(data.portfolio.ls_spread.periods).map((p) => (
+                    <th key={p} className="text-right py-1 px-2 font-medium border-l border-gray-800">{p}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-gray-800/50">
-                  <td className="text-gray-400 py-1.5 pr-4 font-medium">Spread</td>
-                  {Object.entries(data.portfolio.ls_spread.horizons).map(([h, v]) => (
-                    <td key={h} className={`text-right py-1.5 px-2 font-bold ${
-                      v.spread_pct >= 0 ? "text-green-400" : "text-red-400"
-                    }`}>
-                      {v.spread_pct >= 0 ? "+" : ""}{v.spread_pct.toFixed(2)}%
-                    </td>
-                  ))}
-                </tr>
-                <tr className="border-b border-gray-800/50">
-                  <td className="text-gray-500 py-1.5 pr-4">Longs</td>
-                  {Object.entries(data.portfolio.ls_spread.horizons).map(([h, v]) => (
-                    <td key={h} className={`text-right py-1.5 px-2 ${
-                      v.long_pct >= 0 ? "text-green-400/70" : "text-red-400/70"
-                    }`}>
-                      {v.long_pct >= 0 ? "+" : ""}{v.long_pct.toFixed(2)}%
-                    </td>
-                  ))}
-                </tr>
-                <tr>
-                  <td className="text-gray-500 py-1.5 pr-4">Shorts</td>
-                  {Object.entries(data.portfolio.ls_spread.horizons).map(([h, v]) => (
-                    <td key={h} className={`text-right py-1.5 px-2 ${
-                      v.short_pct >= 0 ? "text-green-400/70" : "text-red-400/70"
-                    }`}>
-                      {v.short_pct >= 0 ? "+" : ""}{v.short_pct.toFixed(2)}%
-                    </td>
-                  ))}
-                </tr>
+                <SpreadRow
+                  label="Spread"
+                  field="spread_pct"
+                  horizons={data.portfolio.ls_spread.horizons}
+                  periods={data.portfolio.ls_spread.periods}
+                  bold
+                />
+                <SpreadRow
+                  label="Longs"
+                  field="long_pct"
+                  horizons={data.portfolio.ls_spread.horizons}
+                  periods={data.portfolio.ls_spread.periods}
+                />
+                <SpreadRow
+                  label="Shorts"
+                  field="short_pct"
+                  horizons={data.portfolio.ls_spread.horizons}
+                  periods={data.portfolio.ls_spread.periods}
+                />
               </tbody>
             </table>
+            {/* Summary metrics */}
+            <div className="flex gap-6 mt-3 text-xs text-gray-500 border-t border-gray-800 pt-2">
+              {data.portfolio.ls_spread.information_ratio != null && (
+                <span>IR: <span className="text-gray-300 font-medium">{data.portfolio.ls_spread.information_ratio.toFixed(2)}</span></span>
+              )}
+              {data.portfolio.ls_spread.down_day_capture_pct != null && (
+                <span>Down-day capture: <span className="text-gray-300 font-medium">{(data.portfolio.ls_spread.down_day_capture_pct * 100).toFixed(0)}%</span></span>
+              )}
+              {data.portfolio.ls_spread.cumulative_spread_pct != null && (
+                <span>Cumulative: <span className={`font-medium ${data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "+" : ""}{data.portfolio.ls_spread.cumulative_spread_pct.toFixed(2)}%
+                </span></span>
+              )}
+            </div>
           </div>
         </Card>
       )}
@@ -143,5 +151,44 @@ export function OverviewTab({ data }: OverviewTabProps) {
       {pnl && pnl.daily.length > 0 && <DailyPnlChart daily={pnl.daily} />}
 
     </div>
+  );
+}
+
+interface SpreadData {
+  spread_pct: number;
+  long_pct: number;
+  short_pct: number;
+  [key: string]: number;
+}
+
+function SpreadRow({
+  label, field, horizons, periods, bold,
+}: {
+  label: string;
+  field: string;
+  horizons?: Record<string, SpreadData>;
+  periods?: Record<string, SpreadData>;
+  bold?: boolean;
+}) {
+  const cls = bold ? "text-gray-400 font-medium" : "text-gray-500";
+  const valCls = (v: number) =>
+    `text-right py-1.5 px-2 ${bold ? "font-bold" : ""} ${v >= 0 ? "text-green-400" : "text-red-400"}${bold ? "" : "/70"}`;
+
+  return (
+    <tr className="border-b border-gray-800/50">
+      <td className={`py-1.5 pr-4 ${cls}`}>{label}</td>
+      {horizons && Object.entries(horizons).map(([h, v]) => (
+        <td key={h} className={valCls(v[field as keyof SpreadData] as number)}>
+          {(v[field as keyof SpreadData] as number) >= 0 ? "+" : ""}
+          {(v[field as keyof SpreadData] as number).toFixed(2)}%
+        </td>
+      ))}
+      {periods && Object.entries(periods).map(([p, v]) => (
+        <td key={p} className={`${valCls(v[field as keyof SpreadData] as number)} border-l border-gray-800`}>
+          {(v[field as keyof SpreadData] as number) >= 0 ? "+" : ""}
+          {(v[field as keyof SpreadData] as number).toFixed(2)}%
+        </td>
+      ))}
+    </tr>
   );
 }
