@@ -5,13 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatUSD(value: number | null | undefined, decimals = 2): string {
+export function formatUSD(value: number | null | undefined, decimals = 0): string {
   if (value == null) return "—";
-  const abs = Math.abs(value);
   const sign = value < 0 ? "-" : "";
-  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(2)}M`;
-  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(decimals > 0 ? 1 : 0)}K`;
-  return `${sign}$${abs.toFixed(decimals)}`;
+  const abs = Math.abs(value);
+  return `${sign}$${abs.toLocaleString(undefined, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })}`;
 }
 
 export function formatPct(value: number | null | undefined, decimals = 2): string {
