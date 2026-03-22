@@ -81,6 +81,17 @@ const columns: Column<Position>[] = [
     align: "right",
   },
   {
+    key: "funding_paid",
+    header: "Funding",
+    render: (r) => {
+      const f = (r as any).funding_paid;
+      if (f == null || f === 0) return <span className="text-gray-700">—</span>;
+      return <span className={`font-mono text-[11px] ${f > 0 ? "text-green-400" : "text-red-400"}`}>${f > 0 ? "+" : ""}{f.toFixed(1)}</span>;
+    },
+    sortKey: (r) => (r as any).funding_paid ?? 0,
+    align: "right",
+  },
+  {
     key: "hours_held",
     header: "Hold",
     render: (r) => `${r.hours_held.toFixed(0)}h`,
