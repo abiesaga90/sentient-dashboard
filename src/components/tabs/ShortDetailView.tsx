@@ -1,4 +1,3 @@
-import { Badge } from "../ui/Badge";
 import { Card } from "../ui/Card";
 import type { RankingCandidate } from "../../types/api";
 
@@ -27,7 +26,7 @@ interface ShortThesisData {
 
 function SignalRow({
   name,
-  value,
+  value: _value,
   signal,
   zScore,
   weight,
