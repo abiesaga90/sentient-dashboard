@@ -482,32 +482,55 @@ export function PumpExhaustionTab() {
         />
       </div>
 
-      {/* Sleeve-ready candidates */}
+      {/* Sleeve-ready candidates — full signal breakdown */}
       {aboveThreshold.length > 0 && (
-        <Card>
+        <Card className="border-l-2 border-l-green-500">
           <CardHeader>
             <CardTitle>
               Sleeve Candidates ({aboveThreshold.length} above {data.config.threshold} threshold, {data.config.max_included} slots)
             </CardTitle>
           </CardHeader>
-          <div className="p-4 pt-0">
-            <div className="flex gap-3 flex-wrap">
-              {aboveThreshold.slice(0, data.config.max_included).map((p) => (
-                <div
-                  key={p.symbol}
-                  className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3 min-w-[180px]"
-                >
-                  <div className="text-green-400 font-medium">
-                    {p.symbol.replace("USDT", "")}
+          <div className="p-4 pt-0 space-y-4">
+            {aboveThreshold.slice(0, data.config.max_included).map((p) => {
+              const candidate = data.candidates.find(c => c.symbol === p.symbol);
+              return (
+                <div key={p.symbol} className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg font-bold text-green-400">{p.symbol.replace("USDT", "")}</span>
+                      <Badge variant="success">INCLUDED</Badge>
+                      <span className="text-red-400 font-mono text-sm">+{p.ret_7d_pct.toFixed(1)}% 7d</span>
+                    </div>
+                    <span className="text-green-400 font-mono text-lg">{p.exhaustion_score.toFixed(3)}</span>
                   </div>
-                  <div className="text-xs text-gray-400 mt-1">
-                    Score: {p.exhaustion_score.toFixed(3)} | 7d: +{p.ret_7d_pct.toFixed(1)}% | {p.source}
+
+                  {/* KPIs */}
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-3">
+                    {[
+                      { label: "Price", value: p.current_price ? `$${p.current_price.toFixed(4)}` : "—" },
+                      { label: "Volume 24h", value: p.volume_24h ? `$${(p.volume_24h / 1e6).toFixed(1)}M` : "—" },
+                      { label: "Open Interest", value: p.open_interest ? `$${(p.open_interest / 1e6).toFixed(1)}M` : "—" },
+                      { label: "Funding", value: p.funding_rate != null ? `${(p.funding_rate * 100).toFixed(4)}%` : "—" },
+                      { label: "FDV/MCap", value: p.fdv_mcap_ratio ? `${p.fdv_mcap_ratio.toFixed(1)}x` : "—" },
+                      { label: "From Peak", value: candidate && candidate.current_price && candidate.peak_price > 0
+                        ? `${((candidate.current_price / candidate.peak_price - 1) * 100).toFixed(1)}%` : "—" },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="text-center">
+                        <div className="text-[10px] text-gray-600 uppercase">{label}</div>
+                        <div className="text-sm font-medium text-gray-200">{value}</div>
+                      </div>
+                    ))}
                   </div>
+
+                  {/* Sub-signal breakdown — always visible */}
+                  {candidate?.sub_signals && (
+                    <ExhaustionBreakdown signals={candidate.sub_signals} threshold={data.config.threshold} />
+                  )}
                 </div>
-              ))}
-            </div>
+              );
+            })}
             {aboveThreshold.length > data.config.max_included && (
-              <div className="text-xs text-gray-500 mt-2">
+              <div className="text-xs text-gray-500">
                 +{aboveThreshold.length - data.config.max_included} more above threshold (capped at {data.config.max_included})
               </div>
             )}
