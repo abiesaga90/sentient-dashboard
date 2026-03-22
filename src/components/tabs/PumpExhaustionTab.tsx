@@ -41,6 +41,23 @@ interface UniversePump {
   funding_rate?: number | null;
   market_cap?: number | null;
   fdv_mcap_ratio?: number | null;
+  wallet_tracker?: {
+    wallets: Array<{
+      address: string;
+      label: string;
+      type: string;
+      balance: number | null;
+      value_usd: number | null;
+      is_empty: boolean;
+    }>;
+    total_held: number;
+    total_held_pct: number;
+    total_empty: number;
+    hedgey_total: number;
+    hedgey_total_pct: number;
+    distribution_status: string;
+    thesis: string;
+  } | null;
   short_thesis?: {
     name: string;
     thesis: string;
@@ -322,7 +339,56 @@ function PumpDetailPanel({ pump, candidate, threshold, onClose }: { pump: Univer
           </div>
         )}
 
-        {!thesis && !candidate?.sub_signals && (
+        {/* Wallet Tracker */}
+        {pump.wallet_tracker && (
+          <div className="md:col-span-2 mt-2">
+            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
+              On-Chain Distribution Tracker
+              <span className={`ml-2 px-1.5 py-0.5 rounded text-[9px] ${
+                pump.wallet_tracker.distribution_status === "HOLDING" ? "bg-yellow-900/50 text-yellow-300" :
+                pump.wallet_tracker.distribution_status === "DISTRIBUTING" ? "bg-red-900/50 text-red-300" :
+                "bg-green-900/50 text-green-300"
+              }`}>{pump.wallet_tracker.distribution_status}</span>
+            </div>
+            <div className="bg-[var(--bg-secondary)] rounded p-3 text-[11px] text-gray-400 mb-2">
+              {pump.wallet_tracker.thesis}
+            </div>
+            <div className="grid grid-cols-3 gap-2 mb-2 text-center">
+              <div className="bg-gray-900/50 rounded p-2">
+                <div className="text-[10px] text-gray-600">Tracked Held</div>
+                <div className="text-sm text-gray-200">{(pump.wallet_tracker.total_held / 1e6).toFixed(1)}M</div>
+                <div className="text-[10px] text-gray-500">{pump.wallet_tracker.total_held_pct}% of supply</div>
+              </div>
+              <div className="bg-gray-900/50 rounded p-2">
+                <div className="text-[10px] text-gray-600">Hedgey Unlock</div>
+                <div className="text-sm text-gray-200">{(pump.wallet_tracker.hedgey_total / 1e6).toFixed(0)}M</div>
+                <div className="text-[10px] text-gray-500">{pump.wallet_tracker.hedgey_total_pct}% of supply</div>
+              </div>
+              <div className="bg-gray-900/50 rounded p-2">
+                <div className="text-[10px] text-gray-600">Wallets Empty</div>
+                <div className="text-sm text-gray-200">{pump.wallet_tracker.total_empty} / {pump.wallet_tracker.wallets.length}</div>
+                <div className="text-[10px] text-gray-500">sold / tracked</div>
+              </div>
+            </div>
+            <div className="space-y-0.5 max-h-[200px] overflow-y-auto">
+              {pump.wallet_tracker.wallets.map((w) => (
+                <div key={w.address} className={`flex items-center justify-between px-2 py-1 rounded text-[11px] ${
+                  w.is_empty ? "bg-green-900/20" : w.type === "mm" ? "bg-orange-900/20" : "bg-gray-900/30"
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${w.is_empty ? "bg-green-400" : "bg-yellow-400"}`} />
+                    <span className="text-gray-400">{w.label}</span>
+                  </div>
+                  <span className={`font-mono ${w.is_empty ? "text-green-400" : "text-gray-300"}`}>
+                    {w.is_empty ? "EMPTY" : w.balance != null ? `${(w.balance / 1e6).toFixed(1)}M` : "—"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!thesis && !candidate?.sub_signals && !pump.wallet_tracker && (
           <div className="text-gray-600 text-sm text-center py-4">
             No deep dive data available yet. Token needs to enter STALKING state for exhaustion tracking.
           </div>
