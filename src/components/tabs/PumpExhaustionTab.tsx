@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
@@ -24,6 +25,19 @@ interface UniversePump {
   state: string;
   source: string;
   current_price: number | null;
+  volume_24h?: number;
+  open_interest?: number;
+  funding_rate?: number | null;
+  market_cap?: number | null;
+  fdv_mcap_ratio?: number | null;
+  short_thesis?: {
+    name: string;
+    thesis: string;
+    bull_case: string[];
+    bear_case: string[];
+    key_metrics: Record<string, string>;
+    category: string;
+  } | null;
 }
 
 interface PumpExhaustionResponse {
@@ -149,17 +163,22 @@ const candidateColumns: Column<PumpCandidate>[] = [
   },
 ];
 
-const pumpColumns: Column<UniversePump>[] = [
+function buildPumpColumns(onSymbolClick?: (sym: string) => void): Column<UniversePump>[] {
+  return [
   {
     key: "symbol",
     header: "Symbol",
     render: (r) => (
-      <div className="flex items-center gap-2">
+      <button
+        onClick={() => onSymbolClick?.(r.symbol)}
+        className="flex items-center gap-2 text-left hover:text-blue-400 transition-colors"
+      >
         <span className="font-medium text-gray-200">
           {r.symbol.replace("USDT", "")}
         </span>
         {r.exhaustion_score >= 0.35 && stateBadge(r.state)}
-      </div>
+        {r.short_thesis && <span className="text-[9px] text-purple-400">DEEP DIVE</span>}
+      </button>
     ),
     sortKey: (r) => r.symbol,
   },
@@ -209,9 +228,113 @@ const pumpColumns: Column<UniversePump>[] = [
     sortKey: (r) => r.current_price ?? 0,
     align: "right",
   },
-];
+  {
+    key: "volume_24h",
+    header: "Vol 24h",
+    render: (r) =>
+      r.volume_24h ? `$${(r.volume_24h / 1e6).toFixed(1)}M` : "-",
+    sortKey: (r) => r.volume_24h ?? 0,
+    align: "right",
+  },
+  {
+    key: "funding_rate",
+    header: "Funding",
+    render: (r) => {
+      if (r.funding_rate == null) return <span className="text-gray-700">-</span>;
+      const pct = r.funding_rate * 100;
+      const color = pct > 0.01 ? "text-red-400" : pct < -0.01 ? "text-green-400" : "text-gray-400";
+      return <span className={`font-mono ${color}`}>{pct.toFixed(4)}%</span>;
+    },
+    sortKey: (r) => r.funding_rate ?? 0,
+    align: "right",
+  },
+  {
+    key: "fdv_mcap",
+    header: "FDV/MC",
+    render: (r) =>
+      r.fdv_mcap_ratio ? `${r.fdv_mcap_ratio.toFixed(1)}x` : "-",
+    sortKey: (r) => r.fdv_mcap_ratio ?? 0,
+    align: "right",
+  },
+];}
+
+function PumpDetailPanel({ pump, onClose }: { pump: UniversePump; onClose: () => void }) {
+  const thesis = pump.short_thesis;
+  return (
+    <Card className="border-l-2 border-l-purple-500">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold text-gray-100">{pump.symbol.replace("USDT", "")}</span>
+            {thesis && <span className="text-sm text-gray-500">{thesis.name}</span>}
+            <Badge variant={pump.source === "excluded" ? "warning" : "info"}>{pump.source}</Badge>
+            <span className="text-red-400 font-mono text-sm">+{pump.ret_7d_pct.toFixed(1)}% 7d</span>
+          </div>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 text-sm">Close</button>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
+          {[
+            { label: "Price", value: pump.current_price ? `$${pump.current_price.toFixed(4)}` : "—" },
+            { label: "Volume 24h", value: pump.volume_24h ? `$${(pump.volume_24h / 1e6).toFixed(1)}M` : "—" },
+            { label: "Open Interest", value: pump.open_interest ? `$${(pump.open_interest / 1e6).toFixed(1)}M` : "—" },
+            { label: "Funding Rate", value: pump.funding_rate != null ? `${(pump.funding_rate * 100).toFixed(4)}%` : "—" },
+            { label: "FDV/MCap", value: pump.fdv_mcap_ratio ? `${pump.fdv_mcap_ratio.toFixed(1)}x` : "—" },
+            { label: "Market Cap", value: pump.market_cap ? `$${(pump.market_cap / 1e6).toFixed(0)}M` : "—" },
+          ].map(({ label, value }) => (
+            <div key={label} className="text-center">
+              <div className="text-[10px] text-gray-600 uppercase">{label}</div>
+              <div className="text-sm font-medium text-gray-200">{value}</div>
+            </div>
+          ))}
+        </div>
+
+        {thesis && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Short Thesis</div>
+              <div className="bg-[var(--bg-secondary)] rounded p-3 text-[12px] text-gray-300 mb-3">{thesis.thesis}</div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-[10px] text-red-400 uppercase mb-1">Bear Case</div>
+                  <ul className="text-[11px] text-gray-400 space-y-0.5">
+                    {thesis.bear_case.map((b, i) => <li key={i}><span className="text-red-500 mr-1">-</span>{b}</li>)}
+                  </ul>
+                </div>
+                <div>
+                  <div className="text-[10px] text-yellow-400 uppercase mb-1">Bull Case (Risks)</div>
+                  <ul className="text-[11px] text-gray-400 space-y-0.5">
+                    {thesis.bull_case.map((b, i) => <li key={i}><span className="text-yellow-500 mr-1">+</span>{b}</li>)}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Key Metrics</div>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(thesis.key_metrics).map(([k, v]) => (
+                  <div key={k} className="flex justify-between bg-gray-900/50 rounded px-2 py-1">
+                    <span className="text-[10px] text-gray-600">{k}</span>
+                    <span className="text-[11px] text-gray-300">{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!thesis && (
+          <div className="text-gray-600 text-sm text-center py-4">
+            No deep dive data available. Add thesis in data/short_thesis.py
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
 
 export function PumpExhaustionTab() {
+  const [selectedPump, setSelectedPump] = useState<string | null>(null);
   const { client, engine } = useEngine();
   const { data, isLoading } = useQuery<PumpExhaustionResponse>({
     queryKey: ["pump-exhaustion", engine.id],
@@ -338,10 +461,11 @@ export function PumpExhaustionTab() {
             <CardTitle>
               All Pumping Tokens ({data.universe_pumps.length} with 7d return &gt;{data.config.detect_threshold_pct}%)
             </CardTitle>
+            <p className="text-xs text-gray-600 mt-1">Click a symbol to expand deep dive</p>
           </CardHeader>
           <div className="p-4 pt-0">
             <DataTable
-              columns={pumpColumns}
+              columns={buildPumpColumns((sym) => setSelectedPump(prev => prev === sym ? null : sym))}
               data={data.universe_pumps}
               defaultSort="ret_7d_pct"
               maxHeight="480px"
@@ -349,6 +473,13 @@ export function PumpExhaustionTab() {
           </div>
         </Card>
       )}
+
+      {/* Pump Detail Panel */}
+      {selectedPump && (() => {
+        const pump = data.universe_pumps.find(p => p.symbol === selectedPump);
+        if (!pump) return null;
+        return <PumpDetailPanel pump={pump} onClose={() => setSelectedPump(null)} />;
+      })()}
 
       {/* Empty state */}
       {data.candidates.length === 0 && data.universe_pumps.length === 0 && (
