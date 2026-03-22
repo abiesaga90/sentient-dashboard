@@ -36,6 +36,13 @@ interface PerformanceResponse {
     short_avg_win_pct: number;
     short_avg_loss_pct: number;
   };
+  long_hit_rate?: {
+    long_exits_total: number;
+    long_exits_profitable: number;
+    long_hit_rate_pct: number;
+    long_avg_win_pct: number;
+    long_avg_loss_pct: number;
+  };
   long_short_pnl: {
     long_realized_pnl: number;
     short_realized_pnl: number;
@@ -43,6 +50,10 @@ interface PerformanceResponse {
     short_trade_count: number;
     long_avg_pnl: number;
     short_avg_pnl: number;
+    long_unrealized_pnl?: number;
+    short_unrealized_pnl?: number;
+    long_total_pnl?: number;
+    short_total_pnl?: number;
   };
   hedge_effectiveness: {
     long_short_correlation: number;
@@ -64,6 +75,8 @@ interface PerformanceResponse {
     long_max_dd_pct: number;
     short_max_dd_pct: number;
     trading_days: number;
+    profit_factor: number;
+    hedge_ratio_pct: number;
   };
 }
 
@@ -130,27 +143,55 @@ export function PerformanceTab() {
         />
       )}
 
-      {/* Drawdown Duration + Short Hit Rate */}
+      {/* Drawdown Duration */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Drawdown Duration</CardTitle>
+        </CardHeader>
+        <div className="space-y-2 text-xs">
+          <StatRow
+            label="Max DD Duration"
+            value={`${data.drawdown_duration.max_dd_duration_days} days`}
+          />
+          <StatRow label="DD Start" value={data.drawdown_duration.max_dd_start} />
+          <StatRow label="DD End" value={data.drawdown_duration.max_dd_end} />
+          <StatRow
+            label="Current DD Duration"
+            value={`${data.drawdown_duration.current_dd_duration_days} days`}
+            highlight={data.drawdown_duration.current_dd_duration_days > 0}
+          />
+        </div>
+      </Card>
+
+      {/* Hit Rates: Long + Short side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* DD Duration */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Drawdown Duration</CardTitle>
-          </CardHeader>
-          <div className="space-y-2 text-xs">
-            <StatRow
-              label="Max DD Duration"
-              value={`${data.drawdown_duration.max_dd_duration_days} days`}
-            />
-            <StatRow label="DD Start" value={data.drawdown_duration.max_dd_start} />
-            <StatRow label="DD End" value={data.drawdown_duration.max_dd_end} />
-            <StatRow
-              label="Current DD Duration"
-              value={`${data.drawdown_duration.current_dd_duration_days} days`}
-              highlight={data.drawdown_duration.current_dd_duration_days > 0}
-            />
-          </div>
-        </Card>
+        {/* Long Hit Rate */}
+        {data.long_hit_rate && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Long Hit Rate</CardTitle>
+                <span className="text-lg font-bold text-gray-100">
+                  {data.long_hit_rate.long_hit_rate_pct.toFixed(1)}%
+                </span>
+              </div>
+            </CardHeader>
+            <div className="space-y-2 text-xs">
+              <StatRow label="Total Exits" value={String(data.long_hit_rate.long_exits_total)} />
+              <StatRow label="Profitable" value={String(data.long_hit_rate.long_exits_profitable)} />
+              <StatRow label="Avg Win" value={`+${data.long_hit_rate.long_avg_win_pct.toFixed(2)}%`} color="text-green-400" />
+              <StatRow label="Avg Loss" value={`${data.long_hit_rate.long_avg_loss_pct.toFixed(2)}%`} color="text-red-400" />
+              <StatRow
+                label="Win/Loss Ratio"
+                value={
+                  data.long_hit_rate.long_avg_loss_pct !== 0
+                    ? (Math.abs(data.long_hit_rate.long_avg_win_pct) / Math.abs(data.long_hit_rate.long_avg_loss_pct)).toFixed(2)
+                    : "—"
+                }
+              />
+            </div>
+          </Card>
+        )}
 
         {/* Short Hit Rate */}
         <Card>
@@ -163,32 +204,15 @@ export function PerformanceTab() {
             </div>
           </CardHeader>
           <div className="space-y-2 text-xs">
-            <StatRow
-              label="Total Exits"
-              value={String(data.short_hit_rate.short_exits_total)}
-            />
-            <StatRow
-              label="Profitable"
-              value={String(data.short_hit_rate.short_exits_profitable)}
-            />
-            <StatRow
-              label="Avg Win"
-              value={`+${data.short_hit_rate.short_avg_win_pct.toFixed(2)}%`}
-              color="text-green-400"
-            />
-            <StatRow
-              label="Avg Loss"
-              value={`${data.short_hit_rate.short_avg_loss_pct.toFixed(2)}%`}
-              color="text-red-400"
-            />
+            <StatRow label="Total Exits" value={String(data.short_hit_rate.short_exits_total)} />
+            <StatRow label="Profitable" value={String(data.short_hit_rate.short_exits_profitable)} />
+            <StatRow label="Avg Win" value={`+${data.short_hit_rate.short_avg_win_pct.toFixed(2)}%`} color="text-green-400" />
+            <StatRow label="Avg Loss" value={`${data.short_hit_rate.short_avg_loss_pct.toFixed(2)}%`} color="text-red-400" />
             <StatRow
               label="Win/Loss Ratio"
               value={
                 data.short_hit_rate.short_avg_loss_pct !== 0
-                  ? (
-                      Math.abs(data.short_hit_rate.short_avg_win_pct) /
-                      Math.abs(data.short_hit_rate.short_avg_loss_pct)
-                    ).toFixed(2)
+                  ? (Math.abs(data.short_hit_rate.short_avg_win_pct) / Math.abs(data.short_hit_rate.short_avg_loss_pct)).toFixed(2)
                   : "—"
               }
             />
@@ -199,23 +223,39 @@ export function PerformanceTab() {
       {/* Long vs Short P&L */}
       <Card>
         <CardHeader>
-          <CardTitle>Long vs Short Realized P&L</CardTitle>
+          <CardTitle>Long vs Short P&L</CardTitle>
         </CardHeader>
         <div className="grid grid-cols-2 gap-6">
           <div>
             <div className="text-xs text-green-400 font-medium mb-2">Longs</div>
             <div className="space-y-1 text-xs">
-              <StatRow label="Realized P&L" value={formatUSD(data.long_short_pnl.long_realized_pnl)} color="text-green-400" />
-              <StatRow label="Trades" value={String(data.long_short_pnl.long_trade_count)} />
-              <StatRow label="Avg P&L/Trade" value={formatUSD(data.long_short_pnl.long_avg_pnl)} />
+              <StatRow label="Realized" value={formatUSD(data.long_short_pnl.long_realized_pnl)} color={data.long_short_pnl.long_realized_pnl >= 0 ? "text-green-400" : "text-red-400"} />
+              {data.long_short_pnl.long_unrealized_pnl != null && (
+                <StatRow label="Unrealized" value={formatUSD(data.long_short_pnl.long_unrealized_pnl)} color={data.long_short_pnl.long_unrealized_pnl >= 0 ? "text-green-400" : "text-red-400"} />
+              )}
+              {data.long_short_pnl.long_total_pnl != null && (
+                <StatRow label="Total" value={formatUSD(data.long_short_pnl.long_total_pnl)} color={data.long_short_pnl.long_total_pnl >= 0 ? "text-green-400" : "text-red-400"} />
+              )}
+              <div className="border-t border-[var(--border)] pt-1 mt-1">
+                <StatRow label="Closed Trades" value={String(data.long_short_pnl.long_trade_count)} />
+                <StatRow label="Avg P&L/Trade" value={formatUSD(data.long_short_pnl.long_avg_pnl)} />
+              </div>
             </div>
           </div>
           <div>
             <div className="text-xs text-red-400 font-medium mb-2">Shorts</div>
             <div className="space-y-1 text-xs">
-              <StatRow label="Realized P&L" value={formatUSD(data.long_short_pnl.short_realized_pnl)} color={data.long_short_pnl.short_realized_pnl >= 0 ? "text-green-400" : "text-red-400"} />
-              <StatRow label="Trades" value={String(data.long_short_pnl.short_trade_count)} />
-              <StatRow label="Avg P&L/Trade" value={formatUSD(data.long_short_pnl.short_avg_pnl)} />
+              <StatRow label="Realized" value={formatUSD(data.long_short_pnl.short_realized_pnl)} color={data.long_short_pnl.short_realized_pnl >= 0 ? "text-green-400" : "text-red-400"} />
+              {data.long_short_pnl.short_unrealized_pnl != null && (
+                <StatRow label="Unrealized" value={formatUSD(data.long_short_pnl.short_unrealized_pnl)} color={data.long_short_pnl.short_unrealized_pnl >= 0 ? "text-green-400" : "text-red-400"} />
+              )}
+              {data.long_short_pnl.short_total_pnl != null && (
+                <StatRow label="Total" value={formatUSD(data.long_short_pnl.short_total_pnl)} color={data.long_short_pnl.short_total_pnl >= 0 ? "text-green-400" : "text-red-400"} />
+              )}
+              <div className="border-t border-[var(--border)] pt-1 mt-1">
+                <StatRow label="Closed Trades" value={String(data.long_short_pnl.short_trade_count)} />
+                <StatRow label="Avg P&L/Trade" value={formatUSD(data.long_short_pnl.short_avg_pnl)} />
+              </div>
             </div>
           </div>
         </div>
@@ -229,7 +269,7 @@ export function PerformanceTab() {
           </CardHeader>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <div className="text-xs text-gray-500">Cumulative Spread</div>
+              <div className="text-xs text-gray-500">Cumulative Return</div>
               <div className={`text-lg font-bold ${data.ls_alpha.cumulative_spread_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
                 {data.ls_alpha.cumulative_spread_pct >= 0 ? "+" : ""}{data.ls_alpha.cumulative_spread_pct.toFixed(2)}%
               </div>
@@ -241,19 +281,29 @@ export function PerformanceTab() {
               </div>
             </div>
             <div>
-              <div className="text-xs text-gray-500">Down-Day Capture</div>
-              <div className="text-lg font-bold text-gray-200">
-                {data.ls_alpha.down_day_capture_pct.toFixed(1)}%
+              <div className="text-xs text-gray-500">Profit Factor</div>
+              <div className={`text-lg font-bold ${data.ls_alpha.profit_factor > 1.5 ? "text-green-400" : data.ls_alpha.profit_factor > 1 ? "text-yellow-400" : "text-red-400"}`}>
+                {data.ls_alpha.profit_factor.toFixed(2)}
               </div>
             </div>
             <div>
-              <div className="text-xs text-gray-500">Tracking Error (ann.)</div>
-              <div className="text-lg font-bold text-gray-200">
-                {data.ls_alpha.tracking_error_ann.toFixed(2)}%
+              <div className="text-xs text-gray-500">Down-Day Capture</div>
+              <div className={`text-lg font-bold ${data.ls_alpha.down_day_capture_pct >= 50 ? "text-green-400" : "text-yellow-400"}`}>
+                {data.ls_alpha.down_day_capture_pct.toFixed(1)}%
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 mt-3 pt-3 border-t border-[var(--border)]">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-3 pt-3 border-t border-[var(--border)]">
+            <div>
+              <div className="text-xs text-gray-500">Tracking Error (ann.)</div>
+              <div className="text-sm text-gray-300">{data.ls_alpha.tracking_error_ann.toFixed(2)}%</div>
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">Hedge Ratio</div>
+              <div className={`text-sm ${data.ls_alpha.hedge_ratio_pct >= 50 ? "text-green-400" : "text-yellow-400"}`}>
+                {data.ls_alpha.hedge_ratio_pct.toFixed(1)}%
+              </div>
+            </div>
             <div>
               <div className="text-xs text-gray-500">Long Max DD</div>
               <div className="text-sm text-red-400">{data.ls_alpha.long_max_dd_pct.toFixed(2)}%</div>
