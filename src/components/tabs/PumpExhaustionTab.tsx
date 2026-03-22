@@ -538,40 +538,24 @@ export function PumpExhaustionTab() {
         </Card>
       )}
 
-      {/* Active Scanner States */}
-      {data.candidates.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Active Scanner States ({data.candidates.length})
-            </CardTitle>
-          </CardHeader>
-          <div className="p-4 pt-0">
-            <DataTable
-              columns={candidateColumns}
-              data={data.candidates}
-              defaultSort="exhaustion_score"
-              maxHeight="320px"
-            />
-          </div>
-        </Card>
-      )}
-
-      {/* All Pumping Tokens */}
+      {/* All Pumping Tokens — single unified table */}
       {data.universe_pumps.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>
-              All Pumping Tokens ({data.universe_pumps.length} with 7d return &gt;{data.config.detect_threshold_pct}%)
+              Pumping Tokens ({data.universe_pumps.length})
             </CardTitle>
-            <p className="text-xs text-gray-600 mt-1">Click a symbol to expand deep dive</p>
+            <p className="text-xs text-gray-600 mt-1">
+              {data.candidates.filter(c => c.state === "INCLUDED").length} INCLUDED, {data.candidates.filter(c => c.state === "STALKING").length} STALKING. Click symbol for deep dive.
+            </p>
           </CardHeader>
           <div className="p-4 pt-0">
             <DataTable
               columns={buildPumpColumns((sym) => setSelectedPump(prev => prev === sym ? null : sym))}
               data={data.universe_pumps}
-              defaultSort="ret_7d_pct"
-              maxHeight="480px"
+              defaultSort="exhaustion_score"
+              defaultDir="desc"
+              maxHeight="600px"
             />
           </div>
         </Card>
