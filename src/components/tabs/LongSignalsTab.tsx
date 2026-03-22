@@ -431,7 +431,7 @@ function TokenDetailView({
                         <div className="flex items-center gap-1">
                           {freshnessDot(sig?.freshness)}
                           <span className={hasData ? "text-gray-400" : "text-gray-600"}>
-                            {isSupplyChild ? "↳ " : ""}{r.label}
+                            {isSupplyChild ? "↳ " : ""}{sig?.label ?? r.label}
                           </span>
                           {sig?.z_score != null && (
                             <span className={`text-[9px] ${sig.z_score > 0 ? "text-green-500" : "text-red-500"}`}>
