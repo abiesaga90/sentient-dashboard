@@ -253,9 +253,9 @@ export function AttributionTab() {
             ))}
           </div>
 
-          {/* Beta Net Drift */}
+          {/* Net Exposure Drift (Notional, not beta-weighted) */}
           <div className="mt-4 pt-3 border-t border-[var(--border)] space-y-1 text-xs">
-            <div className="text-gray-500 font-medium mb-1">Beta Net Drift</div>
+            <div className="text-gray-500 font-medium mb-1">Net Exposure Drift (Notional)</div>
             <StatRow label="Target" value={formatPct(data.spread.beta_net.target_pct)} />
             <StatRow label="Realized Avg" value={formatPct(data.spread.beta_net.realized_avg_net_pct)} />
             <StatRow label="Drift" value={formatPct(data.spread.beta_net.drift_pct)} />
