@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { DataTable, type Column } from "../shared/DataTable";
 import { Badge } from "../ui/Badge";
 import { formatUSD } from "../../lib/utils";
+import { ShortDetailView } from "./ShortDetailView";
 import type {
   RankingCandidate,
   RankingsResponse,
@@ -364,6 +366,7 @@ function buildColumns(opts: {
 function buildColumnsWithIndex(opts: {
   showStatus: boolean;
   fundFirst: boolean;
+  onSymbolClick?: (sym: string) => void;
 }): Column<RankingCandidate & { _idx: number }>[] {
   const base = buildColumns(opts);
   return base.map((col) => {
@@ -375,11 +378,26 @@ function buildColumnsWithIndex(opts: {
         ),
       };
     }
+    if (col.key === "symbol" && opts.onSymbolClick) {
+      const origRender = col.render;
+      return {
+        ...col,
+        render: (r: RankingCandidate & { _idx: number }) => (
+          <button
+            onClick={() => opts.onSymbolClick!(r.symbol)}
+            className="text-left hover:text-blue-400 transition-colors"
+          >
+            {origRender(r)}
+          </button>
+        ),
+      };
+    }
     return col as Column<RankingCandidate & { _idx: number }>;
   });
 }
 
 export function ShortSelectionTab() {
+  const [selectedShort, setSelectedShort] = useState<string | null>(null);
   const { client, engine } = useEngine();
 
   const { data, isLoading } = useQuery({
@@ -408,8 +426,9 @@ export function ShortSelectionTab() {
 
   const fundFirst = data.fund_first_shorts ?? false;
 
-  const basketColumns = buildColumnsWithIndex({ showStatus: false, fundFirst });
-  const candidateColumns = buildColumnsWithIndex({ showStatus: true, fundFirst });
+  const handleSymbolClick = (sym: string) => setSelectedShort(prev => prev === sym ? null : sym);
+  const basketColumns = buildColumnsWithIndex({ showStatus: false, fundFirst, onSymbolClick: handleSymbolClick });
+  const candidateColumns = buildColumnsWithIndex({ showStatus: true, fundFirst, onSymbolClick: handleSymbolClick });
 
   // Split candidates into basket (in_targets) and full list
   const basket = data.candidates
@@ -610,6 +629,19 @@ export function ShortSelectionTab() {
           defaultDir="desc"
         />
       </Card>
+
+      {/* Short Detail View — expands when a symbol is clicked */}
+      {selectedShort && (() => {
+        const candidate = allCandidates.find(c => c.symbol === selectedShort)
+          ?? basket.find(c => c.symbol === selectedShort);
+        if (!candidate) return null;
+        return (
+          <ShortDetailView
+            candidate={candidate}
+            onClose={() => setSelectedShort(null)}
+          />
+        );
+      })()}
 
       {/* Candidate Rankings */}
       <Card>

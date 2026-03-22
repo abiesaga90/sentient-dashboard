@@ -416,6 +416,25 @@ export interface RankingCandidate {
     perp_funding_rate: number | null;
   };
   nansen_stale?: boolean;
+  unlock_schedule?: {
+    next_events: Array<{
+      date: string;
+      pct_of_max: number;
+      amount_tokens: number;
+      categories: string[];
+    }>;
+    days_until_next: number | null;
+    unlock_pressure_30d: number;
+    total_events: number;
+  } | null;
+  short_thesis?: {
+    name: string;
+    thesis: string;
+    bull_case: string[];
+    bear_case: string[];
+    key_metrics: Record<string, string>;
+    category: string;
+  } | null;
 }
 
 export interface FundWeights {
