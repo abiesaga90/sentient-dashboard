@@ -5,6 +5,16 @@ import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { DataTable, type Column } from "../shared/DataTable";
 import { Badge } from "../ui/Badge";
 
+interface SubSignal {
+  value: number;
+  peak?: number;
+  signal: number;
+  weight: number;
+  drop_pct?: number;
+  description: string;
+  threshold: string;
+}
+
 interface PumpCandidate {
   symbol: string;
   state: string;
@@ -16,6 +26,7 @@ interface PumpCandidate {
   inclusion_cycles: number;
   current_price: number | null;
   last_updated: string;
+  sub_signals?: Record<string, SubSignal> | null;
 }
 
 interface UniversePump {
@@ -258,7 +269,69 @@ function buildPumpColumns(onSymbolClick?: (sym: string) => void): Column<Univers
   },
 ];}
 
-function PumpDetailPanel({ pump, onClose }: { pump: UniversePump; onClose: () => void }) {
+function ExhaustionBreakdown({ signals, threshold }: { signals: Record<string, SubSignal>; threshold: number }) {
+  const composite = Object.values(signals).reduce((sum, s) => sum + s.weight * s.signal, 0);
+  const SIGNAL_LABELS: Record<string, string> = {
+    funding: "Funding Squeeze Recovery",
+    oi_rollover: "OI Rollover",
+    volume_decay: "Volume Climax Decay",
+    price_extension: "Price Extension (3σ)",
+  };
+  return (
+    <div className="space-y-2">
+      <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1">
+        Exhaustion Score Breakdown (need ≥{threshold} to enter short)
+      </div>
+      {["funding", "oi_rollover", "volume_decay", "price_extension"].map((key) => {
+        const sig = signals[key];
+        if (!sig) return null;
+        const fired = sig.signal >= 0.5;
+        const pct = sig.signal * 100;
+        return (
+          <div key={key} className="bg-[var(--bg-secondary)] rounded p-2">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${fired ? "bg-green-400" : sig.signal > 0.1 ? "bg-yellow-400" : "bg-gray-600"}`} />
+                <span className="text-[11px] text-gray-300">{SIGNAL_LABELS[key] || key}</span>
+                <span className="text-[10px] text-gray-600">({(sig.weight * 100).toFixed(0)}% weight)</span>
+              </div>
+              <span className={`font-mono text-[12px] ${fired ? "text-green-400" : "text-gray-500"}`}>
+                {sig.signal.toFixed(3)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${fired ? "bg-green-500" : sig.signal > 0.1 ? "bg-yellow-500" : "bg-gray-700"}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
+            <div className="flex justify-between mt-1 text-[10px] text-gray-600">
+              <span>
+                {sig.peak != null
+                  ? key === "funding" ? `Peak: ${(sig.peak * 100).toFixed(4)}% → Now: ${(sig.value * 100).toFixed(4)}%`
+                  : `Peak: $${(sig.peak / 1e6).toFixed(1)}M → Now: $${(sig.value / 1e6).toFixed(1)}M${sig.drop_pct != null ? ` (${sig.drop_pct > 0 ? "-" : "+"}${Math.abs(sig.drop_pct).toFixed(1)}%)` : ""}`
+                  : `Current: ${sig.value}`
+                }
+              </span>
+              <span>{sig.threshold}</span>
+            </div>
+          </div>
+        );
+      })}
+      <div className="flex justify-between font-mono px-2 pt-1 text-[12px]">
+        <span className="text-gray-400">Composite Score</span>
+        <span className={composite >= threshold ? "text-green-400 font-bold" : "text-gray-400"}>
+          {composite.toFixed(3)} / {threshold}
+          {composite >= threshold ? " → SHORT ENTRY" : " → waiting"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function PumpDetailPanel({ pump, candidate, threshold, onClose }: { pump: UniversePump; candidate?: PumpCandidate; threshold: number; onClose: () => void }) {
   const thesis = pump.short_thesis;
   return (
     <Card className="border-l-2 border-l-purple-500">
@@ -323,9 +396,16 @@ function PumpDetailPanel({ pump, onClose }: { pump: UniversePump; onClose: () =>
           </div>
         )}
 
-        {!thesis && (
+        {/* Exhaustion Score Breakdown */}
+        {candidate?.sub_signals && (
+          <div className="md:col-span-2 mt-2">
+            <ExhaustionBreakdown signals={candidate.sub_signals} threshold={threshold} />
+          </div>
+        )}
+
+        {!thesis && !candidate?.sub_signals && (
           <div className="text-gray-600 text-sm text-center py-4">
-            No deep dive data available. Add thesis in data/short_thesis.py
+            No deep dive data available yet. Token needs to enter STALKING state for exhaustion tracking.
           </div>
         )}
       </div>
@@ -478,7 +558,15 @@ export function PumpExhaustionTab() {
       {selectedPump && (() => {
         const pump = data.universe_pumps.find(p => p.symbol === selectedPump);
         if (!pump) return null;
-        return <PumpDetailPanel pump={pump} onClose={() => setSelectedPump(null)} />;
+        const candidate = data.candidates.find(c => c.symbol === selectedPump);
+        return (
+          <PumpDetailPanel
+            pump={pump}
+            candidate={candidate}
+            threshold={data.config.threshold}
+            onClose={() => setSelectedPump(null)}
+          />
+        );
       })()}
 
       {/* Empty state */}
