@@ -221,13 +221,31 @@ function ExhaustionBreakdown({ signals, threshold }: { signals: Record<string, S
           </div>
         );
       })}
-      <div className="flex justify-between font-mono px-2 pt-1 text-[12px]">
-        <span className="text-gray-400">Composite Score</span>
-        <span className={composite >= threshold ? "text-green-400 font-bold" : "text-gray-400"}>
-          {composite.toFixed(3)} / {threshold}
-          {composite >= threshold ? " → SHORT ENTRY" : " → waiting"}
-        </span>
-      </div>
+      {/* Gate Status */}
+      {signals._gates && (
+        <div className="mt-2 bg-gray-900/50 rounded p-2">
+          <div className="text-[10px] text-gray-600 uppercase mb-1">Entry Gates (all must pass)</div>
+          <div className="grid grid-cols-3 gap-2 text-[11px]">
+            {[
+              { pass: (signals._gates as any).oi_pass, label: "Gate 1: OI Rollover ≥ 0.5" },
+              { pass: (signals._gates as any).price_pass, label: "Gate 2: Price Extension ≥ 0.5" },
+              { pass: (signals._gates as any).volume_pass, label: "Gate 3: Volume Decay ≥ 0.3" },
+            ].map(({ pass: p, label }) => (
+              <div key={label} className={`flex items-center gap-1.5 px-2 py-1 rounded ${p ? "bg-green-900/30 border border-green-700/30" : "bg-gray-800 border border-gray-700/30"}`}>
+                <span className={`text-sm ${p ? "text-green-400" : "text-gray-600"}`}>{p ? "✓" : "✗"}</span>
+                <span className={p ? "text-green-300" : "text-gray-500"}>{label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="text-[10px] text-gray-600 mt-1">Funding shown for context (lagging indicator — not gated)</div>
+          <div className="flex justify-between font-mono px-2 pt-1 text-[12px] mt-1">
+            <span className="text-gray-400">Status</span>
+            <span className={`font-bold ${(signals._gates as any).entry_ready ? "text-green-400" : "text-yellow-400"}`}>
+              {(signals._gates as any).entry_ready ? "ALL GATES PASSED → SHORT ENTRY" : "WAITING — gates incomplete"}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
