@@ -17,7 +17,7 @@ import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
 import { MacroRegimeTab } from "../components/tabs/MacroRegimeTab";
 import { CycleTab } from "../components/tabs/CycleTab";
-import { TokenSignalsTab } from "../components/tabs/TokenSignalsTab";
+import { AethirDeepDiveTab } from "../components/tabs/AethirDeepDiveTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -84,8 +84,6 @@ function TabContent({
       return <FundamentalsTab />;
     case "long-signals":
       return <LongSignalsTab />;
-    case "token-signals":
-      return <TokenSignalsTab />;
     case "performance":
       return <PerformanceTab />;
     case "attribution":
@@ -104,6 +102,8 @@ function TabContent({
       return <ExecutionTab />;
     case "pump-exhaustion":
       return <PumpExhaustionTab />;
+    case "aethir":
+      return <AethirDeepDiveTab />;
     default:
       return (
         <div className="p-4">

@@ -14,7 +14,7 @@ import {
   Clock,
   Zap,
   Gauge,
-  Search,
+  Cpu,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -23,7 +23,6 @@ export const DASHBOARD_TABS = [
   { id: "long-signals", label: "Long Signals", icon: <Zap size={14} /> },
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },
   { id: "fundamentals", label: "Fundamentals", icon: <BookOpen size={14} /> },
-  { id: "token-signals", label: "Token Signals", icon: <Search size={14} /> },
   { id: "performance", label: "Performance", icon: <TrendingUp size={14} /> },
   { id: "attribution", label: "Attribution", icon: <BarChart3 size={14} /> },
   { id: "thesis", label: "Thesis", icon: <Target size={14} /> },
@@ -33,6 +32,7 @@ export const DASHBOARD_TABS = [
   { id: "cycle", label: "Cycle", icon: <Activity size={14} /> },
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
   { id: "pump-exhaustion", label: "Pump Scanner", icon: <Zap size={14} /> },
+  { id: "aethir", label: "Aethir", icon: <Cpu size={14} /> },
   { id: "next-rebalance", label: "Next Rebalance", icon: <Clock size={14} /> },
 ] as const;
 
