@@ -68,6 +68,23 @@ interface UniversePump {
   } | null;
 }
 
+interface CompTimeline {
+  day: number;
+  dd_pct: number;
+}
+
+interface PumpComp {
+  symbol: string;
+  pump_pct: number;
+  ath_price: number;
+  ath_date: string;
+  current_dd_pct: number;
+  peak_daily_vol_m: number;
+  timeline: CompTimeline[];
+  days_to_50pct: number;
+  days_to_75pct: number;
+}
+
 interface PumpExhaustionResponse {
   enabled: boolean;
   config: {
@@ -79,6 +96,13 @@ interface PumpExhaustionResponse {
   };
   candidates: PumpCandidate[];
   universe_pumps: UniversePump[];
+  historical_comps?: {
+    comparables: PumpComp[];
+    avg_day1_dd: number;
+    avg_days_to_50: number;
+    avg_days_to_75: number;
+  };
+  focus_symbols?: string[];
 }
 
 const stateBadge = (state: string) => {
@@ -268,7 +292,7 @@ function ExhaustionBreakdown({ signals, threshold }: { signals: Record<string, S
   );
 }
 
-function PumpDetailPanel({ pump, candidate, threshold, onClose }: { pump: UniversePump; candidate?: PumpCandidate; threshold: number; onClose: () => void }) {
+function PumpDetailPanel({ pump, candidate, threshold, onClose, comps }: { pump: UniversePump; candidate?: PumpCandidate; threshold: number; onClose: () => void; comps?: PumpExhaustionResponse["historical_comps"] }) {
   const thesis = pump.short_thesis;
   return (
     <Card className="border-l-2 border-l-purple-500">
@@ -385,6 +409,76 @@ function PumpDetailPanel({ pump, candidate, threshold, onClose }: { pump: Univer
                   </span>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Historical Comps */}
+        {comps && comps.comparables.length > 0 && (
+          <div className="md:col-span-2 mt-2">
+            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
+              Historical Pump-and-Dump Comparables
+              <span className="text-gray-500 ml-2">What happened to similar pumps after ATH</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-[11px] font-mono">
+                <thead>
+                  <tr className="text-gray-600 border-b border-gray-800">
+                    <th className="text-left py-1 px-2">Token</th>
+                    <th className="text-right py-1 px-1">Pump</th>
+                    <th className="text-right py-1 px-1">Day 1</th>
+                    <th className="text-right py-1 px-1">Day 3</th>
+                    <th className="text-right py-1 px-1">Day 7</th>
+                    <th className="text-right py-1 px-1">Day 14</th>
+                    <th className="text-right py-1 px-1">Day 30</th>
+                    <th className="text-right py-1 px-1">-50%</th>
+                    <th className="text-right py-1 px-1">-75%</th>
+                    <th className="text-right py-1 px-2">Now</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comps.comparables.map((c) => (
+                    <tr key={c.symbol} className="border-b border-gray-900 hover:bg-gray-900/30">
+                      <td className="py-1 px-2 text-gray-300">{c.symbol}</td>
+                      <td className="text-right px-1 text-red-400">+{c.pump_pct}%</td>
+                      {[1, 3, 7, 14, 30].map((d) => {
+                        const entry = c.timeline.find((t) => t.day === d);
+                        return (
+                          <td key={d} className="text-right px-1 text-green-400">
+                            {entry ? `${entry.dd_pct.toFixed(0)}%` : "—"}
+                          </td>
+                        );
+                      })}
+                      <td className="text-right px-1 text-yellow-400">{c.days_to_50pct}d</td>
+                      <td className="text-right px-1 text-yellow-400">{c.days_to_75pct}d</td>
+                      <td className="text-right px-2 text-green-400">{c.current_dd_pct.toFixed(0)}%</td>
+                    </tr>
+                  ))}
+                  {/* SIREN row */}
+                  <tr className="border-t-2 border-orange-500/50 bg-orange-900/10">
+                    <td className="py-1 px-2 text-orange-300 font-bold">SIREN</td>
+                    <td className="text-right px-1 text-red-400">+1447%</td>
+                    <td colSpan={5} className="text-center px-1 text-gray-500 italic">← you are here (Day 0)</td>
+                    <td className="text-right px-1 text-gray-600">?</td>
+                    <td className="text-right px-1 text-gray-600">?</td>
+                    <td className="text-right px-2 text-gray-400">-7%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-2 text-center">
+              <div className="bg-gray-900/50 rounded p-2">
+                <div className="text-[10px] text-gray-600">Avg Day 1</div>
+                <div className="text-sm text-green-400">{comps.avg_day1_dd}%</div>
+              </div>
+              <div className="bg-gray-900/50 rounded p-2">
+                <div className="text-[10px] text-gray-600">Avg -50%</div>
+                <div className="text-sm text-yellow-400">{comps.avg_days_to_50}d</div>
+              </div>
+              <div className="bg-gray-900/50 rounded p-2">
+                <div className="text-[10px] text-gray-600">Avg -75%</div>
+                <div className="text-sm text-yellow-400">{comps.avg_days_to_75}d</div>
+              </div>
             </div>
           </div>
         )}
@@ -558,6 +652,7 @@ export function PumpExhaustionTab() {
             candidate={candidate}
             threshold={data.config.threshold}
             onClose={() => setSelectedPump(null)}
+            comps={data.historical_comps}
           />
         );
       })()}
