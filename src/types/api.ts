@@ -407,6 +407,7 @@ export interface RankingCandidate {
   ath_date: string | null;
   momentum_signal: number | null;
   momentum_veto_pct: number | null;
+  momentum_veto_7d_pct: number | null;
   sl_freq_penalty: number | null;
   eligible: boolean;
   filter_reasons: string[];
@@ -463,6 +464,7 @@ export interface RankingsResponse {
   momentum_veto_enabled: boolean;
   momentum_veto_lookback_hours: number;
   momentum_veto_threshold_pct: number;
+  momentum_veto_confirm_lookback_hours: number;
   momentum_veto_count: number;
   fund_first_shorts: boolean;
   short_corr_floor: number;

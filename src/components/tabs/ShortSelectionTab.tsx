@@ -608,49 +608,86 @@ export function ShortSelectionTab() {
       {/* Momentum Veto */}
       {data.momentum_veto_enabled && (() => {
         const vetoed = allCandidates.filter(c => c.momentum_veto_pct != null);
-        if (vetoed.length === 0) return null;
+        const bounces = allCandidates.filter(c => c.momentum_veto_7d_pct != null && c.momentum_veto_pct == null);
+        if (vetoed.length === 0 && bounces.length === 0) return null;
         return (
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Momentum Veto</CardTitle>
                 <span className="text-xs text-red-400">
-                  {vetoed.length} candidates blocked
+                  {vetoed.length} blocked{bounces.length > 0 ? `, ${bounces.length} bounces allowed` : ""}
                 </span>
               </div>
               <p className="text-xs text-gray-600 mt-1">
-                Candidates with &gt;{data.momentum_veto_threshold_pct}% relative outperformance vs long basket
-                over {data.momentum_veto_lookback_hours}h are hard-rejected. Prevents shorting into strong rallies.
+                Multi-timeframe filter: candidates must exceed &gt;{data.momentum_veto_threshold_pct}% relative outperformance
+                on BOTH {data.momentum_veto_lookback_hours}h AND {data.momentum_veto_confirm_lookback_hours ?? 168}h windows.
+                24h pumps after 7d declines (bounces) are allowed as short candidates.
               </p>
             </CardHeader>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="text-gray-500 text-left border-b border-gray-800">
-                    <th className="px-3 py-2">Symbol</th>
-                    <th className="px-3 py-2 text-right">Rel. Return</th>
-                    <th className="px-3 py-2 text-right">Score</th>
-                    <th className="px-3 py-2 text-right">Corr</th>
-                    <th className="px-3 py-2 text-right">Beta</th>
-                    <th className="px-3 py-2 text-right">Volume 24h</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {vetoed
-                    .sort((a, b) => (b.momentum_veto_pct ?? 0) - (a.momentum_veto_pct ?? 0))
-                    .map(c => (
-                      <tr key={c.symbol} className="border-b border-gray-800/50 hover:bg-gray-900/50">
-                        <td className="px-3 py-1.5 font-mono">{c.symbol.replace("USDT", "")}</td>
-                        <td className="px-3 py-1.5 text-right text-red-400 font-mono">+{c.momentum_veto_pct?.toFixed(1)}%</td>
-                        <td className="px-3 py-1.5 text-right font-mono">{c.score?.toFixed(3)}</td>
-                        <td className="px-3 py-1.5 text-right font-mono">{c.corr?.toFixed(2)}</td>
-                        <td className="px-3 py-1.5 text-right font-mono">{c.beta?.toFixed(2)}</td>
-                        <td className="px-3 py-1.5 text-right font-mono text-gray-500">${(c.volume_24h ?? 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
+            {vetoed.length > 0 && (
+              <div className="overflow-x-auto">
+                <div className="text-[10px] text-red-400 uppercase tracking-wider px-3 pt-2 pb-1">Vetoed (sustained rally)</div>
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-gray-500 text-left border-b border-gray-800">
+                      <th className="px-3 py-2">Symbol</th>
+                      <th className="px-3 py-2 text-right">24h Rel.</th>
+                      <th className="px-3 py-2 text-right">7d Rel.</th>
+                      <th className="px-3 py-2 text-right">Score</th>
+                      <th className="px-3 py-2 text-right">Corr</th>
+                      <th className="px-3 py-2 text-right">Beta</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vetoed
+                      .sort((a, b) => (b.momentum_veto_pct ?? 0) - (a.momentum_veto_pct ?? 0))
+                      .map(c => (
+                        <tr key={c.symbol} className="border-b border-gray-800/50 hover:bg-gray-900/50">
+                          <td className="px-3 py-1.5 font-mono">{c.symbol.replace("USDT", "")}</td>
+                          <td className="px-3 py-1.5 text-right text-red-400 font-mono">+{c.momentum_veto_pct?.toFixed(1)}%</td>
+                          <td className="px-3 py-1.5 text-right text-red-400 font-mono">+{c.momentum_veto_7d_pct?.toFixed(1)}%</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{c.score?.toFixed(3)}</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{c.corr?.toFixed(2)}</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{c.beta?.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {bounces.length > 0 && (
+              <div className="overflow-x-auto mt-2">
+                <div className="text-[10px] text-yellow-400 uppercase tracking-wider px-3 pt-2 pb-1">Allowed bounces (24h pump, 7d weak)</div>
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-gray-500 text-left border-b border-gray-800">
+                      <th className="px-3 py-2">Symbol</th>
+                      <th className="px-3 py-2 text-right">24h Rel.</th>
+                      <th className="px-3 py-2 text-right">7d Rel.</th>
+                      <th className="px-3 py-2 text-right">Score</th>
+                      <th className="px-3 py-2 text-right">Corr</th>
+                      <th className="px-3 py-2 text-right">Beta</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bounces
+                      .sort((a, b) => (b.momentum_veto_7d_pct ?? 0) - (a.momentum_veto_7d_pct ?? 0))
+                      .slice(0, 10)
+                      .map(c => (
+                        <tr key={c.symbol} className="border-b border-gray-800/50 hover:bg-gray-900/50">
+                          <td className="px-3 py-1.5 font-mono">{c.symbol.replace("USDT", "")}</td>
+                          <td className="px-3 py-1.5 text-right text-yellow-400 font-mono">+{((c.momentum_veto_7d_pct ?? 0) + (data.momentum_veto_threshold_pct ?? 8)).toFixed(1)}%</td>
+                          <td className="px-3 py-1.5 text-right text-green-400 font-mono">{c.momentum_veto_7d_pct?.toFixed(1)}%</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{c.score?.toFixed(3)}</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{c.corr?.toFixed(2)}</td>
+                          <td className="px-3 py-1.5 text-right font-mono">{c.beta?.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Card>
         );
       })()}
