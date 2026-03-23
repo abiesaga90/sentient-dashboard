@@ -263,6 +263,36 @@ export function RiskStressTab() {
             <span>Distance to SL: {formatPct(risk.distance_to_sl_pct)}</span>
             <span>{formatPct(-stopPct)}</span>
           </div>
+
+          {/* DD Trim Tracking */}
+          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div className="bg-gray-800/50 rounded px-2 py-1.5">
+              <div className="text-gray-500">DD Source</div>
+              <div className="text-gray-200 font-medium">
+                {(risk as any).dd_source === "nt" ? "Nickel NT" : "Internal"}
+              </div>
+            </div>
+            {(risk as any).nt_dd_pct != null && (
+              <div className="bg-gray-800/50 rounded px-2 py-1.5">
+                <div className="text-gray-500">Nickel DD</div>
+                <div className="text-gray-200 font-medium">{formatPct(-(risk as any).nt_dd_pct)}</div>
+              </div>
+            )}
+            <div className="bg-gray-800/50 rounded px-2 py-1.5">
+              <div className="text-gray-500">Last Trim At</div>
+              <div className="text-gray-200 font-medium">
+                {(risk as any).last_trim_dd_pct > 0
+                  ? formatPct(-(risk as any).last_trim_dd_pct)
+                  : "None"}
+              </div>
+            </div>
+            <div className="bg-gray-800/50 rounded px-2 py-1.5">
+              <div className="text-gray-500">Next Trim At</div>
+              <div className="text-amber-400 font-medium">
+                {formatPct(-(risk as any).next_trim_dd_pct)}
+              </div>
+            </div>
+          </div>
         </div>
       </Card>
 
