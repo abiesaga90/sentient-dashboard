@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   ReferenceLine,
 } from "recharts";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
@@ -18,6 +19,28 @@ import { ChartContainer } from "../shared/ChartContainer";
 import { AdlMonitor } from "../overview/AdlMonitor";
 import { formatUSD, formatPct, pnlColor } from "../../lib/utils";
 import type { AdlData, HedgeQualityResponse, PerShortHedge } from "../../types/api";
+
+// ── Collapsible section ──
+function Collapsible({ title, defaultOpen = false, children, count }: {
+  title: string; defaultOpen?: boolean; children: React.ReactNode; count?: number;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <Card>
+      <div
+        className="flex items-center justify-between cursor-pointer px-4 py-3"
+        onClick={() => setOpen(!open)}
+      >
+        <div className="flex items-center gap-2">
+          {open ? <ChevronDown size={14} className="text-gray-500" /> : <ChevronRight size={14} className="text-gray-500" />}
+          <span className="text-sm font-medium text-gray-200">{title}</span>
+          {count != null && <span className="text-xs text-gray-500">({count})</span>}
+        </div>
+      </div>
+      {open && <div className="px-4 pb-4">{children}</div>}
+    </Card>
+  );
+}
 
 // ── Risk types ──
 
@@ -546,19 +569,14 @@ export function RiskStressTab() {
       {varData && (() => {
         const comps = varData.component ?? varData.components ?? [];
         return comps.length > 0 ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Component VaR ({comps.length})</CardTitle>
-            </CardHeader>
-            <div className="p-4 pt-0">
-              <DataTable
-                columns={componentVarColumns}
-                data={comps}
-                defaultSort="var_contribution"
-                maxHeight="400px"
-              />
-            </div>
-          </Card>
+          <Collapsible title="Component VaR" count={comps.length}>
+            <DataTable
+              columns={componentVarColumns}
+              data={comps}
+              defaultSort="var_contribution"
+              maxHeight="400px"
+            />
+          </Collapsible>
         ) : null;
       })()}
     </div>
@@ -719,29 +737,21 @@ function HedgeQualitySection({ data }: { data: HedgeQualityResponse }) {
 
       {/* ── Per-Short Hedge Contribution Table ── */}
       {data.per_short_hedge.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Per-Short Hedge Contribution ({data.per_short_hedge.length})</CardTitle>
-          </CardHeader>
-          <div className="p-4 pt-0">
-            <DataTable
-              columns={perShortColumns}
-              data={data.per_short_hedge}
-              defaultSort="hedge_score"
-              defaultDir="desc"
-              maxHeight="max-h-[400px]"
-            />
-          </div>
-        </Card>
+        <Collapsible title="Per-Short Hedge Contribution" count={data.per_short_hedge.length}>
+          <DataTable
+            columns={perShortColumns}
+            data={data.per_short_hedge}
+            defaultSort="hedge_score"
+            defaultDir="desc"
+            maxHeight="max-h-[400px]"
+          />
+        </Collapsible>
       )}
 
       {/* ── Correlation Heatmap ── */}
       {data.correlation_heatmap.symbols.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Position Correlation Heatmap ({data.correlation_heatmap.symbols.length})</CardTitle>
-          </CardHeader>
-          <div className="p-4 pt-0 overflow-x-auto">
+        <Collapsible title="Position Correlation Heatmap" count={data.correlation_heatmap.symbols.length}>
+          <div className="overflow-x-auto">
             <div className="inline-block">
               {/* Column headers */}
               <div className="flex" style={{ marginLeft: 60 }}>
@@ -804,7 +814,7 @@ function HedgeQualitySection({ data }: { data: HedgeQualityResponse }) {
               </div>
             </div>
           </div>
-        </Card>
+        </Collapsible>
       )}
 
       {/* ── L/S Basket Correlation Trend ── */}
