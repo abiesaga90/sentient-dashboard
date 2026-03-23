@@ -307,8 +307,8 @@ export function RiskStressTab() {
             <Row label="BTC Fast Vol" value={risk.btc_fast_vol?.toFixed(4) ?? "—"} />
             <Row label="BTC Slow Vol" value={risk.btc_slow_vol?.toFixed(4) ?? "—"} />
             <Row label="Vol Ratio" value={risk.vol_ratio?.toFixed(3) ?? "—"} />
-            <Row label="Vol Scale" value={risk.vol_scale.toFixed(3)} />
-            <Row label="Combined Vol Scale" value={risk.combined_vol_scale.toFixed(3)} />
+            <Row label="Vol Scale" value={risk.vol_scale?.toFixed(3) ?? "—"} />
+            <Row label="Combined Vol Scale" value={risk.combined_vol_scale?.toFixed(3) ?? "—"} />
           </div>
         </Card>
 
@@ -350,11 +350,11 @@ export function RiskStressTab() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-xs">
           <div>
             <div className="text-gray-500">DD Scale</div>
-            <div className="text-gray-200 font-medium">{risk.dd_scale.toFixed(3)}</div>
+            <div className="text-gray-200 font-medium">{risk.dd_scale?.toFixed(3) ?? "—"}</div>
           </div>
           <div>
             <div className="text-gray-500">Vol Scale</div>
-            <div className="text-gray-200 font-medium">{risk.vol_scale.toFixed(3)}</div>
+            <div className="text-gray-200 font-medium">{risk.vol_scale?.toFixed(3) ?? "—"}</div>
           </div>
           <div>
             <div className="text-gray-500">Recovery Scale</div>
@@ -362,7 +362,7 @@ export function RiskStressTab() {
           </div>
           <div>
             <div className="text-gray-500">Effective Scale</div>
-            <div className="text-gray-200 font-semibold">{risk.effective_scale.toFixed(3)}</div>
+            <div className="text-gray-200 font-semibold">{risk.effective_scale?.toFixed(3) ?? "—"}</div>
           </div>
           <div>
             <div className="text-gray-500">Recovery Stage</div>
@@ -389,39 +389,39 @@ export function RiskStressTab() {
           </CardHeader>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-xs">
             <div>
-              <div className="text-gray-500">Take Profit</div>
+              <div className="text-gray-500">TP Vol Multiple</div>
               <div className="text-gray-200 font-medium">
-                {formatPct(risk.exit_methodology.tp_pct)}
+                {(risk.exit_methodology as any).tp_vol_multiple ?? (risk.exit_methodology as any).tp_pct ?? "—"}x
               </div>
             </div>
             <div>
-              <div className="text-gray-500">Stop Loss</div>
+              <div className="text-gray-500">SL Vol Multiple</div>
               <div className="text-gray-200 font-medium">
-                {formatPct(-risk.exit_methodology.sl_pct)}
+                {(risk.exit_methodology as any).sl_vol_multiple ?? (risk.exit_methodology as any).sl_pct ?? "—"}x
               </div>
             </div>
             <div>
-              <div className="text-gray-500">Trailing TP</div>
-              <Badge variant={risk.exit_methodology.trailing_tp ? "success" : "default"}>
-                {risk.exit_methodology.trailing_tp ? "ON" : "OFF"}
-              </Badge>
-            </div>
-            <div>
-              <div className="text-gray-500">Vol SL</div>
-              <Badge variant={risk.exit_methodology.vol_sl_enabled ? "success" : "default"}>
-                {risk.exit_methodology.vol_sl_enabled ? "ON" : "OFF"}
-              </Badge>
-            </div>
-            <div>
-              <div className="text-gray-500">Vol SL Mult</div>
+              <div className="text-gray-500">TP Range</div>
               <div className="text-gray-200 font-medium">
-                {risk.exit_methodology.vol_sl_multiplier.toFixed(1)}x
+                {(risk.exit_methodology as any).tp_min_pct ?? 0}–{(risk.exit_methodology as any).tp_max_pct ?? 20}%
               </div>
             </div>
             <div>
-              <div className="text-gray-500">Cooldown</div>
+              <div className="text-gray-500">SL Range</div>
               <div className="text-gray-200 font-medium">
-                {risk.exit_methodology.cooldown_hours}h
+                {(risk.exit_methodology as any).sl_min_pct ?? 3}–{(risk.exit_methodology as any).sl_max_pct ?? 15}%
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-500">Regime Width</div>
+              <div className="text-gray-200 font-medium">
+                {(risk.exit_methodology as any).regime_exit_width ?? 1.0}x
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-500">Max Hold (Short)</div>
+              <div className="text-gray-200 font-medium">
+                {(risk.exit_methodology as any).short_max_hold_hours ?? 720}h
               </div>
             </div>
           </div>
