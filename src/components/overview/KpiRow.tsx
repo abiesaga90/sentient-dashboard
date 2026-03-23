@@ -43,8 +43,9 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
           )}>
             {(portfolio.daily_return_pct ?? 0) > 0 ? "+" : ""}{(portfolio.daily_return_pct ?? 0).toFixed(2)}%
           </div>
-          <div className="text-[10px] text-gray-600 mt-1">
-            NAV vs previous day close
+          <div className="text-[10px] text-gray-600 mt-1 space-y-0.5">
+            <div>{formatUSD((portfolio as any).prev_day_nav)} → {formatUSD(portfolio.nav)}</div>
+            <div>{(portfolio as any).prev_day_date ?? ""} close → now</div>
           </div>
         </Card>
 
