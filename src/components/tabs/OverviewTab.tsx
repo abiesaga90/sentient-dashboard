@@ -88,6 +88,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
         portfolio={data.portfolio}
         risk={data.risk}
         ntRisk={data.nt_risk as Record<string, unknown> | undefined}
+        positions={data.positions?.positions}
       />
 
       {/* Equity Curve */}

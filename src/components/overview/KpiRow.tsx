@@ -2,13 +2,20 @@ import { Card, CardTitle } from "../ui/Card";
 import { formatUSD, formatPct, cn } from "../../lib/utils";
 import type { Portfolio, RiskData } from "../../types/api";
 
+interface PositionData {
+  side: string;
+  pnl_usd: number;
+  symbol: string;
+}
+
 interface KpiRowProps {
   portfolio: Portfolio;
   risk: RiskData;
   ntRisk?: Record<string, unknown>;
+  positions?: PositionData[];
 }
 
-export function KpiRow({ portfolio, risk, ntRisk }: KpiRowProps) {
+export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
   return (
     <div className="space-y-3">
       {/* Main KPI row */}
@@ -107,6 +114,38 @@ export function KpiRow({ portfolio, risk, ntRisk }: KpiRowProps) {
           </div>
         </Card>
       </div>
+
+      {/* Unrealized P&L */}
+      {positions && positions.length > 0 && (() => {
+        const longUpnl = positions.filter(p => p.side === "LONG").reduce((s, p) => s + (p.pnl_usd || 0), 0);
+        const shortUpnl = positions.filter(p => p.side === "SHORT").reduce((s, p) => s + (p.pnl_usd || 0), 0);
+        const netUpnl = longUpnl + shortUpnl;
+        const longWin = positions.filter(p => p.side === "LONG" && p.pnl_usd > 0).length;
+        const shortWin = positions.filter(p => p.side === "SHORT" && p.pnl_usd > 0).length;
+        const nLongs = positions.filter(p => p.side === "LONG").length;
+        const nShorts = positions.filter(p => p.side === "SHORT").length;
+        const netColor = netUpnl >= 0 ? "text-green-400" : "text-red-400";
+        const longColor = longUpnl >= 0 ? "text-green-400" : "text-red-400";
+        const shortColor = shortUpnl >= 0 ? "text-green-400" : "text-red-400";
+        return (
+          <Card>
+            <div className="flex items-center justify-between">
+              <CardTitle>Unrealized P&L</CardTitle>
+              <span className={`text-lg font-bold ${netColor}`}>{formatUSD(netUpnl)}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div>
+                <div className="text-[10px] text-gray-500 uppercase">Longs ({longWin}/{nLongs} winning)</div>
+                <div className={`text-sm font-semibold ${longColor}`}>{formatUSD(longUpnl)}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-gray-500 uppercase">Shorts ({shortWin}/{nShorts} winning)</div>
+                <div className={`text-sm font-semibold ${shortColor}`}>{formatUSD(shortUpnl)}</div>
+              </div>
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* NT Dual View + Compliance */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
