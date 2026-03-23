@@ -212,7 +212,6 @@ function buildPumpColumns(onSymbolClick?: (sym: string) => void): Column<Univers
 ];}
 
 function ExhaustionBreakdown({ signals, threshold }: { signals: Record<string, SubSignal>; threshold: number }) {
-  const composite = Object.values(signals).reduce((sum, s) => sum + s.weight * s.signal, 0);
   const SIGNAL_LABELS: Record<string, string> = {
     funding: "Funding Squeeze Recovery",
     oi_rollover: "OI Rollover",
