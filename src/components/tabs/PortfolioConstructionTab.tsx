@@ -251,7 +251,7 @@ const shortColumns: Column<ShortToken>[] = [
 // ── Main Tab ──
 
 export function PortfolioConstructionTab() {
-  const { data, isLoading, error } = usePortfolioConstruction();
+  const { data, isLoading, error } = usePortfolioConstruction() as { data: any; isLoading: boolean; error: any };
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64 text-gray-500 text-sm">Loading portfolio construction...</div>;

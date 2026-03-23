@@ -91,20 +91,41 @@ interface ComponentVar {
   symbol: string;
   side: string;
   notional: number;
-  var_contribution: number;
-  var_pct: number;
+  beta: number;
+  component_var_usd: number;
+  component_var_pct: number;
+  pct_of_total: number;
+  // Legacy fields
+  var_contribution?: number;
+  var_pct?: number;
+}
+
+interface VarEntry {
+  var_pct?: number;
+  var_usd?: number;
+  cvar_pct?: number;
+  cvar_usd?: number;
 }
 
 interface VarResponse {
   portfolio: {
-    historical_95: number;
-    historical_99: number;
-    parametric_95: number;
-    parametric_99: number;
-    cvar_95: number;
-    cvar_99: number;
+    // New nested format (current API)
+    historical_95_1d?: VarEntry;
+    historical_99_1d?: VarEntry;
+    parametric_95_1d?: VarEntry;
+    parametric_99_1d?: VarEntry;
+    cvar_95_1d?: VarEntry;
+    cvar_99_1d?: VarEntry;
+    // Legacy flat format
+    historical_95?: number;
+    historical_99?: number;
+    parametric_95?: number;
+    parametric_99?: number;
+    cvar_95?: number;
+    cvar_99?: number;
   };
-  components: ComponentVar[];
+  component?: ComponentVar[];
+  components?: ComponentVar[];
 }
 
 // ── Component VaR columns ──
@@ -139,18 +160,18 @@ const componentVarColumns: Column<ComponentVar>[] = [
     key: "var_contribution",
     header: "VaR Contribution",
     render: (r) => (
-      <span className="text-red-400 font-mono">{formatUSD(r.var_contribution)}</span>
+      <span className="text-red-400 font-mono">{formatUSD(r.component_var_usd ?? r.var_contribution)}</span>
     ),
-    sortKey: (r) => r.var_contribution,
+    sortKey: (r) => r.component_var_usd ?? r.var_contribution ?? 0,
     align: "right",
   },
   {
     key: "var_pct",
-    header: "VaR %",
+    header: "% of Total",
     render: (r) => (
-      <span className="text-red-400 font-mono">{formatPct(r.var_pct)}</span>
+      <span className="text-red-400 font-mono">{formatPct(r.pct_of_total ?? r.var_pct)}</span>
     ),
-    sortKey: (r) => r.var_pct,
+    sortKey: (r) => r.pct_of_total ?? r.var_pct ?? 0,
     align: "right",
   },
 ];
@@ -484,21 +505,24 @@ export function RiskStressTab() {
       )}
 
       {/* ── Component VaR ── */}
-      {varData && (varData.component ?? varData.components) && (varData.component ?? varData.components).length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Component VaR ({(varData.component ?? varData.components).length})</CardTitle>
-          </CardHeader>
-          <div className="p-4 pt-0">
-            <DataTable
-              columns={componentVarColumns}
-              data={(varData.component ?? varData.components)}
-              defaultSort="var_contribution"
-              maxHeight="400px"
-            />
-          </div>
-        </Card>
-      )}
+      {varData && (() => {
+        const comps = varData.component ?? varData.components ?? [];
+        return comps.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Component VaR ({comps.length})</CardTitle>
+            </CardHeader>
+            <div className="p-4 pt-0">
+              <DataTable
+                columns={componentVarColumns}
+                data={comps}
+                defaultSort="var_contribution"
+                maxHeight="400px"
+              />
+            </div>
+          </Card>
+        ) : null;
+      })()}
     </div>
   );
 }
