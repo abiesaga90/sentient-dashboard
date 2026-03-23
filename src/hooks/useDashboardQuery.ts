@@ -32,6 +32,16 @@ export function usePnl(period: string = "all") {
   });
 }
 
+export function usePortfolioConstruction() {
+  const { client, engine } = useEngine();
+  return useQuery({
+    queryKey: ["portfolio-construction", engine.id],
+    queryFn: () => client.get("/api/portfolio-construction"),
+    refetchInterval: 120_000,
+    staleTime: 60_000,
+  });
+}
+
 export function useRiskHistory(hours: number = 168) {
   const { client, engine } = useEngine();
   return useQuery<{ history: RiskHistoryPoint[] }>({

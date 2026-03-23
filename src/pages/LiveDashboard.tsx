@@ -18,6 +18,7 @@ import { RiskStressTab } from "../components/tabs/RiskStressTab";
 import { MacroRegimeTab } from "../components/tabs/MacroRegimeTab";
 import { CycleTab } from "../components/tabs/CycleTab";
 import { AethirDeepDiveTab } from "../components/tabs/AethirDeepDiveTab";
+import { PortfolioConstructionTab } from "../components/tabs/PortfolioConstructionTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -74,6 +75,8 @@ function TabContent({
   switch (activeTab) {
     case "overview":
       return <OverviewTab data={dashboard} />;
+    case "construction":
+      return <PortfolioConstructionTab />;
     case "positions":
       return <PositionsTab />;
     case "short-selection":

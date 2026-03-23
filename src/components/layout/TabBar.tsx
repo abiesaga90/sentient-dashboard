@@ -15,10 +15,12 @@ import {
   Zap,
   Gauge,
   Cpu,
+  Layers,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
   { id: "overview", label: "Overview", icon: <LayoutDashboard size={14} /> },
+  { id: "construction", label: "Construction", icon: <Layers size={14} /> },
   { id: "positions", label: "Positions", icon: <List size={14} /> },
   { id: "long-signals", label: "Long Signals", icon: <Zap size={14} /> },
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },
