@@ -22,6 +22,10 @@ interface LongToken {
 
 interface ShortToken {
   symbol: string;
+  va_score: number;
+  sm_score: number;
+  p3_score: number;
+  adjusted_score: number;
   score: number;
   beta: number;
   correlation: number;
@@ -207,7 +211,10 @@ const shortColumns: Column<ShortToken>[] = [
     render: (r) => <span className="font-medium text-gray-200">{r.symbol.replace("USDT", "")}</span>,
     sortKey: (r) => r.symbol,
   },
-  { key: "score", header: "Score", render: (r) => <ScoreCell value={r.score} />, sortKey: (r) => r.score, align: "right" },
+  { key: "va", header: "VA", render: (r) => <ScoreCell value={r.va_score} />, sortKey: (r) => r.va_score, align: "right" },
+  { key: "sm", header: "SM", render: (r) => <ScoreCell value={r.sm_score} />, sortKey: (r) => r.sm_score, align: "right" },
+  { key: "p3", header: "P3", render: (r) => <ScoreCell value={r.p3_score} />, sortKey: (r) => r.p3_score, align: "right" },
+  { key: "score", header: "Inv. Score", render: (r) => <ScoreCell value={r.score} />, sortKey: (r) => r.score, align: "right" },
   {
     key: "beta", header: "β",
     render: (r) => <span className="text-gray-400 text-[12px]">{r.beta.toFixed(2)}</span>,
