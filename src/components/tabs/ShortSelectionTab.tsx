@@ -470,7 +470,7 @@ export function ShortSelectionTab() {
         </div>
         <p className="text-[11px] text-gray-500 mt-1.5">
           {fundFirst
-            ? "Shorts ranked by inverted long-side VA + SM scoring. Tokens that score poorly on longs = natural short candidates. Correlation is a floor filter. No new data needed."
+            ? "Shorts ranked by inverted long-side VA + SM scoring (symmetric weights). Multi-timeframe momentum veto blocks sustained rallies. Spread-based exits (vs basket, not absolute P&L). Short TPs calibrated to 72h rebalance horizon."
             : "Shorts ranked by correlation to the long basket. VA signals added as small boosts. Beta neutrality through selection."}
         </p>
       </div>
@@ -488,7 +488,7 @@ export function ShortSelectionTab() {
               <code className="text-xs text-gray-300">
                 score = -1 × (VA + 0.50 × SM + 0.30 × P3) × confidence × aggression × liquidity × momentum
               </code>
-              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score. VA = value accrual (Supply Health composite + buyback + rev capture + fee momentum), SM = smart money (5 Nansen + 1 DAT + 4 Arkham = 10 signals), P3 = token-specific bespoke signals. All signals z-scored cross-sectionally, freshness-weighted confidence.</div>
+              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score (symmetric with long side). VA = value accrual (6 signals, same weights both sides), SM = smart money (10 signals), P3 = token-specific. Entry guarded by multi-timeframe momentum veto (24h+7d). Exits use spread vs basket (not absolute P&L).</div>
             </div>
 
             {/* Floors */}
@@ -513,35 +513,20 @@ export function ShortSelectionTab() {
             {/* Signal Weights — show effective weights (composite when active) */}
             <div>
               <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
-                Fundamental Signal Weights (VA Pillar)
-                {data.candidates?.[0]?.supply_health_composite != null && (
-                  <span className="text-purple-400 ml-2">(Supply Health composite active)</span>
-                )}
+                Fundamental Signal Weights (VA Pillar — symmetric with long side)
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {data.candidates?.[0]?.supply_health_composite != null ? (
-                  // Composite mode: 4 effective signals
-                  [
-                    { label: "Supply Health (composite)", weight: 0.40, composite: true },
-                    { label: "Buyback Intensity", weight: 0.20, composite: false },
-                    { label: "Revenue Capture", weight: 0.20, composite: false },
-                    { label: "Fee Momentum", weight: 0.20, composite: false },
-                  ].map(({ label, weight, composite }) => (
-                    <div key={label} className={`flex items-center justify-between rounded px-2 py-1.5 ${composite ? "bg-purple-900/30 border border-purple-800/30" : "bg-gray-900/50"}`}>
-                      <span className={`text-[11px] ${composite ? "text-purple-300" : "text-gray-400"}`}>{label}</span>
-                      <span className="text-xs font-medium text-gray-200">{(weight * 100).toFixed(0)}%</span>
-                    </div>
-                  ))
-                ) : data.fund_weights ? (
-                  // Legacy 6-signal mode
+                {data.fund_weights ? (
                   Object.entries({
                     "Dilution (FDV/MCap)": data.fund_weights.dilution,
-                    "Fee Momentum": data.fund_weights.fee_mom,
-                    "Unlock Pressure": data.fund_weights.unlock,
                     "Supply Momentum": data.fund_weights.supply_mom,
-                    "Revenue Capture": data.fund_weights.rev_cap,
+                    "Unlock Pressure": data.fund_weights.unlock,
                     "Buyback Intensity": data.fund_weights.buyback,
-                  }).map(([label, weight]) => (
+                    "Revenue Capture": data.fund_weights.rev_cap,
+                    "Fee Momentum": data.fund_weights.fee_mom,
+                  })
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([label, weight]) => (
                     <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
                       <span className="text-[11px] text-gray-400">{label}</span>
                       <span className="text-xs font-medium text-gray-200">{(weight * 100).toFixed(0)}%</span>
@@ -550,7 +535,7 @@ export function ShortSelectionTab() {
                 ) : null}
               </div>
               <div className="text-[10px] text-gray-600 mt-1">
-                Signals z-scored across full universe. Freshness-weighted confidence discounts stale data.
+                Inverted long-side VA scoring. Signals z-scored cross-sectionally, freshness-weighted. Same weights on both sides for symmetry.
               </div>
             </div>
 
@@ -581,24 +566,68 @@ export function ShortSelectionTab() {
 
             {/* Modifiers */}
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Score Modifiers</div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Score Modifiers &amp; Entry Filters</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Liquidity</span>
                   <span className="text-gray-300 float-right">min(1, vol/${formatUSD(data.min_volume, 0)})</span>
                 </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
-                  <span className="text-gray-500">Momentum</span>
+                  <span className="text-gray-500">Momentum (7d MR)</span>
                   <span className="text-gray-300 float-right">{data.momentum_weight.toFixed(2)}</span>
-                </div>
-                <div className="bg-gray-900/50 rounded px-2 py-1.5">
-                  <span className="text-gray-500">Perp Crowding</span>
-                  <span className="text-gray-300 float-right">dampen if crowded</span>
                 </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Diversity</span>
                   <span className="text-gray-300 float-right">-{data.diversity_penalty.toFixed(2)}×corr</span>
                 </div>
+                {data.momentum_veto_enabled && (
+                  <div className="bg-red-900/30 border border-red-800/30 rounded px-2 py-1.5">
+                    <span className="text-red-400">Momentum Veto</span>
+                    <span className="text-red-300 float-right">&gt;{data.momentum_veto_threshold_pct}% on 24h+7d</span>
+                  </div>
+                )}
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">Incumbents</span>
+                  <span className="text-gray-300 float-right">exempt from veto</span>
+                </div>
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">Perp Crowding</span>
+                  <span className="text-gray-300 float-right">dampen if crowded</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Exit Framework */}
+            <div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Exit Framework (RV-Aware)</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
+                <div className="bg-green-900/30 border border-green-800/30 rounded px-2 py-1.5">
+                  <span className="text-green-400">VOL_TP (short)</span>
+                  <span className="text-green-300 float-right">~50% of 72h move</span>
+                </div>
+                <div className="bg-red-900/30 border border-red-800/30 rounded px-2 py-1.5">
+                  <span className="text-red-400">Spread Exit</span>
+                  <span className="text-red-300 float-right">&gt;5% vs basket / 48h</span>
+                </div>
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">Max Hold</span>
+                  <span className="text-gray-300 float-right">30d rotation</span>
+                </div>
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">Gap Fill</span>
+                  <span className="text-gray-300 float-right">immediate replacement</span>
+                </div>
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">Rebalance</span>
+                  <span className="text-gray-300 float-right">72h full re-rank</span>
+                </div>
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">Stop Loss</span>
+                  <span className="text-gray-300 float-right">disabled (RV hedge)</span>
+                </div>
+              </div>
+              <div className="text-[10px] text-gray-600 mt-1">
+                Exits are spread-based: a short rallying WITH longs is hedging correctly (keep). Only idiosyncratic moves (short outperforming basket by &gt;5% over 48h) trigger exit. Gap fill immediately replaces with next-best candidate.
               </div>
             </div>
           </div>
@@ -843,7 +872,9 @@ export function ShortSelectionTab() {
           <ParamRow label="Min beta" value={data.min_beta.toFixed(2)} />
           <ParamRow label="Min volume" value={formatUSD(data.min_volume, 0)} />
           <ParamRow label="Momentum weight" value={data.momentum_weight.toFixed(2)} />
-          <ParamRow label="Momentum veto" value={data.momentum_veto_enabled ? `>${data.momentum_veto_threshold_pct}% / ${data.momentum_veto_lookback_hours}h` : "OFF"} />
+          <ParamRow label="Momentum veto" value={data.momentum_veto_enabled ? `>${data.momentum_veto_threshold_pct}% on ${data.momentum_veto_lookback_hours}h + ${data.momentum_veto_confirm_lookback_hours ?? 168}h` : "OFF"} />
+          <ParamRow label="Spread exit" value="5% / 48h (RV-aware)" />
+          <ParamRow label="Short TP" value="~50% of 72h move" />
           <ParamRow label="Universe size" value={String(data.universe_size)} />
         </div>
       </Card>
