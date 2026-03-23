@@ -47,6 +47,9 @@ export function KpiRow({ portfolio, risk, ntRisk }: KpiRowProps) {
           const ntDd = r.nt_dd_pct != null ? r.nt_dd_pct : null;
           const ddVal = ntDd ?? risk.dd_pct;
           const ddLabel = ntDd != null ? "Nickel" : "Internal";
+          const ntHwm = ntRisk ? Number(ntRisk.risk_hwm ?? 0) : 0;
+          const hwm = ntDd != null && ntHwm > 0 ? ntHwm : risk.hwm;
+          const ddUsd = hwm - portfolio.nav;
           return (
             <Card>
               <CardTitle>Drawdown ({ddLabel})</CardTitle>
@@ -54,11 +57,11 @@ export function KpiRow({ portfolio, risk, ntRisk }: KpiRowProps) {
                 "text-xl font-bold mt-1",
                 ddVal > 5 ? "text-red-400" : ddVal > 3 ? "text-yellow-400" : "text-green-400"
               )}>
-                {ddVal.toFixed(2)}% ({formatUSD(ddVal / 100 * (portfolio.starting_capital || 100000))})
+                {ddVal.toFixed(2)}% ({formatUSD(ddUsd)})
               </div>
               <div className="text-[10px] text-gray-600 mt-1 space-y-0.5">
-                {ntDd != null && <div>Internal DD: {risk.dd_pct.toFixed(2)}%</div>}
-                <div>HWM: {formatUSD(risk.hwm)}</div>
+                {ntDd != null && <div>Internal DD: {risk.dd_pct.toFixed(2)}% (HWM: {formatUSD(risk.hwm)})</div>}
+                <div>HWM: {formatUSD(hwm)}</div>
                 <div>Stop: {risk.limits.dd_stop_pct}% ({formatUSD(portfolio.starting_capital * risk.limits.dd_stop_pct / 100)})</div>
                 <div>Scale: {((risk.effective_scale ?? (risk as any).dd_scale ?? 1) * 100).toFixed(1)}%</div>
               </div>
