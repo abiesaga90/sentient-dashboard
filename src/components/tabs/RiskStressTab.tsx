@@ -412,50 +412,79 @@ export function RiskStressTab() {
         </div>
       </Card>
 
+      {/* ── DD Trim Schedule ── */}
+      <Card>
+        <CardHeader>
+          <CardTitle>DD Trim Schedule</CardTitle>
+        </CardHeader>
+        <div className="px-4 pb-4">
+          <div className="text-[10px] text-gray-500 mb-2">
+            Formula: scale = (1 - DD / {stopPct}%)^0.5 | Trims every 1pp DD worsening | Source: {(risk as any).dd_source === "nt" ? "Nickel" : "Internal"}
+          </div>
+          <div className="grid grid-cols-10 gap-1 text-[10px]">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 9.5].map((dd) => {
+              const scale = dd >= stopPct ? 0 : Math.pow(1 - dd / stopPct, 0.5);
+              const isActive = Math.abs(ddPct - dd) < 0.5;
+              const isPast = ddPct > dd;
+              return (
+                <div key={dd} className={`text-center rounded py-1 ${
+                  isActive ? "bg-amber-900/50 border border-amber-500" :
+                  isPast ? "bg-gray-800/80" : "bg-gray-800/30"
+                }`}>
+                  <div className="text-gray-400">{dd}%</div>
+                  <div className={`font-medium ${scale === 0 ? "text-red-400" : scale < 0.5 ? "text-amber-400" : "text-gray-200"}`}>
+                    {(scale * 100).toFixed(0)}%
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex gap-4 mt-2 text-[10px] text-gray-500">
+            <span>Current DD: {formatPct(-ddPct)}</span>
+            <span>Scale: {((risk as any).dd_scale ?? 1).toFixed ? `${(((risk as any).dd_scale ?? 1) * 100).toFixed(1)}%` : "—"}</span>
+            <span>Last trim: {(risk as any).last_trim_dd_pct > 0 ? formatPct(-(risk as any).last_trim_dd_pct) : "None"}</span>
+            <span>Next trim at: {formatPct(-(((risk as any).last_trim_dd_pct ?? 0) + 1.0))}</span>
+          </div>
+        </div>
+      </Card>
+
       {/* ── Exit Methodology ── */}
       {risk.exit_methodology && (
         <Card>
           <CardHeader>
             <CardTitle>Exit Methodology</CardTitle>
           </CardHeader>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-xs">
-            <div>
-              <div className="text-gray-500">TP Vol Multiple</div>
-              <div className="text-gray-200 font-medium">
-                {(risk.exit_methodology as any).tp_vol_multiple ?? (risk.exit_methodology as any).tp_pct ?? "—"}x
+          {(() => {
+            const em = risk.exit_methodology as any;
+            return (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                <div>
+                  <div className="text-gray-500">Long TP</div>
+                  <div className="text-gray-200 font-medium">{em.long_tp_vol_multiple ?? em.tp_vol_multiple ?? "—"}x vol ({em.tp_min_pct ?? 0}–{em.tp_max_pct ?? 20}%)</div>
+                </div>
+                <div>
+                  <div className="text-gray-500">Short TP</div>
+                  <div className="text-gray-200 font-medium">{em.short_tp_vol_multiple ?? em.tp_vol_multiple ?? "—"}x vol ({em.tp_min_pct ?? 0}–{em.tp_max_pct ?? 20}%)</div>
+                </div>
+                <div>
+                  <div className="text-gray-500">Emergency SL</div>
+                  <div className="text-gray-200 font-medium">{em.emergency_sl_pct ?? 25}%</div>
+                </div>
+                <div>
+                  <div className="text-gray-500">Max Hold (Short)</div>
+                  <div className="text-gray-200 font-medium">{em.short_max_hold_hours ?? 720}h</div>
+                </div>
+                <div>
+                  <div className="text-gray-500">Rebalance Every</div>
+                  <div className="text-gray-200 font-medium">{em.rebalance_every_hours ?? 72}h</div>
+                </div>
+                <div>
+                  <div className="text-gray-500">Regime Exit Width</div>
+                  <div className="text-gray-200 font-medium">{em.regime_exit_width ?? 1.0}x</div>
+                </div>
               </div>
-            </div>
-            <div>
-              <div className="text-gray-500">SL Vol Multiple</div>
-              <div className="text-gray-200 font-medium">
-                {(risk.exit_methodology as any).sl_vol_multiple ?? (risk.exit_methodology as any).sl_pct ?? "—"}x
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-500">TP Range</div>
-              <div className="text-gray-200 font-medium">
-                {(risk.exit_methodology as any).tp_min_pct ?? 0}–{(risk.exit_methodology as any).tp_max_pct ?? 20}%
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-500">SL Range</div>
-              <div className="text-gray-200 font-medium">
-                {(risk.exit_methodology as any).sl_min_pct ?? 3}–{(risk.exit_methodology as any).sl_max_pct ?? 15}%
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-500">Regime Width</div>
-              <div className="text-gray-200 font-medium">
-                {(risk.exit_methodology as any).regime_exit_width ?? 1.0}x
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-500">Max Hold (Short)</div>
-              <div className="text-gray-200 font-medium">
-                {(risk.exit_methodology as any).short_max_hold_hours ?? 720}h
-              </div>
-            </div>
-          </div>
+            );
+          })()}
         </Card>
       )}
 

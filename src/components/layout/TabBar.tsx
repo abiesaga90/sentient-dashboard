@@ -21,6 +21,7 @@ import {
 export const DASHBOARD_TABS = [
   { id: "overview", label: "Overview", icon: <LayoutDashboard size={14} /> },
   { id: "construction", label: "Construction", icon: <Layers size={14} /> },
+  { id: "risk-stress", label: "Risk & Stress", icon: <ShieldAlert size={14} /> },
   { id: "positions", label: "Positions", icon: <List size={14} /> },
   { id: "long-signals", label: "Long Signals", icon: <Zap size={14} /> },
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },
@@ -29,7 +30,6 @@ export const DASHBOARD_TABS = [
   { id: "attribution", label: "Attribution", icon: <BarChart3 size={14} /> },
   { id: "thesis", label: "Thesis", icon: <Target size={14} /> },
   { id: "pairs", label: "Pairs", icon: <Link2 size={14} /> },
-  { id: "risk-stress", label: "Risk & Stress", icon: <ShieldAlert size={14} /> },
   { id: "macro", label: "Macro Regime", icon: <Globe size={14} /> },
   { id: "cycle", label: "Cycle", icon: <Activity size={14} /> },
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
