@@ -453,28 +453,28 @@ export function RiskStressTab() {
                 <tr>
                   <td className="px-3 py-2 text-gray-300">Historical</td>
                   <td className="px-3 py-2 text-right text-red-400 font-mono">
-                    {formatUSD(varData.portfolio.historical_95)}
+                    {formatUSD(varData.portfolio.historical_95_1d?.var_usd ?? varData.portfolio.historical_95)}
                   </td>
                   <td className="px-3 py-2 text-right text-red-400 font-mono">
-                    {formatUSD(varData.portfolio.historical_99)}
+                    {formatUSD(varData.portfolio.historical_99_1d?.var_usd ?? varData.portfolio.historical_99)}
                   </td>
                 </tr>
                 <tr>
                   <td className="px-3 py-2 text-gray-300">Parametric</td>
                   <td className="px-3 py-2 text-right text-red-400 font-mono">
-                    {formatUSD(varData.portfolio.parametric_95)}
+                    {formatUSD(varData.portfolio.parametric_95_1d?.var_usd ?? varData.portfolio.parametric_95)}
                   </td>
                   <td className="px-3 py-2 text-right text-red-400 font-mono">
-                    {formatUSD(varData.portfolio.parametric_99)}
+                    {formatUSD(varData.portfolio.parametric_99_1d?.var_usd ?? varData.portfolio.parametric_99)}
                   </td>
                 </tr>
                 <tr>
                   <td className="px-3 py-2 text-gray-300">CVaR (Expected Shortfall)</td>
                   <td className="px-3 py-2 text-right text-red-400 font-mono">
-                    {formatUSD(varData.portfolio.cvar_95)}
+                    {formatUSD(varData.portfolio.cvar_95_1d?.cvar_usd ?? varData.portfolio.cvar_95)}
                   </td>
                   <td className="px-3 py-2 text-right text-red-400 font-mono">
-                    {formatUSD(varData.portfolio.cvar_99)}
+                    {formatUSD(varData.portfolio.cvar_99_1d?.cvar_usd ?? varData.portfolio.cvar_99)}
                   </td>
                 </tr>
               </tbody>
@@ -484,15 +484,15 @@ export function RiskStressTab() {
       )}
 
       {/* ── Component VaR ── */}
-      {varData && varData.components && varData.components.length > 0 && (
+      {varData && (varData.component ?? varData.components) && (varData.component ?? varData.components).length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Component VaR ({varData.components.length})</CardTitle>
+            <CardTitle>Component VaR ({(varData.component ?? varData.components).length})</CardTitle>
           </CardHeader>
           <div className="p-4 pt-0">
             <DataTable
               columns={componentVarColumns}
-              data={varData.components}
+              data={(varData.component ?? varData.components)}
               defaultSort="var_contribution"
               maxHeight="400px"
             />
