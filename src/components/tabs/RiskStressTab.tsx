@@ -227,9 +227,15 @@ export function RiskStressTab() {
 
   if (!risk) return null;
 
-  const ddPct = Math.abs(risk.dd_pct);
+  const r = risk as any;
+  // Use Nickel's DD as primary when available
+  const ntDd = r.nt_dd_pct != null ? Math.abs(r.nt_dd_pct) : null;
+  const internalDd = Math.abs(risk.dd_pct);
+  const ddPct = ntDd ?? internalDd;
   const stopPct = Math.abs(risk.limits.dd_stop_pct);
   const ddGaugePct = stopPct > 0 ? Math.min((ddPct / stopPct) * 100, 100) : 0;
+  const ddSource = r.dd_source === "nt" ? "Nickel" : "Internal";
+  const ddUsd = r.nav ? Math.round(ddPct / 100 * (r.notional_capital || 100000)) : 0;
 
   return (
     <div className="space-y-4 p-4">
@@ -237,11 +243,11 @@ export function RiskStressTab() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Drawdown</CardTitle>
+            <CardTitle>Drawdown ({ddSource})</CardTitle>
             <Badge
               variant={ddGaugePct > 80 ? "danger" : ddGaugePct > 50 ? "warning" : "success"}
             >
-              {formatPct(-ddPct)} / {formatPct(-stopPct)} stop
+              {formatPct(-ddPct)} ({formatUSD(-ddUsd)}) / {formatPct(-stopPct)} stop
             </Badge>
           </div>
         </CardHeader>
@@ -260,29 +266,31 @@ export function RiskStressTab() {
           </div>
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>0%</span>
-            <span>Distance to SL: {formatPct(risk.distance_to_sl_pct)}</span>
+            <span>Distance to SL: {formatPct(stopPct - ddPct)}</span>
             <span>{formatPct(-stopPct)}</span>
           </div>
 
-          {/* DD Trim Tracking */}
-          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-            <div className="bg-gray-800/50 rounded px-2 py-1.5">
-              <div className="text-gray-500">DD Source</div>
-              <div className="text-gray-200 font-medium">
-                {(risk as any).dd_source === "nt" ? "Nickel NT" : "Internal"}
-              </div>
-            </div>
-            {(risk as any).nt_dd_pct != null && (
+          {/* DD Views + Trim Tracking */}
+          <div className="mt-3 grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+            {ntDd != null && (
               <div className="bg-gray-800/50 rounded px-2 py-1.5">
                 <div className="text-gray-500">Nickel DD</div>
-                <div className="text-gray-200 font-medium">{formatPct(-(risk as any).nt_dd_pct)}</div>
+                <div className="text-gray-200 font-semibold">{formatPct(-ntDd)}</div>
               </div>
             )}
             <div className="bg-gray-800/50 rounded px-2 py-1.5">
+              <div className="text-gray-500">Internal DD</div>
+              <div className="text-gray-400 font-medium">{formatPct(-internalDd)}</div>
+            </div>
+            <div className="bg-gray-800/50 rounded px-2 py-1.5">
+              <div className="text-gray-500">HWM</div>
+              <div className="text-gray-400 font-medium">{formatUSD(risk.hwm)}</div>
+            </div>
+            <div className="bg-gray-800/50 rounded px-2 py-1.5">
               <div className="text-gray-500">Last Trim At</div>
               <div className="text-gray-200 font-medium">
-                {(risk as any).last_trim_dd_pct > 0
-                  ? formatPct(-(risk as any).last_trim_dd_pct)
+                {r.last_trim_dd_pct > 0
+                  ? formatPct(-r.last_trim_dd_pct)
                   : "None"}
               </div>
             </div>
