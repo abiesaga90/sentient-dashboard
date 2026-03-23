@@ -81,14 +81,21 @@ const columns: Column<Position>[] = [
     align: "right",
   },
   {
-    key: "funding_paid",
-    header: "Funding",
+    key: "funding_rate_ann",
+    header: "Fund%",
     render: (r) => {
-      const f = (r as any).funding_paid;
-      if (f == null || f === 0) return <span className="text-gray-700">—</span>;
-      return <span className={`font-mono text-[11px] ${f > 0 ? "text-green-400" : "text-red-400"}`}>${f > 0 ? "+" : ""}{f.toFixed(1)}</span>;
+      const ann = (r as any).funding_rate_ann;
+      if (ann == null || ann === 0) return <span className="text-gray-700">—</span>;
+      // For shorts, positive funding = we receive; for longs, positive = we pay
+      const effective = r.side === "SHORT" ? ann : -ann;
+      const color = effective > 0 ? "text-green-400" : effective < -10 ? "text-red-400" : "text-amber-400";
+      return (
+        <span className={`font-mono text-[11px] ${color}`} title={`${ann > 0 ? "+" : ""}${ann.toFixed(1)}% ann. (${r.side === "SHORT" ? "receiving" : "paying"})`}>
+          {effective > 0 ? "+" : ""}{effective.toFixed(1)}%
+        </span>
+      );
     },
-    sortKey: (r) => (r as any).funding_paid ?? 0,
+    sortKey: (r) => (r as any).funding_rate_ann ?? 0,
     align: "right",
   },
   {
