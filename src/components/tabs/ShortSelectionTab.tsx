@@ -605,6 +605,56 @@ export function ShortSelectionTab() {
         </Card>
       )}
 
+      {/* Momentum Veto */}
+      {data.momentum_veto_enabled && (() => {
+        const vetoed = allCandidates.filter(c => c.momentum_veto_pct != null);
+        if (vetoed.length === 0) return null;
+        return (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Momentum Veto</CardTitle>
+                <span className="text-xs text-red-400">
+                  {vetoed.length} candidates blocked
+                </span>
+              </div>
+              <p className="text-xs text-gray-600 mt-1">
+                Candidates with &gt;{data.momentum_veto_threshold_pct}% relative outperformance vs long basket
+                over {data.momentum_veto_lookback_hours}h are hard-rejected. Prevents shorting into strong rallies.
+              </p>
+            </CardHeader>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-gray-500 text-left border-b border-gray-800">
+                    <th className="px-3 py-2">Symbol</th>
+                    <th className="px-3 py-2 text-right">Rel. Return</th>
+                    <th className="px-3 py-2 text-right">Score</th>
+                    <th className="px-3 py-2 text-right">Corr</th>
+                    <th className="px-3 py-2 text-right">Beta</th>
+                    <th className="px-3 py-2 text-right">Volume 24h</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vetoed
+                    .sort((a, b) => (b.momentum_veto_pct ?? 0) - (a.momentum_veto_pct ?? 0))
+                    .map(c => (
+                      <tr key={c.symbol} className="border-b border-gray-800/50 hover:bg-gray-900/50">
+                        <td className="px-3 py-1.5 font-mono">{c.symbol.replace("USDT", "")}</td>
+                        <td className="px-3 py-1.5 text-right text-red-400 font-mono">+{c.momentum_veto_pct?.toFixed(1)}%</td>
+                        <td className="px-3 py-1.5 text-right font-mono">{c.score?.toFixed(3)}</td>
+                        <td className="px-3 py-1.5 text-right font-mono">{c.corr?.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 text-right font-mono">{c.beta?.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 text-right font-mono text-gray-500">${(c.volume_24h ?? 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        );
+      })()}
+
       {/* Trading Basket */}
       <Card>
         <CardHeader>
@@ -756,6 +806,7 @@ export function ShortSelectionTab() {
           <ParamRow label="Min beta" value={data.min_beta.toFixed(2)} />
           <ParamRow label="Min volume" value={formatUSD(data.min_volume, 0)} />
           <ParamRow label="Momentum weight" value={data.momentum_weight.toFixed(2)} />
+          <ParamRow label="Momentum veto" value={data.momentum_veto_enabled ? `>${data.momentum_veto_threshold_pct}% / ${data.momentum_veto_lookback_hours}h` : "OFF"} />
           <ParamRow label="Universe size" value={String(data.universe_size)} />
         </div>
       </Card>
@@ -790,7 +841,7 @@ function StatusBadges({
         <Badge variant="default" className="text-[10px]">LONG BENCH</Badge>
       )}
       {(filter_reasons || []).map((r) => (
-        <span key={r} className="text-[10px] text-gray-600">
+        <span key={r} className={`text-[10px] ${r === "momentum_veto" ? "text-red-400 font-semibold" : "text-gray-600"}`}>
           {r === "low_corr"
             ? "Low corr"
             : r === "low_beta"
@@ -799,7 +850,9 @@ function StatusBadges({
                 ? "Low vol"
                 : r === "high_beta"
                   ? "High beta"
-                  : r}
+                  : r === "momentum_veto"
+                    ? "Momentum veto"
+                    : r}
         </span>
       ))}
     </div>
