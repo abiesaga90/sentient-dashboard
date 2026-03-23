@@ -847,6 +847,7 @@ export function LongSignalsTab() {
                   <th className="text-left py-2">Mechanism</th>
                   <th className="text-right py-2">Tilt</th>
                   <th className="text-right py-2">Raw Score</th>
+                  <th className="text-right py-2">P3</th>
                   <th className="text-right py-2">Confidence</th>
                   <th className="text-center py-2">VA / SM / P3</th>
                   <th className="text-right py-2">Fees 30d</th>
@@ -880,6 +881,11 @@ export function LongSignalsTab() {
                         <td className="py-2.5">{a ? mechanismBadge(a.mechanism) : <span className="text-gray-600">{"\u2014"}</span>}</td>
                         <td className={`py-2.5 text-right font-mono font-semibold ${tiltColor(t.tilt)}`}>{t.tilt.toFixed(2)}x</td>
                         <td className="py-2.5 text-right">{scoreBar(t.raw_score)}</td>
+                        <td className="py-2.5 text-right">
+                          {p3 && p3.enabled && p3.signal != null
+                            ? scoreBar(p3.signal, 40)
+                            : <span className="text-gray-600">&mdash;</span>}
+                        </td>
                         <td className="py-2.5 text-right text-gray-400">{(t.confidence * 100).toFixed(0)}%</td>
                         <td className="py-2.5 text-center">
                           <span className="text-purple-400">{t.va_count}</span>

@@ -14,7 +14,6 @@ import {
   Clock,
   Zap,
   Gauge,
-  Cpu,
   Layers,
 } from "lucide-react";
 
@@ -34,7 +33,6 @@ export const DASHBOARD_TABS = [
   { id: "cycle", label: "Cycle", icon: <Activity size={14} /> },
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
   { id: "pump-exhaustion", label: "Pump Scanner", icon: <Zap size={14} /> },
-  { id: "aethir", label: "Aethir", icon: <Cpu size={14} /> },
   { id: "next-rebalance", label: "Next Rebalance", icon: <Clock size={14} /> },
 ] as const;
 

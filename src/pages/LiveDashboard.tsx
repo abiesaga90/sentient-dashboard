@@ -17,7 +17,6 @@ import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
 import { MacroRegimeTab } from "../components/tabs/MacroRegimeTab";
 import { CycleTab } from "../components/tabs/CycleTab";
-import { AethirDeepDiveTab } from "../components/tabs/AethirDeepDiveTab";
 import { PortfolioConstructionTab } from "../components/tabs/PortfolioConstructionTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
@@ -105,8 +104,6 @@ function TabContent({
       return <ExecutionTab />;
     case "pump-exhaustion":
       return <PumpExhaustionTab />;
-    case "aethir":
-      return <AethirDeepDiveTab />;
     default:
       return (
         <div className="p-4">
