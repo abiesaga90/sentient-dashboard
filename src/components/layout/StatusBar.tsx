@@ -19,8 +19,8 @@ export function StatusBar({ dashboard, status }: StatusBarProps) {
       <StatusItem label="NAV" value={formatUSD(portfolio.nav)} />
       <StatusItem
         label="DD"
-        value={formatPct(-risk.dd_pct)}
-        color={risk.dd_pct > 5 ? "text-red-400" : risk.dd_pct > 3 ? "text-yellow-400" : "text-gray-300"}
+        value={formatPct(-((risk as any).nt_dd_pct ?? risk.dd_pct))}
+        color={((risk as any).nt_dd_pct ?? risk.dd_pct) > 5 ? "text-red-400" : ((risk as any).nt_dd_pct ?? risk.dd_pct) > 3 ? "text-yellow-400" : "text-gray-300"}
       />
       <StatusItem label="Gross" value={formatPct(risk.gross_pct)} />
       <StatusItem label="Net" value={formatPct(risk.net_pct)} />
