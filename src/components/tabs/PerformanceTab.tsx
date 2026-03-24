@@ -80,11 +80,57 @@ interface PerformanceResponse {
   };
 }
 
+interface ShortRotationResponse {
+  summary: {
+    total_rotations: number;
+    rotation_hit_rate_pct: number;
+    avg_rotation_pnl: number;
+    total_rotation_pnl: number;
+    avg_turnover_pct: number;
+    avg_hold_hours: number;
+    est_rotation_cost_usd: number;
+    est_slippage_bps: number;
+  };
+  counterfactual: {
+    correct_exits: number;
+    premature_exits: number;
+    neutral_exits: number;
+    total_evaluated: number;
+    avg_post_exit_move_pct: number;
+    verdict: string;
+  };
+  per_cycle: Array<{
+    cycle: number;
+    date: string;
+    turnover_pct: number;
+    names_in: string[];
+    names_out: string[];
+    n_rotated: number;
+    rotation_pnl: number;
+    cycle_pnl: number;
+  }>;
+  recent_rotations: Array<{
+    symbol: string;
+    exit_date: string;
+    exit_pnl: number;
+    post_3d_pct: number | null;
+    post_7d_pct: number | null;
+    post_14d_pct: number | null;
+    verdict: string;
+  }>;
+}
+
 export function PerformanceTab() {
   const { client, engine } = useEngine();
   const { data, isLoading, error } = useQuery<PerformanceResponse>({
     queryKey: ["performance", engine.id],
     queryFn: () => client.get("/api/performance"),
+    refetchInterval: 300_000,
+    staleTime: 120_000,
+  });
+  const { data: rotation } = useQuery<ShortRotationResponse>({
+    queryKey: ["short-rotation", engine.id],
+    queryFn: () => client.get("/api/performance/short-rotation"),
     refetchInterval: 300_000,
     staleTime: 120_000,
   });
@@ -412,6 +458,208 @@ export function PerformanceTab() {
             </table>
           </div>
         </Card>
+      )}
+
+      {/* Short Rotation Analytics */}
+      {rotation && (
+        <>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Short Rotation Analysis</CardTitle>
+                <Badge
+                  variant={
+                    rotation.counterfactual.verdict === "ROTATION_HELPING"
+                      ? "success"
+                      : rotation.counterfactual.verdict === "ROTATION_HURTING"
+                        ? "danger"
+                        : rotation.counterfactual.verdict === "INSUFFICIENT_DATA"
+                          ? "default"
+                          : "warning"
+                  }
+                >
+                  {rotation.counterfactual.verdict.replace(/_/g, " ")}
+                </Badge>
+              </div>
+            </CardHeader>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <div className="text-xs text-gray-500">Avg Turnover/Cycle</div>
+                <div className="text-lg font-bold text-gray-200">
+                  {rotation.summary.avg_turnover_pct.toFixed(1)}%
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Total Rotations</div>
+                <div className="text-lg font-bold text-gray-200">
+                  {rotation.summary.total_rotations}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Rotation Hit Rate</div>
+                <div className={`text-lg font-bold ${rotation.summary.rotation_hit_rate_pct >= 50 ? "text-green-400" : "text-red-400"}`}>
+                  {rotation.summary.rotation_hit_rate_pct.toFixed(1)}%
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Total Rotation P&L</div>
+                <div className={`text-lg font-bold ${rotation.summary.total_rotation_pnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {rotation.summary.total_rotation_pnl >= 0 ? "+" : ""}${rotation.summary.total_rotation_pnl.toFixed(0)}
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 pt-3 border-t border-[var(--border)]">
+              <div>
+                <div className="text-xs text-gray-500">Avg Hold (hours)</div>
+                <div className="text-sm text-gray-300">{rotation.summary.avg_hold_hours.toFixed(0)}h</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Avg P&L/Rotation</div>
+                <div className={`text-sm ${rotation.summary.avg_rotation_pnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {rotation.summary.avg_rotation_pnl >= 0 ? "+" : ""}${rotation.summary.avg_rotation_pnl.toFixed(2)}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Est. Rotation Cost</div>
+                <div className="text-sm text-yellow-400">${rotation.summary.est_rotation_cost_usd.toFixed(0)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-gray-500">Slippage Assumption</div>
+                <div className="text-sm text-gray-400">{rotation.summary.est_slippage_bps}bps RT</div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Counterfactual Verdict */}
+          {rotation.counterfactual.total_evaluated > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Post-Exit Counterfactual</CardTitle>
+              </CardHeader>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 bg-green-900/20 rounded p-2 text-center">
+                    <div className="text-green-400 text-lg font-bold">{rotation.counterfactual.correct_exits}</div>
+                    <div className="text-xs text-gray-500">Correct Exits</div>
+                    <div className="text-[10px] text-gray-600">Price recovered after exit</div>
+                  </div>
+                  <div className="flex-1 bg-red-900/20 rounded p-2 text-center">
+                    <div className="text-red-400 text-lg font-bold">{rotation.counterfactual.premature_exits}</div>
+                    <div className="text-xs text-gray-500">Premature Exits</div>
+                    <div className="text-[10px] text-gray-600">Kept falling after exit</div>
+                  </div>
+                  <div className="flex-1 bg-gray-800/50 rounded p-2 text-center">
+                    <div className="text-gray-400 text-lg font-bold">{rotation.counterfactual.neutral_exits}</div>
+                    <div className="text-xs text-gray-500">Neutral</div>
+                    <div className="text-[10px] text-gray-600">{"<"}2% move either way</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 text-center">
+                  Avg post-exit move:{" "}
+                  <span className={rotation.counterfactual.avg_post_exit_move_pct > 0 ? "text-green-400" : "text-red-400"}>
+                    {rotation.counterfactual.avg_post_exit_move_pct > 0 ? "+" : ""}
+                    {rotation.counterfactual.avg_post_exit_move_pct.toFixed(2)}%
+                  </span>
+                  {" "}(positive = price recovered = correct to exit)
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Per-Cycle Rotation Table */}
+          {rotation.per_cycle.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Rotation by Rebalance Cycle</CardTitle>
+              </CardHeader>
+              <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
+                <table className="w-full text-xs">
+                  <thead className="border-b border-[var(--border)] sticky top-0 bg-[var(--bg-card)]">
+                    <tr>
+                      <th className="px-2 py-1.5 text-left text-gray-500">Cycle</th>
+                      <th className="px-2 py-1.5 text-left text-gray-500">Date</th>
+                      <th className="px-2 py-1.5 text-right text-gray-500">Turnover</th>
+                      <th className="px-2 py-1.5 text-left text-gray-500">In</th>
+                      <th className="px-2 py-1.5 text-left text-gray-500">Out</th>
+                      <th className="px-2 py-1.5 text-right text-gray-500">Rot. P&L</th>
+                      <th className="px-2 py-1.5 text-right text-gray-500">Cycle P&L</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    {rotation.per_cycle.map((c) => (
+                      <tr key={c.cycle} className="hover:bg-[var(--bg-card-hover)]">
+                        <td className="px-2 py-1.5 text-gray-300 font-mono">#{c.cycle}</td>
+                        <td className="px-2 py-1.5 text-gray-400">{c.date}</td>
+                        <td className="px-2 py-1.5 text-right text-gray-300">{c.turnover_pct}%</td>
+                        <td className="px-2 py-1.5 text-green-400 text-[10px]">{c.names_in.join(", ") || "-"}</td>
+                        <td className="px-2 py-1.5 text-red-400 text-[10px]">{c.names_out.join(", ") || "-"}</td>
+                        <td className={`px-2 py-1.5 text-right ${c.rotation_pnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                          {c.rotation_pnl >= 0 ? "+" : ""}${c.rotation_pnl.toFixed(0)}
+                        </td>
+                        <td className={`px-2 py-1.5 text-right ${c.cycle_pnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                          {c.cycle_pnl >= 0 ? "+" : ""}${c.cycle_pnl.toFixed(0)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+
+          {/* Recent Rotations Detail */}
+          {rotation.recent_rotations.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Rotated-Out Shorts ({rotation.recent_rotations.length})</CardTitle>
+              </CardHeader>
+              <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
+                <table className="w-full text-xs">
+                  <thead className="border-b border-[var(--border)] sticky top-0 bg-[var(--bg-card)]">
+                    <tr>
+                      <th className="px-2 py-1.5 text-left text-gray-500">Symbol</th>
+                      <th className="px-2 py-1.5 text-left text-gray-500">Exit Date</th>
+                      <th className="px-2 py-1.5 text-right text-gray-500">Exit P&L</th>
+                      <th className="px-2 py-1.5 text-right text-gray-500">Post-3d</th>
+                      <th className="px-2 py-1.5 text-right text-gray-500">Post-7d</th>
+                      <th className="px-2 py-1.5 text-right text-gray-500">Post-14d</th>
+                      <th className="px-2 py-1.5 text-center text-gray-500">Verdict</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border)]">
+                    {rotation.recent_rotations.map((r, i) => (
+                      <tr key={`${r.symbol}-${i}`} className="hover:bg-[var(--bg-card-hover)]">
+                        <td className="px-2 py-1.5 text-gray-200 font-medium">{r.symbol}</td>
+                        <td className="px-2 py-1.5 text-gray-400">{r.exit_date}</td>
+                        <td className={`px-2 py-1.5 text-right ${r.exit_pnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                          {r.exit_pnl >= 0 ? "+" : ""}${r.exit_pnl.toFixed(2)}
+                        </td>
+                        <td className={`px-2 py-1.5 text-right ${r.post_3d_pct != null ? (r.post_3d_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
+                          {r.post_3d_pct != null ? `${r.post_3d_pct > 0 ? "+" : ""}${r.post_3d_pct.toFixed(1)}%` : "-"}
+                        </td>
+                        <td className={`px-2 py-1.5 text-right ${r.post_7d_pct != null ? (r.post_7d_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
+                          {r.post_7d_pct != null ? `${r.post_7d_pct > 0 ? "+" : ""}${r.post_7d_pct.toFixed(1)}%` : "-"}
+                        </td>
+                        <td className={`px-2 py-1.5 text-right ${r.post_14d_pct != null ? (r.post_14d_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
+                          {r.post_14d_pct != null ? `${r.post_14d_pct > 0 ? "+" : ""}${r.post_14d_pct.toFixed(1)}%` : "-"}
+                        </td>
+                        <td className="px-2 py-1.5 text-center">
+                          <Badge
+                            variant={
+                              r.verdict === "CORRECT" ? "success" : r.verdict === "PREMATURE" ? "danger" : "default"
+                            }
+                          >
+                            {r.verdict}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );
