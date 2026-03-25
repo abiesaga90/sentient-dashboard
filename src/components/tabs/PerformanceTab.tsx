@@ -78,6 +78,21 @@ interface PerformanceResponse {
     profit_factor: number;
     hedge_ratio_pct: number;
   };
+  top_realized?: {
+    long_winners: RealizedTrade[];
+    long_losers: RealizedTrade[];
+    short_winners: RealizedTrade[];
+    short_losers: RealizedTrade[];
+  };
+}
+
+interface RealizedTrade {
+  symbol: string;
+  side: string;
+  pnl: number;
+  notional: number;
+  reason: string;
+  timestamp: string;
 }
 
 interface ShortRotationResponse {
@@ -361,6 +376,63 @@ export function PerformanceTab() {
             <div>
               <div className="text-xs text-gray-500">Trading Days</div>
               <div className="text-sm text-gray-300">{data.ls_alpha.trading_days}</div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Top Realized Winners & Losers */}
+      {data.top_realized && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Top 10 Realized Winners & Losers</CardTitle>
+          </CardHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Longs */}
+            <div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Long Winners</div>
+              <div className="space-y-1">
+                {data.top_realized.long_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
+                {data.top_realized.long_winners.map((t, i) => (
+                  <div key={`lw-${i}`} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")} <span className="text-gray-500">{t.reason}</span></span>
+                    <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 mt-4">Long Losers</div>
+              <div className="space-y-1">
+                {data.top_realized.long_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
+                {data.top_realized.long_losers.map((t, i) => (
+                  <div key={`ll-${i}`} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")} <span className="text-gray-500">{t.reason}</span></span>
+                    <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Shorts */}
+            <div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Short Winners</div>
+              <div className="space-y-1">
+                {data.top_realized.short_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
+                {data.top_realized.short_winners.map((t, i) => (
+                  <div key={`sw-${i}`} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")} <span className="text-gray-500">{t.reason}</span></span>
+                    <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 mt-4">Short Losers</div>
+              <div className="space-y-1">
+                {data.top_realized.short_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
+                {data.top_realized.short_losers.map((t, i) => (
+                  <div key={`sl-${i}`} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")} <span className="text-gray-500">{t.reason}</span></span>
+                    <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </Card>
