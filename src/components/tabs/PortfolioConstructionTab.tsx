@@ -186,7 +186,7 @@ const longColumns: Column<LongToken>[] = [
     sortKey: (r) => r.weight_pct, align: "right",
   },
   {
-    key: "alpha", header: "ROI",
+    key: "alpha", header: "PnL%",
     render: (r) => {
       const color = r.alpha_roi > 1 ? "text-emerald-400" : r.alpha_roi < -1 ? "text-red-400" : "text-gray-500";
       return <span className={`${color} text-[12px]`}>{r.alpha_roi > 0 ? "+" : ""}{r.alpha_roi.toFixed(1)}%</span>;
@@ -246,7 +246,7 @@ const shortColumns: Column<ShortToken>[] = [
     sortKey: (r) => r.weight_pct, align: "right",
   },
   {
-    key: "alpha", header: "ROI",
+    key: "alpha", header: "PnL%",
     render: (r) => {
       const color = r.alpha_roi > 1 ? "text-emerald-400" : r.alpha_roi < -1 ? "text-red-400" : "text-gray-500";
       return <span className={`${color} text-[12px]`}>{r.alpha_roi > 0 ? "+" : ""}{r.alpha_roi.toFixed(1)}%</span>;
@@ -304,6 +304,7 @@ export function PortfolioConstructionTab() {
             </CardTitle>
             <span className="text-[11px] text-gray-500">
               mode: {data.long_side.sizing_mode} | vol_power: {data.long_side.vol_power} | tilt_base: {data.long_side.sm_tilt_weight}
+              {data.alpha_tilt?.enabled && ` | alpha: x${data.alpha_tilt.amplifier || 5} cap ${((data.alpha_tilt.max_tilt || 0.4) * 100).toFixed(0)}% ${data.alpha_tilt.lookback_days}d`}
             </span>
           </div>
         </CardHeader>
