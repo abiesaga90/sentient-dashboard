@@ -88,11 +88,7 @@ interface PerformanceResponse {
 
 interface RealizedTrade {
   symbol: string;
-  side: string;
   pnl: number;
-  notional: number;
-  reason: string;
-  timestamp: string;
 }
 
 interface ShortRotationResponse {
@@ -385,7 +381,7 @@ export function PerformanceTab() {
       {data.top_realized && (
         <Card>
           <CardHeader>
-            <CardTitle>Top 10 Realized Winners & Losers</CardTitle>
+            <CardTitle>Top 10 Cumulative Realized PnL</CardTitle>
           </CardHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Longs */}
@@ -395,7 +391,7 @@ export function PerformanceTab() {
                 {data.top_realized.long_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
                 {data.top_realized.long_winners.map((t, i) => (
                   <div key={`lw-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")} <span className="text-gray-500">{t.reason}</span></span>
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
                     <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
                   </div>
                 ))}
@@ -405,7 +401,7 @@ export function PerformanceTab() {
                 {data.top_realized.long_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
                 {data.top_realized.long_losers.map((t, i) => (
                   <div key={`ll-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")} <span className="text-gray-500">{t.reason}</span></span>
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
                     <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
                   </div>
                 ))}
@@ -418,7 +414,7 @@ export function PerformanceTab() {
                 {data.top_realized.short_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
                 {data.top_realized.short_winners.map((t, i) => (
                   <div key={`sw-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")} <span className="text-gray-500">{t.reason}</span></span>
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
                     <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
                   </div>
                 ))}
@@ -428,7 +424,7 @@ export function PerformanceTab() {
                 {data.top_realized.short_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
                 {data.top_realized.short_losers.map((t, i) => (
                   <div key={`sl-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")} <span className="text-gray-500">{t.reason}</span></span>
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
                     <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
                   </div>
                 ))}
