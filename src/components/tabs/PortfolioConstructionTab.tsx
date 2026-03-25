@@ -15,6 +15,7 @@ interface LongToken {
   annualized_vol: number;
   weight_pct: number;
   beta: number;
+  alpha_roi: number;
   target_notional: number;
   current_notional: number;
   drift_pct: number;
@@ -31,6 +32,7 @@ interface ShortToken {
   correlation: number;
   hedge_weight: number;
   weight_pct: number;
+  alpha_roi: number;
   target_notional: number;
   current_notional: number;
   drift_pct: number;
@@ -184,6 +186,14 @@ const longColumns: Column<LongToken>[] = [
     sortKey: (r) => r.weight_pct, align: "right",
   },
   {
+    key: "alpha", header: "ROI",
+    render: (r) => {
+      const color = r.alpha_roi > 1 ? "text-emerald-400" : r.alpha_roi < -1 ? "text-red-400" : "text-gray-500";
+      return <span className={`${color} text-[12px]`}>{r.alpha_roi > 0 ? "+" : ""}{r.alpha_roi.toFixed(1)}%</span>;
+    },
+    sortKey: (r) => r.alpha_roi, align: "right",
+  },
+  {
     key: "target", header: "Target",
     render: (r) => <span className="text-gray-300 text-[12px]">{formatUSD(r.target_notional)}</span>,
     sortKey: (r) => r.target_notional, align: "right",
@@ -234,6 +244,14 @@ const shortColumns: Column<ShortToken>[] = [
     key: "weight", header: "Weight",
     render: (r) => <span className="text-gray-200 font-medium text-[12px]">{r.weight_pct.toFixed(1)}%</span>,
     sortKey: (r) => r.weight_pct, align: "right",
+  },
+  {
+    key: "alpha", header: "ROI",
+    render: (r) => {
+      const color = r.alpha_roi > 1 ? "text-emerald-400" : r.alpha_roi < -1 ? "text-red-400" : "text-gray-500";
+      return <span className={`${color} text-[12px]`}>{r.alpha_roi > 0 ? "+" : ""}{r.alpha_roi.toFixed(1)}%</span>;
+    },
+    sortKey: (r) => r.alpha_roi, align: "right",
   },
   {
     key: "target", header: "Target",
