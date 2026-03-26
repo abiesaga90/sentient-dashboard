@@ -29,6 +29,10 @@ interface LongToken {
   holders_revenue_30d: number | null;
   supply_delta_30d_pct: number | null;
   signals: Record<string, Signal>;
+  mindshare_gainer: number;
+  mindshare_loser: number;
+  mindshare_net: number;
+  mindshare_tilt_applied: number;
 }
 
 interface AccrualToken {
@@ -69,6 +73,13 @@ interface LongSignalsResponse {
     fresh_count: number;
     stale_count: number;
     oldest_update: string | null;
+  };
+  mindshare_status?: {
+    enabled: boolean;
+    gainers_count: number;
+    losers_count: number;
+    long_tilt: number;
+    short_dampen: number;
   };
 }
 
@@ -680,6 +691,15 @@ export function LongSignalsTab() {
           </div>
         )}
 
+        {/* Mindshare Status Banner */}
+        {signals.mindshare_status?.enabled && (signals.mindshare_status.gainers_count > 0 || signals.mindshare_status.losers_count > 0) && (
+          <div className="rounded-lg border border-blue-800/50 bg-blue-950/30 px-4 py-2 flex items-center gap-2 text-xs text-blue-400">
+            <span className="text-blue-500 text-sm">&#x1F4E1;</span>
+            Messari mindshare active &mdash; {signals.mindshare_status.gainers_count} gainers, {signals.mindshare_status.losers_count} losers
+            {" "}(long tilt: {signals.mindshare_status.long_tilt}, short dampen: {signals.mindshare_status.short_dampen})
+          </div>
+        )}
+
         {/* KPI Row */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <KpiCard label="Avg Tilt" value={`${avgTilt.toFixed(2)}x`} />
@@ -853,6 +873,7 @@ export function LongSignalsTab() {
                   <th className="text-right py-2">Fees 30d</th>
                   <th className="text-right py-2">Holders Rev</th>
                   <th className="text-center py-2">DL OK?</th>
+                  <th className="text-right py-2">Mindshare</th>
                 </tr>
               </thead>
               <tbody>
@@ -908,6 +929,22 @@ export function LongSignalsTab() {
                           {a?.defillama_accurate
                             ? <span className="text-green-500">{"\u2713"}</span>
                             : <span className="text-red-400">{"\u2717"}</span>}
+                        </td>
+                        <td className="py-2.5 text-right font-mono">
+                          {t.mindshare_net !== 0 ? (
+                            <div>
+                              <span className={t.mindshare_net > 0 ? "text-green-400" : "text-red-400"}>
+                                {t.mindshare_net > 0 ? "+" : ""}{t.mindshare_net.toFixed(2)}
+                              </span>
+                              {t.mindshare_tilt_applied !== 0 && (
+                                <span className="text-gray-500 text-[10px] ml-1">
+                                  ({t.mindshare_tilt_applied > 0 ? "+" : ""}{t.mindshare_tilt_applied.toFixed(2)})
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-gray-600">&mdash;</span>
+                          )}
                         </td>
                       </>
                     </tr>

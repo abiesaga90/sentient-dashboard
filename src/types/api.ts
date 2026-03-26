@@ -437,6 +437,9 @@ export interface RankingCandidate {
     key_metrics: Record<string, string>;
     category: string;
   } | null;
+  mindshare_gainer: number | null;
+  mindshare_loser: number | null;
+  mindshare_dampen_applied: number | null;
 }
 
 export interface FundWeights {

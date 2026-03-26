@@ -359,6 +359,23 @@ function buildColumns(opts: {
     );
   }
 
+  // Mindshare dampener column (both paths)
+  cols.push({
+    key: "ms_damp",
+    header: "MS Damp",
+    render: (r) => {
+      const d = r.mindshare_dampen_applied;
+      if (d == null || d === 0) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
+      return (
+        <span className={d > 0.05 ? "text-red-400" : "text-yellow-400"}>
+          -{(d * 100).toFixed(0)}%
+        </span>
+      );
+    },
+    sortKey: (r) => r.mindshare_dampen_applied ?? 0,
+    align: "right",
+  });
+
   return cols;
 }
 
