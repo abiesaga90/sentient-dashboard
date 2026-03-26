@@ -359,20 +359,21 @@ function buildColumns(opts: {
     );
   }
 
-  // Mindshare dampener column (both paths)
+  // Mindshare multiplier column (both paths)
   cols.push({
-    key: "ms_damp",
-    header: "MS Damp",
+    key: "ms_mult",
+    header: "MS Mult",
     render: (r) => {
-      const d = r.mindshare_dampen_applied;
-      if (d == null || d === 0) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
+      const m = r.mindshare_mult;
+      if (m == null || m === 1.0) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
+      const pct = ((m - 1) * 100).toFixed(0);
       return (
-        <span className={d > 0.05 ? "text-red-400" : "text-yellow-400"}>
-          -{(d * 100).toFixed(0)}%
+        <span className={m < 1 ? "text-red-400" : "text-green-400"}>
+          {m < 1 ? "" : "+"}{pct}%
         </span>
       );
     },
-    sortKey: (r) => r.mindshare_dampen_applied ?? 0,
+    sortKey: (r) => r.mindshare_mult ?? 1.0,
     align: "right",
   });
 

@@ -439,7 +439,8 @@ export interface RankingCandidate {
   } | null;
   mindshare_gainer: number | null;
   mindshare_loser: number | null;
-  mindshare_dampen_applied: number | null;
+  mindshare_delta: number | null;
+  mindshare_mult: number | null;
 }
 
 export interface FundWeights {

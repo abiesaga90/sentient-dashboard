@@ -31,8 +31,8 @@ interface LongToken {
   signals: Record<string, Signal>;
   mindshare_gainer: number;
   mindshare_loser: number;
-  mindshare_net: number;
-  mindshare_tilt_applied: number;
+  mindshare_delta: number;
+  mindshare_mult: number;
 }
 
 interface AccrualToken {
@@ -931,14 +931,14 @@ export function LongSignalsTab() {
                             : <span className="text-red-400">{"\u2717"}</span>}
                         </td>
                         <td className="py-2.5 text-right font-mono">
-                          {t.mindshare_net !== 0 ? (
+                          {t.mindshare_delta !== 0 ? (
                             <div>
-                              <span className={t.mindshare_net > 0 ? "text-green-400" : "text-red-400"}>
-                                {t.mindshare_net > 0 ? "+" : ""}{t.mindshare_net.toFixed(2)}
+                              <span className={t.mindshare_delta > 0 ? "text-green-400" : "text-red-400"}>
+                                {t.mindshare_delta > 0 ? "+" : ""}{t.mindshare_delta.toFixed(2)}
                               </span>
-                              {t.mindshare_tilt_applied !== 0 && (
+                              {t.mindshare_mult !== 1.0 && (
                                 <span className="text-gray-500 text-[10px] ml-1">
-                                  ({t.mindshare_tilt_applied > 0 ? "+" : ""}{t.mindshare_tilt_applied.toFixed(2)})
+                                  ({t.mindshare_mult > 1 ? "+" : ""}{((t.mindshare_mult - 1) * 100).toFixed(0)}%)
                                 </span>
                               )}
                             </div>
