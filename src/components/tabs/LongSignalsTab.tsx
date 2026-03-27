@@ -6,6 +6,22 @@ import { KpiCard } from "../shared/KpiCard";
 import { SignalFlowDiagram } from "../shared/SignalFlowDiagram";
 import { useState } from "react";
 
+const VA_PROFILE_LABELS: Record<string, string> = {
+  l1_platform: "L1",
+  defi: "DeFi",
+  ai_compute: "AI",
+  pow_monetary: "PoW",
+  _default: "Other",
+};
+
+const VA_PROFILE_COLORS: Record<string, string> = {
+  l1_platform: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  defi: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  ai_compute: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  pow_monetary: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  _default: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+};
+
 interface Signal {
   value: number | null;
   score: number;
@@ -17,6 +33,7 @@ interface Signal {
 
 interface LongToken {
   symbol: string;
+  va_profile?: string;
   tilt: number;
   raw_score: number;
   adjusted_score: number;
@@ -54,6 +71,7 @@ interface LongSignalsResponse {
   tokens: LongToken[];
   va_weights?: Record<string, number>;
   va_weights_effective?: Record<string, number>;
+  va_profiles?: Record<string, Record<string, number>>;
   config: Record<string, number> & {
     use_supply_composite?: boolean;
     use_zscore?: boolean;
@@ -890,6 +908,12 @@ export function LongSignalsTab() {
                       <>
                         <td className="py-2.5 pl-2">
                           <span className="font-medium text-gray-200">{t.symbol.replace("USDT", "")}</span>
+                          {t.va_profile && (() => {
+                            const key = t.va_profile || "_default";
+                            const label = VA_PROFILE_LABELS[key] || key;
+                            const color = VA_PROFILE_COLORS[key] || VA_PROFILE_COLORS._default;
+                            return <span className={`ml-1.5 inline-block text-[9px] font-medium px-1.5 py-0.5 rounded border ${color}`}>{label}</span>;
+                          })()}
                           {hasCorrection && <span className="ml-1 text-yellow-500">*</span>}
                           {p3 && p3.enabled && (
                             <span
