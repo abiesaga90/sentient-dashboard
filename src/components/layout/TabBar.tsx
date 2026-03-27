@@ -14,7 +14,6 @@ import {
   Zap,
   Gauge,
   Layers,
-  Cpu,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -32,8 +31,6 @@ export const DASHBOARD_TABS = [
   { id: "market-context", label: "Market Context", icon: <Globe size={14} /> },
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
   { id: "pump-exhaustion", label: "Pump Scanner", icon: <Zap size={14} /> },
-  { id: "aethir", label: "Aethir", icon: <Cpu size={14} /> },
-  { id: "peaq", label: "PEAQ", icon: <Cpu size={14} /> },
   { id: "next-rebalance", label: "Next Rebalance", icon: <Clock size={14} /> },
 ] as const;
 

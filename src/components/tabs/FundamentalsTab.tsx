@@ -71,7 +71,7 @@ const pctColor = (p: number | null, inverted = false) => {
 
 export function FundamentalsTab() {
   const { client, engine } = useEngine();
-  const [sideFilter, setSideFilter] = useState<"ALL" | "LONG" | "SHORT">("ALL");
+  const [sideFilter, setSideFilter] = useState<"ALL" | "LONG" | "SHORT" | "LONG_RESEARCH" | "SHORT_UNIVERSE" | "EXCLUDED">("ALL");
   const [sortCol, setSortCol] = useState<string>("fundamental_score");
   const [sortDesc, setSortDesc] = useState(true);
 
@@ -93,8 +93,16 @@ export function FundamentalsTab() {
       return sortDesc ? bv - av : av - bv;
     });
 
+  const sideLabel: Record<string, string> = {
+    LONG: "Long", SHORT: "Short", LONG_RESEARCH: "Long Research",
+    SHORT_UNIVERSE: "Short Universe", EXCLUDED: "Excluded",
+  };
+
   const longs = data.tokens.filter(t => t.side === "LONG");
   const shorts = data.tokens.filter(t => t.side === "SHORT");
+  const longResearch = data.tokens.filter(t => t.side === "LONG_RESEARCH");
+  const shortUniverse = data.tokens.filter(t => t.side === "SHORT_UNIVERSE");
+  const excluded = data.tokens.filter(t => t.side === "EXCLUDED");
 
   const toggleSort = (col: string) => {
     if (sortCol === col) setSortDesc(!sortDesc);
@@ -145,11 +153,18 @@ export function FundamentalsTab() {
       )}
 
       {/* Filter */}
-      <div className="flex gap-1">
-        {(["ALL", "LONG", "SHORT"] as const).map(f => (
-          <button key={f} onClick={() => setSideFilter(f)}
-            className={`px-3 py-1 text-xs rounded ${sideFilter === f ? "bg-purple-900/40 text-purple-400" : "text-gray-500 hover:text-gray-300"}`}>
-            {f} {f === "LONG" ? `(${longs.length})` : f === "SHORT" ? `(${shorts.length})` : `(${data.tokens.length})`}
+      <div className="flex gap-1 flex-wrap">
+        {([
+          { key: "ALL" as const, label: "All", count: data.tokens.length },
+          { key: "LONG" as const, label: "Long", count: longs.length },
+          { key: "SHORT" as const, label: "Short", count: shorts.length },
+          { key: "LONG_RESEARCH" as const, label: "Long Research", count: longResearch.length },
+          { key: "SHORT_UNIVERSE" as const, label: "Short Universe", count: shortUniverse.length },
+          { key: "EXCLUDED" as const, label: "Excluded", count: excluded.length },
+        ]).map(f => (
+          <button key={f.key} onClick={() => setSideFilter(f.key)}
+            className={`px-3 py-1 text-xs rounded ${sideFilter === f.key ? "bg-purple-900/40 text-purple-400" : "text-gray-500 hover:text-gray-300"}`}>
+            {f.label} ({f.count})
           </button>
         ))}
       </div>
@@ -179,7 +194,7 @@ export function FundamentalsTab() {
                 <tr key={t.symbol} className="border-b border-gray-800/50 hover:bg-white/[0.02]">
                   <td className="py-2 pl-2 font-medium text-gray-200">{t.symbol.replace("USDT", "")}</td>
                   <td className="py-2">
-                    <Badge variant={t.side === "LONG" ? "success" : "danger"}>{t.side}</Badge>
+                    <Badge variant={t.side === "LONG" || t.side === "LONG_RESEARCH" ? "success" : t.side === "SHORT" ? "danger" : "default"}>{sideLabel[t.side] ?? t.side}</Badge>
                   </td>
                   <td className={`py-2 text-right font-mono font-semibold ${scoreColor(t.fundamental_score)}`}>
                     {t.fundamental_score?.toFixed(0) ?? "—"}

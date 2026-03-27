@@ -17,7 +17,6 @@ import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
 import { MarketContextTab } from "../components/tabs/MarketContextTab";
 import { PortfolioConstructionTab } from "../components/tabs/PortfolioConstructionTab";
-import { TokenDeepDiveTab } from "../components/tabs/TokenDeepDiveTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -102,10 +101,6 @@ function TabContent({
       return <ExecutionTab />;
     case "pump-exhaustion":
       return <PumpExhaustionTab />;
-    case "aethir":
-      return <TokenDeepDiveTab symbol="aethir" displayName="Aethir" />;
-    case "peaq":
-      return <TokenDeepDiveTab symbol="peaq" displayName="PEAQ" />;
     default:
       return (
         <div className="p-4">
