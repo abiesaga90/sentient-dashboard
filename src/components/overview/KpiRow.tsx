@@ -35,19 +35,34 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
         </Card>
 
         {/* Daily Return */}
-        <Card>
-          <CardTitle>Daily Return</CardTitle>
-          <div className={cn(
-            "text-xl font-bold mt-1",
-            (portfolio.daily_return_pct ?? 0) > 0 ? "text-green-400" : (portfolio.daily_return_pct ?? 0) < 0 ? "text-red-400" : "text-gray-400"
-          )}>
-            {(portfolio.daily_return_pct ?? 0) > 0 ? "+" : ""}{(portfolio.daily_return_pct ?? 0).toFixed(2)}%
-          </div>
-          <div className="text-[10px] text-gray-600 mt-1 space-y-0.5">
-            <div>{formatUSD((portfolio as any).prev_day_nav)} → {formatUSD(portfolio.nav)}</div>
-            <div>{(portfolio as any).prev_day_date ?? ""} close → now</div>
-          </div>
-        </Card>
+        {(() => {
+          const dailyPct = portfolio.daily_return_pct ?? 0;
+          const leverage = risk.gross_pct / 100;
+          const notionalPct = leverage > 0 ? dailyPct / leverage : 0;
+          const prevNav = (portfolio as any).prev_day_nav;
+          const pnlUsd = prevNav ? portfolio.nav - prevNav : 0;
+          return (
+            <Card>
+              <CardTitle>Daily Return</CardTitle>
+              <div className={cn(
+                "text-xl font-bold mt-1",
+                dailyPct > 0 ? "text-green-400" : dailyPct < 0 ? "text-red-400" : "text-gray-400"
+              )}>
+                {dailyPct > 0 ? "+" : ""}{dailyPct.toFixed(2)}%
+                <span className="text-sm font-normal text-gray-500 ml-1">
+                  on NAV
+                </span>
+              </div>
+              <div className="text-[10px] text-gray-600 mt-1 space-y-0.5">
+                <div>
+                  {notionalPct > 0 ? "+" : ""}{notionalPct.toFixed(2)}% on notional ({leverage.toFixed(1)}x)
+                </div>
+                <div>{formatUSD(prevNav)} → {formatUSD(portfolio.nav)} ({pnlUsd >= 0 ? "+" : ""}{formatUSD(pnlUsd)})</div>
+                <div>{(portfolio as any).prev_day_date ?? ""} close → now</div>
+              </div>
+            </Card>
+          );
+        })()}
 
         {/* Drawdown */}
         {(() => {
