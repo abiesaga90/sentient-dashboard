@@ -90,6 +90,38 @@ interface AttributionResponse {
     n_shorts: number;
   };
   descriptions: Record<string, { name: string; short: string }>;
+  regime_attribution?: {
+    bull: {
+      total_return_pct: number;
+      mkt_contribution_pct: number;
+      size_contribution_pct: number;
+      value_contribution_pct: number;
+      mom_contribution_pct: number;
+      growth_contribution_pct: number;
+      alpha_pct: number;
+      costs_pct: number;
+      factor_betas: Record<string, number>;
+      r_squared: number;
+      days: number;
+    };
+    bear: {
+      total_return_pct: number;
+      mkt_contribution_pct: number;
+      size_contribution_pct: number;
+      value_contribution_pct: number;
+      mom_contribution_pct: number;
+      growth_contribution_pct: number;
+      alpha_pct: number;
+      costs_pct: number;
+      factor_betas: Record<string, number>;
+      r_squared: number;
+      days: number;
+    };
+  };
+  regime_hedge?: {
+    bull: { ls_correlation: number; down_day_capture_pct: number; hedge_ratio_pct: number; days: number };
+    bear: { ls_correlation: number; down_day_capture_pct: number; hedge_ratio_pct: number; days: number };
+  };
 }
 
 const FACTOR_COLORS: Record<string, string> = {
@@ -415,6 +447,99 @@ export function AttributionTab() {
           </div>
         </div>
       </Card>
+
+      {/* ── Regime-Conditional Attribution ── */}
+      {data.regime_attribution && (data.regime_attribution.bull?.days > 0 || data.regime_attribution.bear?.days > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {(["bull", "bear"] as const).map((regime) => {
+            const attr = data.regime_attribution?.[regime];
+            if (!attr || !attr.days) return null;
+            const color = regime === "bull" ? "#22C55E" : "#EF4444";
+            const label = regime === "bull" ? "Bull Regimes" : "Bear Regimes";
+            const factors = [
+              { name: "MKT", value: attr.mkt_contribution_pct },
+              { name: "SIZE", value: attr.size_contribution_pct },
+              { name: "VALUE", value: attr.value_contribution_pct },
+              { name: "MOM", value: attr.mom_contribution_pct },
+              { name: "GROWTH", value: attr.growth_contribution_pct },
+              { name: "Alpha", value: attr.alpha_pct },
+              { name: "Costs", value: -(attr.costs_pct || 0) },
+            ];
+            return (
+              <Card key={regime}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>{label}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">{attr.days} days</span>
+                      <Badge variant="default" style={{ backgroundColor: color + "22", color, borderColor: color + "44" }}>
+                        {attr.total_return_pct >= 0 ? "+" : ""}{attr.total_return_pct.toFixed(2)}%
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <div className="px-4 pb-3">
+                  <ChartContainer title="" height={160}>
+                    <BarChart data={factors} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                      <XAxis type="number" tick={{ fill: "#6b7280", fontSize: 10 }} />
+                      <YAxis type="category" dataKey="name" tick={{ fill: "#9ca3af", fontSize: 10 }} width={50} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", borderRadius: 8, fontSize: 12 }}
+                        formatter={(v: number) => `${v.toFixed(2)}%`}
+                      />
+                      <Bar dataKey="value">
+                        {factors.map((f) => (
+                          <Cell key={f.name} fill={f.value >= 0 ? (FACTOR_COLORS[f.name] || "#3b82f6") : "#ef4444"} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ChartContainer>
+                  <div className="text-xs text-gray-500 mt-2 space-y-0.5">
+                    <StatRow label="R²" value={attr.r_squared?.toFixed(2) || "0"} />
+                    {attr.factor_betas && Object.entries(attr.factor_betas).map(([k, v]) => (
+                      <StatRow key={k} label={`β ${k}`} value={(v as number).toFixed(3)} />
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Regime-Conditional Hedge Effectiveness ── */}
+      {data.regime_hedge && (data.regime_hedge.bull?.days > 0 || data.regime_hedge.bear?.days > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {(["bull", "bear"] as const).map((regime) => {
+            const h = data.regime_hedge?.[regime];
+            if (!h || !h.days) return null;
+            const color = regime === "bull" ? "#22C55E" : "#EF4444";
+            const label = regime === "bull" ? "Bull Hedge" : "Bear Hedge";
+            const hedgeDegraded = regime === "bear" && data.regime_hedge?.bull?.days
+              ? h.down_day_capture_pct < (data.regime_hedge.bull.down_day_capture_pct || 0) * 0.7
+              : false;
+            return (
+              <Card key={regime} className={hedgeDegraded ? "border-amber-600/50" : ""}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>{label}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">{h.days} days</span>
+                      {hedgeDegraded && <Badge variant="danger">Degraded</Badge>}
+                    </div>
+                  </div>
+                </CardHeader>
+                <div className="px-4 pb-3 space-y-1 text-xs">
+                  <StatRow label="L/S Correlation" value={h.ls_correlation.toFixed(3)} />
+                  <StatRow label="Down-Day Capture" value={`${h.down_day_capture_pct.toFixed(1)}%`} />
+                  <StatRow label="Hedge Ratio" value={`${h.hedge_ratio_pct.toFixed(1)}%`} />
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

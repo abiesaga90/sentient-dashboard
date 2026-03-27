@@ -15,8 +15,7 @@ import { AttributionTab } from "../components/tabs/AttributionTab";
 import { ThesisTab } from "../components/tabs/ThesisTab";
 import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
-import { MacroRegimeTab } from "../components/tabs/MacroRegimeTab";
-import { CycleTab } from "../components/tabs/CycleTab";
+import { MarketContextTab } from "../components/tabs/MarketContextTab";
 import { PortfolioConstructionTab } from "../components/tabs/PortfolioConstructionTab";
 import { TokenDeepDiveTab } from "../components/tabs/TokenDeepDiveTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
@@ -97,10 +96,8 @@ function TabContent({
       return <PairsTab />;
     case "risk-stress":
       return <RiskStressTab />;
-    case "macro":
-      return <MacroRegimeTab />;
-    case "cycle":
-      return <CycleTab />;
+    case "market-context":
+      return <MarketContextTab />;
     case "execution":
       return <ExecutionTab />;
     case "pump-exhaustion":

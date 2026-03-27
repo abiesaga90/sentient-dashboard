@@ -7,6 +7,7 @@ import {
   Tooltip,
   CartesianGrid,
   Legend,
+  ReferenceLine,
 } from "recharts";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
@@ -83,6 +84,42 @@ interface PerformanceResponse {
     long_losers: RealizedTrade[];
     short_winners: RealizedTrade[];
     short_losers: RealizedTrade[];
+  };
+  regime_returns?: Array<{
+    regime: string;
+    days: number;
+    total_return_pct: number;
+    ann_sharpe: number;
+    max_dd_pct: number;
+    win_rate_pct: number;
+    avg_daily_return_pct: number;
+  }>;
+  capture_ratios?: {
+    up_capture_pct: number;
+    down_capture_pct: number;
+    capture_ratio: number;
+    btc_up_days: number;
+    btc_down_days: number;
+    rolling_capture_ratio: Array<{ date: string; capture_ratio: number }>;
+  };
+  conditional_beta?: {
+    up_beta: number;
+    down_beta: number;
+    convexity: number;
+    convexity_label: string;
+    up_alpha: number;
+    down_alpha: number;
+    up_r_squared: number;
+    down_r_squared: number;
+    up_days: number;
+    down_days: number;
+  };
+  quality_spread?: {
+    daily: Array<{ date: string; spread_ret_pct: number; cum_spread_pct: number; cum_portfolio_pct: number }>;
+    total_spread_return_pct: number;
+    spread_ann_sharpe: number;
+    spread_portfolio_corr: number;
+    rolling_corr_30d: Array<{ date: string; corr: number }>;
   };
 }
 
@@ -727,6 +764,186 @@ export function PerformanceTab() {
               </div>
             </Card>
           )}
+        </>
+      )}
+
+      {/* ── Regime-Conditional Analytics ── */}
+
+      {/* Regime Returns Table */}
+      {data.regime_returns && data.regime_returns.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Returns by Regime</CardTitle>
+          </CardHeader>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-3 py-2 text-left text-gray-500">Regime</th>
+                  <th className="px-3 py-2 text-right text-gray-500">Days</th>
+                  <th className="px-3 py-2 text-right text-gray-500">Return</th>
+                  <th className="px-3 py-2 text-right text-gray-500">Sharpe</th>
+                  <th className="px-3 py-2 text-right text-gray-500">Max DD</th>
+                  <th className="px-3 py-2 text-right text-gray-500">Win Rate</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {data.regime_returns.map((r) => {
+                  const regimeColors: Record<string, string> = {
+                    full_bull: "#16A34A", early_bull: "#22C55E",
+                    transition: "#EAB308", late_bear: "#F97316", deep_bear: "#DC2626",
+                  };
+                  const color = regimeColors[r.regime] || "#6b7280";
+                  return (
+                    <tr key={r.regime} className="hover:bg-[var(--bg-card-hover)]">
+                      <td className="px-3 py-2">
+                        <Badge variant="default" style={{ backgroundColor: color + "22", color, borderColor: color + "44" }}>
+                          {r.regime.replace("_", " ")}
+                        </Badge>
+                      </td>
+                      <td className="px-3 py-2 text-right text-gray-300">{r.days}</td>
+                      <td className={`px-3 py-2 text-right font-mono ${r.total_return_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
+                        {r.total_return_pct >= 0 ? "+" : ""}{r.total_return_pct.toFixed(2)}%
+                      </td>
+                      <td className={`px-3 py-2 text-right font-mono ${r.ann_sharpe >= 0 ? "text-green-400" : "text-red-400"}`}>
+                        {r.ann_sharpe.toFixed(2)}
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono text-red-400">
+                        {r.max_dd_pct.toFixed(2)}%
+                      </td>
+                      <td className="px-3 py-2 text-right font-mono text-gray-300">
+                        {r.win_rate_pct.toFixed(0)}%
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {/* Capture Ratio */}
+      {data.capture_ratios && data.capture_ratios.capture_ratio > 0 && (
+        <>
+          <div className="grid grid-cols-3 gap-3">
+            <Card className="p-3 text-center">
+              <div className="text-xs text-gray-500">Up Capture</div>
+              <div className="text-lg font-bold text-green-400">{data.capture_ratios.up_capture_pct.toFixed(1)}%</div>
+              <div className="text-xs text-gray-600">{data.capture_ratios.btc_up_days} days</div>
+            </Card>
+            <Card className="p-3 text-center">
+              <div className="text-xs text-gray-500">Down Capture</div>
+              <div className="text-lg font-bold text-red-400">{data.capture_ratios.down_capture_pct.toFixed(1)}%</div>
+              <div className="text-xs text-gray-600">{data.capture_ratios.btc_down_days} days</div>
+            </Card>
+            <Card className="p-3 text-center">
+              <div className="text-xs text-gray-500">Capture Ratio</div>
+              <div className={`text-lg font-bold ${data.capture_ratios.capture_ratio >= 1 ? "text-green-400" : "text-red-400"}`}>
+                {data.capture_ratios.capture_ratio.toFixed(2)}
+              </div>
+              <div className="text-xs text-gray-600">{data.capture_ratios.capture_ratio >= 1 ? "Asymmetric alpha" : "Negative asymmetry"}</div>
+            </Card>
+          </div>
+
+          {data.capture_ratios.rolling_capture_ratio.length > 0 && (
+            <ChartContainer title="Rolling 30d Capture Ratio" height={200}>
+              <LineChart data={data.capture_ratios.rolling_capture_ratio.map((d) => ({ ...d, date: d.date.slice(5) }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 10 }} />
+                <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: "#9ca3af" }}
+                />
+                <ReferenceLine y={1} stroke="#6b7280" strokeDasharray="3 3" label={{ value: "1.0", fill: "#6b7280", fontSize: 10 }} />
+                <Line type="monotone" dataKey="capture_ratio" stroke="#3b82f6" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ChartContainer>
+          )}
+        </>
+      )}
+
+      {/* Conditional Beta */}
+      {data.conditional_beta && data.conditional_beta.convexity_label !== "UNKNOWN" && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Conditional Beta</CardTitle>
+              <Badge
+                variant={data.conditional_beta.convexity_label === "CONVEX" ? "success" : data.conditional_beta.convexity_label === "CONCAVE" ? "danger" : "default"}
+              >
+                {data.conditional_beta.convexity_label}
+              </Badge>
+            </div>
+          </CardHeader>
+          <div className="px-4 pb-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div>
+              <div className="text-gray-500">Up-Day Beta</div>
+              <div className="text-gray-200 font-mono">{data.conditional_beta.up_beta.toFixed(4)}</div>
+              <div className="text-gray-600">{data.conditional_beta.up_days} days, R²={data.conditional_beta.up_r_squared.toFixed(2)}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Down-Day Beta</div>
+              <div className="text-gray-200 font-mono">{data.conditional_beta.down_beta.toFixed(4)}</div>
+              <div className="text-gray-600">{data.conditional_beta.down_days} days, R²={data.conditional_beta.down_r_squared.toFixed(2)}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Convexity</div>
+              <div className={`font-mono ${data.conditional_beta.convexity > 0 ? "text-green-400" : data.conditional_beta.convexity < 0 ? "text-red-400" : "text-gray-300"}`}>
+                {data.conditional_beta.convexity > 0 ? "+" : ""}{data.conditional_beta.convexity.toFixed(4)}
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-500">Interpretation</div>
+              <div className="text-gray-300 text-xs">
+                {data.conditional_beta.convexity > 0.05
+                  ? "Captures more upside than downside"
+                  : data.conditional_beta.convexity < -0.05
+                  ? "Loses more in downturns than gains in rallies"
+                  : "Symmetric exposure to up/down moves"}
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Quality Spread */}
+      {data.quality_spread && data.quality_spread.daily.length > 0 && (
+        <>
+          <ChartContainer title="Quality Spread vs Portfolio" height={250}>
+            <LineChart data={data.quality_spread.daily.map((d) => ({ ...d, date: d.date.slice(5) }))}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+              <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 10 }} />
+              <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} />
+              <Tooltip
+                contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", borderRadius: 8, fontSize: 12 }}
+                labelStyle={{ color: "#9ca3af" }}
+                formatter={(v: number) => `${v.toFixed(2)}%`}
+              />
+              <Legend />
+              <Line type="monotone" dataKey="cum_spread_pct" name="Quality Spread" stroke="#22c55e" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="cum_portfolio_pct" name="Portfolio" stroke="#3b82f6" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ChartContainer>
+          <Card>
+            <div className="px-4 py-3 grid grid-cols-3 gap-4 text-xs">
+              <div>
+                <div className="text-gray-500">Spread Return</div>
+                <div className={`font-mono ${data.quality_spread.total_spread_return_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {data.quality_spread.total_spread_return_pct >= 0 ? "+" : ""}{data.quality_spread.total_spread_return_pct.toFixed(2)}%
+                </div>
+              </div>
+              <div>
+                <div className="text-gray-500">Spread Sharpe</div>
+                <div className="text-gray-200 font-mono">{data.quality_spread.spread_ann_sharpe.toFixed(2)}</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Spread-Portfolio Corr</div>
+                <div className="text-gray-200 font-mono">{data.quality_spread.spread_portfolio_corr.toFixed(2)}</div>
+              </div>
+            </div>
+          </Card>
         </>
       )}
     </div>
