@@ -46,16 +46,16 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
               <CardTitle>Daily Return</CardTitle>
               <div className={cn(
                 "text-xl font-bold mt-1",
-                dailyPct > 0 ? "text-green-400" : dailyPct < 0 ? "text-red-400" : "text-gray-400"
+                notionalPct > 0 ? "text-green-400" : notionalPct < 0 ? "text-red-400" : "text-gray-400"
               )}>
-                {dailyPct > 0 ? "+" : ""}{dailyPct.toFixed(2)}%
+                {notionalPct > 0 ? "+" : ""}{notionalPct.toFixed(2)}%
                 <span className="text-sm font-normal text-gray-500 ml-1">
-                  on NAV
+                  on notional ({leverage.toFixed(1)}x)
                 </span>
               </div>
               <div className="text-[10px] text-gray-600 mt-1 space-y-0.5">
                 <div>
-                  {notionalPct > 0 ? "+" : ""}{notionalPct.toFixed(2)}% on notional ({leverage.toFixed(1)}x)
+                  {dailyPct > 0 ? "+" : ""}{dailyPct.toFixed(2)}% on NAV
                 </div>
                 <div>{formatUSD(prevNav)} → {formatUSD(portfolio.nav)} ({pnlUsd >= 0 ? "+" : ""}{formatUSD(pnlUsd)})</div>
                 <div>{(portfolio as any).prev_day_date ?? ""} close → now</div>
