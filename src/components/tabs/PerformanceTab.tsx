@@ -919,7 +919,7 @@ export function PerformanceTab() {
               <Tooltip
                 contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", borderRadius: 8, fontSize: 12 }}
                 labelStyle={{ color: "#9ca3af" }}
-                formatter={(v: number) => `${v.toFixed(2)}%`}
+                formatter={(v: any) => `${Number(v).toFixed(2)}%`}
               />
               <Legend />
               <Line type="monotone" dataKey="cum_spread_pct" name="Quality Spread" stroke="#22c55e" strokeWidth={2} dot={false} />

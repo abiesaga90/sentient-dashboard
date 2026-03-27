@@ -486,7 +486,7 @@ export function AttributionTab() {
                       <YAxis type="category" dataKey="name" tick={{ fill: "#9ca3af", fontSize: 10 }} width={50} />
                       <Tooltip
                         contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", borderRadius: 8, fontSize: 12 }}
-                        formatter={(v: number) => `${v.toFixed(2)}%`}
+                        formatter={(v: any) => `${Number(v).toFixed(2)}%`}
                       />
                       <Bar dataKey="value">
                         {factors.map((f) => (
@@ -514,7 +514,6 @@ export function AttributionTab() {
           {(["bull", "bear"] as const).map((regime) => {
             const h = data.regime_hedge?.[regime];
             if (!h || !h.days) return null;
-            const color = regime === "bull" ? "#22C55E" : "#EF4444";
             const label = regime === "bull" ? "Bull Hedge" : "Bear Hedge";
             const hedgeDegraded = regime === "bear" && data.regime_hedge?.bull?.days
               ? h.down_day_capture_pct < (data.regime_hedge.bull.down_day_capture_pct || 0) * 0.7

@@ -71,7 +71,7 @@ function ProfileBadge({ profile }: { profile?: string }) {
 
 // ── Sector Breakdown Summary ──
 
-function SectorBreakdown({ tokens, budget }: { tokens: { va_profile?: string; weight_pct: number; target_notional: number }[]; budget: number }) {
+function SectorBreakdown({ tokens }: { tokens: { va_profile?: string; weight_pct: number; target_notional: number }[] }) {
   const groups: Record<string, { count: number; weight: number; notional: number }> = {};
   for (const t of tokens) {
     const key = t.va_profile || "_default";
@@ -378,7 +378,7 @@ export function PortfolioConstructionTab() {
           </div>
         </CardHeader>
         <div className="px-4 pb-4">
-          <SectorBreakdown tokens={data.long_side.tokens} budget={data.budget.long_budget} />
+          <SectorBreakdown tokens={data.long_side.tokens} />
           <div className="text-[11px] text-gray-500 mb-2">
             weight = tilt / vol<sup>{data.long_side.vol_power}</sup> (normalized)
           </div>
@@ -399,7 +399,7 @@ export function PortfolioConstructionTab() {
           </div>
         </CardHeader>
         <div className="px-4 pb-4">
-          <SectorBreakdown tokens={data.short_side.tokens} budget={data.budget.short_budget} />
+          <SectorBreakdown tokens={data.short_side.tokens} />
           <div className="text-[11px] text-gray-500 mb-2">
             weight = {"\u03b2"} {"\u00d7"} correlation to long basket (normalized)
           </div>
