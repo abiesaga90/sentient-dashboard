@@ -50,6 +50,7 @@ interface LongToken {
   mindshare_loser: number;
   mindshare_delta: number;
   mindshare_mult: number;
+  sentiment_score?: number | null;
 }
 
 interface AccrualToken {
@@ -964,6 +965,11 @@ export function LongSignalsTab() {
                                 <span className="text-gray-500 text-[10px] ml-1">
                                   ({t.mindshare_mult > 1 ? "+" : ""}{((t.mindshare_mult - 1) * 100).toFixed(0)}%)
                                 </span>
+                              )}
+                              {t.sentiment_score != null && (
+                                <div className={`text-[10px] ${t.sentiment_score > 0.2 ? "text-green-600" : t.sentiment_score < -0.2 ? "text-red-600" : "text-gray-600"}`}>
+                                  sent:{t.sentiment_score > 0 ? "+" : ""}{t.sentiment_score.toFixed(2)}
+                                </div>
                               )}
                             </div>
                           ) : (

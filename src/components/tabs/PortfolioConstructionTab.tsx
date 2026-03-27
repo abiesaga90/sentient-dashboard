@@ -20,6 +20,8 @@ interface LongToken {
   target_notional: number;
   current_notional: number;
   drift_pct: number;
+  mindshare_mult?: number;
+  sentiment_score?: number | null;
 }
 
 interface ShortToken {
@@ -38,6 +40,8 @@ interface ShortToken {
   target_notional: number;
   current_notional: number;
   drift_pct: number;
+  mindshare_mult?: number;
+  sentiment_score?: number | null;
 }
 
 // ── Profile labels & colors ──
@@ -235,6 +239,28 @@ const longColumns: Column<LongToken>[] = [
     sortKey: (r) => r.tilt, align: "right",
   },
   {
+    key: "ms", header: "MS",
+    render: (r) => {
+      const m = (r as LongToken).mindshare_mult;
+      const sent = (r as LongToken).sentiment_score;
+      if (!m || m === 1.0) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
+      const pct = ((m - 1) * 100).toFixed(0);
+      return (
+        <div className="text-right">
+          <span className={m > 1 ? "text-green-400" : "text-red-400"} style={{fontSize: "11px"}}>
+            {m > 1 ? "+" : ""}{pct}%
+          </span>
+          {sent != null && (
+            <div className={`text-[10px] ${sent > 0.2 ? "text-green-600" : sent < -0.2 ? "text-red-600" : "text-gray-600"}`}>
+              S:{sent > 0 ? "+" : ""}{sent.toFixed(2)}
+            </div>
+          )}
+        </div>
+      );
+    },
+    sortKey: (r) => (r as LongToken).mindshare_mult ?? 1.0, align: "right",
+  },
+  {
     key: "vol", header: "Vol",
     render: (r) => <span className="text-gray-400 text-[12px]">{(r.annualized_vol * 100).toFixed(1)}%</span>,
     sortKey: (r) => r.annualized_vol, align: "right",
@@ -308,6 +334,28 @@ const shortColumns: Column<ShortToken>[] = [
     key: "hedge", header: "\u03b2\u00d7Corr",
     render: (r) => <span className="text-gray-300 text-[12px]">{r.hedge_weight.toFixed(3)}</span>,
     sortKey: (r) => r.hedge_weight, align: "right",
+  },
+  {
+    key: "ms", header: "MS",
+    render: (r) => {
+      const m = (r as ShortToken).mindshare_mult;
+      const sent = (r as ShortToken).sentiment_score;
+      if (!m || m === 1.0) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
+      const pct = ((m - 1) * 100).toFixed(0);
+      return (
+        <div className="text-right">
+          <span className={m < 1 ? "text-red-400" : "text-green-400"} style={{fontSize: "11px"}}>
+            {m < 1 ? "" : "+"}{pct}%
+          </span>
+          {sent != null && (
+            <div className={`text-[10px] ${sent > 0.2 ? "text-green-600" : sent < -0.2 ? "text-red-600" : "text-gray-600"}`}>
+              S:{sent > 0 ? "+" : ""}{sent.toFixed(2)}
+            </div>
+          )}
+        </div>
+      );
+    },
+    sortKey: (r) => (r as ShortToken).mindshare_mult ?? 1.0, align: "right",
   },
   {
     key: "weight", header: "Weight",

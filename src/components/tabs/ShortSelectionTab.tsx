@@ -362,15 +362,23 @@ function buildColumns(opts: {
   // Mindshare multiplier column (both paths)
   cols.push({
     key: "ms_mult",
-    header: "MS Mult",
+    header: "MS",
     render: (r) => {
       const m = r.mindshare_mult;
+      const sent = (r as any).sentiment_score;
       if (m == null || m === 1.0) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
       const pct = ((m - 1) * 100).toFixed(0);
       return (
-        <span className={m < 1 ? "text-red-400" : "text-green-400"}>
-          {m < 1 ? "" : "+"}{pct}%
-        </span>
+        <div className="text-right">
+          <span className={m < 1 ? "text-red-400" : "text-green-400"}>
+            {m < 1 ? "" : "+"}{pct}%
+          </span>
+          {sent != null && (
+            <div className={`text-[10px] ${sent > 0.2 ? "text-green-600" : sent < -0.2 ? "text-red-600" : "text-gray-600"}`}>
+              S:{sent > 0 ? "+" : ""}{sent.toFixed(2)}
+            </div>
+          )}
+        </div>
       );
     },
     sortKey: (r) => r.mindshare_mult ?? 1.0,
