@@ -15,6 +15,7 @@ import {
   Gauge,
   Layers,
   Crosshair,
+  Scale,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -32,6 +33,7 @@ export const DASHBOARD_TABS = [
   { id: "pairs", label: "Pairs", icon: <Link2 size={14} /> },
   { id: "market-context", label: "Market Context", icon: <Globe size={14} /> },
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
+  { id: "scaling", label: "Scaling & Capacity", icon: <Scale size={14} /> },
   { id: "pump-exhaustion", label: "Pump Scanner", icon: <Zap size={14} /> },
   { id: "next-rebalance", label: "Next Rebalance", icon: <Clock size={14} /> },
 ] as const;

@@ -183,8 +183,8 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
                 <DualRow label="NAV / Equity" value={formatUSD(Number(ntRisk.equity ?? 0))} />
                 <DualRow label="HWM" value={formatUSD(Number(ntRisk.risk_hwm ?? 0))} />
                 <DualRow label="Drawdown" value={`${Number(ntRisk.dd_from_hwm_pct ?? 0).toFixed(2)}%`} />
-                <DualRow label="Gross Exposure" value={formatPct(Number(ntRisk.gross_pct_equity ?? 0))} />
-                <DualRow label="Net Exposure" value={formatPct(Number(ntRisk.net_pct_equity ?? 0))} />
+                <DualRow label="Gross Exposure" value={formatPct(Number(ntRisk.gross_exposure_pct ?? 0) * 100)} />
+                <DualRow label="Net Exposure" value={formatPct(Number(ntRisk.net_exposure_pct ?? 0) * 100)} />
                 <DualRow label="Total Return" value={formatPct(Number(ntRisk.total_return_pct ?? 0))} />
               </div>
             </div>

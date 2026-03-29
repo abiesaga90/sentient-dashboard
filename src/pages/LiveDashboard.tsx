@@ -18,6 +18,7 @@ import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
 import { MarketContextTab } from "../components/tabs/MarketContextTab";
 import { PortfolioConstructionTab } from "../components/tabs/PortfolioConstructionTab";
+import { ScalingCapacityTab } from "../components/tabs/ScalingCapacityTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -102,6 +103,8 @@ function TabContent({
       return <MarketContextTab />;
     case "execution":
       return <ExecutionTab />;
+    case "scaling":
+      return <ScalingCapacityTab />;
     case "pump-exhaustion":
       return <PumpExhaustionTab />;
     default:
