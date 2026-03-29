@@ -104,8 +104,9 @@ function SectorBreakdown({ tokens }: { tokens: { va_profile?: string; weight_pct
 // ── Budget Waterfall ──
 
 function BudgetWaterfall({ budget }: { budget: any }) {
+  const sizingBase = budget.notional_capital || budget.nav;
   const steps = [
-    { label: "NAV", value: budget.nav, mult: null },
+    { label: "Notional", value: sizingBase, mult: null },
     { label: "Leverage", value: null, mult: `\u00d7${budget.max_leverage}` },
     { label: "DD Scale", value: null, mult: `\u00d7${budget.dd_scale.toFixed(3)}` },
     { label: "Vol Scale", value: null, mult: `\u00d7${budget.vol_scale.toFixed(3)}` },
