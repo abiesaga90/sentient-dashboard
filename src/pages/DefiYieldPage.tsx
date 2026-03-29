@@ -10,6 +10,12 @@ export function DefiYieldPage() {
           <ArrowLeft size={16} />
           <span className="text-sm">Sentient Advisory</span>
         </Link>
+        <Link
+          to="/defi-yield/dashboard"
+          className="text-xs text-purple-400 hover:text-purple-300 border border-purple-500/30 rounded-lg px-3 py-1.5 transition-colors"
+        >
+          Live Scanner
+        </Link>
       </nav>
 
       {/* Cover */}

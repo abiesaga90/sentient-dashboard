@@ -11,6 +11,7 @@ import {
 import { LandingPage } from "./pages/LandingPage";
 import { LiveDashboard } from "./pages/LiveDashboard";
 import { DefiYieldPage } from "./pages/DefiYieldPage";
+import { YieldDashboard } from "./pages/YieldDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +47,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/live" element={<LiveDashboard />} />
             <Route path="/defi-yield" element={<DefiYieldPage />} />
+            <Route path="/defi-yield/dashboard" element={<YieldDashboard />} />
           </Routes>
         </BrowserRouter>
       </EngineContext.Provider>
