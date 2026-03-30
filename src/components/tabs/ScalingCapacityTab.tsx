@@ -5,7 +5,7 @@ import { Badge } from "../ui/Badge";
 import { KpiCard } from "../shared/KpiCard";
 import { ChartContainer } from "../shared/ChartContainer";
 import { DataTable, type Column } from "../shared/DataTable";
-import { formatUSD, formatNumber } from "../../lib/utils";
+import { formatUSD } from "../../lib/utils";
 import {
   LineChart,
   Line,
@@ -271,7 +271,7 @@ export function ScalingCapacityTab() {
                   borderRadius: 6,
                   fontSize: 12,
                 }}
-                formatter={(v: number) => [v.toFixed(2), "Sortino"]}
+                formatter={(v) => [Number(v).toFixed(2), "Sortino"]}
               />
               <ReferenceLine
                 y={1.5}
