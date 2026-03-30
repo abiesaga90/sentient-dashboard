@@ -83,6 +83,11 @@ export function OverviewTab({ data }: OverviewTabProps) {
         </Card>
       )}
 
+      {/* Daily P&L Attribution */}
+      {data.portfolio.daily_attribution && data.portfolio.daily_attribution.nav_change != null && (
+        <DailyAttribution attr={data.portfolio.daily_attribution} />
+      )}
+
       {/* KPI Cards + Compliance + NT dual view */}
       <KpiRow
         portfolio={data.portfolio}
@@ -160,6 +165,80 @@ interface SpreadData {
   long_pct: number;
   short_pct: number;
   [key: string]: number;
+}
+
+function DailyAttribution({ attr }: { attr: NonNullable<DashboardResponse["portfolio"]["daily_attribution"]> }) {
+  const c = attr.components;
+  const pnlColor = (v: number) => v >= 0 ? "text-green-400" : "text-red-400";
+  const fmt = (v: number) => `${v >= 0 ? "+" : ""}$${Math.abs(v).toFixed(0)}`;
+  const fmtPct = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
+
+  return (
+    <Card>
+      <CardTitle>Daily P&L Attribution</CardTitle>
+      <div className="text-xs text-gray-500 mb-3">{attr.period}</div>
+
+      {/* NAV Change header */}
+      <div className="flex items-baseline gap-3 mb-3">
+        <span className={`text-2xl font-bold ${pnlColor(attr.nav_change)}`}>
+          {fmt(attr.nav_change)}
+        </span>
+        <span className={`text-sm ${pnlColor(attr.nav_change_pct)}`}>
+          {fmtPct(attr.nav_change_pct)} on notional
+        </span>
+        <span className="text-xs text-gray-600">
+          ${attr.prev_nav.toLocaleString()} → ${attr.curr_nav.toLocaleString()}
+        </span>
+      </div>
+
+      {/* Component breakdown */}
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        {[
+          { label: "MTM (held)", value: c.mtm_held },
+          { label: "Turnover P&L", value: c.turnover_pnl },
+          { label: "Funding", value: c.funding },
+          { label: "Fees", value: c.fees },
+        ].map(({ label, value }) => (
+          <div key={label} className="bg-gray-900 rounded p-2">
+            <div className="text-xs text-gray-500">{label}</div>
+            <div className={`text-sm font-medium ${pnlColor(value)}`}>{fmt(value)}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Turnover by reason */}
+      {Object.keys(attr.turnover_by_reason).length > 0 && (
+        <div>
+          <div className="text-xs text-gray-500 mb-1">Turnover by Reason</div>
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-gray-600 border-b border-gray-800">
+                <th className="text-left py-1">Reason</th>
+                <th className="text-right py-1">Trades</th>
+                <th className="text-right py-1">P&L</th>
+                <th className="text-right py-1">Notional</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(attr.turnover_by_reason).map(([reason, d]) => (
+                <tr key={reason} className="border-b border-gray-800/30">
+                  <td className="py-1 text-gray-400 font-mono">{reason}</td>
+                  <td className="text-right text-gray-500">{d.count}</td>
+                  <td className={`text-right font-medium ${pnlColor(d.pnl)}`}>{fmt(d.pnl)}</td>
+                  <td className="text-right text-gray-600">${d.notional.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex gap-4 mt-2 text-xs text-gray-600 border-t border-gray-800 pt-2">
+            <span>Trades: {attr.total_trades}</span>
+            <span>Turnover: ${attr.total_turnover_notional.toLocaleString()}</span>
+            <span>Turnover/NAV: {attr.turnover_pct_of_nav.toFixed(0)}%</span>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
 }
 
 function SpreadRow({

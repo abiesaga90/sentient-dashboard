@@ -94,6 +94,23 @@ export interface Portfolio {
     horizons?: Record<string, { spread_pct: number; long_pct: number; short_pct: number }>;
     periods?: Record<string, { spread_pct: number; long_pct: number; short_pct: number; days: number }>;
   };
+  daily_attribution?: {
+    period: string;
+    prev_nav: number;
+    curr_nav: number;
+    nav_change: number;
+    nav_change_pct: number;
+    components: {
+      mtm_held: number;
+      turnover_pnl: number;
+      funding: number;
+      fees: number;
+    };
+    turnover_by_reason: Record<string, { count: number; pnl: number; notional: number; fees: number }>;
+    total_trades: number;
+    total_turnover_notional: number;
+    turnover_pct_of_nav: number;
+  };
 }
 
 // ── Risk ──
