@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { KpiRow } from "../overview/KpiRow";
 import { EquityCurve } from "../overview/EquityCurve";
 import { PnlSummary } from "../overview/PnlSummary";
@@ -21,24 +22,47 @@ interface OverviewTabProps {
 export function OverviewTab({ data }: OverviewTabProps) {
   const { data: pnl } = usePnl();
   const { data: riskHistory } = useRiskHistory();
+  const [exOutliers, setExOutliers] = useState(false);
+
+  const ls = data.portfolio.ls_spread;
+  const exo = ls?.ex_outliers;
+  const activePeriods = exOutliers && exo ? exo.periods : ls?.periods;
+  const activeIR = exOutliers && exo ? exo.information_ratio : ls?.information_ratio;
+  const activeCapture = exOutliers && exo ? exo.down_day_capture_pct : ls?.down_day_capture_pct;
+  const activeCumulative = exOutliers && exo ? exo.cumulative_spread_pct : ls?.cumulative_spread_pct;
 
   return (
     <div className="space-y-4 p-4">
       {/* L/S Spread */}
-      {data.portfolio.ls_spread && (
+      {ls && (
         <Card>
-          <CardTitle>L/S Spread</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>L/S Spread</CardTitle>
+            {exo && (
+              <button
+                onClick={() => setExOutliers(!exOutliers)}
+                className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                  exOutliers
+                    ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"
+                    : "bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-400"
+                }`}
+                title={`Strip ${exo.symbols.join(", ")} (${exo.total_pnl_removed >= 0 ? "+" : ""}$${exo.total_pnl_removed.toFixed(0)})`}
+              >
+                {exo.label}
+              </button>
+            )}
+          </div>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-gray-500 text-xs border-b border-gray-800">
                   <th className="text-left py-1 pr-4"></th>
                   {/* Intraday horizons */}
-                  {data.portfolio.ls_spread.horizons && Object.keys(data.portfolio.ls_spread.horizons).map((h) => (
+                  {ls.horizons && Object.keys(ls.horizons).map((h) => (
                     <th key={h} className="text-right py-1 px-2 font-medium">{h}</th>
                   ))}
                   {/* Period-based */}
-                  {data.portfolio.ls_spread.periods && Object.keys(data.portfolio.ls_spread.periods).map((p) => (
+                  {activePeriods && Object.keys(activePeriods).map((p) => (
                     <th key={p} className="text-right py-1 px-2 font-medium border-l border-gray-800">{p}</th>
                   ))}
                 </tr>
@@ -47,36 +71,41 @@ export function OverviewTab({ data }: OverviewTabProps) {
                 <SpreadRow
                   label="Spread"
                   field="spread_pct"
-                  horizons={data.portfolio.ls_spread.horizons}
-                  periods={data.portfolio.ls_spread.periods}
+                  horizons={ls.horizons}
+                  periods={activePeriods}
                   bold
                 />
                 <SpreadRow
                   label="Longs"
                   field="long_pct"
-                  horizons={data.portfolio.ls_spread.horizons}
-                  periods={data.portfolio.ls_spread.periods}
+                  horizons={ls.horizons}
+                  periods={activePeriods}
                 />
                 <SpreadRow
                   label="Shorts"
                   field="short_pct"
-                  horizons={data.portfolio.ls_spread.horizons}
-                  periods={data.portfolio.ls_spread.periods}
+                  horizons={ls.horizons}
+                  periods={activePeriods}
                 />
               </tbody>
             </table>
             {/* Summary metrics */}
             <div className="flex gap-6 mt-3 text-xs text-gray-500 border-t border-gray-800 pt-2">
-              {data.portfolio.ls_spread.information_ratio != null && (
-                <span>IR: <span className="text-gray-300 font-medium">{data.portfolio.ls_spread.information_ratio.toFixed(2)}</span></span>
+              {activeIR != null && (
+                <span>IR: <span className="text-gray-300 font-medium">{activeIR.toFixed(2)}</span></span>
               )}
-              {data.portfolio.ls_spread.down_day_capture_pct != null && (
-                <span>Down-day capture: <span className="text-gray-300 font-medium">{data.portfolio.ls_spread.down_day_capture_pct.toFixed(0)}%</span></span>
+              {activeCapture != null && (
+                <span>Down-day capture: <span className="text-gray-300 font-medium">{activeCapture.toFixed(0)}%</span></span>
               )}
-              {data.portfolio.ls_spread.cumulative_spread_pct != null && (
-                <span>Cumulative: <span className={`font-medium ${data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
-                  {data.portfolio.ls_spread.cumulative_spread_pct >= 0 ? "+" : ""}{data.portfolio.ls_spread.cumulative_spread_pct.toFixed(2)}%
+              {activeCumulative != null && (
+                <span>Cumulative: <span className={`font-medium ${activeCumulative >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {activeCumulative >= 0 ? "+" : ""}{activeCumulative.toFixed(2)}%
                 </span></span>
+              )}
+              {exOutliers && exo && (
+                <span className="text-yellow-500/70">
+                  Excluding: {exo.symbols.map(s => s.replace("USDT", "")).join(", ")} ({exo.total_pnl_removed >= 0 ? "+" : ""}${exo.total_pnl_removed.toFixed(0)})
+                </span>
               )}
             </div>
           </div>

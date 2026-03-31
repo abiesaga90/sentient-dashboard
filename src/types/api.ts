@@ -93,6 +93,15 @@ export interface Portfolio {
     down_day_capture_pct: number;
     horizons?: Record<string, { spread_pct: number; long_pct: number; short_pct: number }>;
     periods?: Record<string, { spread_pct: number; long_pct: number; short_pct: number; days: number }>;
+    ex_outliers?: {
+      label: string;
+      symbols: string[];
+      total_pnl_removed: number;
+      periods: Record<string, { spread_pct: number; long_pct: number; short_pct: number; days: number }>;
+      cumulative_spread_pct: number;
+      information_ratio: number;
+      down_day_capture_pct: number;
+    };
   };
   daily_attribution?: {
     period: string;
