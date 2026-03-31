@@ -199,6 +199,16 @@ function buildColumns(opts: {
         align: "right",
       },
       {
+        key: "staking_delta",
+        header: "Staking",
+        render: (r) => {
+          const sig = r.va_signals?.staking_delta;
+          return sig?.signal != null ? <SignalBar value={sig.signal} /> : <span className="text-gray-700 text-[11px]">—</span>;
+        },
+        sortKey: (r) => r.va_signals?.staking_delta?.signal ?? -1,
+        align: "right",
+      },
+      {
         key: "corr",
         header: "Corr",
         render: (r) => <span className="text-gray-500 text-sm">{r.corr.toFixed(2)}</span>,

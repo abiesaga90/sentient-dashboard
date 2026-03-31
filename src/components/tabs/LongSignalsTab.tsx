@@ -194,6 +194,7 @@ const scoreBar = (score: number, maxWidth = 48) => {
 const VA_WEIGHT_TO_SIGNAL: Record<string, string> = {
   dilution: "fdv_mcap",
   supply_delta: "supply_delta",
+  staking_delta: "staking_delta",
   unlock: "unlock_pressure",
   buyback: "buyback_intensity",
   rev_capture: "rev_capture",
@@ -203,6 +204,7 @@ const VA_WEIGHT_TO_SIGNAL: Record<string, string> = {
 const VA_SIGNAL_LABELS: Record<string, string> = {
   dilution: "Dilution (FDV/MCap)",
   supply_delta: "Supply Momentum",
+  staking_delta: "Staking Ratio",
   unlock: "Unlock Pressure",
   buyback: "Buyback Intensity",
   rev_capture: "Revenue Capture",
