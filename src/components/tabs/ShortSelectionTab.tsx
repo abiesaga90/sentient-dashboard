@@ -630,6 +630,14 @@ export function ShortSelectionTab() {
                   <span className="text-gray-500">Perp Crowding</span>
                   <span className="text-gray-300 float-right">dampen if crowded</span>
                 </div>
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">CG Trending</span>
+                  <span className="text-gray-300 float-right">retail attention boost</span>
+                </div>
+                <div className="bg-gray-900/50 rounded px-2 py-1.5">
+                  <span className="text-gray-500">Messari Mindshare</span>
+                  <span className="text-gray-300 float-right">sentiment overlay</span>
+                </div>
               </div>
             </div>
 

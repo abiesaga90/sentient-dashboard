@@ -836,6 +836,14 @@ export function LongSignalsTab() {
                     <span className="text-gray-500">Aggression</span>
                     <span className="text-gray-400 float-right">{signals.config?.aggression?.toFixed(1) ?? "1.0"}×</span>
                   </div>
+                  <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
+                    <span className="text-gray-500">CG Trending</span>
+                    <span className="text-gray-400 float-right">retail attention boost</span>
+                  </div>
+                  <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
+                    <span className="text-gray-500">Messari Mindshare</span>
+                    <span className="text-gray-400 float-right">sentiment overlay</span>
+                  </div>
                 </div>
               </div>
             </div>

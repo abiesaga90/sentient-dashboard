@@ -22,6 +22,7 @@ interface LongToken {
   drift_pct: number;
   mindshare_mult?: number;
   sentiment_score?: number | null;
+  cg_trending_attention?: number | null;
 }
 
 interface ShortToken {
@@ -42,6 +43,7 @@ interface ShortToken {
   drift_pct: number;
   mindshare_mult?: number;
   sentiment_score?: number | null;
+  cg_trending_attention?: number | null;
 }
 
 // ── Profile labels & colors ──
@@ -262,6 +264,16 @@ const longColumns: Column<LongToken>[] = [
     sortKey: (r) => (r as LongToken).mindshare_mult ?? 1.0, align: "right",
   },
   {
+    key: "cg", header: "CG",
+    render: (r) => {
+      const v = (r as LongToken).cg_trending_attention;
+      if (v == null) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
+      const color = v > 0.5 ? "text-green-400" : v >= 0.3 ? "text-yellow-400" : "text-gray-500";
+      return <span className={`${color} text-[11px]`}>{(v * 100).toFixed(0)}%</span>;
+    },
+    sortKey: (r) => (r as LongToken).cg_trending_attention ?? 0, align: "right",
+  },
+  {
     key: "vol", header: "Vol",
     render: (r) => <span className="text-gray-400 text-[12px]">{(r.annualized_vol * 100).toFixed(1)}%</span>,
     sortKey: (r) => r.annualized_vol, align: "right",
@@ -357,6 +369,16 @@ const shortColumns: Column<ShortToken>[] = [
       );
     },
     sortKey: (r) => (r as ShortToken).mindshare_mult ?? 1.0, align: "right",
+  },
+  {
+    key: "cg", header: "CG",
+    render: (r) => {
+      const v = (r as ShortToken).cg_trending_attention;
+      if (v == null) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
+      const color = v > 0.5 ? "text-green-400" : v >= 0.3 ? "text-yellow-400" : "text-gray-500";
+      return <span className={`${color} text-[11px]`}>{(v * 100).toFixed(0)}%</span>;
+    },
+    sortKey: (r) => (r as ShortToken).cg_trending_attention ?? 0, align: "right",
   },
   {
     key: "weight", header: "Weight",
