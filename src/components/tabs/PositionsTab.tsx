@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { DataTable, type Column } from "../shared/DataTable";
 import { PnlText } from "../shared/PnlText";
 import { Badge } from "../ui/Badge";
-import { formatUSD, formatPct } from "../../lib/utils";
+import { formatUSD } from "../../lib/utils";
 import type { Position, BetaAggregate } from "../../types/api";
 
 type SideFilter = "all" | "LONG" | "SHORT";
