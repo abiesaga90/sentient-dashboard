@@ -1,3 +1,4 @@
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   BarChart,
@@ -38,6 +39,8 @@ interface ThesisResponse {
   long_count: number;
   short_count: number;
   spread_table: SpreadRow[];
+  levered_spread_table?: SpreadRow[];
+  leverage?: number;
   working_count: number;
   total_periods: number;
   long_tokens: TokenReturn[];
@@ -56,6 +59,7 @@ interface ThesisResponse {
 const PERIODS = ["1d", "7d", "14d", "30d", "60d", "90d", "YTD", "1Y"] as const;
 
 export function ThesisTab() {
+  const [levered, setLevered] = React.useState(false);
   const { client, engine } = useEngine();
   const { data, isLoading } = useQuery<ThesisResponse>({
     queryKey: ["thesis", engine.id],
@@ -74,13 +78,29 @@ export function ThesisTab() {
 
   if (!data) return null;
 
+  const activeTable = levered && data.levered_spread_table ? data.levered_spread_table : data.spread_table;
+
   return (
     <div className="p-4 space-y-4">
       {/* Thesis Score */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Thesis Validation</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>Thesis Validation</CardTitle>
+              {data.leverage && data.leverage > 1 && (
+                <button
+                  onClick={() => setLevered(!levered)}
+                  className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+                    levered
+                      ? "bg-blue-500/20 border-blue-500/50 text-blue-400"
+                      : "bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500"
+                  }`}
+                >
+                  {levered ? `Levered (${data.leverage}x)` : "Unlevered"}
+                </button>
+              )}
+            </div>
             <Badge variant={data.working_count >= data.total_periods / 2 ? "success" : "warning"}>
               {data.working_count}/{data.total_periods} periods working
             </Badge>
@@ -88,12 +108,13 @@ export function ThesisTab() {
         </CardHeader>
         <p className="text-xs text-gray-500 mb-3">
           Longs should outperform shorts across time horizons. A positive spread = thesis is working.
+          {levered && <span className="text-blue-400 ml-1">Showing levered returns ({data.leverage}x gross/NAV).</span>}
         </p>
       </Card>
 
       {/* Spread Chart */}
-      <ChartContainer title="Long vs Short Returns by Period" height={280}>
-        <BarChart data={data.spread_table}>
+      <ChartContainer title={`Long vs Short Returns by Period${levered ? ` (${data.leverage}x)` : ""}`} height={280}>
+        <BarChart data={activeTable}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
           <XAxis
             dataKey="period"
@@ -140,7 +161,7 @@ export function ThesisTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {data.spread_table.map((r) => (
+              {activeTable.map((r) => (
                 <tr key={r.period} className="hover:bg-[var(--bg-card-hover)]">
                   <td className="px-3 py-1.5 text-gray-300 font-medium">{r.period}</td>
                   <td className={`px-3 py-1.5 text-right ${r.longs_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
