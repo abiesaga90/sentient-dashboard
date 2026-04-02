@@ -408,8 +408,10 @@ export function ScalingCapacityTab() {
                 </div>
                 <div className="text-xs text-gray-500 mt-2 border-t border-gray-700/50 pt-2">
                   <span className="text-gray-400 font-medium">Scaling playbook:</span>{" "}
-                  Expand basket size (more L/S positions) and tilt sizing toward
-                  highly liquid / low-vol tokens (BTC, ETH, XRP, SOL) to push capacity ceiling higher.
+                  (1) Add venues — Bybit, OKX, dYdX via CoinRoutes multiplies ADV 2-4x.{" "}
+                  (2) Expand basket to 30-40 L/S positions.{" "}
+                  (3) Tilt sizing toward liquid tokens at higher tiers.{" "}
+                  <span className="text-gray-600">ADV shown is Binance-only — aggregate multi-venue ADV would be significantly higher.</span>
                 </div>
               </div>
             </div>
