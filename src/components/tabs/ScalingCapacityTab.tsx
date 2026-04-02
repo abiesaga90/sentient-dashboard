@@ -50,6 +50,8 @@ interface ScalingScenario {
   tier: number;
   label: string;
   is_current: boolean;
+  nickel_capital?: number;
+  gross_exposure?: number;
   max_position_usd: number;
   n_constrained: number;
   pct_constrained: number;
@@ -94,6 +96,8 @@ interface ScalingResponse {
   scaling_scenarios: ScalingScenario[];
   capacity_ceiling: {
     ceiling_notional: number;
+    ceiling_nickel_capital?: number;
+    ceiling_gross?: number;
     ceiling_label: string;
     n_constrained: number;
     pct_constrained: number;
@@ -541,13 +545,25 @@ const fillQualityColumns: Column<{ tier: string } & FillQualityTier>[] = [
 const scenarioColumns: Column<ScalingScenario>[] = [
   {
     key: "tier",
-    header: "Notional Tier",
+    header: "Notional",
     render: (r) => (
       <span className={`text-xs font-mono ${r.is_current ? "text-green-400 font-semibold" : ""}`}>
         {r.label}
         {r.is_current && " \u25C0"}
       </span>
     ),
+  },
+  {
+    key: "nickel",
+    header: "Nickel Capital",
+    align: "right",
+    render: (r) => <span className="text-xs text-gray-400">{r.nickel_capital ? formatUSD(r.nickel_capital) : "—"}</span>,
+  },
+  {
+    key: "gross",
+    header: "Gross Exposure",
+    align: "right",
+    render: (r) => <span className="text-xs text-gray-400">{r.gross_exposure ? formatUSD(r.gross_exposure) : "—"}</span>,
   },
   {
     key: "max_pos",
