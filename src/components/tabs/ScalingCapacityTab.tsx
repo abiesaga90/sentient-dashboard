@@ -404,9 +404,12 @@ export function ScalingCapacityTab() {
                   Strategy Capacity Ceiling: {capacity_ceiling.ceiling_label}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  {capacity_ceiling.reason} ({capacity_ceiling.n_constrained} positions).
-                  Beyond this notional, basket composition changes or liquidity upgrades
-                  are needed.
+                  {capacity_ceiling.reason}
+                </div>
+                <div className="text-xs text-gray-500 mt-2 border-t border-gray-700/50 pt-2">
+                  <span className="text-gray-400 font-medium">Scaling playbook:</span>{" "}
+                  Expand basket size (more L/S positions) and tilt sizing toward
+                  highly liquid / low-vol tokens (BTC, ETH, XRP, SOL) to push capacity ceiling higher.
                 </div>
               </div>
             </div>
