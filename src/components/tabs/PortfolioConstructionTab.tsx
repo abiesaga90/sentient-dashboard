@@ -9,6 +9,7 @@ interface LongToken {
   symbol: string;
   va_profile?: string;
   sector?: string;
+  token_type?: string;
   va_score: number;
   sm_score: number;
   p3_score: number;
@@ -30,6 +31,7 @@ interface ShortToken {
   symbol: string;
   va_profile?: string;
   sector?: string;
+  token_type?: string;
   va_score: number;
   sm_score: number;
   p3_score: number;
@@ -92,6 +94,31 @@ function ProfileBadge({ profile }: { profile?: string }) {
   const color = PROFILE_COLORS[key] || PROFILE_COLORS._default;
   return (
     <span className={`inline-block text-[9px] font-medium px-1.5 py-0.5 rounded border ${color}`}>
+      {label}
+    </span>
+  );
+}
+
+const TOKEN_TYPE_LABELS: Record<string, string> = {
+  gas: "Gas",
+  governance: "Gov",
+  utility: "Utility",
+  store_of_value: "SoV",
+  meme: "Meme",
+};
+const TOKEN_TYPE_COLORS: Record<string, string> = {
+  gas: "text-blue-400/60 border-blue-500/20",
+  governance: "text-yellow-400/60 border-yellow-500/20",
+  utility: "text-green-400/60 border-green-500/20",
+  store_of_value: "text-amber-400/60 border-amber-500/20",
+  meme: "text-pink-400/60 border-pink-500/20",
+};
+function TokenTypeBadge({ type }: { type?: string }) {
+  if (!type) return null;
+  const label = TOKEN_TYPE_LABELS[type] || type;
+  const color = TOKEN_TYPE_COLORS[type] || "text-gray-400/60 border-gray-500/20";
+  return (
+    <span className={`inline-block text-[8px] font-medium px-1 py-0 rounded border ${color}`}>
       {label}
     </span>
   );
@@ -247,6 +274,7 @@ const longColumns: Column<LongToken>[] = [
       <div className="flex items-center gap-1.5">
         <span className="font-medium text-gray-200">{r.symbol.replace("USDT", "")}</span>
         <ProfileBadge profile={r.sector || r.va_profile} />
+        <TokenTypeBadge type={r.token_type} />
       </div>
     ),
     sortKey: (r) => r.symbol,
@@ -347,6 +375,7 @@ const shortColumns: Column<ShortToken>[] = [
       <div className="flex items-center gap-1.5">
         <span className="font-medium text-gray-200">{r.symbol.replace("USDT", "")}</span>
         <ProfileBadge profile={r.sector || r.va_profile} />
+        <TokenTypeBadge type={r.token_type} />
       </div>
     ),
     sortKey: (r) => r.symbol,
