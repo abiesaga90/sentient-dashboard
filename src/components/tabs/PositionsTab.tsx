@@ -106,18 +106,6 @@ const columns: Column<Position>[] = [
     align: "right",
   },
   {
-    key: "tp_pct",
-    header: "TP",
-    render: (r) => (r.tp_pct != null ? formatPct(r.tp_pct) : "—"),
-    align: "right",
-  },
-  {
-    key: "sl_pct",
-    header: "SL",
-    render: (r) => (r.sl_pct != null ? formatPct(r.sl_pct) : "—"),
-    align: "right",
-  },
-  {
     key: "daily_vol",
     header: "Vol",
     render: (r) =>
