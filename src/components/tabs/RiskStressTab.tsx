@@ -483,45 +483,6 @@ export function RiskStressTab() {
         </div>
       </Card>
 
-      {/* ── Exit Methodology ── */}
-      {risk.exit_methodology && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Exit Methodology</CardTitle>
-          </CardHeader>
-          {(() => {
-            const em = risk.exit_methodology as any;
-            return (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-                <div>
-                  <div className="text-gray-500">Long TP</div>
-                  <div className="text-gray-200 font-medium">{em.long_tp_vol_multiple ?? em.tp_vol_multiple ?? "—"}x vol ({em.tp_min_pct ?? 0}–{em.tp_max_pct ?? 20}%)</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Short TP</div>
-                  <div className="text-gray-200 font-medium">{em.short_tp_vol_multiple ?? em.tp_vol_multiple ?? "—"}x vol ({em.tp_min_pct ?? 0}–{em.tp_max_pct ?? 20}%)</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Emergency SL</div>
-                  <div className="text-gray-200 font-medium">{em.emergency_sl_pct ?? 25}%</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Max Hold (Short)</div>
-                  <div className="text-gray-200 font-medium">{em.short_max_hold_hours ?? 720}h</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Rebalance Every</div>
-                  <div className="text-gray-200 font-medium">{em.rebalance_every_hours ?? 72}h</div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Regime Exit Width</div>
-                  <div className="text-gray-200 font-medium">{em.regime_exit_width ?? 1.0}x</div>
-                </div>
-              </div>
-            );
-          })()}
-        </Card>
-      )}
 
       {/* ── ADL Monitor ── */}
       {adl && <AdlMonitor adl={adl} />}
