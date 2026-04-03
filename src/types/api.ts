@@ -11,7 +11,6 @@ export interface StatusResponse {
   conviction_short_weight_pct: number;
   use_conviction_watchlist: boolean;
   max_conviction_shorts: number;
-  vol_sl_cooldowns: Record<string, string>;
   features: Record<string, boolean>;
   feature_health: {
     vol_regime: string | null;
@@ -434,7 +433,6 @@ export interface RankingCandidate {
   momentum_signal: number | null;
   momentum_veto_pct: number | null;
   momentum_veto_7d_pct: number | null;
-  sl_freq_penalty: number | null;
   eligible: boolean;
   filter_reasons: string[];
   status: string[];

@@ -287,13 +287,6 @@ function buildColumns(opts: {
         sortKey: (r) => r.sm_signals?.perp_funding?.signal ?? r.nansen_signals?.perp_funding_rate ?? 0,
         align: "right",
       },
-      {
-        key: "sl_freq",
-        header: "SL Freq",
-        render: (r) => <SignalBar value={r.sl_freq_penalty} />,
-        sortKey: (r) => r.sl_freq_penalty ?? -1,
-        align: "right",
-      }
     );
   } else {
     // Legacy correlation-first columns
@@ -359,13 +352,6 @@ function buildColumns(opts: {
         sortKey: (r) => r.va_total_boost ?? 0,
         align: "right",
       },
-      {
-        key: "sl_freq",
-        header: "SL Freq",
-        render: (r) => <SignalBar value={r.sl_freq_penalty} />,
-        sortKey: (r) => r.sl_freq_penalty ?? -1,
-        align: "right",
-      }
     );
   }
 
@@ -506,7 +492,7 @@ export function ShortSelectionTab() {
         </div>
         <p className="text-[11px] text-gray-500 mt-1.5">
           {fundFirst
-            ? "Shorts ranked by inverted long-side VA + SM scoring (symmetric weights). Multi-timeframe momentum veto blocks sustained rallies. Spread-based exits (vs basket, not absolute P&L). Short TPs calibrated to 72h rebalance horizon."
+            ? "Shorts ranked by inverted long-side VA + SM scoring (symmetric weights). Multi-timeframe momentum veto blocks sustained rallies. No individual TP/SL — positions exit via weekly rebalance rotation, 30d max hold, or DD management."
             : "Shorts ranked by correlation to the long basket. VA signals added as small boosts. Beta neutrality through selection."}
         </p>
       </div>
@@ -643,16 +629,8 @@ export function ShortSelectionTab() {
 
             {/* Exit Framework */}
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Exit Framework (RV-Aware)</div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Exit Framework</div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
-                <div className="bg-green-900/30 border border-green-800/30 rounded px-2 py-1.5">
-                  <span className="text-green-400">VOL_TP (short)</span>
-                  <span className="text-green-300 float-right">~50% of 72h move</span>
-                </div>
-                <div className="bg-red-900/30 border border-red-800/30 rounded px-2 py-1.5">
-                  <span className="text-red-400">Spread Exit</span>
-                  <span className="text-red-300 float-right">&gt;5% vs basket / 48h</span>
-                </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Max Hold</span>
                   <span className="text-gray-300 float-right">30d rotation</span>
@@ -663,15 +641,19 @@ export function ShortSelectionTab() {
                 </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Rebalance</span>
-                  <span className="text-gray-300 float-right">72h full re-rank</span>
+                  <span className="text-gray-300 float-right">weekly full re-rank</span>
                 </div>
-                <div className="bg-gray-900/50 rounded px-2 py-1.5">
-                  <span className="text-gray-500">Stop Loss</span>
-                  <span className="text-gray-300 float-right">disabled (RV hedge)</span>
+                <div className="bg-yellow-900/30 border border-yellow-800/30 rounded px-2 py-1.5">
+                  <span className="text-yellow-400">DD Trim</span>
+                  <span className="text-yellow-300 float-right">elastic sizing</span>
+                </div>
+                <div className="bg-red-900/30 border border-red-800/30 rounded px-2 py-1.5">
+                  <span className="text-red-400">DD Stop</span>
+                  <span className="text-red-300 float-right">9.5% full de-risk</span>
                 </div>
               </div>
               <div className="text-[10px] text-gray-600 mt-1">
-                Exits are spread-based: a short rallying WITH longs is hedging correctly (keep). Only idiosyncratic moves (short outperforming basket by &gt;5% over 48h) trigger exit. Gap fill immediately replaces with next-best candidate.
+                No individual TP/SL. Positions ride until weekly rebalance rotates them out, 30d max hold expires, or DD management trims/stops. Gap fill immediately replaces closed positions with next-best candidate.
               </div>
             </div>
           </div>
@@ -917,8 +899,6 @@ export function ShortSelectionTab() {
           <ParamRow label="Min volume" value={formatUSD(data.min_volume, 0)} />
           <ParamRow label="Momentum weight" value={data.momentum_weight.toFixed(2)} />
           <ParamRow label="Momentum veto" value={data.momentum_veto_enabled ? `>${data.momentum_veto_threshold_pct}% on ${data.momentum_veto_lookback_hours}h + ${data.momentum_veto_confirm_lookback_hours ?? 168}h` : "OFF"} />
-          <ParamRow label="Spread exit" value="5% / 48h (RV-aware)" />
-          <ParamRow label="Short TP" value="~50% of 72h move" />
           <ParamRow label="Universe size" value={String(data.universe_size)} />
         </div>
       </Card>
@@ -945,9 +925,6 @@ function StatusBadges({
       )}
       {(status || []).includes("excluded") && (
         <Badge variant="danger" className="text-[10px]">EXCLUDED</Badge>
-      )}
-      {(status || []).includes("vol_sl_cooldown") && (
-        <Badge variant="warning" className="text-[10px]">SL COOLDOWN</Badge>
       )}
       {(status || []).includes("long_bench") && (
         <Badge variant="default" className="text-[10px]">LONG BENCH</Badge>
