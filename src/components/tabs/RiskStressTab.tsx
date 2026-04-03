@@ -278,6 +278,48 @@ export function RiskStressTab() {
 
   const [spreadLevered, setSpreadLevered] = useState(false);
 
+  interface DriftStats {
+    drift_per_day: number;
+    drift_vol_per_day: number;
+    weekend_multiplier: number;
+    kurtosis: number;
+    drift_autocorr: number;
+  }
+  interface TimeToBreach { median_days: number; p95_days: number }
+  interface CadenceRow {
+    cadence_days: number;
+    expected_beta_drift_pct: number;
+    p95_beta_drift_pct: number;
+    expected_net_drift_pct: number;
+    rebalance_cost_bps: number;
+    drift_cost_bps: number;
+    total_cost_bps: number;
+    recommended?: boolean;
+  }
+  interface DriftResponse {
+    current_state: {
+      beta_net_pct: number; gross_pct: number; net_pct: number;
+      hours_since_rebalance: number; vol_regime: string; corr_regime: string;
+    };
+    drift_stats: { beta_net: DriftStats; gross_pct: DriftStats; net_pct: DriftStats };
+    time_to_breach: Record<string, TimeToBreach>;
+    cadence_analysis: CadenceRow[];
+    crypto_characteristics: {
+      weekend_vol_premium: number; empirical_kurtosis: number;
+      drift_autocorrelation: number; student_t_df: number;
+    };
+    recommendation: string;
+    n_hours_analyzed: number;
+  }
+
+  const { data: driftData } = useQuery<DriftResponse>({
+    queryKey: ["drift-analysis", engine.id],
+    queryFn: () => client.get("/api/drift-analysis"),
+    refetchInterval: 900_000,
+    staleTime: 600_000,
+    retry: false,
+  });
+
   if (riskLoading) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
@@ -426,6 +468,151 @@ export function RiskStressTab() {
             <span>Obs: <span className="text-gray-400">{spreadRisk.n_observations}</span></span>
             <span>Since: <span className="text-gray-400">{spreadRisk.data_start}</span></span>
             <span>{spreadRisk.long_count}L / {spreadRisk.short_count}S</span>
+          </div>
+        </Card>
+      )}
+
+      {/* ── Drift Analysis ── */}
+      {driftData && driftData.drift_stats && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Exposure Drift Analysis</CardTitle>
+          </CardHeader>
+
+          {/* Current State */}
+          <div className="flex flex-wrap gap-3 mb-3 text-xs">
+            <span className="bg-gray-800 px-2 py-1 rounded">
+              Beta Net: <span className={`font-mono font-medium ${Math.abs(driftData.current_state.beta_net_pct) > 5 ? "text-red-400" : "text-green-400"}`}>
+                {driftData.current_state.beta_net_pct >= 0 ? "+" : ""}{driftData.current_state.beta_net_pct.toFixed(1)}%
+              </span>
+            </span>
+            <span className="bg-gray-800 px-2 py-1 rounded">
+              Gross: <span className="font-mono text-gray-300">{driftData.current_state.gross_pct.toFixed(1)}%</span>
+            </span>
+            <span className="bg-gray-800 px-2 py-1 rounded">
+              Net: <span className={`font-mono ${Math.abs(driftData.current_state.net_pct) > 15 ? "text-yellow-400" : "text-gray-300"}`}>
+                {driftData.current_state.net_pct >= 0 ? "+" : ""}{driftData.current_state.net_pct.toFixed(1)}%
+              </span>
+            </span>
+            <span className="bg-gray-800 px-2 py-1 rounded text-gray-500">
+              {driftData.current_state.hours_since_rebalance.toFixed(0)}h since rebal
+            </span>
+            <Badge variant="default" className="text-[10px]">{driftData.current_state.vol_regime}</Badge>
+            <Badge variant="default" className="text-[10px]">{driftData.current_state.corr_regime}</Badge>
+          </div>
+
+          {/* Drift Statistics */}
+          <div className="overflow-x-auto mb-3">
+            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Drift Statistics (hourly, annualized to daily)</div>
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-3 py-1.5 text-left text-gray-500"></th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Beta Net</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Gross %</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Net %</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {[
+                  { label: "Drift/day", key: "drift_per_day" as const, fmt: (v: number) => `${v.toFixed(2)}%` },
+                  { label: "Drift vol", key: "drift_vol_per_day" as const, fmt: (v: number) => `${v.toFixed(2)}%` },
+                  { label: "Weekend ×", key: "weekend_multiplier" as const, fmt: (v: number) => `${v.toFixed(2)}×` },
+                  { label: "Kurtosis", key: "kurtosis" as const, fmt: (v: number) => v.toFixed(1) },
+                  { label: "Autocorr", key: "drift_autocorr" as const, fmt: (v: number) => v.toFixed(3) },
+                ].map((row) => (
+                  <tr key={row.label}>
+                    <td className="px-3 py-1.5 text-gray-400">{row.label}</td>
+                    <td className="px-3 py-1.5 text-right font-mono text-gray-300">{row.fmt(driftData.drift_stats.beta_net[row.key])}</td>
+                    <td className="px-3 py-1.5 text-right font-mono text-gray-300">{row.fmt(driftData.drift_stats.gross_pct[row.key])}</td>
+                    <td className="px-3 py-1.5 text-right font-mono text-gray-300">{row.fmt(driftData.drift_stats.net_pct[row.key])}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Time-to-Breach */}
+          <div className="overflow-x-auto mb-3">
+            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Time-to-Breach (Monte Carlo, {driftData.n_hours_analyzed}h analyzed)</div>
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-3 py-1.5 text-left text-gray-500">Threshold</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Median</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">95th (fastest)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {Object.entries(driftData.time_to_breach).map(([key, ttb]) => {
+                  const label = key.replace("_", " ±").replace("pct", "%").replace("_drift", " drift");
+                  const urgent = ttb.p95_days < 3;
+                  return (
+                    <tr key={key}>
+                      <td className="px-3 py-1.5 text-gray-400">{label}</td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-300">{ttb.median_days.toFixed(1)}d</td>
+                      <td className={`px-3 py-1.5 text-right font-mono ${urgent ? "text-red-400 font-bold" : "text-yellow-400"}`}>
+                        {ttb.p95_days.toFixed(1)}d
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Cadence Analysis */}
+          <div className="overflow-x-auto mb-2">
+            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Rebalance Cadence Optimization</div>
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-3 py-1.5 text-left text-gray-500">Cadence</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Beta Drift</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">95th</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Net Drift</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Rebal Cost</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Drift Cost</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Total</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {driftData.cadence_analysis.map((c) => {
+                  const isCurrent = c.cadence_days === 7;
+                  const isOpt = c.recommended;
+                  return (
+                    <tr key={c.cadence_days} className={isOpt ? "bg-green-900/10" : isCurrent ? "bg-blue-900/10" : ""}>
+                      <td className="px-3 py-1.5 text-gray-300 font-medium">
+                        {c.cadence_days}d
+                        {isCurrent && <span className="text-blue-400 ml-1 text-[9px]">current</span>}
+                        {isOpt && <span className="text-green-400 ml-1 text-[9px]">optimal</span>}
+                      </td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-300">{c.expected_beta_drift_pct.toFixed(1)}%</td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-500">{c.p95_beta_drift_pct.toFixed(1)}%</td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-300">{c.expected_net_drift_pct.toFixed(1)}%</td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-500">{c.rebalance_cost_bps.toFixed(1)}</td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-500">{c.drift_cost_bps.toFixed(1)}</td>
+                      <td className={`px-3 py-1.5 text-right font-mono font-medium ${isOpt ? "text-green-400" : "text-gray-300"}`}>
+                        {c.total_cost_bps.toFixed(1)} bps
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Recommendation */}
+          <div className="px-3 pb-2 text-[11px] text-gray-400 border-t border-[var(--border)] pt-2">
+            {driftData.recommendation}
+          </div>
+
+          {/* Crypto characteristics footer */}
+          <div className="flex gap-4 px-3 pb-2 text-[10px] text-gray-600">
+            <span>Weekend vol: <span className="text-gray-400">{driftData.crypto_characteristics.weekend_vol_premium.toFixed(2)}×</span></span>
+            <span>Kurtosis: <span className="text-gray-400">{driftData.crypto_characteristics.empirical_kurtosis.toFixed(1)}</span></span>
+            <span>AR(1): <span className="text-gray-400">{driftData.crypto_characteristics.drift_autocorrelation.toFixed(3)}</span></span>
+            <span>t-df: <span className="text-gray-400">{driftData.crypto_characteristics.student_t_df.toFixed(0)}</span></span>
           </div>
         </Card>
       )}
