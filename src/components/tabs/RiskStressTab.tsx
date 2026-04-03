@@ -240,6 +240,38 @@ export function RiskStressTab() {
     retry: false,
   });
 
+  interface SpreadRiskHorizon {
+    period: string;
+    expected_pct: number;
+    vol_pct: number;
+    max_positive_pct: number;
+    max_negative_pct: number;
+    expected_pct_lev: number;
+    vol_pct_lev: number;
+    max_positive_pct_lev: number;
+    max_negative_pct_lev: number;
+  }
+  interface SpreadRiskResponse {
+    horizons: SpreadRiskHorizon[];
+    skew: number;
+    kurtosis: number;
+    leverage: number;
+    n_observations: number;
+    data_start: string;
+    long_count: number;
+    short_count: number;
+  }
+
+  const { data: spreadRisk } = useQuery<SpreadRiskResponse>({
+    queryKey: ["spread-risk", engine.id],
+    queryFn: () => client.get("/api/spread-risk"),
+    refetchInterval: 3600_000,
+    staleTime: 1800_000,
+    retry: false,
+  });
+
+  const [spreadLevered, setSpreadLevered] = useState(false);
+
   if (riskLoading) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
@@ -608,6 +640,93 @@ export function RiskStressTab() {
           </Collapsible>
         ) : null;
       })()}
+
+      {/* ── Spread Risk Distribution ── */}
+      {spreadRisk && spreadRisk.horizons && (
+        <Card>
+          <div className="flex items-center justify-between">
+            <CardHeader>
+              <CardTitle>Spread Risk Distribution</CardTitle>
+            </CardHeader>
+            <button
+              onClick={() => setSpreadLevered(!spreadLevered)}
+              className={`text-xs px-2 py-0.5 rounded border transition-colors mr-4 ${
+                spreadLevered
+                  ? "bg-blue-500/20 border-blue-500/50 text-blue-400"
+                  : "bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-400"
+              }`}
+              title={`Apply ${spreadRisk.leverage}x leverage`}
+            >
+              {spreadLevered ? `${spreadRisk.leverage}x` : "Levered"}
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-3 py-2 text-left text-gray-500"></th>
+                  {spreadRisk.horizons.map((h) => (
+                    <th key={h.period} className="px-3 py-2 text-right text-gray-500 font-medium">{h.period}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                <tr>
+                  <td className="px-3 py-2 text-gray-400">Expected</td>
+                  {spreadRisk.horizons.map((h) => {
+                    const v = spreadLevered ? h.expected_pct_lev : h.expected_pct;
+                    return (
+                      <td key={h.period} className={`px-3 py-2 text-right font-mono ${v >= 0 ? "text-green-400" : "text-red-400"}`}>
+                        {v >= 0 ? "+" : ""}{v.toFixed(2)}%
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 text-gray-400">Vol (1σ)</td>
+                  {spreadRisk.horizons.map((h) => {
+                    const v = spreadLevered ? h.vol_pct_lev : h.vol_pct;
+                    return (
+                      <td key={h.period} className="px-3 py-2 text-right font-mono text-gray-300">
+                        {v.toFixed(2)}%
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 text-gray-400">95th (best)</td>
+                  {spreadRisk.horizons.map((h) => {
+                    const v = spreadLevered ? h.max_positive_pct_lev : h.max_positive_pct;
+                    return (
+                      <td key={h.period} className="px-3 py-2 text-right font-mono text-green-400">
+                        {v >= 0 ? "+" : ""}{v.toFixed(2)}%
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 text-gray-400">5th (worst)</td>
+                  {spreadRisk.horizons.map((h) => {
+                    const v = spreadLevered ? h.max_negative_pct_lev : h.max_negative_pct;
+                    return (
+                      <td key={h.period} className="px-3 py-2 text-right font-mono text-red-400">
+                        {v >= 0 ? "+" : ""}{v.toFixed(2)}%
+                      </td>
+                    );
+                  })}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="flex gap-4 mt-2 px-3 pb-2 text-[10px] text-gray-600">
+            <span>Skew: <span className="text-gray-400">{spreadRisk.skew.toFixed(2)}</span></span>
+            <span>Kurtosis: <span className="text-gray-400">{spreadRisk.kurtosis.toFixed(2)}</span></span>
+            <span>Obs: <span className="text-gray-400">{spreadRisk.n_observations}</span></span>
+            <span>Since: <span className="text-gray-400">{spreadRisk.data_start}</span></span>
+            <span>{spreadRisk.long_count}L / {spreadRisk.short_count}S</span>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
