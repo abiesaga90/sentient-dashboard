@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   LineChart,
@@ -101,6 +102,17 @@ interface PerformanceResponse {
     btc_up_days: number;
     btc_down_days: number;
     rolling_capture_ratio: Array<{ date: string; capture_ratio: number }>;
+    ex_outliers?: {
+      label: string;
+      symbols: string[];
+      total_pnl_removed: number;
+      up_capture_pct: number;
+      down_capture_pct: number;
+      capture_ratio: number;
+      btc_up_days: number;
+      btc_down_days: number;
+      rolling_capture_ratio: Array<{ date: string; capture_ratio: number }>;
+    };
   };
   conditional_beta?: {
     up_beta: number;
@@ -113,6 +125,21 @@ interface PerformanceResponse {
     down_r_squared: number;
     up_days: number;
     down_days: number;
+    ex_outliers?: {
+      label: string;
+      symbols: string[];
+      total_pnl_removed: number;
+      up_beta: number;
+      down_beta: number;
+      convexity: number;
+      convexity_label: string;
+      up_alpha: number;
+      down_alpha: number;
+      up_r_squared: number;
+      down_r_squared: number;
+      up_days: number;
+      down_days: number;
+    };
   };
   quality_spread?: {
     daily: Array<{ date: string; spread_ret_pct: number; cum_spread_pct: number; cum_portfolio_pct: number }>;
@@ -182,6 +209,14 @@ export function PerformanceTab() {
     refetchInterval: 300_000,
     staleTime: 120_000,
   });
+
+  const [exOutliers, setExOutliers] = useState(false);
+
+  // Resolve capture/beta values based on toggle
+  const exCap = data?.capture_ratios?.ex_outliers;
+  const exBeta = data?.conditional_beta?.ex_outliers;
+  const cap = exOutliers && exCap ? exCap : data?.capture_ratios;
+  const beta = exOutliers && exBeta ? exBeta : data?.conditional_beta;
 
   if (isLoading) {
     return (
@@ -824,31 +859,47 @@ export function PerformanceTab() {
       )}
 
       {/* Capture Ratio */}
-      {data.capture_ratios && data.capture_ratios.capture_ratio > 0 && (
+      {cap && (
         <>
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium text-gray-300">Capture Ratios</div>
+            {exCap && (
+              <button
+                onClick={() => setExOutliers(!exOutliers)}
+                className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                  exOutliers
+                    ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"
+                    : "bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-400"
+                }`}
+                title={`Strip ${exCap.symbols.join(", ")} (${exCap.total_pnl_removed >= 0 ? "+" : ""}$${exCap.total_pnl_removed.toFixed(0)})`}
+              >
+                {exCap.label}
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-3 gap-3">
             <Card className="p-3 text-center">
               <div className="text-xs text-gray-500">Up Capture</div>
-              <div className="text-lg font-bold text-green-400">{data.capture_ratios.up_capture_pct.toFixed(1)}%</div>
-              <div className="text-xs text-gray-600">{data.capture_ratios.btc_up_days} days</div>
+              <div className={`text-lg font-bold ${cap.up_capture_pct > 0 ? "text-green-400" : "text-red-400"}`}>{cap.up_capture_pct.toFixed(1)}%</div>
+              <div className="text-xs text-gray-600">{cap.btc_up_days} days</div>
             </Card>
             <Card className="p-3 text-center">
               <div className="text-xs text-gray-500">Down Capture</div>
-              <div className="text-lg font-bold text-red-400">{data.capture_ratios.down_capture_pct.toFixed(1)}%</div>
-              <div className="text-xs text-gray-600">{data.capture_ratios.btc_down_days} days</div>
+              <div className="text-lg font-bold text-red-400">{cap.down_capture_pct.toFixed(1)}%</div>
+              <div className="text-xs text-gray-600">{cap.btc_down_days} days</div>
             </Card>
             <Card className="p-3 text-center">
               <div className="text-xs text-gray-500">Capture Ratio</div>
-              <div className={`text-lg font-bold ${data.capture_ratios.capture_ratio >= 1 ? "text-green-400" : "text-red-400"}`}>
-                {data.capture_ratios.capture_ratio.toFixed(2)}
+              <div className={`text-lg font-bold ${cap.capture_ratio >= 1 ? "text-green-400" : "text-red-400"}`}>
+                {cap.capture_ratio.toFixed(2)}
               </div>
-              <div className="text-xs text-gray-600">{data.capture_ratios.capture_ratio >= 1 ? "Asymmetric alpha" : "Negative asymmetry"}</div>
+              <div className="text-xs text-gray-600">{cap.capture_ratio >= 1 ? "Asymmetric alpha" : "Negative asymmetry"}</div>
             </Card>
           </div>
 
-          {data.capture_ratios.rolling_capture_ratio.length > 0 && (
+          {cap.rolling_capture_ratio && cap.rolling_capture_ratio.length > 0 && (
             <ChartContainer title="Rolling 30d Capture Ratio" height={200}>
-              <LineChart data={data.capture_ratios.rolling_capture_ratio.map((d) => ({ ...d, date: d.date.slice(5) }))}>
+              <LineChart data={cap.rolling_capture_ratio.map((d) => ({ ...d, date: d.date.slice(5) }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
                 <XAxis dataKey="date" tick={{ fill: "#6b7280", fontSize: 10 }} />
                 <YAxis tick={{ fill: "#6b7280", fontSize: 10 }} />
@@ -865,41 +916,56 @@ export function PerformanceTab() {
       )}
 
       {/* Conditional Beta */}
-      {data.conditional_beta && data.conditional_beta.convexity_label !== "UNKNOWN" && (
+      {beta && beta.convexity_label !== "UNKNOWN" && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Conditional Beta</CardTitle>
-              <Badge
-                variant={data.conditional_beta.convexity_label === "CONVEX" ? "success" : data.conditional_beta.convexity_label === "CONCAVE" ? "danger" : "default"}
-              >
-                {data.conditional_beta.convexity_label}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {exBeta && (
+                  <button
+                    onClick={() => setExOutliers(!exOutliers)}
+                    className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                      exOutliers
+                        ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"
+                        : "bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-400"
+                    }`}
+                    title={`Strip ${exBeta.symbols.join(", ")} (${exBeta.total_pnl_removed >= 0 ? "+" : ""}$${exBeta.total_pnl_removed.toFixed(0)})`}
+                  >
+                    {exBeta.label}
+                  </button>
+                )}
+                <Badge
+                  variant={beta.convexity_label === "CONVEX" ? "success" : beta.convexity_label === "CONCAVE" ? "danger" : "default"}
+                >
+                  {beta.convexity_label}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
           <div className="px-4 pb-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
             <div>
               <div className="text-gray-500">Up-Day Beta</div>
-              <div className="text-gray-200 font-mono">{data.conditional_beta.up_beta.toFixed(4)}</div>
-              <div className="text-gray-600">{data.conditional_beta.up_days} days, R²={data.conditional_beta.up_r_squared.toFixed(2)}</div>
+              <div className="text-gray-200 font-mono">{beta.up_beta.toFixed(4)}</div>
+              <div className="text-gray-600">{beta.up_days} days, R²={beta.up_r_squared.toFixed(2)}</div>
             </div>
             <div>
               <div className="text-gray-500">Down-Day Beta</div>
-              <div className="text-gray-200 font-mono">{data.conditional_beta.down_beta.toFixed(4)}</div>
-              <div className="text-gray-600">{data.conditional_beta.down_days} days, R²={data.conditional_beta.down_r_squared.toFixed(2)}</div>
+              <div className="text-gray-200 font-mono">{beta.down_beta.toFixed(4)}</div>
+              <div className="text-gray-600">{beta.down_days} days, R²={beta.down_r_squared.toFixed(2)}</div>
             </div>
             <div>
               <div className="text-gray-500">Convexity</div>
-              <div className={`font-mono ${data.conditional_beta.convexity > 0 ? "text-green-400" : data.conditional_beta.convexity < 0 ? "text-red-400" : "text-gray-300"}`}>
-                {data.conditional_beta.convexity > 0 ? "+" : ""}{data.conditional_beta.convexity.toFixed(4)}
+              <div className={`font-mono ${beta.convexity > 0 ? "text-green-400" : beta.convexity < 0 ? "text-red-400" : "text-gray-300"}`}>
+                {beta.convexity > 0 ? "+" : ""}{beta.convexity.toFixed(4)}
               </div>
             </div>
             <div>
               <div className="text-gray-500">Interpretation</div>
               <div className="text-gray-300 text-xs">
-                {data.conditional_beta.convexity > 0.05
+                {beta.convexity > 0.05
                   ? "Captures more upside than downside"
-                  : data.conditional_beta.convexity < -0.05
+                  : beta.convexity < -0.05
                   ? "Loses more in downturns than gains in rallies"
                   : "Symmetric exposure to up/down moves"}
               </div>
