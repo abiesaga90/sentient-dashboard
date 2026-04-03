@@ -49,6 +49,10 @@ interface ConvictionCandidate {
   in_short_basket: boolean;
   rejection_reasons: string[];
   data_coverage: number;
+  corr: number | null;
+  beta: number | null;
+  corr_pass: boolean | null;
+  beta_pass: boolean | null;
 }
 
 interface ConvictionShortsResponse {
@@ -170,6 +174,38 @@ function buildColumns(): Column<ConvictionCandidate>[] {
         </div>
       ),
       sortKey: (r) => r.sub_scores.unlock_pressure,
+    },
+    {
+      key: "corr",
+      header: "Corr",
+      render: (r) => {
+        if (r.corr == null) return <span className="text-gray-600 text-[11px]">—</span>;
+        const pass = r.corr_pass;
+        return (
+          <span className={`text-[11px] font-mono ${pass ? "text-green-400" : "text-red-400"}`}>
+            {r.corr.toFixed(2)}
+            {pass === false && <span className="text-red-500 ml-0.5">✗</span>}
+          </span>
+        );
+      },
+      sortKey: (r) => r.corr ?? -1,
+      align: "right",
+    },
+    {
+      key: "beta",
+      header: "Beta",
+      render: (r) => {
+        if (r.beta == null) return <span className="text-gray-600 text-[11px]">—</span>;
+        const pass = r.beta_pass;
+        return (
+          <span className={`text-[11px] font-mono ${pass ? "text-green-400" : "text-red-400"}`}>
+            {r.beta.toFixed(2)}
+            {pass === false && <span className="text-red-500 ml-0.5">✗</span>}
+          </span>
+        );
+      },
+      sortKey: (r) => r.beta ?? -1,
+      align: "right",
     },
     {
       key: "why_not",
