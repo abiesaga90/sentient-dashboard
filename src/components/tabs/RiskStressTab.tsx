@@ -246,10 +246,13 @@ export function RiskStressTab() {
     vol_pct: number;
     max_positive_pct: number;
     max_negative_pct: number;
+    current_pct: number | null;
+    percentile: number | null;
     expected_pct_lev: number;
     vol_pct_lev: number;
     max_positive_pct_lev: number;
     max_negative_pct_lev: number;
+    current_pct_lev: number | null;
   }
   interface SpreadRiskResponse {
     horizons: SpreadRiskHorizon[];
@@ -711,6 +714,33 @@ export function RiskStressTab() {
                     return (
                       <td key={h.period} className="px-3 py-2 text-right font-mono text-red-400">
                         {v >= 0 ? "+" : ""}{v.toFixed(2)}%
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr className="border-t-2 border-[var(--border)]">
+                  <td className="px-3 py-2 text-gray-300 font-medium">Current</td>
+                  {spreadRisk.horizons.map((h) => {
+                    const v = h.current_pct != null ? (spreadLevered ? h.current_pct_lev : h.current_pct) : null;
+                    if (v == null) return <td key={h.period} className="px-3 py-2 text-right text-gray-600">—</td>;
+                    const exp = spreadLevered ? h.expected_pct_lev : h.expected_pct;
+                    const aboveExpected = v >= exp;
+                    return (
+                      <td key={h.period} className={`px-3 py-2 text-right font-mono font-bold ${aboveExpected ? "text-green-400" : "text-red-400"}`}>
+                        {v >= 0 ? "+" : ""}{v.toFixed(2)}%
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 text-gray-500 text-[10px]">Percentile</td>
+                  {spreadRisk.horizons.map((h) => {
+                    const p = h.percentile;
+                    if (p == null) return <td key={h.period} className="px-3 py-2 text-right text-gray-600">—</td>;
+                    const color = p >= 60 ? "text-green-400" : p <= 40 ? "text-red-400" : "text-gray-400";
+                    return (
+                      <td key={h.period} className={`px-3 py-2 text-right font-mono text-[10px] ${color}`}>
+                        {p.toFixed(0)}th
                       </td>
                     );
                   })}
