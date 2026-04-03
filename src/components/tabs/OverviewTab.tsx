@@ -23,6 +23,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
   const { data: pnl } = usePnl();
   const { data: riskHistory } = useRiskHistory();
   const [exOutliers, setExOutliers] = useState(false);
+  const [levered, setLevered] = useState(false);
 
   const ls = data.portfolio.ls_spread;
   const exo = ls?.ex_outliers;
@@ -31,6 +32,28 @@ export function OverviewTab({ data }: OverviewTabProps) {
   const activeCapture = exOutliers && exo ? exo.down_day_capture_pct : ls?.down_day_capture_pct;
   const activeCumulative = exOutliers && exo ? exo.cumulative_spread_pct : ls?.cumulative_spread_pct;
 
+  // Leverage multiplier for levered view (gross / NAV)
+  const nav = data.risk?.nav || 1;
+  const gross = (data.risk?.gross_long ?? 0) + (data.risk?.gross_short ?? 0);
+  const leverageRatio = gross > 0 && nav > 0 ? gross / nav : 1;
+  const lm = levered ? leverageRatio : 1;
+
+  // Apply leverage multiplier to spread data
+  const scaleSpread = (d: Record<string, SpreadData> | undefined): Record<string, SpreadData> | undefined => {
+    if (!d || lm === 1) return d;
+    const out: Record<string, SpreadData> = {};
+    for (const [k, v] of Object.entries(d)) {
+      out[k] = {
+        spread_pct: Math.round(v.spread_pct * lm * 100) / 100,
+        long_pct: Math.round(v.long_pct * lm * 100) / 100,
+        short_pct: Math.round(v.short_pct * lm * 100) / 100,
+      };
+    }
+    return out;
+  };
+  const displayHorizons = scaleSpread(ls?.horizons);
+  const displayPeriods = scaleSpread(activePeriods);
+
   return (
     <div className="space-y-4 p-4">
       {/* L/S Spread */}
@@ -38,19 +61,32 @@ export function OverviewTab({ data }: OverviewTabProps) {
         <Card>
           <div className="flex items-center justify-between">
             <CardTitle>L/S Spread</CardTitle>
-            {exo && (
+            <div className="flex gap-1.5">
               <button
-                onClick={() => setExOutliers(!exOutliers)}
+                onClick={() => setLevered(!levered)}
                 className={`text-xs px-2 py-0.5 rounded border transition-colors ${
-                  exOutliers
-                    ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"
+                  levered
+                    ? "bg-blue-500/20 border-blue-500/50 text-blue-400"
                     : "bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-400"
                 }`}
-                title={`Strip ${exo.symbols.join(", ")} (${exo.total_pnl_removed >= 0 ? "+" : ""}$${exo.total_pnl_removed.toFixed(0)})`}
+                title={`Apply ${leverageRatio.toFixed(1)}x leverage to spread`}
               >
-                {exo.label}
+                {levered ? `${leverageRatio.toFixed(1)}x` : "Levered"}
               </button>
-            )}
+              {exo && (
+                <button
+                  onClick={() => setExOutliers(!exOutliers)}
+                  className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+                    exOutliers
+                      ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"
+                      : "bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-400"
+                  }`}
+                  title={`Strip ${exo.symbols.join(", ")} (${exo.total_pnl_removed >= 0 ? "+" : ""}$${exo.total_pnl_removed.toFixed(0)})`}
+                >
+                  {exo.label}
+                </button>
+              )}
+            </div>
           </div>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full text-sm">
@@ -71,21 +107,21 @@ export function OverviewTab({ data }: OverviewTabProps) {
                 <SpreadRow
                   label="Spread"
                   field="spread_pct"
-                  horizons={ls.horizons}
-                  periods={activePeriods}
+                  horizons={displayHorizons}
+                  periods={displayPeriods}
                   bold
                 />
                 <SpreadRow
                   label="Longs"
                   field="long_pct"
-                  horizons={ls.horizons}
-                  periods={activePeriods}
+                  horizons={displayHorizons}
+                  periods={displayPeriods}
                 />
                 <SpreadRow
                   label="Shorts"
                   field="short_pct"
-                  horizons={ls.horizons}
-                  periods={activePeriods}
+                  horizons={displayHorizons}
+                  periods={displayPeriods}
                 />
               </tbody>
             </table>
@@ -98,8 +134,8 @@ export function OverviewTab({ data }: OverviewTabProps) {
                 <span>Down-day capture: <span className="text-gray-300 font-medium">{activeCapture.toFixed(0)}%</span></span>
               )}
               {activeCumulative != null && (
-                <span>Cumulative: <span className={`font-medium ${activeCumulative >= 0 ? "text-green-400" : "text-red-400"}`}>
-                  {activeCumulative >= 0 ? "+" : ""}{activeCumulative.toFixed(2)}%
+                <span>Cumulative: <span className={`font-medium ${activeCumulative * lm >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  {activeCumulative * lm >= 0 ? "+" : ""}{(activeCumulative * lm).toFixed(2)}%
                 </span></span>
               )}
               {exOutliers && exo && (
