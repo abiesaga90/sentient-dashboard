@@ -296,12 +296,35 @@ export function RiskStressTab() {
     total_cost_bps: number;
     recommended?: boolean;
   }
+  interface DriftDecomposition {
+    systematic_drift_per_day: number;
+    idiosyncratic_drift_per_day: number;
+    r_squared: number;
+    btc_sensitivity: number;
+    recent_24h_systematic: number;
+    recent_24h_idiosyncratic: number;
+    idiosyncratic_fraction: number;
+  }
+  interface DriftFavorability {
+    score: number;
+    label: string;
+    drift_direction: string;
+    market_direction: string;
+    drift_aligned: boolean;
+    btc_trend_7d_pct: number;
+    btc_trend_30d_pct: number;
+    reversion_probability: number;
+    idiosyncratic_fraction: number;
+    current_24h_beta_drift: number;
+  }
   interface DriftResponse {
     current_state: {
       beta_net_pct: number; gross_pct: number; net_pct: number;
       hours_since_rebalance: number; vol_regime: string; corr_regime: string;
     };
     drift_stats: { beta_net: DriftStats; gross_pct: DriftStats; net_pct: DriftStats };
+    drift_decomposition: DriftDecomposition;
+    favorability: DriftFavorability;
     time_to_breach: Record<string, TimeToBreach>;
     cadence_analysis: CadenceRow[];
     crypto_characteristics: {
@@ -500,6 +523,67 @@ export function RiskStressTab() {
             <Badge variant="default" className="text-[10px]">{driftData.current_state.vol_regime}</Badge>
             <Badge variant="default" className="text-[10px]">{driftData.current_state.corr_regime}</Badge>
           </div>
+
+          {/* Drift Favorability */}
+          {driftData.favorability && (() => {
+            const f = driftData.favorability;
+            const d = driftData.drift_decomposition;
+            const scoreColor = f.score > 0.3 ? "text-green-400 bg-green-900/20 border-green-800/30"
+              : f.score > 0 ? "text-green-400/70 bg-green-900/10 border-green-800/20"
+              : f.score > -0.3 ? "text-yellow-400/70 bg-yellow-900/10 border-yellow-800/20"
+              : "text-red-400 bg-red-900/20 border-red-800/30";
+            return (
+              <div className={`rounded border px-3 py-2 mb-3 ${scoreColor}`}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-medium">{f.label}</span>
+                  <span className="text-xs font-mono">Score: {f.score.toFixed(2)}</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
+                  <div>
+                    <span className="text-gray-500">Drift: </span>
+                    <span className="font-mono">{f.drift_direction} {f.current_24h_beta_drift >= 0 ? "+" : ""}{f.current_24h_beta_drift.toFixed(1)}% (24h)</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Market: </span>
+                    <span className="font-mono">{f.market_direction} ({f.btc_trend_7d_pct >= 0 ? "+" : ""}{f.btc_trend_7d_pct.toFixed(1)}% 7d)</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Systematic: </span>
+                    <span className="font-mono">{(100 - d.idiosyncratic_fraction * 100).toFixed(0)}%</span>
+                    <span className="text-gray-600 ml-1">(R²={d.r_squared.toFixed(2)})</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Reversion prob: </span>
+                    <span className="font-mono">{(f.reversion_probability * 100).toFixed(0)}%</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Drift Decomposition */}
+          {driftData.drift_decomposition && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3 text-[11px]">
+              <div className="bg-gray-800 rounded px-2 py-1.5">
+                <div className="text-gray-500">Systematic drift/day</div>
+                <div className="font-mono text-gray-300">{driftData.drift_decomposition.systematic_drift_per_day.toFixed(2)}%</div>
+              </div>
+              <div className="bg-gray-800 rounded px-2 py-1.5">
+                <div className="text-gray-500">Idiosyncratic drift/day</div>
+                <div className="font-mono text-gray-300">{driftData.drift_decomposition.idiosyncratic_drift_per_day.toFixed(2)}%</div>
+              </div>
+              <div className="bg-gray-800 rounded px-2 py-1.5">
+                <div className="text-gray-500">BTC sensitivity</div>
+                <div className="font-mono text-gray-300">{driftData.drift_decomposition.btc_sensitivity.toFixed(3)} β/1%</div>
+              </div>
+              <div className="bg-gray-800 rounded px-2 py-1.5">
+                <div className="text-gray-500">24h: sys / idio</div>
+                <div className="font-mono text-gray-300">
+                  {driftData.drift_decomposition.recent_24h_systematic >= 0 ? "+" : ""}{driftData.drift_decomposition.recent_24h_systematic.toFixed(1)}% / {driftData.drift_decomposition.recent_24h_idiosyncratic >= 0 ? "+" : ""}{driftData.drift_decomposition.recent_24h_idiosyncratic.toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Drift Statistics */}
           <div className="overflow-x-auto mb-3">
