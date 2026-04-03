@@ -265,6 +265,7 @@ export function RiskStressTab() {
     data_start: string;
     long_count: number;
     short_count: number;
+    strategy_days_live: number;
   }
 
   const { data: spreadRisk } = useQuery<SpreadRiskResponse>({
@@ -390,11 +391,15 @@ export function RiskStressTab() {
                   {spreadRisk.horizons.map((h) => {
                     const v = h.current_pct != null ? (spreadLevered ? h.current_pct_lev : h.current_pct) : null;
                     if (v == null) return <td key={h.period} className="px-3 py-2 text-right text-gray-600">—</td>;
+                    const hDays = parseInt(h.period);
+                    const daysLive = spreadRisk.strategy_days_live ?? 0;
+                    const isLive = hDays <= daysLive;
                     const exp = spreadLevered ? h.expected_pct_lev : h.expected_pct;
                     const aboveExpected = v >= exp;
                     return (
-                      <td key={h.period} className={`px-3 py-2 text-right font-mono font-bold ${aboveExpected ? "text-green-400" : "text-red-400"}`}>
+                      <td key={h.period} className={`px-3 py-2 text-right font-mono font-bold ${isLive ? (aboveExpected ? "text-green-400" : "text-red-400") : "text-gray-500 italic"}`}>
                         {v >= 0 ? "+" : ""}{v.toFixed(2)}%
+                        {!isLive && <span className="text-[8px] text-gray-600 ml-0.5 not-italic">sim</span>}
                       </td>
                     );
                   })}
