@@ -32,10 +32,14 @@ export function OverviewTab({ data }: OverviewTabProps) {
   const activeCapture = exOutliers && exo ? exo.down_day_capture_pct : ls?.down_day_capture_pct;
   const activeCumulative = exOutliers && exo ? exo.cumulative_spread_pct : ls?.cumulative_spread_pct;
 
-  // Leverage multiplier for levered view (gross / NAV)
+  // Leverage multiplier for levered view (avg side notional / NAV)
+  // Spread = long_ret - short_ret (per-side %). To get NAV impact,
+  // multiply by avg single-side exposure / NAV.
   const nav = data.risk?.nav || 1;
-  const gross = (data.risk?.gross_long ?? 0) + (data.risk?.gross_short ?? 0);
-  const leverageRatio = gross > 0 && nav > 0 ? gross / nav : 1;
+  const grossLong = data.risk?.gross_long ?? 0;
+  const grossShort = data.risk?.gross_short ?? 0;
+  const avgSide = (grossLong + grossShort) / 2;
+  const leverageRatio = avgSide > 0 && nav > 0 ? avgSide / nav : 1;
   const lm = levered ? leverageRatio : 1;
 
   // Apply leverage multiplier to spread data
