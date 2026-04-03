@@ -492,7 +492,7 @@ export function ShortSelectionTab() {
         </div>
         <p className="text-[11px] text-gray-500 mt-1.5">
           {fundFirst
-            ? "Shorts ranked by inverted long-side VA + SM scoring (symmetric weights). Multi-timeframe momentum veto blocks sustained rallies. No individual TP/SL — positions exit via weekly rebalance rotation, 30d max hold, or DD management."
+            ? "Shorts ranked by inverted long-side VA + SM scoring (symmetric weights). Multi-timeframe momentum veto blocks sustained rallies. No individual TP/SL — positions exit via monthly rebalance rotation, 60d max hold, or DD management. SM pillar uses structural signals only (30d+ timeframes)."
             : "Shorts ranked by correlation to the long basket. VA signals added as small boosts. Beta neutrality through selection."}
         </p>
       </div>
@@ -633,7 +633,7 @@ export function ShortSelectionTab() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Max Hold</span>
-                  <span className="text-gray-300 float-right">30d rotation</span>
+                  <span className="text-gray-300 float-right">60d safety valve</span>
                 </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Gap Fill</span>
@@ -641,7 +641,7 @@ export function ShortSelectionTab() {
                 </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Rebalance</span>
-                  <span className="text-gray-300 float-right">weekly full re-rank</span>
+                  <span className="text-gray-300 float-right">monthly full re-rank</span>
                 </div>
                 <div className="bg-yellow-900/30 border border-yellow-800/30 rounded px-2 py-1.5">
                   <span className="text-yellow-400">DD Trim</span>
@@ -653,7 +653,7 @@ export function ShortSelectionTab() {
                 </div>
               </div>
               <div className="text-[10px] text-gray-600 mt-1">
-                No individual TP/SL. Positions ride until weekly rebalance rotates them out, 30d max hold expires, or DD management trims/stops. Gap fill immediately replaces closed positions with next-best candidate.
+                No individual TP/SL. Positions ride until monthly rebalance rotates them out, 60d max hold expires, or DD management trims/stops. Gap fill immediately replaces closed positions with next-best candidate.
               </div>
             </div>
           </div>
