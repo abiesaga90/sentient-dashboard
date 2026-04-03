@@ -46,6 +46,19 @@ const columns: Column<Position>[] = [
       ),
   },
   {
+    key: "mcap_rank",
+    header: "Rank",
+    render: (r) => {
+      const rank = r.mcap_rank;
+      if (rank == null) return <span className="text-gray-600">—</span>;
+      const color = rank <= 100 ? "text-emerald-400" : rank <= 200 ? "text-yellow-400" : "text-red-400";
+      const src = r.rank_source ? ` (${r.rank_source})` : "";
+      return <span className={`${color} text-[11px]`}>#{rank}{src}</span>;
+    },
+    sortKey: (r) => r.mcap_rank ?? 999,
+    align: "right",
+  },
+  {
     key: "entry_price",
     header: "Entry",
     render: (r) => `$${r.entry_price.toFixed(r.entry_price < 1 ? 6 : 2)}`,

@@ -48,6 +48,8 @@ interface ShortToken {
   mindshare_mult?: number;
   sentiment_score?: number | null;
   cg_trending_attention?: number | null;
+  mcap_rank?: number | null;
+  rank_source?: string;
 }
 
 // ── Profile labels & colors ──
@@ -379,6 +381,16 @@ const shortColumns: Column<ShortToken>[] = [
       </div>
     ),
     sortKey: (r) => r.symbol,
+  },
+  {
+    key: "mcap_rank", header: "Rank",
+    render: (r) => {
+      const rank = r.mcap_rank;
+      if (rank == null) return <span className="text-gray-600 text-[11px]">&mdash;</span>;
+      const color = rank <= 100 ? "text-emerald-400" : rank <= 200 ? "text-yellow-400" : "text-red-400";
+      return <span className={`${color} text-[11px]`}>#{rank}</span>;
+    },
+    sortKey: (r) => r.mcap_rank ?? 999, align: "right",
   },
   { key: "va", header: "VA", render: (r) => <ScoreCell value={r.va_score} />, sortKey: (r) => r.va_score, align: "right" },
   { key: "sm", header: "SM", render: (r) => <ScoreCell value={r.sm_score} />, sortKey: (r) => r.sm_score, align: "right" },

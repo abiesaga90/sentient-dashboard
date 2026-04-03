@@ -42,6 +42,7 @@ export interface Position {
   daily_vol_pct: number | null;
   market_cap: number | null;
   mcap_rank: number | null;
+  rank_source?: string;
   volume_24h_usd: number | null;
   volume_rank: number | null;
   open_interest_usd: number | null;
