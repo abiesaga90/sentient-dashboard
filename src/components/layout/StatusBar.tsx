@@ -42,7 +42,7 @@ export function StatusBar({ dashboard, status }: StatusBarProps) {
           </>
         )}
         {driftAction && (
-          <Badge variant={driftAction === "HOLD" ? "default" : driftUrgency === "compliance" ? "destructive" : "warning"}>
+          <Badge variant={driftAction === "HOLD" ? "default" : driftUrgency === "compliance" ? "danger" : "warning"}>
             {driftAction} {driftZone.toUpperCase()}
           </Badge>
         )}
