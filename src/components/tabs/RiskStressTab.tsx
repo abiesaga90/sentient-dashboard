@@ -633,8 +633,8 @@ export function RiskStressTab() {
                       </span>
                     )}
                     {dec.n_factors > 0 && (
-                      <span className="text-[9px] text-gray-500 font-mono">
-                        {dec.n_favorable}↑ {dec.n_unfavorable}↓ / {dec.n_factors}
+                      <span className={`text-[9px] font-mono ${(dec.favorability_score ?? 0) > 0 ? "text-green-400" : (dec.favorability_score ?? 0) < 0 ? "text-red-400" : "text-gray-500"}`}>
+                        {(dec.favorability_score ?? 0) > 0 ? "+" : ""}{dec.favorability_score ?? 0} ({dec.n_favorable}↑ {dec.n_unfavorable}↓ {dec.n_neutral ?? 0}~)
                       </span>
                     )}
                   </div>
