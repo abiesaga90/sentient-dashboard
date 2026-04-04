@@ -68,6 +68,14 @@ export function ThesisTab() {
     staleTime: 120_000,
   });
 
+  const { data: health } = useQuery<any>({
+    queryKey: ["thesis-health", engine.id],
+    queryFn: () => client.get("/api/thesis/health"),
+    refetchInterval: 900_000,
+    staleTime: 600_000,
+    retry: false,
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
@@ -80,8 +88,172 @@ export function ThesisTab() {
 
   const activeTable = levered && data.levered_spread_table ? data.levered_spread_table : data.spread_table;
 
+  const healthColors: Record<string, string> = {
+    green: "text-green-400 bg-green-900/10",
+    yellow: "text-yellow-400 bg-yellow-900/10",
+    warning: "text-orange-400 bg-orange-900/10",
+    critical: "text-red-400 bg-red-900/10",
+  };
+
   return (
     <div className="p-4 space-y-4">
+      {/* Long Basket Health */}
+      {health && health.tokens && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Long Basket Health</CardTitle>
+              <div className="flex gap-2 text-[10px]">
+                <span className="px-1.5 py-0.5 rounded bg-green-900/20 text-green-400">{health.summary?.healthy ?? 0} healthy</span>
+                <span className="px-1.5 py-0.5 rounded bg-yellow-900/20 text-yellow-400">{health.summary?.yellow ?? 0} watch</span>
+                <span className="px-1.5 py-0.5 rounded bg-orange-900/20 text-orange-400">{health.summary?.warning ?? 0} warning</span>
+                <span className="px-1.5 py-0.5 rounded bg-red-900/20 text-red-400">{health.summary?.critical ?? 0} critical</span>
+                {health.summary?.avg_alpha_pct != null && (
+                  <span className={`px-1.5 py-0.5 rounded font-mono ${health.summary.avg_alpha_pct >= 0 ? "text-green-400 bg-green-900/20" : "text-red-400 bg-red-900/20"}`}>
+                    avg α {health.summary.avg_alpha_pct >= 0 ? "+" : ""}{health.summary.avg_alpha_pct.toFixed(1)}%
+                  </span>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-2 py-1.5 text-left text-gray-500">Token</th>
+                  <th className="px-2 py-1.5 text-left text-gray-500">Sector</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Alpha</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">PE</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Fees/30d</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Fee Δ</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">TVL</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">SM 30d</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Health</th>
+                  <th className="px-2 py-1.5 text-left text-gray-500">Issues</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {[...health.tokens].sort((a: any, b: any) => {
+                  const order = { critical: 0, warning: 1, yellow: 2, green: 3 };
+                  return (order[a.thesis_health as keyof typeof order] ?? 4) - (order[b.thesis_health as keyof typeof order] ?? 4);
+                }).map((t: any) => (
+                  <tr key={t.symbol} className={healthColors[t.thesis_health] || ""}>
+                    <td className="px-2 py-1.5 font-medium">{t.symbol.replace("USDT", "")}</td>
+                    <td className="px-2 py-1.5 text-gray-500">{t.sector}</td>
+                    <td className={`px-2 py-1.5 text-right font-mono ${t.alpha_pct != null ? (t.alpha_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
+                      {t.alpha_pct != null ? `${t.alpha_pct > 0 ? "+" : ""}${t.alpha_pct.toFixed(1)}%` : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right font-mono ${t.pe_ratio != null && t.pe_ratio > 80 ? "text-red-400" : "text-gray-300"}`}>
+                      {t.pe_ratio != null ? t.pe_ratio.toFixed(0) : "—"}
+                      {t.pe_trend && <span className="text-[8px] ml-0.5 text-gray-600">{t.pe_trend === "falling" ? "↓" : t.pe_trend === "rising" ? "↑" : ""}</span>}
+                    </td>
+                    <td className="px-2 py-1.5 text-right font-mono text-gray-300">
+                      {t.fees_30d > 0 ? (t.fees_30d >= 1e6 ? `$${(t.fees_30d/1e6).toFixed(1)}M` : `$${(t.fees_30d/1e3).toFixed(0)}K`) : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right font-mono ${t.fee_change_30d_pct != null ? (t.fee_change_30d_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
+                      {t.fee_change_30d_pct != null ? `${t.fee_change_30d_pct > 0 ? "+" : ""}${t.fee_change_30d_pct.toFixed(0)}%` : "—"}
+                    </td>
+                    <td className="px-2 py-1.5 text-right font-mono text-gray-300">
+                      {t.tvl > 0 ? (t.tvl >= 1e9 ? `$${(t.tvl/1e9).toFixed(1)}B` : `$${(t.tvl/1e6).toFixed(0)}M`) : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right font-mono ${t.sm_netflow_30d > 1e6 ? "text-green-400" : t.sm_netflow_30d < -1e6 ? "text-red-400" : "text-gray-600"}`}>
+                      {t.sm_netflow_30d !== 0 ? `$${(t.sm_netflow_30d/1e6).toFixed(1)}M` : "—"}
+                    </td>
+                    <td className="px-2 py-1.5 text-right">
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${healthColors[t.thesis_health] || "text-gray-500"}`}>
+                        {t.thesis_health?.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="px-2 py-1.5 text-[10px] text-gray-500 max-w-[200px] truncate" title={t.thesis_issues?.join("; ")}>
+                      {t.thesis_issues?.[0] || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Sector Analysis */}
+          {health.sector_analysis && health.sector_analysis.length > 0 && (
+            <div className="px-3 py-2 border-t border-[var(--border)]">
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1">Sector Analysis</div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
+                {health.sector_analysis.map((s: any) => (
+                  <div key={s.sector} className="bg-gray-800/50 rounded px-2 py-1.5">
+                    <div className="flex justify-between">
+                      <span className="text-gray-300 font-medium capitalize">{s.sector}</span>
+                      <span className="text-gray-500">{s.count} tokens</span>
+                    </div>
+                    <div className="flex gap-3 text-[10px] mt-0.5">
+                      {s.avg_alpha_pct != null && (
+                        <span className={s.avg_alpha_pct >= 0 ? "text-green-400" : "text-red-400"}>α {s.avg_alpha_pct > 0 ? "+" : ""}{s.avg_alpha_pct.toFixed(1)}%</span>
+                      )}
+                      {s.avg_pe != null && <span className="text-gray-500">PE {s.avg_pe}</span>}
+                      {s.n_critical > 0 && <span className="text-red-400">{s.n_critical} critical</span>}
+                    </div>
+                    <div className="text-[9px] text-gray-600 mt-0.5">{s.verdict}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recommendations */}
+          {health.recommendations && health.recommendations.length > 0 && (
+            <div className="px-3 py-2 border-t border-[var(--border)]">
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Recommendations</div>
+              <div className="space-y-2">
+                {health.recommendations.map((r: any) => (
+                  <div key={r.symbol} className={`rounded border px-3 py-2 ${r.severity === "critical" ? "border-red-800/30 bg-red-900/10" : "border-yellow-800/30 bg-yellow-900/10"}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-xs font-bold ${r.severity === "critical" ? "text-red-400" : "text-yellow-400"}`}>
+                        {r.action.toUpperCase()}
+                      </span>
+                      <span className="text-xs text-gray-300 font-medium">{r.symbol.replace("USDT", "")}</span>
+                      <span className="text-[10px] text-gray-500 capitalize">{r.case?.sector}</span>
+                      {r.case?.is_sector_rotation && (
+                        <span className="text-[9px] px-1 py-0.5 rounded bg-gray-800 text-gray-500">sector rotation</span>
+                      )}
+                    </div>
+                    <div className="text-[10px] text-gray-400">
+                      {r.case?.issues?.slice(0, 3).join(" · ")}
+                    </div>
+                    {r.replacements && r.replacements.length > 0 && (
+                      <div className="mt-1.5 border-t border-gray-800 pt-1.5">
+                        <div className="text-[9px] text-gray-600 mb-1">REPLACE WITH:</div>
+                        {r.replacements.map((rep: any) => (
+                          <div key={rep.symbol} className="flex items-center gap-3 text-[10px]">
+                            <span className="text-blue-400 font-medium">{rep.symbol.replace("USDT", "")}</span>
+                            <span className="text-gray-500 capitalize">{rep.sector}</span>
+                            {rep.pe != null && <span className="font-mono text-gray-400">PE {rep.pe}</span>}
+                            {rep.fees_30d > 0 && <span className="font-mono text-gray-400">${(rep.fees_30d/1e6).toFixed(1)}M fees</span>}
+                            {rep.tvl > 0 && <span className="font-mono text-gray-400">${(rep.tvl/1e9).toFixed(1)}B TVL</span>}
+                            {rep.sm_netflow_30d > 1e6 && <span className="font-mono text-green-400">SM +${(rep.sm_netflow_30d/1e6).toFixed(0)}M</span>}
+                            <span className="font-mono text-gray-500">β{rep.beta} ρ{rep.correlation}</span>
+                            <span className="text-gray-600">{rep.sector_concentration_impact}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {r.case?.downgrade_reason && (
+                      <div className="text-[9px] text-gray-600 mt-1 italic">{r.case.downgrade_reason}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Regime Context */}
+          {health.regime_context && (
+            <div className="px-3 pb-2 text-[10px] text-gray-600">
+              Macro: <span className="text-gray-400">{health.regime_context.regime_label} ({health.regime_context.macro_regime_score}/100)</span>
+              {" — "}{health.regime_context.implication}
+            </div>
+          )}
+        </Card>
+      )}
+
       {/* Thesis Score */}
       <Card>
         <CardHeader>
