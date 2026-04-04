@@ -2,12 +2,15 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   LineChart,
+  ComposedChart,
   Line,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
   ReferenceLine,
+  ResponsiveContainer,
 } from "recharts";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useEngine } from "../../hooks/useEngine";
@@ -286,16 +289,6 @@ export function RiskStressTab() {
     drift_autocorr: number;
   }
   interface TimeToBreach { median_days: number; p95_days: number }
-  interface CadenceRow {
-    cadence_days: number;
-    expected_beta_drift_pct: number;
-    p95_beta_drift_pct: number;
-    expected_net_drift_pct: number;
-    rebalance_cost_bps: number;
-    drift_cost_bps: number;
-    total_cost_bps: number;
-    recommended?: boolean;
-  }
   interface DriftDecomposition {
     systematic_drift_per_day: number;
     idiosyncratic_drift_per_day: number;
@@ -305,17 +298,56 @@ export function RiskStressTab() {
     recent_24h_idiosyncratic: number;
     idiosyncratic_fraction: number;
   }
-  interface DriftFavorability {
-    score: number;
-    label: string;
-    drift_direction: string;
-    market_direction: string;
-    drift_aligned: boolean;
-    btc_trend_7d_pct: number;
-    btc_trend_30d_pct: number;
-    reversion_probability: number;
-    idiosyncratic_fraction: number;
-    current_24h_beta_drift: number;
+  interface DriftDecision {
+    action: "HOLD" | "REBALANCE";
+    reason: string;
+    urgency: "low" | "medium" | "high" | "compliance";
+    hours_to_breakeven: number | null;
+    hours_since_last_rebalance: number;
+    backstop_hours_remaining: number;
+  }
+  interface DriftCosts {
+    holding_cost_bps: number;
+    holding_cost_per_day_bps: number;
+    rebalance_cost_bps: number;
+    break_even_hours: number | null;
+    realized_cost_bps: number;
+    cost_source: "realized" | "static";
+    n_fills_used: number;
+  }
+  interface FactorAttribution {
+    factor: string;
+    current_value: number;
+    loading: number;
+    persistence: number;
+    contribution_bps: number;
+    direction: "favorable" | "unfavorable" | "neutral";
+  }
+  interface DriftBands {
+    lower_pct: number;
+    upper_pct: number;
+    current_beta_net_pct: number;
+    hard_limit_pct: number;
+    hard_limit_buffer_pct: number;
+  }
+  interface GarchForecast {
+    daily_vol_pct: number;
+    unconditional_vol_pct: number;
+    vol_ratio: number;
+    params: { omega: number; alpha: number; beta: number };
+  }
+  interface DriftSnapshot {
+    ts: string;
+    beta_net_pct: number;
+    net_pct: number;
+    gross_pct: number;
+    holding_cost_bps: number;
+    rebalance_cost_bps: number;
+    garch_vol_pct: number;
+    band_lower_pct: number;
+    band_upper_pct: number;
+    decision: string;
+    urgency: string;
   }
   interface DriftResponse {
     current_state: {
@@ -324,20 +356,31 @@ export function RiskStressTab() {
     };
     drift_stats: { beta_net: DriftStats; gross_pct: DriftStats; net_pct: DriftStats };
     drift_decomposition: DriftDecomposition;
-    favorability: DriftFavorability;
     time_to_breach: Record<string, TimeToBreach>;
-    cadence_analysis: CadenceRow[];
     crypto_characteristics: {
       weekend_vol_premium: number; empirical_kurtosis: number;
       drift_autocorrelation: number; student_t_df: number;
     };
-    recommendation: string;
+    decision: DriftDecision;
+    costs: DriftCosts;
+    factor_attribution: FactorAttribution[];
+    bands: DriftBands;
+    garch: GarchForecast;
     n_hours_analyzed: number;
+    n_daily_observations: number;
   }
 
   const { data: driftData } = useQuery<DriftResponse>({
     queryKey: ["drift-analysis", engine.id],
     queryFn: () => client.get("/api/drift-analysis"),
+    refetchInterval: 900_000,
+    staleTime: 600_000,
+    retry: false,
+  });
+
+  const { data: driftHistory } = useQuery<{ snapshots: DriftSnapshot[] }>({
+    queryKey: ["drift-history", engine.id],
+    queryFn: () => client.get("/api/drift-analysis/history?days=7"),
     refetchInterval: 900_000,
     staleTime: 600_000,
     retry: false,
@@ -495,14 +538,14 @@ export function RiskStressTab() {
         </Card>
       )}
 
-      {/* ── Drift Analysis ── */}
+      {/* ── Drift Analysis v2 — Decision Engine ── */}
       {driftData && driftData.drift_stats && (
         <Card>
           <CardHeader>
             <CardTitle>Exposure Drift Analysis</CardTitle>
           </CardHeader>
 
-          {/* Current State */}
+          {/* Current State pills */}
           <div className="flex flex-wrap gap-3 mb-3 text-xs">
             <span className="bg-gray-800 px-2 py-1 rounded">
               Beta Net: <span className={`font-mono font-medium ${Math.abs(driftData.current_state.beta_net_pct) > 5 ? "text-red-400" : "text-green-400"}`}>
@@ -524,44 +567,161 @@ export function RiskStressTab() {
             <Badge variant="default" className="text-[10px]">{driftData.current_state.corr_regime}</Badge>
           </div>
 
-          {/* Drift Favorability */}
-          {driftData.favorability && (() => {
-            const f = driftData.favorability;
-            const d = driftData.drift_decomposition;
-            const scoreColor = f.score > 0.3 ? "text-green-400 bg-green-900/20 border-green-800/30"
-              : f.score > 0 ? "text-green-400/70 bg-green-900/10 border-green-800/20"
-              : f.score > -0.3 ? "text-yellow-400/70 bg-yellow-900/10 border-yellow-800/20"
-              : "text-red-400 bg-red-900/20 border-red-800/30";
+          {/* Beta Drift Chart (time-series) */}
+          {driftHistory?.snapshots && driftHistory.snapshots.length > 2 && (
+            <div className="mb-3 px-1">
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-2">Beta Net % — 7 Day Drift</div>
+              <ResponsiveContainer width="100%" height={180}>
+                <ComposedChart data={driftHistory.snapshots} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                  <XAxis
+                    dataKey="ts"
+                    tick={{ fontSize: 9, fill: "#6b7280" }}
+                    tickFormatter={(v: string) => {
+                      const d = new Date(v);
+                      return `${d.getMonth()+1}/${d.getDate()} ${d.getHours().toString().padStart(2,"0")}:00`;
+                    }}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis tick={{ fontSize: 9, fill: "#6b7280" }} domain={["auto", "auto"]} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", fontSize: 11 }}
+                    labelFormatter={(v: string) => new Date(v).toLocaleString()}
+                    formatter={(value: number, name: string) => [
+                      `${value.toFixed(2)}%`,
+                      name === "beta_net_pct" ? "Beta Net" : name === "band_upper_pct" ? "Upper Band" : name === "band_lower_pct" ? "Lower Band" : name,
+                    ]}
+                  />
+                  <Area dataKey="band_upper_pct" stroke="none" fill="#16a34a" fillOpacity={0.08} />
+                  <Area dataKey="band_lower_pct" stroke="none" fill="#16a34a" fillOpacity={0.08} />
+                  <ReferenceLine y={30} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={1} />
+                  <ReferenceLine y={-30} stroke="#ef4444" strokeDasharray="4 4" strokeWidth={1} />
+                  <ReferenceLine y={0} stroke="#374151" strokeWidth={1} />
+                  <Line dataKey="beta_net_pct" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                  <Line dataKey="band_upper_pct" stroke="#22c55e" strokeWidth={1} strokeDasharray="3 3" dot={false} />
+                  <Line dataKey="band_lower_pct" stroke="#22c55e" strokeWidth={1} strokeDasharray="3 3" dot={false} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Decision Banner */}
+          {driftData.decision && (() => {
+            const dec = driftData.decision;
+            const bannerColor = dec.action === "HOLD"
+              ? "text-green-400 bg-green-900/15 border-green-800/30"
+              : dec.urgency === "compliance"
+              ? "text-red-400 bg-red-900/25 border-red-800/40"
+              : dec.urgency === "high"
+              ? "text-red-400 bg-red-900/15 border-red-800/30"
+              : "text-yellow-400 bg-yellow-900/15 border-yellow-800/30";
             return (
-              <div className={`rounded border px-3 py-2 mb-3 ${scoreColor}`}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-medium">{f.label}</span>
-                  <span className="text-xs font-mono">Score: {f.score.toFixed(2)}</span>
+              <div className={`rounded border px-3 py-2 mb-3 ${bannerColor}`}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-bold">{dec.action}</span>
+                  <span className="text-[10px] text-gray-500">backstop {dec.backstop_hours_remaining.toFixed(0)}h</span>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px]">
-                  <div>
-                    <span className="text-gray-500">Drift: </span>
-                    <span className="font-mono">{f.drift_direction} {f.current_24h_beta_drift >= 0 ? "+" : ""}{f.current_24h_beta_drift.toFixed(1)}% (24h)</span>
+                <div className="text-[11px]">{dec.reason}</div>
+                {dec.hours_to_breakeven != null && (
+                  <div className="text-[10px] text-gray-500 mt-1">
+                    Break-even: {dec.hours_to_breakeven.toFixed(0)}h ({(dec.hours_to_breakeven / 24).toFixed(1)}d)
                   </div>
-                  <div>
-                    <span className="text-gray-500">Market: </span>
-                    <span className="font-mono">{f.market_direction} ({f.btc_trend_7d_pct >= 0 ? "+" : ""}{f.btc_trend_7d_pct.toFixed(1)}% 7d)</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Systematic: </span>
-                    <span className="font-mono">{(100 - d.idiosyncratic_fraction * 100).toFixed(0)}%</span>
-                    <span className="text-gray-600 ml-1">(R²={d.r_squared.toFixed(2)})</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">Reversion prob: </span>
-                    <span className="font-mono">{(f.reversion_probability * 100).toFixed(0)}%</span>
-                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Cost Comparison */}
+          {driftData.costs && (
+            <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
+              <div className="bg-gray-800 rounded px-3 py-2">
+                <div className="text-gray-500 text-[10px] uppercase mb-1">Holding Cost</div>
+                <div className="font-mono text-gray-200 text-sm">{driftData.costs.holding_cost_bps.toFixed(1)} <span className="text-[10px] text-gray-500">bps cumul.</span></div>
+                <div className="font-mono text-gray-400 text-[11px]">{driftData.costs.holding_cost_per_day_bps.toFixed(1)} bps/day</div>
+              </div>
+              <div className="bg-gray-800 rounded px-3 py-2">
+                <div className="text-gray-500 text-[10px] uppercase mb-1">Rebalance Cost</div>
+                <div className="font-mono text-gray-200 text-sm">{driftData.costs.rebalance_cost_bps.toFixed(1)} <span className="text-[10px] text-gray-500">bps</span></div>
+                <div className="text-[10px] text-gray-500 mt-0.5">
+                  {driftData.costs.cost_source === "realized"
+                    ? `${driftData.costs.realized_cost_bps.toFixed(1)} bps/fill (${driftData.costs.n_fills_used} fills)`
+                    : `Static ${driftData.costs.realized_cost_bps.toFixed(1)} bps/fill`}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Factor Attribution */}
+          {driftData.factor_attribution && driftData.factor_attribution.length > 0 && (
+            <div className="overflow-x-auto mb-3">
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Factor Attribution</div>
+              <table className="w-full text-xs">
+                <thead className="border-b border-[var(--border)]">
+                  <tr>
+                    <th className="px-3 py-1.5 text-left text-gray-500">Factor</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">Value</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">Loading</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">AR(1)</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">Cost (bps)</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">Direction</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {driftData.factor_attribution.map((f) => {
+                    const dirColor = f.direction === "favorable" ? "text-green-400" : f.direction === "unfavorable" ? "text-red-400" : "text-gray-500";
+                    return (
+                      <tr key={f.factor}>
+                        <td className="px-3 py-1.5 text-gray-300">{f.factor}</td>
+                        <td className="px-3 py-1.5 text-right font-mono text-gray-300">{f.current_value.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 text-right font-mono text-gray-500">{f.loading.toFixed(4)}</td>
+                        <td className="px-3 py-1.5 text-right font-mono text-gray-500">{f.persistence.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 text-right font-mono text-gray-300">{f.contribution_bps.toFixed(1)}</td>
+                        <td className={`px-3 py-1.5 text-right font-mono text-[10px] font-medium ${dirColor}`}>{f.direction}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Drift Band Visualization */}
+          {driftData.bands && (() => {
+            const b = driftData.bands;
+            const range = b.hard_limit_pct * 2;  // -30 to +30 = 60
+            const toPos = (v: number) => ((v + b.hard_limit_pct) / range) * 100;
+            return (
+              <div className="mb-3 px-3">
+                <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Dynamic Drift Bands (beta net %)</div>
+                <div className="relative h-6 bg-gray-900 rounded overflow-hidden border border-gray-800">
+                  {/* Band region */}
+                  <div
+                    className="absolute h-full bg-green-900/20"
+                    style={{ left: `${toPos(b.lower_pct)}%`, width: `${toPos(b.upper_pct) - toPos(b.lower_pct)}%` }}
+                  />
+                  {/* Hard limits */}
+                  <div className="absolute h-full border-l border-red-500/50" style={{ left: `${toPos(-b.hard_limit_pct)}%` }} />
+                  <div className="absolute h-full border-l border-red-500/50" style={{ left: `${toPos(b.hard_limit_pct)}%` }} />
+                  {/* Zero line */}
+                  <div className="absolute h-full border-l border-gray-700" style={{ left: "50%" }} />
+                  {/* Current position */}
+                  <div
+                    className="absolute h-full w-0.5 bg-blue-400"
+                    style={{ left: `${Math.max(0, Math.min(100, toPos(b.current_beta_net_pct)))}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[9px] text-gray-600 mt-0.5 font-mono">
+                  <span>-{b.hard_limit_pct}%</span>
+                  <span>Band: [{b.lower_pct.toFixed(1)}, {b.upper_pct.toFixed(1)}]</span>
+                  <span>Current: {b.current_beta_net_pct.toFixed(1)}%</span>
+                  <span>Buffer: {b.hard_limit_buffer_pct.toFixed(1)}%</span>
+                  <span>+{b.hard_limit_pct}%</span>
                 </div>
               </div>
             );
           })()}
 
-          {/* Drift Decomposition */}
+          {/* Drift Decomposition (v1 kept) */}
           {driftData.drift_decomposition && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3 text-[11px]">
               <div className="bg-gray-800 rounded px-2 py-1.5">
@@ -585,7 +745,7 @@ export function RiskStressTab() {
             </div>
           )}
 
-          {/* Drift Statistics */}
+          {/* Drift Statistics (v1 kept) */}
           <div className="overflow-x-auto mb-3">
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Drift Statistics (hourly, annualized to daily)</div>
             <table className="w-full text-xs">
@@ -616,7 +776,7 @@ export function RiskStressTab() {
             </table>
           </div>
 
-          {/* Time-to-Breach */}
+          {/* Time-to-Breach (v1 kept) */}
           <div className="overflow-x-auto mb-3">
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Time-to-Breach (Monte Carlo, {driftData.n_hours_analyzed}h analyzed)</div>
             <table className="w-full text-xs">
@@ -645,58 +805,21 @@ export function RiskStressTab() {
             </table>
           </div>
 
-          {/* Cadence Analysis */}
-          <div className="overflow-x-auto mb-2">
-            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Rebalance Cadence Optimization</div>
-            <table className="w-full text-xs">
-              <thead className="border-b border-[var(--border)]">
-                <tr>
-                  <th className="px-3 py-1.5 text-left text-gray-500">Cadence</th>
-                  <th className="px-3 py-1.5 text-right text-gray-500">Beta Drift</th>
-                  <th className="px-3 py-1.5 text-right text-gray-500">95th</th>
-                  <th className="px-3 py-1.5 text-right text-gray-500">Net Drift</th>
-                  <th className="px-3 py-1.5 text-right text-gray-500">Rebal Cost</th>
-                  <th className="px-3 py-1.5 text-right text-gray-500">Drift Cost</th>
-                  <th className="px-3 py-1.5 text-right text-gray-500">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border)]">
-                {driftData.cadence_analysis.map((c) => {
-                  const isCurrent = c.cadence_days === 7;
-                  const isOpt = c.recommended;
-                  return (
-                    <tr key={c.cadence_days} className={isOpt ? "bg-green-900/10" : isCurrent ? "bg-blue-900/10" : ""}>
-                      <td className="px-3 py-1.5 text-gray-300 font-medium">
-                        {c.cadence_days}d
-                        {isCurrent && <span className="text-blue-400 ml-1 text-[9px]">current</span>}
-                        {isOpt && <span className="text-green-400 ml-1 text-[9px]">optimal</span>}
-                      </td>
-                      <td className="px-3 py-1.5 text-right font-mono text-gray-300">{c.expected_beta_drift_pct.toFixed(1)}%</td>
-                      <td className="px-3 py-1.5 text-right font-mono text-gray-500">{c.p95_beta_drift_pct.toFixed(1)}%</td>
-                      <td className="px-3 py-1.5 text-right font-mono text-gray-300">{c.expected_net_drift_pct.toFixed(1)}%</td>
-                      <td className="px-3 py-1.5 text-right font-mono text-gray-500">{c.rebalance_cost_bps.toFixed(1)}</td>
-                      <td className="px-3 py-1.5 text-right font-mono text-gray-500">{c.drift_cost_bps.toFixed(1)}</td>
-                      <td className={`px-3 py-1.5 text-right font-mono font-medium ${isOpt ? "text-green-400" : "text-gray-300"}`}>
-                        {c.total_cost_bps.toFixed(1)} bps
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Recommendation */}
-          <div className="px-3 pb-2 text-[11px] text-gray-400 border-t border-[var(--border)] pt-2">
-            {driftData.recommendation}
-          </div>
-
-          {/* Crypto characteristics footer */}
-          <div className="flex gap-4 px-3 pb-2 text-[10px] text-gray-600">
+          {/* GARCH + Crypto characteristics footer */}
+          <div className="flex flex-wrap gap-4 px-3 pb-2 text-[10px] text-gray-600">
+            {driftData.garch && driftData.garch.daily_vol_pct > 0 && (<>
+              <span>GARCH vol: <span className={driftData.garch.vol_ratio > 1.2 ? "text-yellow-400" : "text-gray-400"}>{driftData.garch.daily_vol_pct.toFixed(2)}%/d</span></span>
+              <span>Uncond: <span className="text-gray-400">{driftData.garch.unconditional_vol_pct.toFixed(2)}%</span></span>
+              <span>Ratio: <span className={driftData.garch.vol_ratio > 1.2 ? "text-yellow-400" : "text-gray-400"}>{driftData.garch.vol_ratio.toFixed(2)}×</span></span>
+              <span>α/β: <span className="text-gray-400">{driftData.garch.params.alpha.toFixed(2)}/{driftData.garch.params.beta.toFixed(2)}</span></span>
+            </>)}
             <span>Weekend vol: <span className="text-gray-400">{driftData.crypto_characteristics.weekend_vol_premium.toFixed(2)}×</span></span>
             <span>Kurtosis: <span className="text-gray-400">{driftData.crypto_characteristics.empirical_kurtosis.toFixed(1)}</span></span>
             <span>AR(1): <span className="text-gray-400">{driftData.crypto_characteristics.drift_autocorrelation.toFixed(3)}</span></span>
             <span>t-df: <span className="text-gray-400">{driftData.crypto_characteristics.student_t_df.toFixed(0)}</span></span>
+            {driftData.n_daily_observations > 0 && (
+              <span>2Y obs: <span className="text-gray-400">{driftData.n_daily_observations}</span></span>
+            )}
           </div>
         </Card>
       )}
