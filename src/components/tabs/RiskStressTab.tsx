@@ -669,9 +669,13 @@ export function RiskStressTab() {
                   {driftData.factor_attribution.map((f) => {
                     const dirColor = f.direction === "favorable" ? "text-green-400" : f.direction === "unfavorable" ? "text-red-400" : "text-gray-500";
                     const dirIcon = f.direction === "favorable" ? "+" : f.direction === "unfavorable" ? "-" : "~";
-                    // Format current value contextually
-                    const valStr = f.factor.includes("carry") ? `${f.current_value.toFixed(1)} bps/d`
-                      : f.factor.includes("Volatility") || f.factor.includes("Correlation") ? `${f.current_value.toFixed(2)}`
+                    // Format current value contextually per factor type
+                    const fName = f.factor.toLowerCase();
+                    const valStr = fName.includes("carry") || fName.includes("funding") ? `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(1)} bps`
+                      : fName.includes("volatility") || fName.includes("correlation") ? `${f.current_value.toFixed(2)}×`
+                      : fName.includes("stablecoin") ? `${f.current_value >= 0 ? "+" : ""}$${Math.abs(f.current_value).toFixed(1)}B`
+                      : fName.includes("smart money") ? `${f.current_value >= 0 ? "+" : ""}$${Math.abs(f.current_value).toFixed(0)}M`
+                      : fName.includes("open interest") ? `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(1)}%`
                       : `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(2)}%`;
                     return (
                       <tr key={f.factor}>
