@@ -607,7 +607,7 @@ export function RiskStressTab() {
 
           {/* Decision Banner */}
           {driftData.decision && (() => {
-            const dec = driftData.decision;
+            const dec = driftData.decision as any;
             const bannerColor = dec.action === "HOLD"
               ? "text-green-400 bg-green-900/15 border-green-800/30"
               : dec.urgency === "compliance"
@@ -615,10 +615,29 @@ export function RiskStressTab() {
               : dec.urgency === "high"
               ? "text-red-400 bg-red-900/15 border-red-800/30"
               : "text-yellow-400 bg-yellow-900/15 border-yellow-800/30";
+            const zoneColor: Record<string, string> = {
+              green: "text-green-400 bg-green-900/30",
+              yellow: "text-yellow-400 bg-yellow-900/30",
+              orange: "text-orange-400 bg-orange-900/30",
+              red: "text-red-400 bg-red-900/30",
+            };
+            const zone = dec.drift_zone || "green";
             return (
               <div className={`rounded border px-3 py-2 mb-3 ${bannerColor}`}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold">{dec.action}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold">{dec.action}</span>
+                    {dec.drift_zone && (
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-medium ${zoneColor[zone] || "text-gray-400"}`}>
+                        {zone.toUpperCase()} {dec.beta_drift_abs_pct?.toFixed(1)}%
+                      </span>
+                    )}
+                    {dec.n_factors > 0 && (
+                      <span className="text-[9px] text-gray-500 font-mono">
+                        {dec.n_favorable}↑ {dec.n_unfavorable}↓ / {dec.n_factors}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[10px] text-gray-500">backstop {dec.backstop_hours_remaining.toFixed(0)}h</span>
                 </div>
                 <div className="text-[11px]">{dec.reason}</div>
