@@ -651,32 +651,37 @@ export function RiskStressTab() {
             </div>
           )}
 
-          {/* Factor Attribution */}
+          {/* Factor Attribution — Drift Decomposition */}
           {driftData.factor_attribution && driftData.factor_attribution.length > 0 && (
             <div className="overflow-x-auto mb-3">
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Factor Attribution</div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">Drift Factor Attribution</div>
               <table className="w-full text-xs">
                 <thead className="border-b border-[var(--border)]">
                   <tr>
                     <th className="px-3 py-1.5 text-left text-gray-500">Factor</th>
-                    <th className="px-3 py-1.5 text-right text-gray-500">Value</th>
-                    <th className="px-3 py-1.5 text-right text-gray-500">Loading</th>
-                    <th className="px-3 py-1.5 text-right text-gray-500">AR(1)</th>
-                    <th className="px-3 py-1.5 text-right text-gray-500">Cost (bps)</th>
-                    <th className="px-3 py-1.5 text-right text-gray-500">Direction</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">Current</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">Persistence</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">Cost share</th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">Outlook</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border)]">
                   {driftData.factor_attribution.map((f) => {
                     const dirColor = f.direction === "favorable" ? "text-green-400" : f.direction === "unfavorable" ? "text-red-400" : "text-gray-500";
+                    const dirIcon = f.direction === "favorable" ? "+" : f.direction === "unfavorable" ? "-" : "~";
+                    // Format current value contextually
+                    const valStr = f.factor.includes("carry") ? `${f.current_value.toFixed(1)} bps/d`
+                      : f.factor.includes("Volatility") || f.factor.includes("Correlation") ? `${f.current_value.toFixed(2)}`
+                      : `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(2)}%`;
                     return (
                       <tr key={f.factor}>
                         <td className="px-3 py-1.5 text-gray-300">{f.factor}</td>
-                        <td className="px-3 py-1.5 text-right font-mono text-gray-300">{f.current_value.toFixed(2)}</td>
-                        <td className="px-3 py-1.5 text-right font-mono text-gray-500">{f.loading.toFixed(4)}</td>
+                        <td className="px-3 py-1.5 text-right font-mono text-gray-300">{valStr}</td>
                         <td className="px-3 py-1.5 text-right font-mono text-gray-500">{f.persistence.toFixed(2)}</td>
-                        <td className="px-3 py-1.5 text-right font-mono text-gray-300">{f.contribution_bps.toFixed(1)}</td>
-                        <td className={`px-3 py-1.5 text-right font-mono text-[10px] font-medium ${dirColor}`}>{f.direction}</td>
+                        <td className="px-3 py-1.5 text-right font-mono text-gray-300">{f.contribution_bps.toFixed(1)} bps</td>
+                        <td className={`px-3 py-1.5 text-right font-medium ${dirColor}`}>
+                          <span className="font-mono">{dirIcon}</span> {f.direction}
+                        </td>
                       </tr>
                     );
                   })}
