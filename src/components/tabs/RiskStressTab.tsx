@@ -386,6 +386,31 @@ export function RiskStressTab() {
     retry: false,
   });
 
+  interface MeanRevPosition {
+    symbol: string;
+    pnl_pct: number;
+    pnl_usd: number;
+    notional: number;
+    hours_held: number;
+    beta: number;
+    deviation_pct: number | null;
+    half_life_days: number | null;
+    expected_revert_50_days: number | null;
+    confidence: string | null;
+    n_similar_episodes: number;
+    avg_resolution_days: number | null;
+    funding_rate_8h_pct: number | null;
+    carry_bps_day: number | null;
+  }
+
+  const { data: meanRevData } = useQuery<{ positions: MeanRevPosition[]; count: number }>({
+    queryKey: ["mean-reversion", engine.id],
+    queryFn: () => client.get("/api/mean-reversion"),
+    refetchInterval: 300_000,  // 5 min
+    staleTime: 180_000,
+    retry: false,
+  });
+
   if (riskLoading) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
@@ -867,6 +892,69 @@ export function RiskStressTab() {
             {driftData.n_daily_observations > 0 && (
               <span>2Y obs: <span className="text-gray-400">{driftData.n_daily_observations}</span></span>
             )}
+          </div>
+        </Card>
+      )}
+
+      {/* ── Mean Reversion Monitor ── */}
+      {meanRevData && meanRevData.positions && meanRevData.positions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Short Mean Reversion Monitor</CardTitle>
+          </CardHeader>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)]">
+                <tr>
+                  <th className="px-3 py-1.5 text-left text-gray-500">Symbol</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">PnL</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Deviation</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Half-life</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Avg resolve</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Episodes</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Carry</th>
+                  <th className="px-3 py-1.5 text-right text-gray-500">Held</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {meanRevData.positions.map((p) => {
+                  const confColor = p.confidence === "high" ? "text-green-400" : p.confidence === "medium" ? "text-yellow-400" : p.confidence === "low" ? "text-orange-400" : "text-gray-600";
+                  return (
+                    <tr key={p.symbol}>
+                      <td className="px-3 py-1.5">
+                        <span className="text-gray-300 font-medium">{p.symbol.replace("USDT", "")}</span>
+                        <span className={`ml-1.5 text-[9px] ${confColor}`}>{p.confidence || "—"}</span>
+                      </td>
+                      <td className="px-3 py-1.5 text-right font-mono text-red-400">{p.pnl_pct.toFixed(1)}%
+                        <span className="text-gray-600 ml-1">${Math.abs(p.pnl_usd).toFixed(0)}</span>
+                      </td>
+                      <td className={`px-3 py-1.5 text-right font-mono ${(p.deviation_pct ?? 0) > 3 ? "text-red-400" : "text-yellow-400"}`}>
+                        {p.deviation_pct != null ? `${p.deviation_pct >= 0 ? "+" : ""}${p.deviation_pct.toFixed(1)}pp` : "—"}
+                      </td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-300">
+                        {p.half_life_days != null ? `${p.half_life_days.toFixed(1)}d` : "—"}
+                      </td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-300">
+                        {p.avg_resolution_days != null ? `${p.avg_resolution_days.toFixed(1)}d` : "—"}
+                      </td>
+                      <td className={`px-3 py-1.5 text-right font-mono ${confColor}`}>
+                        {p.n_similar_episodes > 0 ? `n=${p.n_similar_episodes}` : "—"}
+                      </td>
+                      <td className={`px-3 py-1.5 text-right font-mono ${(p.carry_bps_day ?? 0) > 0 ? "text-green-400" : (p.carry_bps_day ?? 0) < -5 ? "text-red-400" : "text-gray-500"}`}>
+                        {p.carry_bps_day != null ? `${p.carry_bps_day >= 0 ? "+" : ""}${p.carry_bps_day.toFixed(0)}` : "—"}
+                      </td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-500">
+                        {(p.hours_held / 24).toFixed(1)}d
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-3 pb-2 pt-1 text-[10px] text-gray-600">
+            Deviation = 7d return vs beta-adjusted expected. Half-life from AR(1) of 2Y daily residuals.
+            Carry in bps/day (positive = earning). Episodes = similar deviations in history.
           </div>
         </Card>
       )}
