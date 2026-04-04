@@ -688,34 +688,53 @@ export function RiskStressTab() {
           {/* Drift Band Visualization */}
           {driftData.bands && (() => {
             const b = driftData.bands;
-            const range = b.hard_limit_pct * 2;  // -30 to +30 = 60
+            const range = b.hard_limit_pct * 2;
             const toPos = (v: number) => ((v + b.hard_limit_pct) / range) * 100;
+            const curPos = Math.max(0, Math.min(100, toPos(b.current_beta_net_pct)));
+            const inBand = b.current_beta_net_pct >= b.lower_pct && b.current_beta_net_pct <= b.upper_pct;
             return (
               <div className="mb-3 px-3">
                 <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Dynamic Drift Bands (beta net %)</div>
-                <div className="relative h-6 bg-gray-900 rounded overflow-hidden border border-gray-800">
+                <div className="relative h-10 bg-gray-900 rounded-md overflow-hidden border border-gray-700">
+                  {/* Danger zones near hard limits */}
+                  <div className="absolute h-full bg-red-900/15" style={{ left: 0, width: `${toPos(-b.hard_limit_pct + 5)}%` }} />
+                  <div className="absolute h-full bg-red-900/15" style={{ left: `${toPos(b.hard_limit_pct - 5)}%`, right: 0 }} />
                   {/* Band region */}
                   <div
-                    className="absolute h-full bg-green-900/20"
+                    className="absolute h-full bg-green-500/15 border-l border-r border-green-500/30"
                     style={{ left: `${toPos(b.lower_pct)}%`, width: `${toPos(b.upper_pct) - toPos(b.lower_pct)}%` }}
                   />
-                  {/* Hard limits */}
-                  <div className="absolute h-full border-l border-red-500/50" style={{ left: `${toPos(-b.hard_limit_pct)}%` }} />
-                  <div className="absolute h-full border-l border-red-500/50" style={{ left: `${toPos(b.hard_limit_pct)}%` }} />
+                  {/* Band edge labels */}
+                  <div className="absolute top-0.5 text-[8px] font-mono text-green-500/60" style={{ left: `${toPos(b.lower_pct)}%`, transform: "translateX(-50%)" }}>
+                    {b.lower_pct.toFixed(0)}
+                  </div>
+                  <div className="absolute top-0.5 text-[8px] font-mono text-green-500/60" style={{ left: `${toPos(b.upper_pct)}%`, transform: "translateX(-50%)" }}>
+                    {b.upper_pct.toFixed(0)}
+                  </div>
+                  {/* Hard limit markers */}
+                  <div className="absolute h-full w-px bg-red-500/60" style={{ left: `${toPos(-b.hard_limit_pct)}%` }} />
+                  <div className="absolute h-full w-px bg-red-500/60" style={{ left: `${toPos(b.hard_limit_pct)}%` }} />
+                  {/* Hard limit labels */}
+                  <div className="absolute bottom-0.5 text-[8px] font-mono text-red-500/50" style={{ left: `${toPos(-b.hard_limit_pct)}%`, marginLeft: 2 }}>-{b.hard_limit_pct}%</div>
+                  <div className="absolute bottom-0.5 text-[8px] font-mono text-red-500/50" style={{ left: `${toPos(b.hard_limit_pct)}%`, transform: "translateX(-100%)", marginRight: 2 }}>+{b.hard_limit_pct}%</div>
                   {/* Zero line */}
-                  <div className="absolute h-full border-l border-gray-700" style={{ left: "50%" }} />
-                  {/* Current position */}
+                  <div className="absolute h-full w-px bg-gray-600" style={{ left: "50%" }} />
+                  <div className="absolute top-0.5 text-[8px] text-gray-600" style={{ left: "50%", marginLeft: 2 }}>0</div>
+                  {/* Current position marker */}
                   <div
-                    className="absolute h-full w-0.5 bg-blue-400"
-                    style={{ left: `${Math.max(0, Math.min(100, toPos(b.current_beta_net_pct)))}%` }}
+                    className={`absolute h-full w-1 rounded-sm ${inBand ? "bg-blue-400" : "bg-yellow-400"}`}
+                    style={{ left: `${curPos}%`, transform: "translateX(-50%)" }}
                   />
+                  <div
+                    className={`absolute bottom-0.5 text-[9px] font-mono font-bold ${inBand ? "text-blue-400" : "text-yellow-400"}`}
+                    style={{ left: `${curPos}%`, transform: "translateX(-50%)" }}
+                  >
+                    {b.current_beta_net_pct.toFixed(1)}%
+                  </div>
                 </div>
-                <div className="flex justify-between text-[9px] text-gray-600 mt-0.5 font-mono">
-                  <span>-{b.hard_limit_pct}%</span>
-                  <span>Band: [{b.lower_pct.toFixed(1)}, {b.upper_pct.toFixed(1)}]</span>
-                  <span>Current: {b.current_beta_net_pct.toFixed(1)}%</span>
-                  <span>Buffer: {b.hard_limit_buffer_pct.toFixed(1)}%</span>
-                  <span>+{b.hard_limit_pct}%</span>
+                <div className="flex justify-between text-[10px] mt-1 px-0.5">
+                  <span className="text-gray-500">Band: <span className="font-mono text-green-400/70">[{b.lower_pct.toFixed(1)}, {b.upper_pct.toFixed(1)}]</span></span>
+                  <span className="text-gray-500">Buffer to limit: <span className={`font-mono ${b.hard_limit_buffer_pct < 10 ? "text-yellow-400" : "text-gray-300"}`}>{b.hard_limit_buffer_pct.toFixed(1)}%</span></span>
                 </div>
               </div>
             );
