@@ -586,10 +586,10 @@ export function RiskStressTab() {
                   <YAxis tick={{ fontSize: 9, fill: "#6b7280" }} domain={["auto", "auto"]} />
                   <Tooltip
                     contentStyle={{ backgroundColor: "#111827", border: "1px solid #374151", fontSize: 11 }}
-                    labelFormatter={(v: string) => new Date(v).toLocaleString()}
-                    formatter={(value: number, name: string) => [
-                      `${value.toFixed(2)}%`,
-                      name === "beta_net_pct" ? "Beta Net" : name === "band_upper_pct" ? "Upper Band" : name === "band_lower_pct" ? "Lower Band" : name,
+                    labelFormatter={(v) => new Date(String(v)).toLocaleString()}
+                    formatter={(value, name) => [
+                      `${Number(value).toFixed(2)}%`,
+                      name === "beta_net_pct" ? "Beta Net" : name === "band_upper_pct" ? "Upper Band" : name === "band_lower_pct" ? "Lower Band" : String(name),
                     ]}
                   />
                   <Area dataKey="band_upper_pct" stroke="none" fill="#16a34a" fillOpacity={0.08} />
