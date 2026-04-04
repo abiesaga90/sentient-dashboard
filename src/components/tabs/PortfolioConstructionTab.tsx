@@ -341,12 +341,24 @@ const longColumns: Column<LongToken>[] = [
     sortKey: (r) => r.weight_pct, align: "right",
   },
   {
-    key: "alpha", header: "PnL%",
+    key: "pnl", header: "PnL%",
     render: (r) => {
       const color = r.alpha_roi > 1 ? "text-emerald-400" : r.alpha_roi < -1 ? "text-red-400" : "text-gray-500";
       return <span className={`${color} text-[12px]`}>{r.alpha_roi > 0 ? "+" : ""}{r.alpha_roi.toFixed(1)}%</span>;
     },
     sortKey: (r) => r.alpha_roi, align: "right",
+  },
+  {
+    key: "alpha", header: "Alpha",
+    render: (r) => {
+      const a = r.alpha_pct;
+      if (a == null) return <span className="text-gray-600 text-[12px]">—</span>;
+      const good = (r.side === "LONG" && a > 2) || (r.side === "SHORT" && a < -2);
+      const bad = (r.side === "LONG" && a < -2) || (r.side === "SHORT" && a > 2);
+      const color = good ? "text-emerald-400" : bad ? "text-red-400" : "text-gray-500";
+      return <span className={`${color} text-[12px]`}>{a > 0 ? "+" : ""}{a.toFixed(1)}%</span>;
+    },
+    sortKey: (r) => r.alpha_pct ?? 0, align: "right",
   },
   {
     key: "target", header: "Target",
@@ -449,12 +461,24 @@ const shortColumns: Column<ShortToken>[] = [
     sortKey: (r) => r.weight_pct, align: "right",
   },
   {
-    key: "alpha", header: "PnL%",
+    key: "pnl", header: "PnL%",
     render: (r) => {
       const color = r.alpha_roi > 1 ? "text-emerald-400" : r.alpha_roi < -1 ? "text-red-400" : "text-gray-500";
       return <span className={`${color} text-[12px]`}>{r.alpha_roi > 0 ? "+" : ""}{r.alpha_roi.toFixed(1)}%</span>;
     },
     sortKey: (r) => r.alpha_roi, align: "right",
+  },
+  {
+    key: "alpha", header: "Alpha",
+    render: (r) => {
+      const a = r.alpha_pct;
+      if (a == null) return <span className="text-gray-600 text-[12px]">—</span>;
+      const good = (r.side === "LONG" && a > 2) || (r.side === "SHORT" && a < -2);
+      const bad = (r.side === "LONG" && a < -2) || (r.side === "SHORT" && a > 2);
+      const color = good ? "text-emerald-400" : bad ? "text-red-400" : "text-gray-500";
+      return <span className={`${color} text-[12px]`}>{a > 0 ? "+" : ""}{a.toFixed(1)}%</span>;
+    },
+    sortKey: (r) => r.alpha_pct ?? 0, align: "right",
   },
   {
     key: "target", header: "Target",
