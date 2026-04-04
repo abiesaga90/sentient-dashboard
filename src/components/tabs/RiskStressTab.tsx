@@ -1005,7 +1005,7 @@ export function RiskStressTab() {
             <span>Current DD: {formatPct(-ddPct)}</span>
             <span>Scale: {((risk as any).dd_scale ?? 1).toFixed ? `${(((risk as any).dd_scale ?? 1) * 100).toFixed(1)}%` : "—"}</span>
             <span>Last trim: {(risk as any).last_trim_dd_pct > 0 ? formatPct(-(risk as any).last_trim_dd_pct) : "None"}</span>
-            <span>Next trim at: {formatPct(-(((risk as any).last_trim_dd_pct ?? 0) + 1.0))}</span>
+            <span>Next trim at: {formatPct(-((risk as any).next_trim_dd_pct ?? 3.0))}</span>
           </div>
         </div>
       </Card>
