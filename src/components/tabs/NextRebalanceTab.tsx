@@ -84,8 +84,9 @@ export function NextRebalanceTab() {
   const { client, engine } = useEngine();
   const { data: status } = useStatus();
   const { data: dashboard } = useDashboard();
-  const nextRebalance = status?.feature_health?.next_rebalance_at;
-  const lastRebalance = status?.feature_health?.last_rebalance;
+  const fh = status?.feature_health as any;
+  const nextRebalance = fh?.next_rotation_at ?? fh?.next_rebalance_at;
+  const lastRebalance = fh?.last_rebalance;
 
   // Dry-run query — manual only (compute-heavy, no auto-refetch)
   const {
@@ -110,7 +111,7 @@ export function NextRebalanceTab() {
     if (!nextRebalance) return;
     function update() {
       const diff = new Date(nextRebalance!).getTime() - Date.now();
-      if (diff <= 0) { setCountdown("Rebalance imminent!"); return; }
+      if (diff <= 0) { setCountdown("Rotation imminent!"); return; }
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff % 86400000) / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
@@ -226,7 +227,7 @@ export function NextRebalanceTab() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Countdown — larger, spans 1 col */}
         <Card className="flex flex-col items-center justify-center py-6">
-          <div className="text-xs text-gray-500 mb-1">Next Rebalance</div>
+          <div className="text-xs text-gray-500 mb-1">Next Rotation</div>
           <div className="text-3xl font-bold text-blue-400">{countdown || "—"}</div>
           <div className="text-[10px] text-gray-600 mt-2 space-y-0.5 text-center">
             {nextRebalance && <div>{new Date(nextRebalance).toLocaleString()}</div>}
@@ -266,7 +267,7 @@ export function NextRebalanceTab() {
               onClick={() => refetchDryRun()}
               className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors"
             >
-              Load Rebalance Preview
+              Load Rotation Preview
             </button>
           </Card>
         )}

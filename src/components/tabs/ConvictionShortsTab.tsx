@@ -245,7 +245,7 @@ export function ConvictionShortsTab() {
   if (!data || data.count === 0) {
     return (
       <div className="text-gray-500 text-sm p-8 text-center">
-        No conviction scores available. Scoring runs on next rebalance cycle.
+        No conviction scores available. Scoring runs at monthly rotation.
       </div>
     );
   }

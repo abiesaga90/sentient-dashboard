@@ -18,7 +18,12 @@ export interface StatusResponse {
     factor_model_active: boolean;
     factor_symbols_count: number;
     last_rebalance: string | null;
-    next_rebalance_at: string | null;
+    next_rebalance_at: string | null;  // backward compat → points to rotation
+    next_rotation_at: string | null;
+    last_resize_at: string | null;
+    drift_action: string;
+    drift_urgency: string;
+    drift_zone: string;
   };
 }
 

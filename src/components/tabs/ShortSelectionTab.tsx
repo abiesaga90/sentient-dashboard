@@ -492,7 +492,7 @@ export function ShortSelectionTab() {
         </div>
         <p className="text-[11px] text-gray-500 mt-1.5">
           {fundFirst
-            ? "Shorts ranked by inverted long-side VA + SM scoring (symmetric weights). Multi-timeframe momentum veto blocks sustained rallies. No individual TP/SL — positions exit via monthly rebalance rotation, 60d max hold, or DD management. SM pillar uses structural signals only (30d+ timeframes)."
+            ? "Shorts ranked by inverted long-side VA + SM scoring (symmetric weights). Multi-timeframe momentum veto blocks sustained rallies. No individual TP/SL — positions exit via monthly rotation, 60d max hold, or DD management. Event-driven resizes adjust sizing between rotations."
             : "Shorts ranked by correlation to the long basket. VA signals added as small boosts. Beta neutrality through selection."}
         </p>
       </div>
@@ -653,7 +653,7 @@ export function ShortSelectionTab() {
                 </div>
               </div>
               <div className="text-[10px] text-gray-600 mt-1">
-                No individual TP/SL. Positions ride until monthly rebalance rotates them out, 60d max hold expires, or DD management trims/stops. Gap fill immediately replaces closed positions with next-best candidate.
+                No individual TP/SL. Positions ride until monthly rotation, 60d max hold, or DD management. Event-driven resizes adjust sizing. Gap fill replaces closed positions with next-best candidate.
               </div>
             </div>
           </div>

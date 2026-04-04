@@ -11,8 +11,12 @@ export function StatusBar({ dashboard, status }: StatusBarProps) {
   if (!dashboard) return null;
   const { portfolio, risk } = dashboard;
 
-  const nextRebalance = status?.feature_health?.next_rebalance_at;
-  const countdown = nextRebalance ? getCountdown(nextRebalance) : null;
+  const fh = status?.feature_health as any;
+  const nextRotation = fh?.next_rotation_at;
+  const rotationCountdown = nextRotation ? getCountdown(nextRotation) : null;
+  const driftAction = fh?.drift_action || "HOLD";
+  const driftZone = fh?.drift_zone || "green";
+  const driftUrgency = fh?.drift_urgency || "low";
 
   return (
     <div className="flex items-center gap-4 overflow-x-auto border-b border-[var(--border)] bg-[var(--bg-card)] px-4 py-2 text-xs">
@@ -37,8 +41,13 @@ export function StatusBar({ dashboard, status }: StatusBarProps) {
             <ComplianceDot ok={risk.compliance.net_ok} label={`|Net| < ${risk.limits.max_net_pct}%`} />
           </>
         )}
-        {countdown && (
-          <Badge variant="info">Next rebal: {countdown}</Badge>
+        {driftAction && (
+          <Badge variant={driftAction === "HOLD" ? "default" : driftUrgency === "compliance" ? "destructive" : "warning"}>
+            {driftAction} {driftZone.toUpperCase()}
+          </Badge>
+        )}
+        {rotationCountdown && (
+          <Badge variant="info">Rotation: {rotationCountdown}</Badge>
         )}
         <span className="text-gray-600">
           {timeAgo(dashboard.status.timestamp)}
