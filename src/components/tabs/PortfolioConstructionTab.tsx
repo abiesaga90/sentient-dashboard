@@ -7,6 +7,7 @@ import { formatUSD, formatPct } from "../../lib/utils";
 
 interface LongToken {
   symbol: string;
+  side?: string;
   va_profile?: string;
   sector?: string;
   token_type?: string;
@@ -19,6 +20,7 @@ interface LongToken {
   weight_pct: number;
   beta: number;
   alpha_roi: number;
+  alpha_pct?: number | null;
   target_notional: number;
   current_notional: number;
   drift_pct: number;
@@ -29,6 +31,7 @@ interface LongToken {
 
 interface ShortToken {
   symbol: string;
+  side?: string;
   va_profile?: string;
   sector?: string;
   token_type?: string;
@@ -42,6 +45,7 @@ interface ShortToken {
   hedge_weight: number;
   weight_pct: number;
   alpha_roi: number;
+  alpha_pct?: number | null;
   target_notional: number;
   current_notional: number;
   drift_pct: number;
