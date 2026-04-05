@@ -20,6 +20,7 @@ import { ChartContainer } from "../shared/ChartContainer";
 interface FundToken {
   symbol: string;
   side: string;
+  sector: string | null;
   position_weight_pct: number | null;
   fees_30d: number | null;
   fees_24h: number | null;
@@ -43,7 +44,6 @@ interface FundToken {
   nansen_sm_holders: number | null;
   nansen_sm_netflow_30d: number | null;
   last_updated: string | null;
-  // New three-pillar fields
   va_score: number | null;
   sm_score: number | null;
   p3_score: number | null;
@@ -159,6 +159,85 @@ const healthColors: Record<string, string> = {
   critical: "text-red-400 bg-red-900/10",
 };
 
+/* ──────────────────────── Research Deep Dive ──────────────────────── */
+
+function ResearchDeepDive({ t }: { t: any }) {
+  const va = t.va_score ?? 0;
+  const sm = t.sm_score ?? 0;
+  const p3 = t.p3_score ?? 0;
+  const adj = t.adjusted_score ?? 0;
+  const conf = t.confidence ?? 1;
+  const mapped = adj != null ? Math.round(adj * 50 + 50) : null;
+
+  const row = (label: string, value: string, color?: string, detail?: string) => (
+    <div className="flex items-center py-0.5">
+      <span className="text-gray-500 text-xs w-32">{label}</span>
+      <span className={`text-sm font-mono w-28 ${color || "text-gray-300"}`}>{value}</span>
+      {detail && <span className="text-gray-600 text-[11px]">{detail}</span>}
+    </div>
+  );
+
+  const sc = (v: number) => v > 0.01 ? "text-green-400" : v < -0.01 ? "text-red-400" : "text-gray-500";
+  const pct = (v: number | null) => v != null ? (v > 0 ? "text-green-400" : "text-red-400") : "text-gray-600";
+
+  return (
+    <div className="bg-gray-900/60 border border-gray-800 rounded-lg px-5 py-4 mx-1 mb-2">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-sm font-semibold text-gray-200">{t.symbol.replace("USDT", "")}</span>
+        <span className="text-xs text-gray-500 capitalize">{t.category || t.sector || "—"}</span>
+        {t.tdr_coverage && <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-900/30 text-blue-400 border border-blue-800/30">TDR</span>}
+        <span className={`text-xs font-mono font-bold ${scoreColor(mapped)}`}>Score: {mapped ?? "—"}</span>
+      </div>
+
+      <div className="grid grid-cols-3 gap-6">
+        {/* Column 1: Revenue */}
+        <div>
+          <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1.5">Revenue</div>
+          {row("Fees 30d", fmt(t.fees_30d))}
+          {row("Holder Rev", fmt(t.holders_revenue_30d), (t.holders_revenue_30d || 0) > 0 ? "text-green-400" : "text-red-400")}
+          {row("Rev Capture", t.revenue_capture_pct ? `${t.revenue_capture_pct.toFixed(1)}%` : "—", t.revenue_capture_pct > 50 ? "text-green-400" : t.revenue_capture_pct > 10 ? "text-yellow-400" : "text-gray-500")}
+          {row("Buyback Yield", t.holders_revenue_yield_pct ? `${t.holders_revenue_yield_pct.toFixed(1)}%` : "—", (t.holders_revenue_yield_pct || 0) > 5 ? "text-green-400" : undefined)}
+          {row("Fee Mom 30d", t.fee_change_1m != null ? `${t.fee_change_1m > 0 ? "+" : ""}${t.fee_change_1m.toFixed(0)}%` : "—", pct(t.fee_change_1m))}
+        </div>
+
+        {/* Column 2: Valuation */}
+        <div>
+          <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1.5">Valuation</div>
+          {row("PE", t.pe_ratio != null ? `${t.pe_ratio.toFixed(0)}x` : "—", t.pe_ratio != null && t.pe_ratio < 20 ? "text-green-400" : undefined)}
+          {row("P/S", t.ps_ratio != null ? `${t.ps_ratio.toFixed(0)}x` : "—", t.ps_ratio != null && t.ps_ratio < 20 ? "text-green-400" : undefined)}
+          {row("TVL", fmt(t.tvl))}
+          {row("TVL Δ 30d", t.tvl_change_30d != null ? `${(t.tvl_change_30d * 100).toFixed(1)}%` : "—", pct(t.tvl_change_30d))}
+          {row("MCap", fmt(t.market_cap))}
+        </div>
+
+        {/* Column 3: Risk & Signals */}
+        <div>
+          <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1.5">Risk & Signals</div>
+          {row("FDV/MCap", t.fdv_mcap_ratio ? `${t.fdv_mcap_ratio.toFixed(1)}x` : "—", (t.fdv_mcap_ratio || 0) >= 3 ? "text-red-400" : (t.fdv_mcap_ratio || 0) >= 1.5 ? "text-yellow-400" : "text-green-400")}
+          {row("SM Holders", t.nansen_sm_holders != null ? `${t.nansen_sm_holders}` : "—")}
+          {row("SM Flow 30d", t.nansen_sm_netflow_30d ? `$${(t.nansen_sm_netflow_30d / 1e6).toFixed(1)}M` : "—", pct(t.nansen_sm_netflow_30d))}
+          {row("Dev Commits", t.cg_commit_count_4_weeks != null ? `${t.cg_commit_count_4_weeks}` : "—")}
+          {row("Vol 24h", fmt(t.volume_24h_usd))}
+        </div>
+      </div>
+
+      {/* Three-pillar breakdown */}
+      <div className="mt-3 pt-3 border-t border-gray-800">
+        <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1.5">Three-Pillar Scoring</div>
+        <div className="flex items-center gap-6 text-xs">
+          <span>VA: <span className={`font-mono font-medium ${sc(va)}`}>{va > 0 ? "+" : ""}{va.toFixed(3)}</span> <span className="text-gray-600">({t.n_va ?? 0}/8)</span></span>
+          <span>SM: <span className={`font-mono font-medium ${sc(sm)}`}>{sm > 0 ? "+" : ""}{sm.toFixed(3)}</span> <span className="text-gray-600">({t.n_sm ?? 0}/10)</span></span>
+          <span>P3: <span className={`font-mono font-medium ${sc(p3)}`}>{p3 > 0 ? "+" : ""}{p3.toFixed(3)}</span> <span className="text-gray-600">({t.n_p3 ?? 0})</span></span>
+          <span className="text-gray-600">→</span>
+          <span>Adj: <span className={`font-mono font-bold ${sc(adj)}`}>{adj > 0 ? "+" : ""}{adj.toFixed(3)}</span></span>
+          <span>× Conf: <span className="font-mono text-gray-300">{(conf * 100).toFixed(0)}%</span></span>
+          <span>= <span className={`font-mono font-bold ${scoreColor(mapped)}`}>{mapped}</span></span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ──────────────────────── Sub-components ──────────────────────── */
 
 function TokenReturnTable({
@@ -215,6 +294,7 @@ export function FundamentalsTab() {
   const [sortCol, setSortCol] = useState<string>("fundamental_score");
   const [sortDesc, setSortDesc] = useState(true);
   const [levered, setLevered] = useState(false);
+  const [expandedToken, setExpandedToken] = useState<string | null>(null);
 
   // Fundamentals query
   const { data, isLoading } = useQuery<FundResponse>({
@@ -359,13 +439,24 @@ export function FundamentalsTab() {
                 <tr>
                   <th className="px-2 py-1.5 text-left text-gray-500">Token</th>
                   <th className="px-2 py-1.5 text-left text-gray-500">Sector</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Score</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">VA</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">SM</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">P3</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Adj.</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">Alpha</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">PE</th>
-                  <th className="px-2 py-1.5 text-right text-gray-500">Fees/30d</th>
-                  <th className="px-2 py-1.5 text-right text-gray-500">Fee Delta</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Rev Yield</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Rev Cap %</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Fees 30d</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Fee Mom 30d</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Holders Rev</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">TVL</th>
-                  <th className="px-2 py-1.5 text-right text-gray-500">TVL Delta 30d</th>
-                  <th className="px-2 py-1.5 text-right text-gray-500">SM 30d</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">TVL Δ 30d</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">FDV/MCap</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">P/S</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">SM Flow 30d</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">SM Holders</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">Health</th>
                   <th className="px-2 py-1.5 text-left text-gray-500">Issues</th>
                 </tr>
@@ -378,6 +469,21 @@ export function FundamentalsTab() {
                   <tr key={t.symbol} className={healthColors[t.thesis_health] || ""}>
                     <td className="px-2 py-1.5 font-medium">{t.symbol.replace("USDT", "")}</td>
                     <td className="px-2 py-1.5 text-gray-500">{t.sector}</td>
+                    <td className={`px-2 py-1.5 text-right font-mono font-semibold ${scoreColor(t.fundamental_score)}`}>
+                      {t.fundamental_score?.toFixed(0) ?? "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right font-mono ${pillarColor(t.va_score)}`}>
+                      {t.va_score != null ? t.va_score.toFixed(1) : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right font-mono ${pillarColor(t.sm_score)}`}>
+                      {t.sm_score != null ? t.sm_score.toFixed(1) : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right font-mono ${pillarColor(t.p3_score)}`}>
+                      {t.p3_score != null ? t.p3_score.toFixed(1) : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right font-mono font-semibold ${pillarColor(t.adjusted_score)}`}>
+                      {t.adjusted_score != null ? t.adjusted_score.toFixed(1) : "—"}
+                    </td>
                     <td className={`px-2 py-1.5 text-right font-mono ${t.alpha_pct != null ? (t.alpha_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
                       {t.alpha_pct != null ? `${t.alpha_pct > 0 ? "+" : ""}${t.alpha_pct.toFixed(1)}%` : "—"}
                     </td>
@@ -385,11 +491,20 @@ export function FundamentalsTab() {
                       {t.pe_ratio != null ? t.pe_ratio.toFixed(0) : "—"}
                       {t.pe_trend && <span className="text-[8px] ml-0.5 text-gray-600">{t.pe_trend === "falling" ? "↓" : t.pe_trend === "rising" ? "↑" : ""}</span>}
                     </td>
+                    <td className={`px-2 py-1.5 text-right ${pctColor(t.holders_revenue_yield_pct)}`}>
+                      {t.holders_revenue_yield_pct ? `${t.holders_revenue_yield_pct.toFixed(1)}%` : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right ${t.revenue_capture_pct && t.revenue_capture_pct > 50 ? "text-green-400" : t.revenue_capture_pct && t.revenue_capture_pct > 10 ? "text-yellow-400" : "text-gray-500"}`}>
+                      {t.revenue_capture_pct ? `${t.revenue_capture_pct.toFixed(1)}%` : "—"}
+                    </td>
                     <td className="px-2 py-1.5 text-right font-mono text-gray-300">
                       {t.fees_30d > 0 ? (t.fees_30d >= 1e6 ? `$${(t.fees_30d/1e6).toFixed(1)}M` : `$${(t.fees_30d/1e3).toFixed(0)}K`) : "—"}
                     </td>
                     <td className={`px-2 py-1.5 text-right font-mono ${t.fee_change_30d_pct != null ? (t.fee_change_30d_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
                       {t.fee_change_30d_pct != null ? `${t.fee_change_30d_pct > 0 ? "+" : ""}${t.fee_change_30d_pct.toFixed(0)}%` : "—"}
+                    </td>
+                    <td className="px-2 py-1.5 text-right text-gray-400">
+                      {t.holders_revenue_30d > 0 ? (t.holders_revenue_30d >= 1e6 ? `$${(t.holders_revenue_30d/1e6).toFixed(1)}M` : `$${(t.holders_revenue_30d/1e3).toFixed(0)}K`) : "—"}
                     </td>
                     <td className="px-2 py-1.5 text-right font-mono text-gray-300">
                       {t.tvl > 0 ? (t.tvl >= 1e9 ? `$${(t.tvl/1e9).toFixed(1)}B` : `$${(t.tvl/1e6).toFixed(0)}M`) : "—"}
@@ -397,9 +512,16 @@ export function FundamentalsTab() {
                     <td className={`px-2 py-1.5 text-right font-mono ${t.tvl_change_30d_pct != null ? (t.tvl_change_30d_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
                       {t.tvl_change_30d_pct != null ? `${t.tvl_change_30d_pct > 0 ? "+" : ""}${t.tvl_change_30d_pct.toFixed(0)}%` : "—"}
                     </td>
+                    <td className={`px-2 py-1.5 text-right ${t.fdv_mcap_ratio && t.fdv_mcap_ratio > 3 ? "text-red-400" : t.fdv_mcap_ratio && t.fdv_mcap_ratio > 1.5 ? "text-yellow-400" : "text-green-400"}`}>
+                      {t.fdv_mcap_ratio ? `${t.fdv_mcap_ratio.toFixed(1)}x` : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right ${t.ps_ratio && t.ps_ratio < 20 ? "text-green-400" : t.ps_ratio && t.ps_ratio < 50 ? "text-yellow-400" : "text-gray-500"}`}>
+                      {t.ps_ratio ? `${t.ps_ratio.toFixed(0)}x` : "—"}
+                    </td>
                     <td className={`px-2 py-1.5 text-right font-mono ${t.sm_netflow_30d > 1e6 ? "text-green-400" : t.sm_netflow_30d < -1e6 ? "text-red-400" : "text-gray-600"}`}>
                       {t.sm_netflow_30d !== 0 ? `$${(t.sm_netflow_30d/1e6).toFixed(1)}M` : "—"}
                     </td>
+                    <td className="px-2 py-1.5 text-right text-gray-400">{t.nansen_sm_holders ?? t.sm_holders ?? "—"}</td>
                     <td className="px-2 py-1.5 text-right">
                       <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${healthColors[t.thesis_health] || "text-gray-500"}`}>
                         {t.thesis_health?.toUpperCase()}
@@ -518,36 +640,44 @@ export function FundamentalsTab() {
               <tr className="text-gray-500 border-b border-gray-800">
                 <th className="text-left py-2 pl-2">Token</th>
                 <th className="text-left py-2">Side</th>
+                <th className="text-left py-2">Sector</th>
                 {th("Score", "fundamental_score")}
                 {th("VA", "va_score")}
                 {th("SM", "sm_score")}
                 {th("P3", "p3_score")}
-                {th("Adj.Score", "adjusted_score")}
-                {th("Rev Yield %", "holders_revenue_yield_pct")}
-                {th("Rev Capture %", "revenue_capture_pct")}
-                {th("Fee Mom", "fee_change_1m")}
-                {th("FDV/MCap", "fdv_mcap_ratio")}
+                {th("Adj.", "adjusted_score")}
+                {th("Alpha", "alpha_pct")}
+                {th("PE", "pe_ratio")}
+                {th("Rev Yield", "holders_revenue_yield_pct")}
+                {th("Rev Cap %", "revenue_capture_pct")}
                 {th("Fees 30d", "fees_30d")}
+                {th("Fee Mom 30d", "fee_change_1m")}
                 {th("Holders Rev", "holders_revenue_30d")}
                 {th("TVL", "tvl")}
+                {th("TVL Δ 30d", "tvl_change_30d")}
+                {th("FDV/MCap", "fdv_mcap_ratio")}
                 {th("P/S", "ps_ratio")}
+                {th("SM Flow 30d", "nansen_sm_netflow_30d")}
                 {th("SM Holders", "nansen_sm_holders")}
+                <th className="text-right py-2">Health</th>
+                <th className="text-left py-2">Issues</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map(t => (
-                <tr key={t.symbol} className="border-b border-gray-800/50 hover:bg-white/[0.02]">
+              {filtered.map(t => {
+                const _health = healthLookup[t.symbol];
+                const _healthToken = health?.tokens?.find((ht: any) => ht.symbol === t.symbol);
+                const _isExpanded = expandedToken === t.symbol;
+                return (<>
+                <tr key={t.symbol} className={`border-b border-gray-800/50 cursor-pointer transition-colors ${_isExpanded ? "bg-gray-800/30" : "hover:bg-white/[0.02]"}`}
+                    onClick={() => setExpandedToken(_isExpanded ? null : t.symbol)}>
                   <td className="py-2 pl-2 font-medium text-gray-200 whitespace-nowrap">
                     {t.symbol.replace("USDT", "")}
-                    {t.side === "LONG" && healthLookup[t.symbol] && (
-                      <span className={`ml-1 text-[8px] px-1 py-0.5 rounded font-medium ${healthColors[healthLookup[t.symbol]] || "text-gray-500"}`}>
-                        {healthLookup[t.symbol]?.toUpperCase()}
-                      </span>
-                    )}
                   </td>
                   <td className="py-2">
                     <Badge variant={t.side === "LONG" || t.side === "LONG_RESEARCH" ? "success" : t.side === "SHORT" ? "danger" : "default"}>{sideLabel[t.side] ?? t.side}</Badge>
                   </td>
+                  <td className="py-2 text-gray-500 text-[10px]">{t.sector || "—"}</td>
                   <td className={`py-2 text-right font-mono font-semibold ${scoreColor(t.fundamental_score)}`}>
                     {t.fundamental_score?.toFixed(0) ?? "—"}
                   </td>
@@ -563,27 +693,53 @@ export function FundamentalsTab() {
                   <td className={`py-2 text-right font-mono font-semibold ${pillarColor(t.adjusted_score)}`}>
                     {t.adjusted_score != null ? t.adjusted_score.toFixed(1) : "—"}
                   </td>
+                  <td className={`py-2 text-right font-mono ${_healthToken?.alpha_pct != null ? (_healthToken.alpha_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
+                    {_healthToken?.alpha_pct != null ? `${_healthToken.alpha_pct > 0 ? "+" : ""}${_healthToken.alpha_pct.toFixed(1)}%` : "—"}
+                  </td>
+                  <td className={`py-2 text-right font-mono ${t.pe_ratio != null && t.pe_ratio > 80 ? "text-red-400" : "text-gray-300"}`}>
+                    {t.pe_ratio != null ? t.pe_ratio.toFixed(0) : "—"}
+                  </td>
                   <td className={`py-2 text-right ${pctColor(t.holders_revenue_yield_pct)}`}>
                     {t.holders_revenue_yield_pct ? `${t.holders_revenue_yield_pct.toFixed(1)}%` : "—"}
                   </td>
                   <td className={`py-2 text-right ${t.revenue_capture_pct && t.revenue_capture_pct > 50 ? "text-green-400" : t.revenue_capture_pct && t.revenue_capture_pct > 10 ? "text-yellow-400" : "text-gray-500"}`}>
                     {t.revenue_capture_pct ? `${t.revenue_capture_pct.toFixed(1)}%` : "—"}
                   </td>
+                  <td className="py-2 text-right text-gray-400">{fmt(t.fees_30d)}</td>
                   <td className={`py-2 text-right ${pctColor(t.fee_change_1m)}`}>
                     {t.fee_change_1m != null ? `${t.fee_change_1m > 0 ? "+" : ""}${t.fee_change_1m.toFixed(0)}%` : "—"}
+                  </td>
+                  <td className="py-2 text-right text-gray-400">{fmt(t.holders_revenue_30d)}</td>
+                  <td className="py-2 text-right text-gray-400">{fmt(t.tvl)}</td>
+                  <td className={`py-2 text-right font-mono ${t.tvl_change_30d != null ? (t.tvl_change_30d > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
+                    {t.tvl_change_30d != null ? `${(t.tvl_change_30d * 100) > 0 ? "+" : ""}${(t.tvl_change_30d * 100).toFixed(0)}%` : "—"}
                   </td>
                   <td className={`py-2 text-right ${t.fdv_mcap_ratio && t.fdv_mcap_ratio > 3 ? "text-red-400" : t.fdv_mcap_ratio && t.fdv_mcap_ratio > 1.5 ? "text-yellow-400" : "text-green-400"}`}>
                     {t.fdv_mcap_ratio ? `${t.fdv_mcap_ratio.toFixed(1)}x` : "—"}
                   </td>
-                  <td className="py-2 text-right text-gray-400">{fmt(t.fees_30d)}</td>
-                  <td className="py-2 text-right text-gray-400">{fmt(t.holders_revenue_30d)}</td>
-                  <td className="py-2 text-right text-gray-400">{fmt(t.tvl)}</td>
                   <td className={`py-2 text-right ${t.ps_ratio && t.ps_ratio < 20 ? "text-green-400" : t.ps_ratio && t.ps_ratio < 50 ? "text-yellow-400" : "text-gray-500"}`}>
                     {t.ps_ratio ? `${t.ps_ratio.toFixed(0)}x` : "—"}
                   </td>
+                  <td className={`py-2 text-right font-mono ${(t.nansen_sm_netflow_30d ?? 0) > 1e6 ? "text-green-400" : (t.nansen_sm_netflow_30d ?? 0) < -1e6 ? "text-red-400" : "text-gray-600"}`}>
+                    {t.nansen_sm_netflow_30d ? `$${(t.nansen_sm_netflow_30d/1e6).toFixed(1)}M` : "—"}
+                  </td>
                   <td className="py-2 text-right text-gray-400">{t.nansen_sm_holders ?? "—"}</td>
+                  <td className="py-2 text-right">
+                    {_health ? (
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${healthColors[_health] || "text-gray-500"}`}>
+                        {_health.toUpperCase()}
+                      </span>
+                    ) : "—"}
+                  </td>
+                  <td className="py-2 text-[10px] text-gray-500 max-w-[200px] truncate" title={_healthToken?.thesis_issues?.join("; ")}>
+                    {_healthToken?.thesis_issues?.[0] || "—"}
+                  </td>
                 </tr>
-              ))}
+                {_isExpanded && (
+                  <tr key={`${t.symbol}-detail`}><td colSpan={22} className="p-0"><ResearchDeepDive t={t} /></td></tr>
+                )}
+                </>);
+              })}
             </tbody>
           </table>
         </div>
