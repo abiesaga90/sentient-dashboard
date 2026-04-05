@@ -590,23 +590,6 @@ export function FundamentalsTab() {
                 <div className="text-xs text-gray-400 leading-relaxed">
                   {r.case?.issues?.slice(0, 3).join(" · ")}
                 </div>
-                {r.replacements && r.replacements.length > 0 && (
-                  <div className="mt-2 border-t border-gray-800 pt-2">
-                    <div className="text-[11px] text-gray-500 font-medium mb-1.5">REPLACE WITH:</div>
-                    {r.replacements.map((rep: any) => (
-                      <div key={rep.symbol} className="flex items-center gap-3 text-xs py-0.5">
-                        <span className="text-blue-400 font-semibold w-16">{rep.symbol.replace("USDT", "")}</span>
-                        <span className="text-gray-500 capitalize w-12">{rep.sector}</span>
-                        {rep.pe != null && <span className="font-mono text-gray-400">PE {rep.pe}</span>}
-                        {rep.fees_30d > 0 && <span className="font-mono text-gray-400">${(rep.fees_30d/1e6).toFixed(1)}M fees</span>}
-                        {rep.tvl > 0 && <span className="font-mono text-gray-400">${(rep.tvl/1e9).toFixed(1)}B TVL</span>}
-                        {rep.sm_netflow_30d > 1e6 && <span className="font-mono text-green-400">SM +${(rep.sm_netflow_30d/1e6).toFixed(0)}M</span>}
-                        <span className="font-mono text-gray-500">{"\u03b2"}{rep.beta} {"\u03c1"}{rep.correlation}</span>
-                        <span className="text-gray-600 text-[11px]">{rep.sector_concentration_impact}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
                 {r.case?.downgrade_reason && (
                   <div className="text-[11px] text-gray-600 mt-1.5 italic">{r.case.downgrade_reason}</div>
                 )}
