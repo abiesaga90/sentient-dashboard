@@ -1,6 +1,7 @@
+import { Fragment, useMemo, useState } from "react";
 import { usePortfolioConstruction } from "../../hooks/useDashboardQuery";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
-import { DataTable, type Column } from "../shared/DataTable";
+import type { Column } from "../shared/DataTable";
 import { formatUSD, formatPct } from "../../lib/utils";
 
 // ── Types ──
@@ -14,7 +15,15 @@ interface LongToken {
   va_score: number;
   sm_score: number;
   p3_score: number;
+  raw_score: number;
+  confidence: number;
   adjusted_score: number;
+  n_va: number;
+  n_sm: number;
+  n_p3: number;
+  sm_weight: number;
+  p3_weight: number;
+  tilt_pre_alpha: number;
   tilt: number;
   annualized_vol: number;
   weight_pct: number;
@@ -27,6 +36,7 @@ interface LongToken {
   mindshare_mult?: number;
   sentiment_score?: number | null;
   cg_trending_attention?: number | null;
+  raw_weight: number;
 }
 
 interface ShortToken {
@@ -38,7 +48,16 @@ interface ShortToken {
   va_score: number;
   sm_score: number;
   p3_score: number;
+  raw_score: number;
+  confidence: number;
   adjusted_score: number;
+  n_va: number;
+  n_sm: number;
+  n_p3: number;
+  sm_weight: number;
+  p3_weight: number;
+  tilt_pre_alpha: number;
+  tilt: number;
   score: number;
   beta: number;
   correlation: number;
@@ -54,6 +73,8 @@ interface ShortToken {
   cg_trending_attention?: number | null;
   mcap_rank?: number | null;
   rank_source?: string;
+  raw_weight?: number;
+  annualized_vol?: number;
 }
 
 // ── Profile labels & colors ──
@@ -504,10 +525,192 @@ const shortColumns: Column<ShortToken>[] = [
   },
 ];
 
+// ── Tilt Waterfall (expandable per-token breakdown) ──
+
+function TiltWaterfall({ token, side }: { token: LongToken | ShortToken; side: "LONG" | "SHORT" }) {
+  const smW = token.sm_weight ?? 0.5;
+  const p3W = token.p3_weight ?? 0.3;
+  const smContrib = token.sm_score * smW;
+  const p3Contrib = token.p3_score * p3W;
+  const ms = (token as LongToken).mindshare_mult;
+  const msAdj = ms != null && ms !== 1.0 ? ms : null;
+  const preAlpha = token.tilt_pre_alpha ?? token.tilt;
+  const alphaBoostPct = preAlpha > 0 ? ((token.tilt / preAlpha) - 1) * 100 : 0;
+  const vol = (token as LongToken).annualized_vol;
+
+  const row = (label: string, value: string, detail: string, positive?: boolean | null) => {
+    const color = positive === true ? "text-emerald-400" : positive === false ? "text-red-400" : "text-gray-400";
+    return (
+      <div className="flex items-center justify-between py-0.5">
+        <span className="text-gray-500 text-[11px] w-48">{label}</span>
+        <span className={`${color} text-[12px] font-mono w-24 text-right`}>{value}</span>
+        <span className="text-gray-600 text-[10px] w-64 text-right">{detail}</span>
+      </div>
+    );
+  };
+
+  const sc = (v: number) => v > 0.005 ? true : v < -0.005 ? false : null;
+
+  return (
+    <div className="bg-gray-900/50 border border-gray-800 rounded-lg px-4 py-3 mx-2 mb-2">
+      <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Tilt Waterfall — {token.symbol.replace("USDT", "")}</div>
+      {row("P1 Value Accrual", `${token.va_score > 0 ? "+" : ""}${token.va_score.toFixed(3)}`, `${token.n_va}/6 signals  (wt: 100%)`, sc(token.va_score))}
+      {row(`P2 Smart Money ×${smW.toFixed(2)}`, `${smContrib > 0 ? "+" : ""}${smContrib.toFixed(3)}`, `${token.n_sm}/10 signals`, sc(smContrib))}
+      {row(`P3 Token Signal ×${p3W.toFixed(2)}`, `${p3Contrib > 0 ? "+" : ""}${p3Contrib.toFixed(3)}`, `${token.n_p3} signals`, sc(p3Contrib))}
+      <div className="border-t border-gray-800 my-1" />
+      {row("Raw Score", `${token.raw_score > 0 ? "+" : ""}${token.raw_score.toFixed(4)}`, "VA + SM×w + P3×w", sc(token.raw_score))}
+      {row("× Confidence", `${(token.confidence * 100).toFixed(0)}%`, `${token.n_va} VA + ${smW}×${token.n_sm} SM + ${p3W}×${token.n_p3} P3`, null)}
+      {row("= Adjusted Score", `${token.adjusted_score > 0 ? "+" : ""}${token.adjusted_score.toFixed(4)}`, "", sc(token.adjusted_score))}
+      {msAdj != null && row("× Mindshare", `×${msAdj.toFixed(3)}`, msAdj > 1 ? "gainer boost" : "loser penalty", msAdj > 1 ? true : false)}
+      {side === "LONG" && row("→ 2^score", `${preAlpha.toFixed(4)}`, `max(0.25, base^${token.adjusted_score.toFixed(3)})`, sc(preAlpha - 1))}
+      {Math.abs(alphaBoostPct) > 0.1 && row("× Alpha ROI", `${alphaBoostPct > 0 ? "+" : ""}${alphaBoostPct.toFixed(1)}%`, `realized + unrealized PnL`, sc(alphaBoostPct))}
+      <div className="border-t border-gray-800 my-1" />
+      {row("= Final Tilt", `${token.tilt.toFixed(4)}×`, "", sc(token.tilt - 1))}
+      {side === "LONG" && vol != null && vol > 0 && row(`÷ Vol (${(vol * 100).toFixed(1)}% ann)`, `→ raw wt ${(token.raw_weight ?? 0).toFixed(3)}`, "", null)}
+      {row("Normalized", `→ ${token.weight_pct.toFixed(1)}%`, side === "LONG" ? "of long budget" : "of short budget", null)}
+    </div>
+  );
+}
+
+// ── Expandable Table (DataTable with click-to-expand waterfall) ──
+
+function ExpandableTable<T extends { symbol: string }>({
+  columns,
+  data,
+  expandedSymbol,
+  onToggle,
+  renderExpanded,
+  defaultSort,
+  defaultDir = "desc",
+}: {
+  columns: Column<T>[];
+  data: T[];
+  expandedSymbol: string | null;
+  onToggle: (sym: string) => void;
+  renderExpanded: (row: T) => React.ReactNode;
+  defaultSort?: string;
+  defaultDir?: "asc" | "desc";
+}) {
+  const [sortCol, setSortCol] = useState(defaultSort || "");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">(defaultDir);
+
+  const sorted = useMemo(() => {
+    const col = columns.find((c) => c.key === sortCol);
+    if (!col?.sortKey) return data;
+    const arr = [...data];
+    arr.sort((a, b) => {
+      const va = col.sortKey!(a);
+      const vb = col.sortKey!(b);
+      if (typeof va === "number" && typeof vb === "number") {
+        return sortDir === "asc" ? va - vb : vb - va;
+      }
+      return sortDir === "asc" ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    });
+    return arr;
+  }, [data, sortCol, sortDir, columns]);
+
+  function handleSort(key: string) {
+    if (sortCol === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortCol(key); setSortDir("asc"); }
+  }
+
+  return (
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="border-b border-gray-800">
+          {columns.map((col) => (
+            <th
+              key={col.key}
+              className={`py-1.5 px-2 text-[11px] text-gray-500 font-medium cursor-pointer select-none ${col.align === "right" ? "text-right" : "text-left"}`}
+              onClick={() => col.sortKey && handleSort(col.key)}
+            >
+              {col.header}
+              {sortCol === col.key && <span className="ml-1">{sortDir === "asc" ? "▲" : "▼"}</span>}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {sorted.map((row) => (
+          <Fragment key={row.symbol}>
+            <tr
+              className={`border-b border-gray-800/50 cursor-pointer transition-colors ${expandedSymbol === row.symbol ? "bg-gray-800/30" : "hover:bg-gray-800/20"}`}
+              onClick={() => onToggle(row.symbol)}
+            >
+              {columns.map((col) => (
+                <td key={col.key} className={`py-1.5 px-2 ${col.align === "right" ? "text-right" : ""}`}>
+                  {col.render(row)}
+                </td>
+              ))}
+            </tr>
+            {expandedSymbol === row.symbol && (
+              <tr>
+                <td colSpan={columns.length} className="p-0">
+                  {renderExpanded(row)}
+                </td>
+              </tr>
+            )}
+          </Fragment>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+// ── Tilt Health Summary ──
+
+function TiltHealthSummary({ longs, shorts }: { longs: LongToken[]; shorts: ShortToken[] }) {
+  const stat = (tokens: (LongToken | ShortToken)[]) => {
+    if (!tokens.length) return null;
+    const tilts = tokens.map(t => t.tilt);
+    const confs = tokens.map(t => t.confidence ?? 1);
+    const min = Math.min(...tilts);
+    const max = Math.max(...tilts);
+    const avg = tilts.reduce((a, b) => a + b, 0) / tilts.length;
+    const avgConf = confs.reduce((a, b) => a + b, 0) / confs.length;
+    const minSym = tokens[tilts.indexOf(min)]?.symbol.replace("USDT", "");
+    const maxSym = tokens[tilts.indexOf(max)]?.symbol.replace("USDT", "");
+    const scored = tokens.filter(t => (t.n_va ?? 0) > 0).length;
+    return { min, max, avg, avgConf, minSym, maxSym, scored, total: tokens.length };
+  };
+
+  const ls = stat(longs);
+  const ss = stat(shorts);
+  if (!ls && !ss) return null;
+
+  const line = (label: string, s: NonNullable<ReturnType<typeof stat>>) => (
+    <div className="flex items-center gap-4 text-[11px]">
+      <span className="text-gray-500 w-12 font-medium">{label}</span>
+      <span className="text-gray-400">
+        min <span className="text-red-400 font-medium">{s.min.toFixed(2)}×</span> ({s.minSym})
+        → max <span className="text-emerald-400 font-medium">{s.max.toFixed(2)}×</span> ({s.maxSym})
+      </span>
+      <span className="text-gray-600">|</span>
+      <span className="text-gray-400">avg <span className="text-gray-200 font-medium">{s.avg.toFixed(2)}×</span></span>
+      <span className="text-gray-600">|</span>
+      <span className="text-gray-400">{s.scored}/{s.total} scored</span>
+      <span className="text-gray-600">|</span>
+      <span className="text-gray-400">avg conf <span className="text-gray-200 font-medium">{(s.avgConf * 100).toFixed(0)}%</span></span>
+    </div>
+  );
+
+  return (
+    <Card>
+      <CardHeader><CardTitle>Alpha Tilt Health</CardTitle></CardHeader>
+      <div className="px-4 pb-3 space-y-1">
+        {ls && line("Longs", ls)}
+        {ss && line("Shorts", ss)}
+      </div>
+    </Card>
+  );
+}
+
 // ── Main Tab ──
 
 export function PortfolioConstructionTab() {
   const { data, isLoading, error } = usePortfolioConstruction() as { data: any; isLoading: boolean; error: any };
+  const [expandedLong, setExpandedLong] = useState<string | null>(null);
+  const [expandedShort, setExpandedShort] = useState<string | null>(null);
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64 text-gray-500 text-sm">Loading portfolio construction...</div>;
@@ -526,6 +729,9 @@ export function PortfolioConstructionTab() {
         <ConstraintsPanel constraints={data.constraints} />
       </div>
 
+      {/* Tilt Health Summary */}
+      <TiltHealthSummary longs={data.long_side.tokens} shorts={data.short_side.tokens} />
+
       {/* Long Side */}
       <Card>
         <CardHeader>
@@ -542,9 +748,17 @@ export function PortfolioConstructionTab() {
         <div className="px-4 pb-4">
           <SectorBreakdown tokens={data.long_side.tokens} />
           <div className="text-[11px] text-gray-500 mb-2">
-            weight = tilt / vol<sup>{data.long_side.vol_power}</sup> (normalized)
+            weight = tilt / vol<sup>{data.long_side.vol_power}</sup> (normalized) — click row for tilt waterfall
           </div>
-          <DataTable columns={longColumns} data={data.long_side.tokens} defaultSort="weight" defaultDir="desc" />
+          <ExpandableTable
+            columns={longColumns}
+            data={data.long_side.tokens}
+            expandedSymbol={expandedLong}
+            onToggle={(sym) => setExpandedLong(expandedLong === sym ? null : sym)}
+            renderExpanded={(token) => <TiltWaterfall token={token} side="LONG" />}
+            defaultSort="weight"
+            defaultDir="desc"
+          />
         </div>
       </Card>
 
@@ -563,9 +777,17 @@ export function PortfolioConstructionTab() {
         <div className="px-4 pb-4">
           <SectorBreakdown tokens={data.short_side.tokens} />
           <div className="text-[11px] text-gray-500 mb-2">
-            weight = {"\u03b2"} {"\u00d7"} correlation to long basket (normalized)
+            weight = {"\u03b2"} {"\u00d7"} correlation to long basket (normalized) — click row for tilt waterfall
           </div>
-          <DataTable columns={shortColumns} data={data.short_side.tokens} defaultSort="weight" defaultDir="desc" />
+          <ExpandableTable
+            columns={shortColumns}
+            data={data.short_side.tokens}
+            expandedSymbol={expandedShort}
+            onToggle={(sym) => setExpandedShort(expandedShort === sym ? null : sym)}
+            renderExpanded={(token) => <TiltWaterfall token={token} side="SHORT" />}
+            defaultSort="weight"
+            defaultDir="desc"
+          />
         </div>
       </Card>
     </div>
