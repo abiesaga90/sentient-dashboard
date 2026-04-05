@@ -55,6 +55,8 @@ export interface Position {
   correlation: number | null;
   annualized_vol: number | null;
   inv_vol_weight: number | null;
+  rsi_daily: number | null;
+  rsi_weekly: number | null;
 }
 
 export interface BetaAggregate {

@@ -57,6 +57,38 @@ const columns: Column<Position>[] = [
     sortKey: (r) => r.hours_held,
     align: "right",
   },
+  {
+    key: "rsi_daily",
+    header: "RSI 1D",
+    render: (r) => {
+      if (r.rsi_daily == null) return <span className="text-gray-500">—</span>;
+      const color =
+        r.rsi_daily <= 30
+          ? "text-green-400"
+          : r.rsi_daily >= 70
+            ? "text-red-400"
+            : "text-gray-300";
+      return <span className={color}>{r.rsi_daily.toFixed(1)}</span>;
+    },
+    sortKey: (r) => r.rsi_daily ?? 50,
+    align: "right",
+  },
+  {
+    key: "rsi_weekly",
+    header: "RSI 1W",
+    render: (r) => {
+      if (r.rsi_weekly == null) return <span className="text-gray-500">—</span>;
+      const color =
+        r.rsi_weekly <= 30
+          ? "text-green-400"
+          : r.rsi_weekly >= 70
+            ? "text-red-400"
+            : "text-gray-300";
+      return <span className={color}>{r.rsi_weekly.toFixed(1)}</span>;
+    },
+    sortKey: (r) => r.rsi_weekly ?? 50,
+    align: "right",
+  },
 ];
 
 export function PositionsTable({ positions }: PositionsTableProps) {
