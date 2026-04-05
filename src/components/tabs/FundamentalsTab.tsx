@@ -345,6 +345,7 @@ export function FundamentalsTab() {
 
   // Build a lookup of long token symbols for health badge in universe table
   const healthLookup: Record<string, string> = {};
+  const hasAlpha = health?.tokens?.some((ht: any) => ht.alpha_pct != null) ?? false;
   if (health?.tokens) {
     for (const ht of health.tokens as any[]) {
       healthLookup[ht.symbol] = ht.thesis_health;
@@ -444,7 +445,7 @@ export function FundamentalsTab() {
                   <th className="px-2 py-1.5 text-right text-gray-500">SM</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">P3</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">Adj.</th>
-                  <th className="px-2 py-1.5 text-right text-gray-500">Alpha</th>
+                  {hasAlpha && <th className="px-2 py-1.5 text-right text-gray-500">Alpha</th>}
                   <th className="px-2 py-1.5 text-right text-gray-500">PE</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">Rev Yield</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">Rev Cap %</th>
@@ -484,9 +485,11 @@ export function FundamentalsTab() {
                     <td className={`px-2 py-1.5 text-right font-mono font-semibold ${pillarColor(t.adjusted_score)}`}>
                       {t.adjusted_score != null ? t.adjusted_score.toFixed(1) : "—"}
                     </td>
+                    {hasAlpha && (
                     <td className={`px-2 py-1.5 text-right font-mono ${t.alpha_pct != null ? (t.alpha_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
                       {t.alpha_pct != null ? `${t.alpha_pct > 0 ? "+" : ""}${t.alpha_pct.toFixed(1)}%` : "—"}
                     </td>
+                    )}
                     <td className={`px-2 py-1.5 text-right font-mono ${t.pe_ratio != null && t.pe_ratio > 80 ? "text-red-400" : "text-gray-300"}`}>
                       {t.pe_ratio != null ? t.pe_ratio.toFixed(0) : "—"}
                       {t.pe_trend && <span className="text-[8px] ml-0.5 text-gray-600">{t.pe_trend === "falling" ? "↓" : t.pe_trend === "rising" ? "↑" : ""}</span>}
@@ -629,7 +632,7 @@ export function FundamentalsTab() {
                 {th("SM", "sm_score")}
                 {th("P3", "p3_score")}
                 {th("Adj.", "adjusted_score")}
-                {th("Alpha", "alpha_pct")}
+                {hasAlpha && th("Alpha", "alpha_pct")}
                 {th("PE", "pe_ratio")}
                 {th("Rev Yield", "holders_revenue_yield_pct")}
                 {th("Rev Cap %", "revenue_capture_pct")}
@@ -642,8 +645,6 @@ export function FundamentalsTab() {
                 {th("P/S", "ps_ratio")}
                 {th("SM Flow 30d", "nansen_sm_netflow_30d")}
                 {th("SM Holders", "nansen_sm_holders")}
-                <th className="text-right py-2">Health</th>
-                <th className="text-left py-2">Issues</th>
               </tr>
             </thead>
             <tbody>
@@ -676,9 +677,11 @@ export function FundamentalsTab() {
                   <td className={`py-2 text-right font-mono font-semibold ${pillarColor(t.adjusted_score)}`}>
                     {t.adjusted_score != null ? t.adjusted_score.toFixed(1) : "—"}
                   </td>
+                  {hasAlpha && (
                   <td className={`py-2 text-right font-mono ${_healthToken?.alpha_pct != null ? (_healthToken.alpha_pct > 0 ? "text-green-400" : "text-red-400") : "text-gray-600"}`}>
                     {_healthToken?.alpha_pct != null ? `${_healthToken.alpha_pct > 0 ? "+" : ""}${_healthToken.alpha_pct.toFixed(1)}%` : "—"}
                   </td>
+                  )}
                   <td className={`py-2 text-right font-mono ${t.pe_ratio != null && t.pe_ratio > 80 ? "text-red-400" : "text-gray-300"}`}>
                     {t.pe_ratio != null ? t.pe_ratio.toFixed(0) : "—"}
                   </td>
@@ -707,19 +710,9 @@ export function FundamentalsTab() {
                     {t.nansen_sm_netflow_30d ? `$${(t.nansen_sm_netflow_30d/1e6).toFixed(1)}M` : "—"}
                   </td>
                   <td className="py-2 text-right text-gray-400">{t.nansen_sm_holders ?? "—"}</td>
-                  <td className="py-2 text-right">
-                    {_health ? (
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${healthColors[_health] || "text-gray-500"}`}>
-                        {_health.toUpperCase()}
-                      </span>
-                    ) : "—"}
-                  </td>
-                  <td className="py-2 text-[10px] text-gray-500 max-w-[200px] truncate" title={_healthToken?.thesis_issues?.join("; ")}>
-                    {_healthToken?.thesis_issues?.[0] || "—"}
-                  </td>
                 </tr>
                 {_isExpanded && (
-                  <tr key={`${t.symbol}-detail`}><td colSpan={22} className="p-0"><ResearchDeepDive t={t} /></td></tr>
+                  <tr key={`${t.symbol}-detail`}><td colSpan={99} className="p-0"><ResearchDeepDive t={t} /></td></tr>
                 )}
                 </>);
               })}
