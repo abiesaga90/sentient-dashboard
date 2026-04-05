@@ -452,41 +452,41 @@ export function FundamentalsTab() {
       {health?.recommendations && health.recommendations.length > 0 && (
         <Card>
           <CardHeader><CardTitle>Recommendations</CardTitle></CardHeader>
-          <div className="space-y-2 p-3">
+          <div className="space-y-3 p-4">
             {health.recommendations.map((r: any) => (
-              <div key={r.symbol} className={`rounded border px-3 py-2 ${r.severity === "critical" ? "border-red-800/30 bg-red-900/10" : "border-yellow-800/30 bg-yellow-900/10"}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-bold ${r.severity === "critical" ? "text-red-400" : "text-yellow-400"}`}>
+              <div key={r.symbol} className={`rounded-lg border px-4 py-3 ${r.severity === "critical" ? "border-red-800/30 bg-red-900/10" : "border-yellow-800/30 bg-yellow-900/10"}`}>
+                <div className="flex items-center gap-3 mb-1.5">
+                  <span className={`text-sm font-bold ${r.severity === "critical" ? "text-red-400" : "text-yellow-400"}`}>
                     {r.action.toUpperCase()}
                   </span>
-                  <span className="text-xs text-gray-300 font-medium">{r.symbol.replace("USDT", "")}</span>
-                  <span className="text-[10px] text-gray-500 capitalize">{r.case?.sector}</span>
+                  <span className="text-sm text-gray-200 font-semibold">{r.symbol.replace("USDT", "")}</span>
+                  <span className="text-xs text-gray-500 capitalize">{r.case?.sector}</span>
                   {r.case?.is_sector_rotation && (
-                    <span className="text-[9px] px-1 py-0.5 rounded bg-gray-800 text-gray-500">sector rotation</span>
+                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-500">sector rotation</span>
                   )}
                 </div>
-                <div className="text-[10px] text-gray-400">
+                <div className="text-xs text-gray-400 leading-relaxed">
                   {r.case?.issues?.slice(0, 3).join(" · ")}
                 </div>
                 {r.replacements && r.replacements.length > 0 && (
-                  <div className="mt-1.5 border-t border-gray-800 pt-1.5">
-                    <div className="text-[9px] text-gray-600 mb-1">REPLACE WITH:</div>
+                  <div className="mt-2 border-t border-gray-800 pt-2">
+                    <div className="text-[11px] text-gray-500 font-medium mb-1.5">REPLACE WITH:</div>
                     {r.replacements.map((rep: any) => (
-                      <div key={rep.symbol} className="flex items-center gap-3 text-[10px]">
-                        <span className="text-blue-400 font-medium">{rep.symbol.replace("USDT", "")}</span>
-                        <span className="text-gray-500 capitalize">{rep.sector}</span>
+                      <div key={rep.symbol} className="flex items-center gap-3 text-xs py-0.5">
+                        <span className="text-blue-400 font-semibold w-16">{rep.symbol.replace("USDT", "")}</span>
+                        <span className="text-gray-500 capitalize w-12">{rep.sector}</span>
                         {rep.pe != null && <span className="font-mono text-gray-400">PE {rep.pe}</span>}
                         {rep.fees_30d > 0 && <span className="font-mono text-gray-400">${(rep.fees_30d/1e6).toFixed(1)}M fees</span>}
                         {rep.tvl > 0 && <span className="font-mono text-gray-400">${(rep.tvl/1e9).toFixed(1)}B TVL</span>}
                         {rep.sm_netflow_30d > 1e6 && <span className="font-mono text-green-400">SM +${(rep.sm_netflow_30d/1e6).toFixed(0)}M</span>}
-                        <span className="font-mono text-gray-500">B{rep.beta} R{rep.correlation}</span>
-                        <span className="text-gray-600">{rep.sector_concentration_impact}</span>
+                        <span className="font-mono text-gray-500">{"\u03b2"}{rep.beta} {"\u03c1"}{rep.correlation}</span>
+                        <span className="text-gray-600 text-[11px]">{rep.sector_concentration_impact}</span>
                       </div>
                     ))}
                   </div>
                 )}
                 {r.case?.downgrade_reason && (
-                  <div className="text-[9px] text-gray-600 mt-1 italic">{r.case.downgrade_reason}</div>
+                  <div className="text-[11px] text-gray-600 mt-1.5 italic">{r.case.downgrade_reason}</div>
                 )}
               </div>
             ))}
