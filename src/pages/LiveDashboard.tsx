@@ -13,7 +13,7 @@ import { ConvictionShortsTab } from "../components/tabs/ConvictionShortsTab";
 import { FundamentalsTab } from "../components/tabs/FundamentalsTab";
 import { PerformanceTab } from "../components/tabs/PerformanceTab";
 import { AttributionTab } from "../components/tabs/AttributionTab";
-import { ThesisTab } from "../components/tabs/ThesisTab";
+// ThesisTab merged into FundamentalsTab
 import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
 import { MarketContextTab } from "../components/tabs/MarketContextTab";
@@ -94,7 +94,7 @@ function TabContent({
     case "attribution":
       return <AttributionTab />;
     case "thesis":
-      return <ThesisTab />;
+      return <FundamentalsTab />; // Thesis merged into Fundamentals
     case "pairs":
       return <PairsTab />;
     case "risk-stress":
