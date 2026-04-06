@@ -83,6 +83,23 @@ interface MarketContextResponse {
   error?: string;
 }
 
+interface MarketNote {
+  id: number;
+  title: string;
+  body: string | null;
+  direction: string;
+  magnitude: string;
+  start_date: string | null;
+  end_date: string | null;
+  source: string | null;
+  active: number;
+  created_at: string | null;
+}
+
+interface MarketNotesResponse {
+  notes: MarketNote[];
+}
+
 // ── Helpers ──
 
 const zoneBadge = (zone: ZoneInfo | null) => {
@@ -106,6 +123,13 @@ export function MarketContextTab() {
   const { data, isLoading } = useQuery<MarketContextResponse>({
     queryKey: ["market-context", engine.id],
     queryFn: () => client.get("/api/macro_regime"),
+    refetchInterval: 120_000,
+    staleTime: 60_000,
+  });
+
+  const { data: notesData } = useQuery<MarketNotesResponse>({
+    queryKey: ["market-notes", engine.id],
+    queryFn: () => client.get("/api/market-notes?active_only=true"),
     refetchInterval: 120_000,
     staleTime: 60_000,
   });
@@ -338,7 +362,56 @@ export function MarketContextTab() {
         </ChartContainer>
       )}
 
-      {/* Section 5: Zone Thresholds */}
+      {/* Section 5: PM Market Notes */}
+      {notesData?.notes && notesData.notes.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>PM Market Notes</CardTitle>
+          </CardHeader>
+          <div className="divide-y divide-[var(--border)]">
+            {notesData.notes.map((note) => {
+              const dirColor =
+                note.direction === "bullish" ? "#22c55e" :
+                note.direction === "bearish" ? "#ef4444" :
+                "#6b7280";
+              const magLabel =
+                note.magnitude === "high" ? "HIGH" :
+                note.magnitude === "medium" ? "MED" :
+                "LOW";
+              return (
+                <div key={note.id} className="px-4 py-3 flex items-start gap-3">
+                  <Badge
+                    variant={note.direction === "bullish" ? "success" : note.direction === "bearish" ? "danger" : "default"}
+                    style={{ backgroundColor: dirColor + "22", color: dirColor, borderColor: dirColor + "44", flexShrink: 0 }}
+                  >
+                    {note.direction}
+                  </Badge>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-200">{note.title}</span>
+                      <span className="text-[10px] font-mono text-gray-500 uppercase">{magLabel}</span>
+                    </div>
+                    {note.body && (
+                      <p className="text-xs text-gray-400 mt-0.5">{note.body}</p>
+                    )}
+                    <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-500">
+                      {note.source && <span>{note.source}</span>}
+                      {note.start_date && (
+                        <span>
+                          {note.start_date}
+                          {note.end_date ? ` - ${note.end_date}` : "+"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {/* Section 6: Zone Thresholds */}
       {data.cycle?.zone_thresholds && (
         <Card>
           <CardHeader>
