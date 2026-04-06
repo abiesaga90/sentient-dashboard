@@ -475,6 +475,7 @@ export interface RankingCandidate {
   mindshare_delta: number | null;
   mindshare_mult: number | null;
   cg_trending_attention?: number | null;
+  mcap_rank?: number | null;
 }
 
 export interface FundWeights {
@@ -524,6 +525,12 @@ export interface RankingsResponse {
     stale_count: number;
     oldest_update: string | null;
   };
+  unmapped_top_coins?: Array<{
+    symbol: string;
+    name: string;
+    global_rank: number;
+    market_cap: number | null;
+  }>;
   timestamp: string;
 }
 

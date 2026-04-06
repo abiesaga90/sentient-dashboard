@@ -63,6 +63,18 @@ function buildColumns(opts: {
       ),
       sortKey: (r) => r.symbol,
     },
+    {
+      key: "mcap_rank",
+      header: "MCap #",
+      render: (r) => {
+        const rank = r.mcap_rank;
+        if (rank == null) return <span className="text-gray-700 text-[11px]">—</span>;
+        const color = rank <= 20 ? "text-green-400" : rank <= 50 ? "text-blue-400" : rank <= 100 ? "text-gray-300" : "text-gray-500";
+        return <span className={`text-xs font-mono ${color}`}>#{rank}</span>;
+      },
+      sortKey: (r) => r.mcap_rank ?? 9999,
+      align: "right",
+    },
   ];
 
   if (opts.showStatus) {
@@ -809,6 +821,49 @@ export function ShortSelectionTab() {
         />
       </Card>
 
+      {/* Unmapped Top Coins — coins in global top 200 without Binance USDT-M futures */}
+      {data.unmapped_top_coins && data.unmapped_top_coins.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Missing from Universe</CardTitle>
+              <span className="text-xs text-gray-500">
+                {data.unmapped_top_coins.length} coins without Binance USDT-M futures
+              </span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">
+              These coins rank in the global top 250 by market cap but have no Binance USDT-M perpetual contract. We cannot short them.
+            </p>
+          </CardHeader>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-gray-500 text-left border-b border-gray-800">
+                  <th className="px-3 py-2 text-right w-12">Rank</th>
+                  <th className="px-3 py-2">Symbol</th>
+                  <th className="px-3 py-2">Name</th>
+                  <th className="px-3 py-2 text-right">Market Cap</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.unmapped_top_coins
+                  .sort((a, b) => a.global_rank - b.global_rank)
+                  .map((coin) => (
+                    <tr key={coin.symbol} className="border-b border-gray-800/50 hover:bg-gray-900/50">
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-500">#{coin.global_rank}</td>
+                      <td className="px-3 py-1.5 font-mono font-medium text-gray-300">{coin.symbol}</td>
+                      <td className="px-3 py-1.5 text-gray-400">{coin.name}</td>
+                      <td className="px-3 py-1.5 text-right font-mono text-gray-400">
+                        {coin.market_cap ? formatUSD(coin.market_cap, 0) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
       {/* VA Signal Weights — legacy mode only */}
       {!fundFirst && (
         <Card>
@@ -915,33 +970,33 @@ function StatusBadges({
   status: string[];
   filter_reasons: string[];
 }) {
+  const isActive = (status || []).includes("in_basket") || (status || []).includes("in_targets");
+  const isExcluded = (status || []).includes("excluded");
+  const reasons = filter_reasons || [];
+
   return (
-    <div className="flex flex-wrap gap-1">
+    <div className="flex flex-wrap gap-1 items-center">
       {(status || []).includes("in_basket") && (
         <Badge variant="info" className="text-[10px]">ACTIVE</Badge>
       )}
       {(status || []).includes("in_targets") && (
         <Badge variant="success" className="text-[10px]">TARGET</Badge>
       )}
-      {(status || []).includes("excluded") && (
+      {isExcluded && (
         <Badge variant="danger" className="text-[10px]">EXCLUDED</Badge>
       )}
       {(status || []).includes("long_bench") && (
         <Badge variant="default" className="text-[10px]">LONG BENCH</Badge>
       )}
-      {(filter_reasons || []).map((r) => (
-        <span key={r} className={`text-[10px] ${r === "momentum_veto" ? "text-red-400 font-semibold" : "text-gray-600"}`}>
-          {r === "low_corr"
-            ? "Low corr"
-            : r === "low_beta"
-              ? "Low beta"
-              : r === "low_volume"
-                ? "Low vol"
-                : r === "high_beta"
-                  ? "High beta"
-                  : r === "momentum_veto"
-                    ? "Momentum veto"
-                    : r}
+      {/* Show gate failure reasons prominently for non-basket tokens */}
+      {!isActive && reasons.map((r) => (
+        <span key={r} className={`text-[10px] leading-tight ${
+          r.includes("exclusion list") ? "text-red-400" :
+          r.includes("momentum veto") ? "text-red-400 font-semibold" :
+          r.includes("funding veto") ? "text-orange-400" :
+          "text-yellow-500"
+        }`}>
+          {r}
         </span>
       ))}
     </div>
