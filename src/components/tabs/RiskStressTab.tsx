@@ -666,6 +666,11 @@ export function RiskStressTab() {
                   <span className="text-[10px] text-gray-500">backstop {dec.backstop_hours_remaining.toFixed(0)}h</span>
                 </div>
                 <div className="text-[11px]">{dec.reason}</div>
+                {dec.drift_negligible && (
+                  <div className="text-[10px] text-blue-400/70 mt-1">
+                    Drift near zero — reversal factors suppressed (just rebalanced)
+                  </div>
+                )}
                 {dec.hours_to_breakeven != null && (
                   <div className="text-[10px] text-gray-500 mt-1">
                     Break-even: {dec.hours_to_breakeven.toFixed(0)}h ({(dec.hours_to_breakeven / 24).toFixed(1)}d)
