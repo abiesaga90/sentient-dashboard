@@ -13,7 +13,6 @@ import {
   Zap,
   Gauge,
   Layers,
-  Crosshair,
   Scale,
 } from "lucide-react";
 
@@ -24,7 +23,6 @@ export const DASHBOARD_TABS = [
   { id: "positions", label: "Positions", icon: <List size={14} /> },
   { id: "long-signals", label: "Long Signals", icon: <Zap size={14} /> },
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },
-  { id: "conviction-shorts", label: "Conviction Shorts", icon: <Crosshair size={14} /> },
   { id: "fundamentals", label: "Fundamentals", icon: <BookOpen size={14} /> },
   { id: "performance", label: "Performance", icon: <TrendingUp size={14} /> },
   { id: "attribution", label: "Attribution", icon: <BarChart3 size={14} /> },
