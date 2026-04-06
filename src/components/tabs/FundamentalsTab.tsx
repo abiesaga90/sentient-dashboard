@@ -649,7 +649,6 @@ export function FundamentalsTab() {
             </thead>
             <tbody>
               {filtered.map(t => {
-                const _health = healthLookup[t.symbol];
                 const _healthToken = health?.tokens?.find((ht: any) => ht.symbol === t.symbol);
                 const _isExpanded = expandedToken === t.symbol;
                 return (<>
