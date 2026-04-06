@@ -145,10 +145,10 @@ export function ShortDetailView({
       <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Left: Four-Pillar Breakdown */}
         <div className="space-y-3">
-          {/* P1: Value Accrual (inverted) */}
+          {/* VA: Value Accrual (inverted) */}
           <div>
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
-              P1: Value Accrual (inverted — higher = weaker = better short)
+              VA: Value Accrual (inverted — higher = weaker = better short)
             </div>
             <div className="space-y-1">
               {[

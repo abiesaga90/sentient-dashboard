@@ -298,7 +298,7 @@ function TokenDetailView({
       <div className="grid md:grid-cols-3 gap-4">
         {/* VA: Value Accrual */}
         <Card>
-          <CardHeader><CardTitle><span className="text-purple-400">P1</span> Value Accrual</CardTitle></CardHeader>
+          <CardHeader><CardTitle><span className="text-purple-400">VA</span> Value Accrual</CardTitle></CardHeader>
           <div className="space-y-2">
             {/* Supply Health Composite (if present) */}
             {t && t.signals.supply_health && t.signals.supply_health.is_composite && (
@@ -355,7 +355,7 @@ function TokenDetailView({
 
         {/* SM: Smart Money */}
         <Card>
-          <CardHeader><CardTitle><span className="text-blue-400">P2</span> Smart Money</CardTitle></CardHeader>
+          <CardHeader><CardTitle><span className="text-blue-400">SM</span> Smart Money</CardTitle></CardHeader>
           <div className="space-y-2">
             {t && Object.entries(t.signals)
               .filter(([k]) => SM_SIGNAL_KEYS.has(k))
@@ -440,7 +440,7 @@ function TokenDetailView({
             <div className="space-y-3 text-xs">
               {/* P1: VA Weighted Breakdown */}
               <div>
-                <div className="text-[10px] text-purple-400 uppercase tracking-wider mb-1.5 font-semibold">P1: Value Accrual (weighted)</div>
+                <div className="text-[10px] text-purple-400 uppercase tracking-wider mb-1.5 font-semibold">VA: Value Accrual (weighted)</div>
                 <div className="space-y-0.5">
                   {/* Supply Health Composite Row (if active) */}
                   {t.signals.supply_health?.is_composite && (
@@ -524,6 +524,24 @@ function TokenDetailView({
                   </div>
                 </div>
               )}
+
+              {/* MM: Market Microstructure */}
+              {(t.mm_count ?? 0) > 0 && (() => {
+                const mmW = (t as any).mm_weight ?? 0.09;
+                const mmSc = (t as any).mm_score ?? 0;
+                const mmC = mmW * mmSc;
+                return (
+                  <div>
+                    <div className="text-[10px] text-cyan-400 uppercase tracking-wider mb-1.5 font-semibold">MM: Market Microstructure (×{mmW.toFixed(2)})</div>
+                    <div className="flex justify-between font-mono px-2 text-gray-300">
+                      <span>{mmW.toFixed(2)} × {mmSc.toFixed(3)}</span>
+                      <span className={`font-semibold ${mmC > 0 ? "text-green-400" : mmC < 0 ? "text-red-400" : "text-gray-400"}`}>
+                        {mmC > 0 ? "+" : ""}{mmC.toFixed(4)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Final computation */}
               <div className="border-t border-gray-800 pt-2 font-mono space-y-1 px-2">
