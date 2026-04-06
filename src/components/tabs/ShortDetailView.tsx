@@ -189,11 +189,11 @@ export function ShortDetailView({
             </div>
           </div>
 
-          {/* P2: Smart Money */}
+          {/* SM: Smart Money */}
           {sm && Object.keys(sm).length > 0 && (
             <div>
               <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
-                P2: Smart Money
+                SM: Smart Money
               </div>
               <div className="space-y-1">
                 {Object.entries(sm).map(([key, sig]) => (

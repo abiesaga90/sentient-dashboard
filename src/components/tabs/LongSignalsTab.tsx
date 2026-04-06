@@ -295,7 +295,7 @@ function TokenDetailView({
 
       {/* Three-Pillar Signal Breakdown */}
       <div className="grid md:grid-cols-3 gap-4">
-        {/* Pillar 1: Value Accrual */}
+        {/* VA: Value Accrual */}
         <Card>
           <CardHeader><CardTitle><span className="text-purple-400">P1</span> Value Accrual</CardTitle></CardHeader>
           <div className="space-y-2">
@@ -352,7 +352,7 @@ function TokenDetailView({
           )}
         </Card>
 
-        {/* Pillar 2: Smart Money */}
+        {/* SM: Smart Money */}
         <Card>
           <CardHeader><CardTitle><span className="text-blue-400">P2</span> Smart Money</CardTitle></CardHeader>
           <div className="space-y-2">
@@ -368,7 +368,7 @@ function TokenDetailView({
           </div>
         </Card>
 
-        {/* Pillar 3: Token Signals */}
+        {/* OP: Operational Performance */}
         <Card className={tokenData?.enabled ? "border-orange-800/30" : ""}>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -490,9 +490,9 @@ function TokenDetailView({
                 </div>
               </div>
 
-              {/* P2: SM */}
+              {/* SM: Smart Money */}
               <div>
-                <div className="text-[10px] text-blue-400 uppercase tracking-wider mb-1.5 font-semibold">P2: Smart Money (×{smWeight.toFixed(2)})</div>
+                <div className="text-[10px] text-blue-400 uppercase tracking-wider mb-1.5 font-semibold">SM: Smart Money (×{smWeight.toFixed(2)})</div>
                 <div className="space-y-0.5">
                   {smEntries.map(([key, sig]) => (
                     <div key={key} className="grid grid-cols-[1fr_60px] gap-2 font-mono px-2 py-1 bg-[var(--bg-secondary)] rounded items-center">
@@ -751,7 +751,7 @@ export function LongSignalsTab() {
             {/* VA Signal Weights (dynamic from backend) */}
             <div>
               <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">
-                Pillar 1: Value Accrual Weights
+                VA: Value Accrual Weights
                 {signals.va_weights_effective && signals.config?.use_supply_composite && (
                   <span className="text-purple-400 ml-2">(Supply Health composite active)</span>
                 )}
@@ -783,7 +783,7 @@ export function LongSignalsTab() {
 
             {/* SM Signal Weights */}
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Pillar 2: Smart Money <span className="text-gray-700">(weight 0.50 &mdash; 33% of base score)</span></div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">SM: Smart Money <span className="text-gray-700">(weight 0.50 &mdash; 33% of base score)</span></div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {[
                   { label: "SM Netflow 30d", source: "Nansen" },
@@ -809,7 +809,7 @@ export function LongSignalsTab() {
             {/* Pillar 3 + Modifiers */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Pillar 3: Token Signals</div>
+                <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">OP: Operational Performance</div>
                 <div className="grid grid-cols-1 gap-2 text-[11px]">
                   {["Revenue (Blockworks blend)", "Protocol Activity (DEX vol, AUM)", "MEV & Burn Metrics", "Per-token bespoke signals"].map((s, i) => (
                     <div key={i} className="flex items-center gap-2 bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
@@ -929,7 +929,7 @@ export function LongSignalsTab() {
                           {p3 && p3.enabled && (
                             <span
                               className="ml-1 text-[10px] font-semibold text-orange-400 bg-orange-500/10 px-1 rounded cursor-pointer hover:bg-orange-500/20"
-                              title={`Pillar 3: ${Object.keys(p3.components).length} signals — click for detail`}
+                              title={`OP: ${Object.keys(p3.components).length} signals — click for detail`}
                               onClick={(e) => { e.stopPropagation(); setSubTab(t.symbol); }}
                             >OP</span>
                           )}
@@ -949,6 +949,8 @@ export function LongSignalsTab() {
                           <span className="text-blue-400">{t.sm_count}</span>
                           <span className="text-gray-600">/10 </span>
                           <span className={p3Count > 0 ? "text-orange-400" : "text-gray-600"}>{p3Count}</span>
+                          <span className="text-gray-600"> </span>
+                          <span className="text-cyan-400">{t.mm_count ?? 0}</span>
                         </td>
                         <td className="py-2.5 text-right text-gray-400">{fmt(t.fees_30d)}</td>
                         <td className="py-2.5 text-right">
@@ -971,7 +973,7 @@ export function LongSignalsTab() {
                               <span className={t.mindshare_delta > 0 ? "text-green-400" : "text-red-400"}>
                                 {t.mindshare_delta > 0 ? "+" : ""}{t.mindshare_delta.toFixed(2)}
                               </span>
-                              {t.mindshare_mult !== 1.0 && (
+                              {t.mindshare_mult != null && !isNaN(t.mindshare_mult) && t.mindshare_mult !== 1.0 && (
                                 <span className="text-gray-500 text-[10px] ml-1">
                                   ({t.mindshare_mult > 1 ? "+" : ""}{((t.mindshare_mult - 1) * 100).toFixed(0)}%)
                                 </span>
@@ -994,7 +996,7 @@ export function LongSignalsTab() {
             </table>
           </div>
           <div className="mt-2 text-[10px] text-gray-600">
-            <span className="text-yellow-500">*</span> VA registry correction applied. <span className="text-orange-500">OP</span> = Pillar 3 token signal active. Yellow holders_rev = corrected value (hover for DefiLlama original).
+            <span className="text-yellow-500">*</span> VA registry correction applied. <span className="text-orange-500">OP</span> = Operational Performance signal active. Yellow holders_rev = corrected value (hover for DefiLlama original).
           </div>
         </Card>
 
@@ -1012,7 +1014,7 @@ export function LongSignalsTab() {
               <div className="grid md:grid-cols-3 gap-4">
                 {/* VA Signals */}
                 <div>
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Pillar 1: Value Accrual</div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">VA: Value Accrual</div>
                   <div className="space-y-2">
                     {Object.entries(t.signals).filter(([k]) => !SM_SIGNAL_KEYS.has(k)).map(([key, sig]) => (
                       <div key={key} className="flex items-center justify-between text-xs">
@@ -1024,7 +1026,7 @@ export function LongSignalsTab() {
                 </div>
                 {/* SM Signals */}
                 <div>
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Pillar 2: Smart Money</div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">SM: Smart Money</div>
                   <div className="space-y-2">
                     {Object.entries(t.signals).filter(([k]) => SM_SIGNAL_KEYS.has(k)).map(([key, sig]) => (
                       <div key={key} className="flex items-center justify-between text-xs">
@@ -1037,7 +1039,7 @@ export function LongSignalsTab() {
                 </div>
                 {/* OP Token Signals */}
                 <div>
-                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Pillar 3: Token Signal</div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">OP: Operational Performance</div>
                   {p3 && Object.keys(p3.components).length > 0 ? (
                     <div className="space-y-2">
                       {Object.entries(p3.components).map(([name, comp]) => (

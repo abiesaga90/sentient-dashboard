@@ -149,9 +149,10 @@ export function SignalFlowDiagram({
 
   const smMultiplier = config?.SM_MULTIPLIER ?? 0.5;
   const p3Multiplier = config?.P3_MULTIPLIER ?? 0.3;
+  const mmMultiplier = config?.MM_MULTIPLIER ?? 0.09;
 
   // Build resolved formula strings when token is selected
-  const rawFormula = `Raw Score = VA + ${smMultiplier.toFixed(2)}×SM + ${p3Multiplier.toFixed(2)}×OP`;
+  const rawFormula = `Raw Score = VA×w + ${smMultiplier.toFixed(2)}×SM + ${p3Multiplier.toFixed(2)}×OP + ${mmMultiplier.toFixed(2)}×MM`;
   const rawResolved = token
     ? `= ${token.va_count} signals + ${smMultiplier.toFixed(2)}×${token.sm_count} signals → ${token.raw_score.toFixed(3)}`
     : undefined;
@@ -234,7 +235,7 @@ export function SignalFlowDiagram({
         </PillarBox>
 
         <PillarBox
-          title="P2: Smart Money"
+          title="SM: Smart Money"
           subtitle={`${token ? token.sm_count : 10} signals, ×${smMultiplier.toFixed(2)}`}
           accent="blue"
           filled={token ? token.sm_count : undefined}
@@ -245,6 +246,12 @@ export function SignalFlowDiagram({
           title="OP: Operational Performance"
           subtitle={`per-token bespoke, ×${p3Multiplier.toFixed(2)}`}
           accent="orange"
+        />
+
+        <PillarBox
+          title="MM: Market Microstructure"
+          subtitle={`4 signals, ×${mmMultiplier.toFixed(2)}`}
+          accent="cyan"
         />
       </div>
 
