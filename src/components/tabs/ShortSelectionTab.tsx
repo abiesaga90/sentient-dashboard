@@ -83,7 +83,7 @@ function buildColumns(opts: {
           <span
             className={`font-semibold ${r.fund_score > 0.4 ? "text-red-400" : r.fund_score > 0.2 ? "text-yellow-400" : "text-gray-400"}`}
           >
-            {r.fund_score.toFixed(3)}
+            {(r.fund_score ?? 0).toFixed(3)}
           </span>
         ),
         sortKey: (r) => r.fund_score,
@@ -108,7 +108,7 @@ function buildColumns(opts: {
         header: "Final",
         render: (r) => (
           <span className="text-gray-300 text-sm">
-            {r.score.toFixed(3)}
+            {(r.score ?? 0).toFixed(3)}
           </span>
         ),
         sortKey: (r) => r.score,
@@ -211,14 +211,14 @@ function buildColumns(opts: {
       {
         key: "corr",
         header: "Corr",
-        render: (r) => <span className="text-gray-500 text-sm">{r.corr.toFixed(2)}</span>,
+        render: (r) => <span className="text-gray-500 text-sm">{(r.corr ?? 0).toFixed(2)}</span>,
         sortKey: (r) => r.corr,
         align: "right",
       },
       {
         key: "beta",
         header: "Beta",
-        render: (r) => <span className="text-gray-500 text-sm">{r.beta.toFixed(2)}</span>,
+        render: (r) => <span className="text-gray-500 text-sm">{(r.beta ?? 0).toFixed(2)}</span>,
         sortKey: (r) => r.beta,
         align: "right",
       },
@@ -298,7 +298,7 @@ function buildColumns(opts: {
           <span
             className={`font-medium ${r.score > 0.7 ? "text-red-400" : r.score > 0.5 ? "text-yellow-400" : "text-gray-300"}`}
           >
-            {r.score.toFixed(3)}
+            {(r.score ?? 0).toFixed(3)}
           </span>
         ),
         sortKey: (r) => r.score,
@@ -307,14 +307,14 @@ function buildColumns(opts: {
       {
         key: "corr",
         header: "Corr",
-        render: (r) => r.corr.toFixed(2),
+        render: (r) => (r.corr ?? 0).toFixed(2),
         sortKey: (r) => r.corr,
         align: "right",
       },
       {
         key: "beta",
         header: "Beta",
-        render: (r) => r.beta.toFixed(2),
+        render: (r) => (r.beta ?? 0).toFixed(2),
         sortKey: (r) => r.beta,
         align: "right",
       },
@@ -522,7 +522,7 @@ export function ShortSelectionTab() {
               </div>
               <div className="text-center">
                 <div className="text-[10px] text-gray-600 uppercase">Min Beta</div>
-                <div className="text-sm font-medium text-gray-300">{data.min_beta.toFixed(2)}</div>
+                <div className="text-sm font-medium text-gray-300">{(data.min_beta ?? 0).toFixed(2)}</div>
                 <div className="text-[10px] text-gray-600">hard filter</div>
               </div>
               <div className="text-center">
@@ -596,11 +596,11 @@ export function ShortSelectionTab() {
                 </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Momentum (7d MR)</span>
-                  <span className="text-gray-300 float-right">{data.momentum_weight.toFixed(2)}</span>
+                  <span className="text-gray-300 float-right">{(data.momentum_weight ?? 0).toFixed(2)}</span>
                 </div>
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Diversity</span>
-                  <span className="text-gray-300 float-right">-{data.diversity_penalty.toFixed(2)}×corr</span>
+                  <span className="text-gray-300 float-right">-{(data.diversity_penalty ?? 0).toFixed(2)}×corr</span>
                 </div>
                 {data.momentum_veto_enabled && (
                   <div className="bg-red-900/30 border border-red-800/30 rounded px-2 py-1.5">
@@ -827,7 +827,7 @@ export function ShortSelectionTab() {
               <div key={s.label} className="text-center">
                 <div className="text-xs text-gray-500">{s.label}</div>
                 <div className="text-sm font-medium text-gray-200">
-                  {s.weight.toFixed(2)}
+                  {(s.weight ?? 0).toFixed(2)}
                 </div>
               </div>
             ))}
@@ -893,11 +893,11 @@ export function ShortSelectionTab() {
           <ParamRow label="Basket size" value={`${data.n_shorts} shorts`} />
           <ParamRow label="Lookback window" value={`${data.lookback_hours}h (${Math.round(data.lookback_hours / 24)}d)`} />
           <ParamRow label="Correlation" value={fundFirst ? `floor ${data.short_corr_floor?.toFixed(2) ?? "0.40"}` : `method: ${data.correlation_method}`} />
-          <ParamRow label="Diversity penalty" value={data.diversity_penalty.toFixed(2)} />
-          <ParamRow label="Diversity hard cap" value={data.diversity_cap.toFixed(2)} />
-          <ParamRow label="Min beta" value={data.min_beta.toFixed(2)} />
+          <ParamRow label="Diversity penalty" value={(data.diversity_penalty ?? 0).toFixed(2)} />
+          <ParamRow label="Diversity hard cap" value={(data.diversity_cap ?? 0).toFixed(2)} />
+          <ParamRow label="Min beta" value={(data.min_beta ?? 0).toFixed(2)} />
           <ParamRow label="Min volume" value={formatUSD(data.min_volume, 0)} />
-          <ParamRow label="Momentum weight" value={data.momentum_weight.toFixed(2)} />
+          <ParamRow label="Momentum weight" value={(data.momentum_weight ?? 0).toFixed(2)} />
           <ParamRow label="Momentum veto" value={data.momentum_veto_enabled ? `>${data.momentum_veto_threshold_pct}% on ${data.momentum_veto_lookback_hours}h + ${data.momentum_veto_confirm_lookback_hours ?? 168}h` : "OFF"} />
           <ParamRow label="Universe size" value={String(data.universe_size)} />
         </div>
