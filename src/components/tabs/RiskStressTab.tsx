@@ -721,10 +721,10 @@ export function RiskStressTab() {
                     // Format current value contextually per factor type
                     const fName = f.factor.toLowerCase();
                     const valStr = fName.includes("carry") || fName.includes("funding") ? `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(1)} bps`
-                      : fName.includes("volatility") || fName.includes("correlation") ? `${f.current_value.toFixed(2)}×`
+                      : fName.includes("volatility") || fName.includes("correlation") || fName.includes("velocity") || fName.includes("ewma") ? `${f.current_value.toFixed(2)}×`
                       : fName.includes("stablecoin") ? `${f.current_value >= 0 ? "+" : ""}$${Math.abs(f.current_value).toFixed(1)}B`
                       : fName.includes("smart money") ? `${f.current_value >= 0 ? "+" : ""}$${Math.abs(f.current_value).toFixed(0)}M`
-                      : fName.includes("open interest") ? `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(1)}%`
+                      : fName.includes("open interest") || fName.includes("breakout") ? `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(1)}%`
                       : `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(2)}%`;
                     return (
                       <tr key={f.factor}>
