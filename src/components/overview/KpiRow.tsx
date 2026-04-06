@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardTitle } from "../ui/Card";
 import { formatUSD, formatPct, cn } from "../../lib/utils";
 import type { Portfolio, RiskData } from "../../types/api";
@@ -16,6 +17,9 @@ interface KpiRowProps {
 }
 
 export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
+  const [exposureLevered, setExposureLevered] = useState(true);
+  const leverage = risk.gross_pct / 100;
+
   return (
     <div className="space-y-3">
       {/* Main KPI row */}
@@ -94,25 +98,44 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
 
         {/* Exposure */}
         <Card>
-          <CardTitle>Exposure</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Exposure</CardTitle>
+            <button
+              onClick={() => setExposureLevered(!exposureLevered)}
+              className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors ${
+                !exposureLevered
+                  ? "bg-blue-500/20 border-blue-500/50 text-blue-400"
+                  : "bg-gray-800 border-gray-700 text-gray-600 hover:text-gray-400"
+              }`}
+              title={exposureLevered ? "Showing % of NAV (levered)" : `Showing % of notional (÷${leverage.toFixed(1)}x)`}
+            >
+              {exposureLevered ? "Levered" : `÷${leverage.toFixed(1)}x`}
+            </button>
+          </div>
           <div className="mt-1 space-y-1">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Gross</span>
-              <span className="text-gray-200 font-semibold">{formatPct(risk.gross_pct)}</span>
+              <span className="text-gray-200 font-semibold">
+                {formatPct(exposureLevered ? risk.gross_pct : (leverage > 0 ? risk.gross_pct / leverage : 0))}
+              </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Net</span>
-              <span className="text-gray-200 font-semibold">{formatPct(risk.net_pct)}</span>
+              <span className="text-gray-200 font-semibold">
+                {formatPct(exposureLevered ? risk.net_pct : (leverage > 0 ? risk.net_pct / leverage : 0))}
+              </span>
             </div>
             {risk.net_beta_pct != null && (
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Beta Net</span>
-                <span className="text-gray-200 font-semibold">{formatPct(risk.net_beta_pct)}</span>
+                <span className="text-gray-200 font-semibold">
+                  {formatPct(exposureLevered ? risk.net_beta_pct : (leverage > 0 ? risk.net_beta_pct / leverage : 0))}
+                </span>
               </div>
             )}
           </div>
           <div className="text-[10px] text-gray-600 mt-1">
-            Target: {formatPct(risk.target_beta_tilt_pct)}
+            Target: {formatPct(risk.target_beta_tilt_pct)} | {leverage.toFixed(1)}x leverage
           </div>
         </Card>
 
