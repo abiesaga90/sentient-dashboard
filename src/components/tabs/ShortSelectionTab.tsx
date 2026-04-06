@@ -563,7 +563,7 @@ export function ShortSelectionTab() {
 
             {/* SM Signal Weights */}
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Smart Money Signals <span className="text-gray-700">(SM pillar, weight 0.50 &mdash; 28% of base score)</span></div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Smart Money Signals <span className="text-gray-700">(SM pillar, sector-weighted ~21% of total score)</span></div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {[
                   { label: "SM Netflow 30d", source: "Nansen" },

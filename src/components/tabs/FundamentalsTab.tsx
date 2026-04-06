@@ -223,7 +223,7 @@ function ResearchDeepDive({ t }: { t: any }) {
 
       {/* Three-pillar breakdown */}
       <div className="mt-3 pt-3 border-t border-gray-800">
-        <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1.5">Three-Pillar Scoring</div>
+        <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1.5">Four-Pillar Scoring (VA+SM+OP+MM)</div>
         <div className="flex items-center gap-6 text-xs">
           <span>VA: <span className={`font-mono font-medium ${sc(va)}`}>{va > 0 ? "+" : ""}{va.toFixed(3)}</span> <span className="text-gray-600">({t.n_va ?? 0}/8)</span></span>
           <span>SM: <span className={`font-mono font-medium ${sc(sm)}`}>{sm > 0 ? "+" : ""}{sm.toFixed(3)}</span> <span className="text-gray-600">({t.n_sm ?? 0}/10)</span></span>

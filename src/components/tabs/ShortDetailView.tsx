@@ -143,7 +143,7 @@ export function ShortDetailView({
       </div>
 
       <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Left: Three-Pillar Breakdown */}
+        {/* Left: Four-Pillar Breakdown */}
         <div className="space-y-3">
           {/* P1: Value Accrual (inverted) */}
           <div>

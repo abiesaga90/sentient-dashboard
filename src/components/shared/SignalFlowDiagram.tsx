@@ -184,7 +184,7 @@ export function SignalFlowDiagram({
       {/* Row 1: Pillar boxes */}
       <div className="flex gap-2">
         <PillarBox
-          title="P1: Value Accrual"
+          title="VA: Value Accrual"
           subtitle={
             vaWeights
               ? `${Object.keys(vaWeights).length} signals`

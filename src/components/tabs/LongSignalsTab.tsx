@@ -293,7 +293,7 @@ function TokenDetailView({
         )}
       </Card>
 
-      {/* Three-Pillar Signal Breakdown */}
+      {/* Four-Pillar Signal Breakdown */}
       <div className="grid md:grid-cols-3 gap-4">
         {/* VA: Value Accrual */}
         <Card>
@@ -783,7 +783,7 @@ export function LongSignalsTab() {
 
             {/* SM Signal Weights */}
             <div>
-              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">SM: Smart Money <span className="text-gray-700">(weight 0.50 &mdash; 33% of base score)</span></div>
+              <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">SM: Smart Money <span className="text-gray-700">(sector-weighted, ~21% of total score)</span></div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {[
                   { label: "SM Netflow 30d", source: "Nansen" },
@@ -806,7 +806,7 @@ export function LongSignalsTab() {
               <div className="text-[10px] text-gray-600 mt-1">Equal-weighted mean of available signals, normalized to [-1, +1]. Exchange flow deduped: Nansen 24h first, Arkham 7d fallback.</div>
             </div>
 
-            {/* Pillar 3 + Modifiers */}
+            {/* OP + MM + Modifiers */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">OP: Operational Performance</div>
