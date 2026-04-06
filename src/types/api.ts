@@ -98,8 +98,9 @@ export interface Portfolio {
     cumulative_spread_pct: number;
     information_ratio: number;
     down_day_capture_pct: number;
-    horizons?: Record<string, { spread_pct: number; long_pct: number; short_pct: number }>;
-    periods?: Record<string, { spread_pct: number; long_pct: number; short_pct: number; days: number }>;
+    net_beta_pct?: number;
+    horizons?: Record<string, { spread_pct: number; long_pct: number; short_pct: number; alpha_pct?: number; beta_drag_pct?: number; btc_return_pct?: number }>;
+    periods?: Record<string, { spread_pct: number; long_pct: number; short_pct: number; days: number; alpha_pct?: number; beta_drag_pct?: number; btc_return_pct?: number }>;
     ex_outliers?: {
       label: string;
       symbols: string[];

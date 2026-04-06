@@ -14,6 +14,8 @@ import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { ChartContainer } from "../shared/ChartContainer";
+import { SpreadTable } from "../shared/SpreadTable";
+import { useDashboard } from "../../hooks/useDashboardQuery";
 import { formatUSD } from "../../lib/utils";
 
 interface PerformanceResponse {
@@ -210,7 +212,14 @@ export function PerformanceTab() {
     staleTime: 120_000,
   });
 
+  const { data: dashboard } = useDashboard();
   const [exOutliers, setExOutliers] = useState(false);
+
+  // L/S Spread data from dashboard (shared with OverviewTab)
+  const ls = dashboard?.portfolio?.ls_spread;
+  const _nav = dashboard?.risk?.nav || 1;
+  const _gross = (dashboard?.risk?.gross_long ?? 0) + (dashboard?.risk?.gross_short ?? 0);
+  const _leverageRatio = _gross > 0 && _nav > 0 ? _gross / _nav : 1;
 
   // Resolve capture/beta values based on toggle
   const exCap = data?.capture_ratios?.ex_outliers;
@@ -447,6 +456,20 @@ export function PerformanceTab() {
             </div>
           </div>
         </Card>
+      )}
+
+      {/* L/S Spread Table */}
+      {ls && (
+        <SpreadTable
+          horizons={ls.horizons}
+          periods={ls.periods}
+          exOutliers={ls.ex_outliers}
+          informationRatio={ls.information_ratio}
+          downDayCapture={ls.down_day_capture_pct}
+          cumulativeSpread={ls.cumulative_spread_pct}
+          leverageRatio={_leverageRatio}
+          netBetaPct={ls.net_beta_pct}
+        />
       )}
 
       {/* Top Realized Winners & Losers */}
