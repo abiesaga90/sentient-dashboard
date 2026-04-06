@@ -246,7 +246,7 @@ function TokenDetailView({
               {a && mechanismBadge(a.mechanism)}
               {a && confidenceBadge(a.confidence)}
               {tokenData?.enabled && (
-                <Badge variant="info">{tokenData.source === "custom" ? "Custom P3" : "Blockworks P3"}</Badge>
+                <Badge variant="info">{tokenData.source === "custom" ? "Custom OP" : "Blockworks OP"}</Badge>
               )}
             </div>
           </div>
@@ -372,7 +372,7 @@ function TokenDetailView({
         <Card className={tokenData?.enabled ? "border-orange-800/30" : ""}>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle><span className="text-orange-400">P3</span> Token Signals</CardTitle>
+              <CardTitle><span className="text-orange-400">OP</span> Token Signals</CardTitle>
               {tokenData && <Badge variant={tokenData.enabled ? "success" : "default"}>{tokenData.enabled ? "ON" : "OFF"}</Badge>}
             </div>
           </CardHeader>
@@ -511,10 +511,10 @@ function TokenDetailView({
                 </div>
               </div>
 
-              {/* P3: Token Signals */}
+              {/* OP: Operational Performances */}
               {p3Signal != null && (
                 <div>
-                  <div className="text-[10px] text-orange-400 uppercase tracking-wider mb-1.5 font-semibold">P3: Token Signal</div>
+                  <div className="text-[10px] text-orange-400 uppercase tracking-wider mb-1.5 font-semibold">OP: Operational Performance</div>
                   <div className="flex justify-between font-mono px-2 text-gray-300">
                     <span>{p3Boost.toFixed(2)} × {p3Signal.toFixed(3)}</span>
                     <span className={`font-semibold ${p3Contrib > 0 ? "text-green-400" : p3Contrib < 0 ? "text-red-400" : "text-gray-400"}`}>
@@ -527,7 +527,7 @@ function TokenDetailView({
               {/* Final computation */}
               <div className="border-t border-gray-800 pt-2 font-mono space-y-1 px-2">
                 <div className="flex justify-between text-gray-300">
-                  <span>raw_score = VA + SM + P3</span>
+                  <span>raw_score = VA×w + SM×w + OP×w + MM×w</span>
                   <span className={`font-semibold ${rawScore > 0 ? "text-green-400" : rawScore < 0 ? "text-red-400" : "text-gray-400"}`}>
                     {rawScore > 0 ? "+" : ""}{rawScore.toFixed(4)}
                   </span>
@@ -896,9 +896,9 @@ export function LongSignalsTab() {
                   <th className="text-left py-2">Mechanism</th>
                   <th className="text-right py-2">Tilt</th>
                   <th className="text-right py-2">Raw Score</th>
-                  <th className="text-right py-2">P3</th>
+                  <th className="text-right py-2">OP</th>
                   <th className="text-right py-2">Confidence</th>
-                  <th className="text-center py-2">VA / SM / P3</th>
+                  <th className="text-center py-2">VA / SM / OP / MM</th>
                   <th className="text-right py-2">Fees 30d</th>
                   <th className="text-right py-2">Holders Rev</th>
                   <th className="text-center py-2">DL OK?</th>
@@ -931,7 +931,7 @@ export function LongSignalsTab() {
                               className="ml-1 text-[10px] font-semibold text-orange-400 bg-orange-500/10 px-1 rounded cursor-pointer hover:bg-orange-500/20"
                               title={`Pillar 3: ${Object.keys(p3.components).length} signals — click for detail`}
                               onClick={(e) => { e.stopPropagation(); setSubTab(t.symbol); }}
-                            >P3</span>
+                            >OP</span>
                           )}
                         </td>
                         <td className="py-2.5">{a ? mechanismBadge(a.mechanism) : <span className="text-gray-600">{"\u2014"}</span>}</td>
@@ -994,7 +994,7 @@ export function LongSignalsTab() {
             </table>
           </div>
           <div className="mt-2 text-[10px] text-gray-600">
-            <span className="text-yellow-500">*</span> VA registry correction applied. <span className="text-orange-500">P3</span> = Pillar 3 token signal active. Yellow holders_rev = corrected value (hover for DefiLlama original).
+            <span className="text-yellow-500">*</span> VA registry correction applied. <span className="text-orange-500">OP</span> = Pillar 3 token signal active. Yellow holders_rev = corrected value (hover for DefiLlama original).
           </div>
         </Card>
 
@@ -1035,7 +1035,7 @@ export function LongSignalsTab() {
                     {t.sm_count === 0 && <div className="text-xs text-gray-600">No Nansen data available</div>}
                   </div>
                 </div>
-                {/* P3 Token Signals */}
+                {/* OP Token Signals */}
                 <div>
                   <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Pillar 3: Token Signal</div>
                   {p3 && Object.keys(p3.components).length > 0 ? (

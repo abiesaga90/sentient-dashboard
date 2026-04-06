@@ -308,7 +308,7 @@ const longColumns: Column<LongToken>[] = [
   },
   { key: "va", header: "VA", render: (r) => <ScoreCell value={r.va_score} />, sortKey: (r) => r.va_score, align: "right" },
   { key: "sm", header: "SM", render: (r) => <ScoreCell value={r.sm_score} />, sortKey: (r) => r.sm_score, align: "right" },
-  { key: "p3", header: "P3", render: (r) => <ScoreCell value={r.p3_score} />, sortKey: (r) => r.p3_score, align: "right" },
+  { key: "p3", header: "OP", render: (r) => <ScoreCell value={r.p3_score} />, sortKey: (r) => r.p3_score, align: "right" },
   { key: "score", header: "Score", render: (r) => <ScoreCell value={r.adjusted_score} />, sortKey: (r) => r.adjusted_score, align: "right" },
   {
     key: "tilt", header: "Tilt",
@@ -431,7 +431,7 @@ const shortColumns: Column<ShortToken>[] = [
   },
   { key: "va", header: "VA", render: (r) => <ScoreCell value={r.va_score} />, sortKey: (r) => r.va_score, align: "right" },
   { key: "sm", header: "SM", render: (r) => <ScoreCell value={r.sm_score} />, sortKey: (r) => r.sm_score, align: "right" },
-  { key: "p3", header: "P3", render: (r) => <ScoreCell value={r.p3_score} />, sortKey: (r) => r.p3_score, align: "right" },
+  { key: "p3", header: "OP", render: (r) => <ScoreCell value={r.p3_score} />, sortKey: (r) => r.p3_score, align: "right" },
   { key: "score", header: "Inv. Score", render: (r) => <ScoreCell value={r.score} />, sortKey: (r) => r.score, align: "right" },
   {
     key: "beta", header: "\u03b2",
@@ -556,10 +556,10 @@ function TiltWaterfall({ token, side }: { token: LongToken | ShortToken; side: "
       <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Tilt Waterfall — {token.symbol.replace("USDT", "")}</div>
       {row("P1 Value Accrual", `${token.va_score > 0 ? "+" : ""}${token.va_score.toFixed(3)}`, `${token.n_va}/6 signals  (wt: 100%)`, sc(token.va_score))}
       {row(`P2 Smart Money ×${smW.toFixed(2)}`, `${smContrib > 0 ? "+" : ""}${smContrib.toFixed(3)}`, `${token.n_sm}/10 signals`, sc(smContrib))}
-      {row(`P3 Token Signal ×${p3W.toFixed(2)}`, `${p3Contrib > 0 ? "+" : ""}${p3Contrib.toFixed(3)}`, `${token.n_p3} signals`, sc(p3Contrib))}
+      {row(`OP Token Signal ×${p3W.toFixed(2)}`, `${p3Contrib > 0 ? "+" : ""}${p3Contrib.toFixed(3)}`, `${token.n_p3} signals`, sc(p3Contrib))}
       <div className="border-t border-gray-800 my-1" />
-      {row("Raw Score", `${token.raw_score > 0 ? "+" : ""}${token.raw_score.toFixed(4)}`, "VA + SM×w + P3×w", sc(token.raw_score))}
-      {row("× Confidence", `${(token.confidence * 100).toFixed(0)}%`, `${token.n_va} VA + ${smW}×${token.n_sm} SM + ${p3W}×${token.n_p3} P3`, null)}
+      {row("Raw Score", `${token.raw_score > 0 ? "+" : ""}${token.raw_score.toFixed(4)}`, "VA×w + SM×w + OP×w + MM×w", sc(token.raw_score))}
+      {row("× Confidence", `${(token.confidence * 100).toFixed(0)}%`, `${token.n_va} VA + ${smW}×${token.n_sm} SM + ${p3W}×${token.n_p3} OP`, null)}
       {row("= Adjusted Score", `${token.adjusted_score > 0 ? "+" : ""}${token.adjusted_score.toFixed(4)}`, "", sc(token.adjusted_score))}
       {msAdj != null && row("× Mindshare", `×${msAdj.toFixed(3)}`, msAdj > 1 ? "gainer boost" : "loser penalty", msAdj > 1 ? true : false)}
       {side === "LONG" && row("→ 2^score", `${preAlpha.toFixed(4)}`, `max(0.25, base^${token.adjusted_score.toFixed(3)})`, sc(preAlpha - 1))}

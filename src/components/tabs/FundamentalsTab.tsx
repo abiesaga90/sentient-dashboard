@@ -40,7 +40,6 @@ interface FundToken {
   tvl_mcap_ratio: number | null;
   fundamental_score: number | null;
   fee_change_1m: number | null;
-  fee_momentum_7d7d: number | null;
   nansen_sm_holders: number | null;
   nansen_sm_netflow_30d: number | null;
   last_updated: string | null;
@@ -228,7 +227,7 @@ function ResearchDeepDive({ t }: { t: any }) {
         <div className="flex items-center gap-6 text-xs">
           <span>VA: <span className={`font-mono font-medium ${sc(va)}`}>{va > 0 ? "+" : ""}{va.toFixed(3)}</span> <span className="text-gray-600">({t.n_va ?? 0}/8)</span></span>
           <span>SM: <span className={`font-mono font-medium ${sc(sm)}`}>{sm > 0 ? "+" : ""}{sm.toFixed(3)}</span> <span className="text-gray-600">({t.n_sm ?? 0}/10)</span></span>
-          <span>P3: <span className={`font-mono font-medium ${sc(p3)}`}>{p3 > 0 ? "+" : ""}{p3.toFixed(3)}</span> <span className="text-gray-600">({t.n_p3 ?? 0})</span></span>
+          <span>OP: <span className={`font-mono font-medium ${sc(p3)}`}>{p3 > 0 ? "+" : ""}{p3.toFixed(3)}</span> <span className="text-gray-600">({t.n_p3 ?? 0})</span></span>
           <span className="text-gray-600">→</span>
           <span>Adj: <span className={`font-mono font-bold ${sc(adj)}`}>{adj > 0 ? "+" : ""}{adj.toFixed(3)}</span></span>
           <span>× Conf: <span className="font-mono text-gray-300">{(conf * 100).toFixed(0)}%</span></span>

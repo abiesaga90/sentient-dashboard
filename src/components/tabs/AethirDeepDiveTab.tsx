@@ -147,7 +147,7 @@ export function AethirDeepDiveTab() {
       {/* Signal Components */}
       <Card>
         <CardHeader>
-          <CardTitle>P3 Signal Components</CardTitle>
+          <CardTitle>OP Signal Components</CardTitle>
         </CardHeader>
         <div className="px-4 pb-4">
           {p3_signal?.error ? (

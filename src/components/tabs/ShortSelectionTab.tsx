@@ -508,9 +508,9 @@ export function ShortSelectionTab() {
             <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
               <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Score Formula</div>
               <code className="text-xs text-gray-300">
-                score = -1 × (VA + 0.50 × SM + 0.30 × P3) × confidence × aggression × liquidity × momentum
+                score = -1 × (VA×w + SM×w + OP×w + MM×w) × confidence × aggression × liquidity × momentum
               </code>
-              <div className="text-[10px] text-gray-600 mt-1">Inverted three-pillar base score (symmetric with long side). VA = value accrual (6 signals, same weights both sides), SM = smart money (10 signals), P3 = token-specific. Entry guarded by multi-timeframe momentum veto (24h+7d). Exits use spread vs basket (not absolute P&L).</div>
+              <div className="text-[10px] text-gray-600 mt-1">Inverted four-pillar base score (symmetric with long side). VA = value accrual (6 signals, same weights both sides), SM = smart money (10 signals), OP = operational performance. Entry guarded by multi-timeframe momentum veto (24h+7d). Exits use spread vs basket (not absolute P&L).</div>
             </div>
 
             {/* Floors */}
