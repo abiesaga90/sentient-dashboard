@@ -47,6 +47,7 @@ interface FundToken {
   va_score: number | null;
   sm_score: number | null;
   p3_score: number | null;
+  mm_score: number | null;
   adjusted_score: number | null;
   confidence: number | null;
   n_va: number | null;
@@ -443,7 +444,8 @@ export function FundamentalsTab() {
                   <th className="px-2 py-1.5 text-right text-gray-500">Score</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">VA</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">SM</th>
-                  <th className="px-2 py-1.5 text-right text-gray-500">P3</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">OP</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">MM</th>
                   <th className="px-2 py-1.5 text-right text-gray-500">Adj.</th>
                   {hasAlpha && <th className="px-2 py-1.5 text-right text-gray-500">Alpha</th>}
                   <th className="px-2 py-1.5 text-right text-gray-500">PE</th>
@@ -481,6 +483,9 @@ export function FundamentalsTab() {
                     </td>
                     <td className={`px-2 py-1.5 text-right font-mono ${pillarColor(t.p3_score)}`}>
                       {t.p3_score != null ? t.p3_score.toFixed(1) : "—"}
+                    </td>
+                    <td className={`px-2 py-1.5 text-right font-mono ${pillarColor(t.mm_score)}`}>
+                      {t.mm_score != null ? t.mm_score.toFixed(1) : "—"}
                     </td>
                     <td className={`px-2 py-1.5 text-right font-mono font-semibold ${pillarColor(t.adjusted_score)}`}>
                       {t.adjusted_score != null ? t.adjusted_score.toFixed(1) : "—"}
@@ -630,7 +635,8 @@ export function FundamentalsTab() {
                 {th("Score", "fundamental_score")}
                 {th("VA", "va_score")}
                 {th("SM", "sm_score")}
-                {th("P3", "p3_score")}
+                {th("OP", "p3_score")}
+                {th("MM", "mm_score")}
                 {th("Adj.", "adjusted_score")}
                 {hasAlpha && th("Alpha", "alpha_pct")}
                 {th("PE", "pe_ratio")}
@@ -672,6 +678,9 @@ export function FundamentalsTab() {
                   </td>
                   <td className={`py-2 text-right font-mono ${pillarColor(t.p3_score)}`}>
                     {t.p3_score != null ? t.p3_score.toFixed(1) : "—"}
+                  </td>
+                  <td className={`py-2 text-right font-mono ${pillarColor(t.mm_score)}`}>
+                    {t.mm_score != null ? t.mm_score.toFixed(1) : "—"}
                   </td>
                   <td className={`py-2 text-right font-mono font-semibold ${pillarColor(t.adjusted_score)}`}>
                     {t.adjusted_score != null ? t.adjusted_score.toFixed(1) : "—"}
