@@ -40,6 +40,7 @@ interface LongToken {
   confidence: number;
   va_count: number;
   sm_count: number;
+  mm_count?: number;
   has_nansen: boolean;
   market_cap: number | null;
   fees_30d: number | null;
