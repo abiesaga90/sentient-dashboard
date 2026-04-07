@@ -53,8 +53,12 @@ export function LiveDashboard() {
 
       <main className="flex-1">
         {isLoading && !dashboard ? (
-          <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
-            Connecting to engine...
+          <div className="flex flex-col items-center justify-center h-64 gap-4">
+            <div className="relative h-10 w-10">
+              <div className="absolute inset-0 rounded-full border-2 border-gray-700" />
+              <div className="absolute inset-0 rounded-full border-2 border-t-blue-500 animate-spin" />
+            </div>
+            <div className="text-gray-400 text-sm">Connecting to engine...</div>
           </div>
         ) : dashboard ? (
           <TabContent activeTab={activeTab} dashboard={dashboard} />

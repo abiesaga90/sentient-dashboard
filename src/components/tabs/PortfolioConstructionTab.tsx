@@ -554,7 +554,7 @@ function TiltWaterfall({ token, side }: { token: LongToken | ShortToken; side: "
   return (
     <div className="bg-gray-900/50 border border-gray-800 rounded-lg px-4 py-3 mx-2 mb-2">
       <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Tilt Waterfall — {token.symbol.replace("USDT", "")}</div>
-      {row("VA: Value Accrual", `${token.va_score > 0 ? "+" : ""}${token.va_score.toFixed(3)}`, `${token.n_va}/6 signals  (wt: 100%)`, sc(token.va_score))}
+      {row("VA: Value Accrual", `${token.va_score > 0 ? "+" : ""}${token.va_score.toFixed(3)}`, `${token.n_va}/8 signals  (wt: 100%)`, sc(token.va_score))}
       {row(`SM: Smart Money ×${smW.toFixed(2)}`, `${smContrib > 0 ? "+" : ""}${smContrib.toFixed(3)}`, `${token.n_sm}/10 signals`, sc(smContrib))}
       {row(`OP Token Signal ×${p3W.toFixed(2)}`, `${p3Contrib > 0 ? "+" : ""}${p3Contrib.toFixed(3)}`, `${token.n_p3} signals`, sc(p3Contrib))}
       {(() => { const mmW = (token as any).mm_weight ?? 0.09; const mmS = (token as any).mm_score ?? 0; const mmC = mmW * mmS; return mmC !== 0 ? row(`MM Microstructure ×${mmW.toFixed(2)}`, `${mmC > 0 ? "+" : ""}${mmC.toFixed(3)}`, `${(token as any).n_mm ?? 0} signals`, sc(mmC)) : null; })()}

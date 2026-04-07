@@ -484,7 +484,7 @@ function TokenDetailView({
                   })}
                 </div>
                 <div className="flex justify-between font-mono px-2 pt-1 text-gray-300">
-                  <span>VA Score ({t.va_count}/6 signals)</span>
+                  <span>VA Score ({t.va_count}/8 signals)</span>
                   <span className={`font-semibold ${vaScore > 0 ? "text-green-400" : vaScore < 0 ? "text-red-400" : "text-gray-400"}`}>
                     {vaScore > 0 ? "+" : ""}{vaScore.toFixed(4)}
                   </span>
@@ -552,7 +552,7 @@ function TokenDetailView({
                   </span>
                 </div>
                 <div className="flex justify-between text-gray-300">
-                  <span>× confidence ({t.va_count}/6 + {smWeight}×{smActive.length}/10)</span>
+                  <span>× confidence ({t.va_count}/8 + {smWeight}×{smActive.length}/10)</span>
                   <span>{(t.confidence * 100).toFixed(0)}%</span>
                 </div>
                 <div className="flex justify-between text-gray-300">
@@ -848,7 +848,7 @@ export function LongSignalsTab() {
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
                     <span className="text-gray-500">Confidence</span>
                     <span className="text-gray-400 float-right">
-                      {signals.config?.use_freshness_confidence ? "freshness-weighted" : "n_va/6 + 0.50 × n_sm/10"}
+                      {signals.config?.use_freshness_confidence ? "freshness-weighted" : "n_va/8 + 0.50 × n_sm/10"}
                     </span>
                   </div>
                   <div className="bg-gray-900/50 rounded px-2 py-1.5 text-gray-400">
@@ -964,7 +964,7 @@ export function LongSignalsTab() {
                         <td className="py-2.5 text-right text-gray-400">{(t.confidence * 100).toFixed(0)}%</td>
                         <td className="py-2.5 text-center">
                           <span className="text-purple-400">{t.va_count}</span>
-                          <span className="text-gray-600">/6 </span>
+                          <span className="text-gray-600">/8 </span>
                           <span className="text-blue-400">{t.sm_count}</span>
                           <span className="text-gray-600">/10 </span>
                           <span className={p3Count > 0 ? "text-orange-400" : "text-gray-600"}>{p3Count}</span>

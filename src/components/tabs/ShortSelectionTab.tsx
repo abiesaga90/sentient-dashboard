@@ -105,9 +105,9 @@ function buildColumns(opts: {
         key: "confidence",
         header: "Conf",
         render: (r) => {
-          const denom = r.inversion_applied ? `${r.n_fund_signals}` : "6";
+          const denom = r.inversion_applied ? `${r.n_fund_signals}` : "8";
           return (
-            <span className="text-gray-400 text-sm" title={r.inversion_applied ? `${r.n_fund_signals} signals (VA+SM inverted)` : `${r.n_fund_signals}/6 VA signals`}>
+            <span className="text-gray-400 text-sm" title={r.inversion_applied ? `${r.n_fund_signals} signals (VA+SM inverted)` : `${r.n_fund_signals}/8 VA signals`}>
               {denom}{r.inversion_applied && <span className="text-blue-400 text-[10px] ml-0.5">inv</span>}
             </span>
           );
