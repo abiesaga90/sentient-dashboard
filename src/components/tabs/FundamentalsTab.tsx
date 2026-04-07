@@ -549,7 +549,7 @@ export function FundamentalsTab() {
               </tr>
             </thead>
             <tbody>
-              {filtered.filter(t => t.data_coverage >= 2).map(t => {
+              {filtered.filter(t => t.data_coverage >= 2 || t.side === "LONG" || t.side === "SHORT").map(t => {
                 const _healthToken = health?.tokens?.find((ht: any) => ht.symbol === t.symbol);
                 const _isExpanded = expandedToken === t.symbol;
                 return (<>
@@ -621,7 +621,7 @@ export function FundamentalsTab() {
               })}
               {/* Collapsed low-data tokens */}
               {(() => {
-                const lowData = filtered.filter(t => t.data_coverage < 2);
+                const lowData = filtered.filter(t => t.data_coverage < 2 && t.side !== "LONG" && t.side !== "SHORT");
                 if (lowData.length === 0) return null;
                 return (
                   <tr className="border-t border-gray-700">
