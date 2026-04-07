@@ -75,6 +75,7 @@ export function SpreadTable({
   const [levered, setLevered] = useState(false);
   const [exOuts, setExOuts] = useState(false);
   const [attribution, setAttribution] = useState(false);
+  const [ewCompare, setEwCompare] = useState(false);
 
   const lm = levered ? leverageRatio : 1;
   const exo = exOutliers;
@@ -139,6 +140,15 @@ export function SpreadTable({
               Attribution
             </button>
           )}
+          <button onClick={() => setEwCompare(!ewCompare)}
+            className={`text-xs px-2 py-0.5 rounded border transition-colors ${
+              ewCompare
+                ? "bg-teal-500/20 border-teal-500/50 text-teal-400"
+                : "bg-gray-800 border-gray-700 text-gray-500 hover:text-gray-400"
+            }`}
+            title="Compare portfolio-weighted vs equal-weighted spread to see sizing impact">
+            EW vs PW
+          </button>
         </div>
       </div>
       <div className="mt-2 overflow-x-auto">
@@ -160,6 +170,12 @@ export function SpreadTable({
                 <SpreadRow label="Total" field="spread_pct" horizons={displayHorizons} periods={displayPeriods} bold />
                 <SpreadRow label="Alpha" field="alpha_pct" horizons={displayHorizons} periods={displayPeriods} />
                 <SpreadRow label="Beta Drag" field="beta_drag_pct" horizons={displayHorizons} periods={displayPeriods} />
+              </>
+            ) : ewCompare ? (
+              <>
+                <SpreadRow label="PW Spread" field="spread_pct" horizons={displayHorizons} periods={displayPeriods} bold />
+                <SpreadRow label="EW Spread" field="ew_spread_pct" horizons={displayHorizons} periods={displayPeriods} />
+                <SpreadRow label="Sizing Lift" field="sizing_lift_pct" horizons={displayHorizons} periods={displayPeriods} />
               </>
             ) : (
               <>
