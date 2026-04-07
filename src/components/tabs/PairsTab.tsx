@@ -402,10 +402,10 @@ export function PairsTab() {
                 fontSize: "11px",
               }}
               labelStyle={{ color: "#94a3b8" }}
-              formatter={(value: number, name: string) => [
-                `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`,
-                name.replace(/_/g, " "),
-              ]}
+              formatter={(value, name) => {
+                const v = Number(value);
+                return [`${v >= 0 ? "+" : ""}${v.toFixed(1)}%`, String(name).replace(/_/g, " ")];
+              }}
             />
             <Legend
               wrapperStyle={{ fontSize: "10px" }}
