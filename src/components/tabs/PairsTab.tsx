@@ -90,6 +90,8 @@ const scoreColor = (score: number) => {
 
 const sectorStatusBadge = (row: SectorRow) => {
   if (row.n_longs > 0 && row.n_shorts === 0) return <Badge variant="danger">UNHEDGED</Badge>;
+  if (row.n_longs === 0 && row.n_shorts > 0) return <Badge variant="warning">SHORT ONLY</Badge>;
+  if (row.n_longs === 0 && row.n_shorts === 0) return <Badge variant="default">EMPTY</Badge>;
   const absNet = Math.abs(row.net_pct_of_gross);
   if (absNet > 20) return <Badge variant="warning">HIGH TILT</Badge>;
   if (absNet > 10) return <Badge variant="info">TILTED</Badge>;
