@@ -23,6 +23,8 @@ interface PairMapping {
   correlation?: number;
   beta_gap?: number;
   match_details?: { sector?: number; mcap?: number; vol?: number; beta?: number; corr?: number };
+  corr_7d?: number | null;
+  corr_drift?: number | null;
 }
 
 interface PairsResponse {
@@ -42,6 +44,10 @@ interface SectorRow {
   unrealized_pnl?: number;
   realized_pnl_today?: number;
   total_pnl_today?: number;
+  hedge_ratio?: number | null;
+  short_concentration_pct?: number;
+  unrealized_long?: number;
+  unrealized_short?: number;
 }
 
 interface SectorHistoryRow {
@@ -61,8 +67,11 @@ interface SectorExposureResponse {
     max_sector_gap_pct: number;
     max_sector_gap_name: string | null;
     total_gross: number;
+    short_concentration_max_pct?: number;
+    short_concentration_max_sector?: string;
   };
   history: SectorHistoryRow[];
+  coverage_trend?: Array<{ date: string; coverage_pct: number }>;
 }
 
 // Distinct colors per sector for the stacked area chart
@@ -141,6 +150,17 @@ const sectorColumns: Column<SectorRow>[] = [
     align: "right",
   },
   {
+    key: "hedge_ratio",
+    header: "Hedge %",
+    render: (r) => {
+      if (r.hedge_ratio == null) return <span className="text-gray-600">&mdash;</span>;
+      const color = r.hedge_ratio >= 80 ? "text-green-400" : r.hedge_ratio >= 40 ? "text-yellow-400" : "text-red-400";
+      return <span className={`font-mono ${color}`}>{r.hedge_ratio.toFixed(0)}%</span>;
+    },
+    sortKey: (r) => r.hedge_ratio ?? -1,
+    align: "right" as const,
+  },
+  {
     key: "net_exposure",
     header: "Net $",
     render: (r) => (
@@ -163,18 +183,32 @@ const sectorColumns: Column<SectorRow>[] = [
     align: "right",
   },
   {
-    key: "unrealized_pnl",
-    header: "Unreal P&L",
+    key: "unrealized_long",
+    header: "Long P&L",
     render: (r) => {
-      const v = r.unrealized_pnl ?? 0;
+      const v = r.unrealized_long ?? 0;
       return (
         <span className={`font-mono ${v >= 0 ? "text-green-400" : "text-red-400"}`}>
           {v >= 0 ? "+" : ""}${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}
         </span>
       );
     },
-    sortKey: (r) => r.unrealized_pnl ?? 0,
-    align: "right",
+    sortKey: (r) => r.unrealized_long ?? 0,
+    align: "right" as const,
+  },
+  {
+    key: "unrealized_short",
+    header: "Short P&L",
+    render: (r) => {
+      const v = r.unrealized_short ?? 0;
+      return (
+        <span className={`font-mono ${v >= 0 ? "text-green-400" : "text-red-400"}`}>
+          {v >= 0 ? "+" : ""}${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+        </span>
+      );
+    },
+    sortKey: (r) => r.unrealized_short ?? 0,
+    align: "right" as const,
   },
   {
     key: "total_pnl_today",
@@ -199,6 +233,18 @@ const sectorColumns: Column<SectorRow>[] = [
       return Math.abs(r.net_pct_of_gross);
     },
     align: "center",
+  },
+  {
+    key: "short_concentration_pct",
+    header: "Short Conc.",
+    render: (r) => {
+      const v = r.short_concentration_pct ?? 0;
+      if (v === 0) return <span className="text-gray-600">&mdash;</span>;
+      const color = v > 40 ? "text-red-400 font-semibold" : v > 25 ? "text-yellow-400" : "text-gray-300";
+      return <span className={`font-mono ${color}`}>{v.toFixed(1)}%</span>;
+    },
+    sortKey: (r) => r.short_concentration_pct ?? 0,
+    align: "right" as const,
   },
 ];
 
@@ -269,6 +315,29 @@ const pairColumns: Column<PairMapping>[] = [
     sortKey: (r) => r.beta_gap ?? r.match_details?.beta ?? 0,
     align: "right",
   },
+  {
+    key: "corr_7d",
+    header: "Corr 7d",
+    render: (r) => {
+      if (r.corr_7d == null) return <span className="text-gray-600">&mdash;</span>;
+      return <span className="font-mono text-gray-300">{r.corr_7d.toFixed(3)}</span>;
+    },
+    sortKey: (r) => r.corr_7d ?? 0,
+    align: "right" as const,
+  },
+  {
+    key: "corr_drift",
+    header: "Drift",
+    render: (r) => {
+      if (r.corr_drift == null) return <span className="text-gray-600">&mdash;</span>;
+      const abs = Math.abs(r.corr_drift);
+      const color = abs > 0.15 ? "text-red-400 font-semibold" : abs > 0.08 ? "text-yellow-400" : "text-gray-500";
+      const arrow = r.corr_drift > 0.02 ? "\u2193" : r.corr_drift < -0.02 ? "\u2191" : "\u2192";
+      return <span className={`font-mono ${color}`}>{arrow} {r.corr_drift >= 0 ? "+" : ""}{r.corr_drift.toFixed(3)}</span>;
+    },
+    sortKey: (r) => Math.abs(r.corr_drift ?? 0),
+    align: "right" as const,
+  },
 ];
 
 export function PairsTab() {
@@ -324,7 +393,7 @@ export function PairsTab() {
     <div className="space-y-4 p-4">
       {/* Sector KPIs */}
       {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           <KpiCard
             label="Sector Coverage"
             value={`${summary.sector_coverage_pct.toFixed(0)}%`}
@@ -356,6 +425,14 @@ export function PairsTab() {
               />
             </>
           )}
+          {summary?.short_concentration_max_pct != null && (
+            <KpiCard
+              label="Short Concentration"
+              value={`${summary.short_concentration_max_pct.toFixed(0)}%`}
+              sub={summary.short_concentration_max_sector?.replace(/_/g, " ") ?? ""}
+              valueColor={summary.short_concentration_max_pct > 40 ? "text-red-400" : summary.short_concentration_max_pct > 25 ? "text-yellow-400" : "text-green-400"}
+            />
+          )}
         </div>
       )}
 
@@ -375,6 +452,22 @@ export function PairsTab() {
             />
           </div>
         </Card>
+      )}
+
+      {/* Coverage Trend */}
+      {sectorData?.coverage_trend && sectorData.coverage_trend.length > 1 && (
+        <ChartContainer title="Sector Coverage Over Time (%)" height={180}>
+          <AreaChart data={sectorData.coverage_trend.map(d => ({ ...d, date: d.date.slice(5) }))}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+            <XAxis dataKey="date" tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={{ stroke: "#1e1e2e" }} />
+            <YAxis domain={[0, 100]} tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
+            <Tooltip
+              contentStyle={{ background: "#111118", border: "1px solid #1e1e2e", borderRadius: "6px", fontSize: "11px" }}
+              formatter={(value) => [`${Number(value).toFixed(1)}%`, "Coverage"]}
+            />
+            <Area type="monotone" dataKey="coverage_pct" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} />
+          </AreaChart>
+        </ChartContainer>
       )}
 
       {/* Sector Exposure History Chart */}
