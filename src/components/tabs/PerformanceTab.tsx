@@ -150,6 +150,14 @@ interface PerformanceResponse {
     spread_portfolio_corr: number;
     rolling_corr_30d: Array<{ date: string; corr: number }>;
   };
+  sector_hedge?: Array<{
+    sector: string;
+    n_shorts: number;
+    avg_beta: number;
+    avg_correlation: number;
+    avg_hedge_score: number;
+    total_unrealized_pnl: number;
+  }>;
 }
 
 interface RealizedTrade {
@@ -614,6 +622,52 @@ export function PerformanceTab() {
                       >
                         {h.unrealized_pnl >= 0 ? "+" : ""}
                         {formatUSD(h.unrealized_pnl)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {/* Sector-Level Hedge Effectiveness */}
+      {data.sector_hedge && data.sector_hedge.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Sector Hedge Effectiveness ({data.sector_hedge.length} sectors)</CardTitle>
+          </CardHeader>
+          <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+            <table className="w-full text-xs">
+              <thead className="border-b border-[var(--border)] sticky top-0 bg-[var(--bg-card)]">
+                <tr>
+                  <th className="px-2 py-1.5 text-left text-gray-500">Sector</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Shorts</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Avg Beta</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Avg Corr</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Avg Hedge</th>
+                  <th className="px-2 py-1.5 text-right text-gray-500">Unreal. P&L</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {data.sector_hedge
+                  .sort((a, b) => b.avg_hedge_score - a.avg_hedge_score)
+                  .map((s) => (
+                    <tr key={s.sector} className="hover:bg-[var(--bg-card-hover)]">
+                      <td className="px-2 py-1.5 text-gray-200 font-medium capitalize">
+                        {s.sector.replace(/_/g, " ")}
+                      </td>
+                      <td className="px-2 py-1.5 text-right text-gray-400">{s.n_shorts}</td>
+                      <td className="px-2 py-1.5 text-right text-gray-400">{s.avg_beta.toFixed(2)}</td>
+                      <td className="px-2 py-1.5 text-right text-gray-400">{s.avg_correlation.toFixed(3)}</td>
+                      <td className="px-2 py-1.5 text-right">
+                        <span className={s.avg_hedge_score > 0.8 ? "text-green-400" : s.avg_hedge_score > 0.5 ? "text-yellow-400" : "text-red-400"}>
+                          {s.avg_hedge_score.toFixed(3)}
+                        </span>
+                      </td>
+                      <td className={`px-2 py-1.5 text-right ${s.total_unrealized_pnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                        {s.total_unrealized_pnl >= 0 ? "+" : ""}
+                        {formatUSD(s.total_unrealized_pnl)}
                       </td>
                     </tr>
                   ))}

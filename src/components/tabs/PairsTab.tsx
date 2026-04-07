@@ -1,6 +1,17 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Legend,
+} from "recharts";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
+import { ChartContainer } from "../shared/ChartContainer";
 import { DataTable, type Column } from "../shared/DataTable";
 import { Badge } from "../ui/Badge";
 import { KpiCard } from "../shared/KpiCard";
@@ -33,6 +44,12 @@ interface SectorRow {
   total_pnl_today?: number;
 }
 
+interface SectorHistoryRow {
+  date: string;
+  sector: string;
+  net_pct_of_gross: number;
+}
+
 interface SectorExposureResponse {
   date: string;
   sectors: SectorRow[];
@@ -45,7 +62,25 @@ interface SectorExposureResponse {
     max_sector_gap_name: string | null;
     total_gross: number;
   };
+  history: SectorHistoryRow[];
 }
+
+// Distinct colors per sector for the stacked area chart
+const SECTOR_COLORS: Record<string, string> = {
+  l1: "#3b82f6",
+  ai: "#8b5cf6",
+  defi: "#10b981",
+  defi_lending: "#06b6d4",
+  defi_dex: "#14b8a6",
+  defi_yield: "#22d3ee",
+  privacy: "#f59e0b",
+  storage: "#ec4899",
+  oracle: "#f97316",
+  gaming: "#a855f7",
+  meme: "#ef4444",
+  infra: "#6366f1",
+  other: "#64748b",
+};
 
 const scoreColor = (score: number) => {
   if (score >= 0.7) return "text-green-400";
@@ -251,6 +286,28 @@ export function PairsTab() {
     staleTime: 30_000,
   });
 
+  // Pivot history rows [{date, sector, net_pct_of_gross}] into chart-friendly
+  // [{date, l1: 5.2, ai: -3.1, ...}] for stacked area chart
+  const { historyChart, historySectors } = useMemo(() => {
+    if (!sectorData?.history?.length) return { historyChart: [], historySectors: [] };
+    const byDate: Record<string, Record<string, number>> = {};
+    const sectorSet = new Set<string>();
+    for (const row of sectorData.history) {
+      if (!byDate[row.date]) byDate[row.date] = {};
+      byDate[row.date][row.sector] = row.net_pct_of_gross;
+      sectorSet.add(row.sector);
+    }
+    const sectors = Array.from(sectorSet).sort();
+    const chart = Object.entries(byDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, vals]) => {
+        const entry: Record<string, string | number> = { date: date.slice(5) }; // MM-DD
+        for (const s of sectors) entry[s] = vals[s] ?? 0;
+        return entry;
+      });
+    return { historyChart: chart, historySectors: sectors };
+  }, [sectorData?.history]);
+
   if (sectorLoading && pairsLoading) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
@@ -316,6 +373,55 @@ export function PairsTab() {
             />
           </div>
         </Card>
+      )}
+
+      {/* Sector Exposure History Chart */}
+      {historyChart.length > 1 && (
+        <ChartContainer title="Net Sector Exposure Over Time (% of Gross)" height={280}>
+          <AreaChart data={historyChart}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+            <XAxis
+              dataKey="date"
+              tick={{ fill: "#64748b", fontSize: 10 }}
+              tickLine={false}
+              axisLine={{ stroke: "#1e1e2e" }}
+            />
+            <YAxis
+              tick={{ fill: "#64748b", fontSize: 10 }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v) => `${v > 0 ? "+" : ""}${v.toFixed(0)}%`}
+            />
+            <Tooltip
+              contentStyle={{
+                background: "#111118",
+                border: "1px solid #1e1e2e",
+                borderRadius: "6px",
+                fontSize: "11px",
+              }}
+              labelStyle={{ color: "#94a3b8" }}
+              formatter={(value: number, name: string) => [
+                `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`,
+                name.replace(/_/g, " "),
+              ]}
+            />
+            <Legend
+              wrapperStyle={{ fontSize: "10px" }}
+              formatter={(v: string) => v.replace(/_/g, " ")}
+            />
+            {historySectors.map((sector) => (
+              <Area
+                key={sector}
+                type="monotone"
+                dataKey={sector}
+                stackId="1"
+                stroke={SECTOR_COLORS[sector] || "#64748b"}
+                fill={SECTOR_COLORS[sector] || "#64748b"}
+                fillOpacity={0.4}
+              />
+            ))}
+          </AreaChart>
+        </ChartContainer>
       )}
 
       {/* Pair Mapping Table */}
