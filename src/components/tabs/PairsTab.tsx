@@ -20,11 +20,150 @@ interface PairsResponse {
   avg_match_score: number;
 }
 
+interface SectorRow {
+  sector: string;
+  n_longs: number;
+  n_shorts: number;
+  gross_long: number;
+  gross_short: number;
+  net_exposure: number;
+  net_pct_of_gross: number;
+  unrealized_pnl?: number;
+  realized_pnl_today?: number;
+  total_pnl_today?: number;
+}
+
+interface SectorExposureResponse {
+  date: string;
+  sectors: SectorRow[];
+  summary: {
+    sector_coverage_pct: number;
+    n_sectors_long: number;
+    n_sectors_short: number;
+    unhedged_sectors: string[];
+    max_sector_gap_pct: number;
+    max_sector_gap_name: string | null;
+    total_gross: number;
+  };
+}
+
 const scoreColor = (score: number) => {
   if (score >= 0.7) return "text-green-400";
   if (score >= 0.4) return "text-yellow-400";
   return "text-red-400";
 };
+
+const sectorStatusBadge = (row: SectorRow) => {
+  if (row.n_longs > 0 && row.n_shorts === 0) return <Badge variant="danger">UNHEDGED</Badge>;
+  const absNet = Math.abs(row.net_pct_of_gross);
+  if (absNet > 20) return <Badge variant="warning">HIGH TILT</Badge>;
+  if (absNet > 10) return <Badge variant="info">TILTED</Badge>;
+  return <Badge variant="success">HEDGED</Badge>;
+};
+
+const netColor = (pct: number) => {
+  const abs = Math.abs(pct);
+  if (abs > 20) return "text-red-400";
+  if (abs > 10) return "text-yellow-400";
+  return "text-gray-300";
+};
+
+const sectorColumns: Column<SectorRow>[] = [
+  {
+    key: "sector",
+    header: "Sector",
+    render: (r) => <span className="font-medium text-gray-100 capitalize">{r.sector.replace(/_/g, " ")}</span>,
+    sortKey: (r) => r.sector,
+  },
+  {
+    key: "n_longs",
+    header: "Longs",
+    render: (r) => <span className="font-mono text-green-400">{r.n_longs}</span>,
+    sortKey: (r) => r.n_longs,
+    align: "right",
+  },
+  {
+    key: "n_shorts",
+    header: "Shorts",
+    render: (r) => <span className="font-mono text-red-400">{r.n_shorts}</span>,
+    sortKey: (r) => r.n_shorts,
+    align: "right",
+  },
+  {
+    key: "gross_long",
+    header: "Long $",
+    render: (r) => <span className="font-mono text-gray-300">${r.gross_long.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>,
+    sortKey: (r) => r.gross_long,
+    align: "right",
+  },
+  {
+    key: "gross_short",
+    header: "Short $",
+    render: (r) => <span className="font-mono text-gray-300">${r.gross_short.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>,
+    sortKey: (r) => r.gross_short,
+    align: "right",
+  },
+  {
+    key: "net_exposure",
+    header: "Net $",
+    render: (r) => (
+      <span className={`font-mono ${netColor(r.net_pct_of_gross)}`}>
+        {r.net_exposure >= 0 ? "+" : ""}${r.net_exposure.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+      </span>
+    ),
+    sortKey: (r) => r.net_exposure,
+    align: "right",
+  },
+  {
+    key: "net_pct_of_gross",
+    header: "Net %",
+    render: (r) => (
+      <span className={`font-mono ${netColor(r.net_pct_of_gross)}`}>
+        {r.net_pct_of_gross >= 0 ? "+" : ""}{r.net_pct_of_gross.toFixed(1)}%
+      </span>
+    ),
+    sortKey: (r) => Math.abs(r.net_pct_of_gross),
+    align: "right",
+  },
+  {
+    key: "unrealized_pnl",
+    header: "Unreal P&L",
+    render: (r) => {
+      const v = r.unrealized_pnl ?? 0;
+      return (
+        <span className={`font-mono ${v >= 0 ? "text-green-400" : "text-red-400"}`}>
+          {v >= 0 ? "+" : ""}${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+        </span>
+      );
+    },
+    sortKey: (r) => r.unrealized_pnl ?? 0,
+    align: "right",
+  },
+  {
+    key: "total_pnl_today",
+    header: "Day P&L",
+    render: (r) => {
+      const v = r.total_pnl_today ?? 0;
+      return (
+        <span className={`font-mono font-semibold ${v >= 0 ? "text-green-400" : "text-red-400"}`}>
+          {v >= 0 ? "+" : ""}${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+        </span>
+      );
+    },
+    sortKey: (r) => r.total_pnl_today ?? 0,
+    align: "right",
+  },
+  {
+    key: "status",
+    header: "Status",
+    render: (r) => sectorStatusBadge(r),
+    sortKey: (r) => {
+      if (r.n_longs > 0 && r.n_shorts === 0) return 0;
+      return Math.abs(r.net_pct_of_gross);
+    },
+    align: "center",
+  },
+];
 
 const pairColumns: Column<PairMapping>[] = [
   {
@@ -48,8 +187,19 @@ const pairColumns: Column<PairMapping>[] = [
     sortKey: (r) => r.short,
   },
   {
+    key: "sector_match",
+    header: "Sector",
+    render: (r) => {
+      const s = r.match_details?.sector;
+      if (s === 1) return <Badge variant="success">MATCH</Badge>;
+      return <Badge variant="default">CROSS</Badge>;
+    },
+    sortKey: (r) => r.match_details?.sector ?? 0,
+    align: "center",
+  },
+  {
     key: "match_score",
-    header: "Match Score",
+    header: "Match",
     render: (r) => (
       <span className={`font-mono ${scoreColor(r.match_score)}`}>
         {r.match_score.toFixed(3)}
@@ -60,11 +210,11 @@ const pairColumns: Column<PairMapping>[] = [
   },
   {
     key: "correlation",
-    header: "Correlation",
+    header: "Corr",
     render: (r) => {
       const corr = r.correlation ?? r.match_details?.corr;
       return (
-        <span className="font-mono text-gray-300">{corr != null ? corr.toFixed(3) : "—"}</span>
+        <span className="font-mono text-gray-300">{corr != null ? corr.toFixed(3) : "\u2014"}</span>
       );
     },
     sortKey: (r) => r.correlation ?? r.match_details?.corr ?? 0,
@@ -76,7 +226,7 @@ const pairColumns: Column<PairMapping>[] = [
     render: (r) => {
       const beta = r.beta_gap ?? r.match_details?.beta;
       return (
-        <span className="font-mono text-gray-300">{beta != null ? beta.toFixed(3) : "—"}</span>
+        <span className="font-mono text-gray-300">{beta != null ? beta.toFixed(3) : "\u2014"}</span>
       );
     },
     sortKey: (r) => r.beta_gap ?? r.match_details?.beta ?? 0,
@@ -86,70 +236,116 @@ const pairColumns: Column<PairMapping>[] = [
 
 export function PairsTab() {
   const { client, engine } = useEngine();
-  const { data, isLoading } = useQuery<PairsResponse>({
+
+  const { data: sectorData, isLoading: sectorLoading } = useQuery<SectorExposureResponse>({
+    queryKey: ["sector-exposure", engine.id],
+    queryFn: () => client.get("/api/sector-exposure"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+
+  const { data: pairsData, isLoading: pairsLoading } = useQuery<PairsResponse>({
     queryKey: ["pairs", engine.id],
     queryFn: () => client.get("/api/pairs"),
     refetchInterval: 60_000,
     staleTime: 30_000,
   });
 
-  if (isLoading) {
+  if (sectorLoading && pairsLoading) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
-        Loading pair mapping...
+        Loading sector exposure...
       </div>
     );
   }
 
-  if (!data) return null;
+  const summary = sectorData?.summary;
 
   return (
     <div className="space-y-4 p-4">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard
-          label="Avg Match Score"
-          value={data.avg_match_score.toFixed(3)}
-          valueColor={scoreColor(data.avg_match_score)}
-        />
-        <KpiCard label="Paired" value={String(data.pairs.length)} />
-        <KpiCard
-          label="Unmatched Shorts"
-          value={String(data.unmatched_shorts.length)}
-          valueColor={data.unmatched_shorts.length > 0 ? "text-yellow-400" : "text-gray-100"}
-        />
-        <KpiCard
-          label="Total Positions"
-          value={String(data.pairs.length * 2 + data.unmatched_shorts.length)}
-        />
-      </div>
+      {/* Sector KPIs */}
+      {summary && (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <KpiCard
+            label="Sector Coverage"
+            value={`${summary.sector_coverage_pct.toFixed(0)}%`}
+            sub={`${summary.n_sectors_short} of ${summary.n_sectors_long} long sectors hedged`}
+            valueColor={summary.sector_coverage_pct >= 80 ? "text-green-400" : summary.sector_coverage_pct >= 60 ? "text-yellow-400" : "text-red-400"}
+          />
+          <KpiCard
+            label="Max Sector Gap"
+            value={`${summary.max_sector_gap_pct.toFixed(1)}%`}
+            sub={summary.max_sector_gap_name?.replace(/_/g, " ") ?? ""}
+            valueColor={summary.max_sector_gap_pct > 20 ? "text-red-400" : summary.max_sector_gap_pct > 10 ? "text-yellow-400" : "text-green-400"}
+          />
+          <KpiCard
+            label="Unhedged"
+            value={String(summary.unhedged_sectors.length)}
+            sub={summary.unhedged_sectors.length > 0 ? summary.unhedged_sectors.map(s => s.replace(/_/g, " ")).join(", ") : "none"}
+            valueColor={summary.unhedged_sectors.length > 0 ? "text-red-400" : "text-green-400"}
+          />
+          {pairsData && (
+            <>
+              <KpiCard
+                label="Avg Match Score"
+                value={pairsData.avg_match_score.toFixed(3)}
+                valueColor={scoreColor(pairsData.avg_match_score)}
+              />
+              <KpiCard
+                label="Pairs / Unmatched"
+                value={`${pairsData.pairs.length} / ${pairsData.unmatched_shorts.length}`}
+              />
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Sector Exposure Table */}
+      {sectorData && sectorData.sectors.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Sector Exposure ({sectorData.sectors.length} sectors)</CardTitle>
+          </CardHeader>
+          <div className="p-4 pt-0">
+            <DataTable
+              columns={sectorColumns}
+              data={sectorData.sectors}
+              defaultSort="net_pct_of_gross"
+              defaultDir="desc"
+              maxHeight="400px"
+            />
+          </div>
+        </Card>
+      )}
 
       {/* Pair Mapping Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Pair Mapping ({data.pairs.length})</CardTitle>
-        </CardHeader>
-        <div className="p-4 pt-0">
-          <DataTable
-            columns={pairColumns}
-            data={data.pairs}
-            defaultSort="match_score"
-            maxHeight="600px"
-          />
-        </div>
-      </Card>
+      {pairsData && pairsData.pairs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Pair Mapping ({pairsData.pairs.length})</CardTitle>
+          </CardHeader>
+          <div className="p-4 pt-0">
+            <DataTable
+              columns={pairColumns}
+              data={pairsData.pairs}
+              defaultSort="match_score"
+              maxHeight="600px"
+            />
+          </div>
+        </Card>
+      )}
 
       {/* Unmatched Shorts */}
-      {data.unmatched_shorts.length > 0 && (
+      {pairsData && pairsData.unmatched_shorts.length > 0 && (
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <CardTitle>Unmatched Shorts</CardTitle>
-              <Badge variant="warning">{data.unmatched_shorts.length}</Badge>
+              <Badge variant="warning">{pairsData.unmatched_shorts.length}</Badge>
             </div>
           </CardHeader>
           <div className="p-4 pt-0 flex flex-wrap gap-2">
-            {data.unmatched_shorts.map((s) => (
+            {pairsData.unmatched_shorts.map((s) => (
               <Badge key={s} variant="default">
                 {s.replace("USDT", "")}
               </Badge>
