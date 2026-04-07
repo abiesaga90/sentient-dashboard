@@ -664,7 +664,7 @@ export function FundamentalsTab() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(t => {
+              {filtered.filter(t => t.data_coverage >= 2).map(t => {
                 const _healthToken = health?.tokens?.find((ht: any) => ht.symbol === t.symbol);
                 const _isExpanded = expandedToken === t.symbol;
                 return (<>
@@ -734,6 +734,33 @@ export function FundamentalsTab() {
                 )}
                 </>);
               })}
+              {/* Collapsed low-data tokens */}
+              {(() => {
+                const lowData = filtered.filter(t => t.data_coverage < 2);
+                if (lowData.length === 0) return null;
+                return (
+                  <tr className="border-t border-gray-700">
+                    <td colSpan={99} className="py-3 px-2">
+                      <details className="text-gray-500">
+                        <summary className="cursor-pointer text-xs hover:text-gray-300">
+                          {lowData.length} tokens with insufficient data (click to expand)
+                        </summary>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {lowData.map(t => (
+                            <span key={t.symbol} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-800/50 text-[10px] text-gray-500"
+                                  title={`Score: ${t.fundamental_score?.toFixed(0) ?? "—"} | FDV/MCap: ${t.fdv_mcap_ratio?.toFixed(1) ?? "—"}x | Sector: ${t.sector || "—"}`}>
+                              <span className={t.side === "LONG" || t.side === "LONG_RESEARCH" ? "text-green-600" : t.side === "SHORT" ? "text-red-600" : "text-gray-600"}>
+                                {t.symbol.replace("USDT", "")}
+                              </span>
+                              {t.fdv_mcap_ratio && t.fdv_mcap_ratio > 2 && <span className="text-red-700">{t.fdv_mcap_ratio.toFixed(1)}x</span>}
+                            </span>
+                          ))}
+                        </div>
+                      </details>
+                    </td>
+                  </tr>
+                );
+              })()}
             </tbody>
           </table>
         </div>
