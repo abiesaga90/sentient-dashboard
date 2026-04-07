@@ -14,9 +14,11 @@ import {
   Gauge,
   Layers,
   Scale,
+  Target,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
+  { id: "thesis", label: "Thesis", icon: <Target size={14} /> },
   { id: "overview", label: "Overview", icon: <LayoutDashboard size={14} /> },
   { id: "construction", label: "Construction", icon: <Layers size={14} /> },
   { id: "risk-stress", label: "Risk & Stress", icon: <ShieldAlert size={14} /> },

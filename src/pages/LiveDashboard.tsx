@@ -12,7 +12,7 @@ import { LongSignalsTab } from "../components/tabs/LongSignalsTab";
 import { FundamentalsTab } from "../components/tabs/FundamentalsTab";
 import { PerformanceTab } from "../components/tabs/PerformanceTab";
 import { AttributionTab } from "../components/tabs/AttributionTab";
-// ThesisTab merged into FundamentalsTab
+import { ThesisTab } from "../components/tabs/ThesisTab";
 import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
 import { MarketContextTab } from "../components/tabs/MarketContextTab";
@@ -91,7 +91,7 @@ function TabContent({
     case "attribution":
       return <AttributionTab />;
     case "thesis":
-      return <FundamentalsTab />; // Thesis merged into Fundamentals
+      return <ThesisTab />;
     case "pairs":
       return <PairsTab />;
     case "risk-stress":
