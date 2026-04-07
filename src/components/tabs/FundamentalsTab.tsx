@@ -291,7 +291,7 @@ function TokenReturnTable({
 export function FundamentalsTab() {
   const { client, engine } = useEngine();
   const [sideFilter, setSideFilter] = useState<"ALL" | "LONG" | "SHORT" | "LONG_RESEARCH" | "SHORT_UNIVERSE" | "EXCLUDED">("ALL");
-  const [sortCol, setSortCol] = useState<string>("fundamental_score");
+  const [sortCol, setSortCol] = useState<string>("data_coverage");
   const [sortDesc, setSortDesc] = useState(true);
   const [levered, setLevered] = useState(false);
   const [expandedToken, setExpandedToken] = useState<string | null>(null);
@@ -324,7 +324,18 @@ export function FundamentalsTab() {
   if (isLoading) return <div className="p-4 text-gray-500 text-sm">Loading fundamentals...</div>;
   if (!data?.tokens?.length) return <div className="p-4 text-gray-500 text-sm">No fundamental data available.</div>;
 
-  const filtered = data.tokens
+  // Compute data coverage score for each token (count non-null data fields)
+  const _dataFields = [
+    "fees_30d", "holders_revenue_30d", "tvl", "tvl_change_30d",
+    "sm_flow_30d", "sm_holders", "fee_momentum_pct",
+    "rev_capture_pct", "rev_yield_pct", "pe_ratio",
+  ];
+  const withCoverage = data.tokens.map(t => ({
+    ...t,
+    data_coverage: _dataFields.filter(f => (t as any)[f] != null && (t as any)[f] !== 0).length,
+  }));
+
+  const filtered = withCoverage
     .filter(t => sideFilter === "ALL" || t.side === sideFilter)
     .sort((a, b) => {
       const av = (a as any)[sortCol] ?? -Infinity;
@@ -337,11 +348,11 @@ export function FundamentalsTab() {
     SHORT_UNIVERSE: "Short Universe", EXCLUDED: "Excluded",
   };
 
-  const longs = data.tokens.filter(t => t.side === "LONG");
-  const shorts = data.tokens.filter(t => t.side === "SHORT");
-  const longResearch = data.tokens.filter(t => t.side === "LONG_RESEARCH");
-  const shortUniverse = data.tokens.filter(t => t.side === "SHORT_UNIVERSE");
-  const excluded = data.tokens.filter(t => t.side === "EXCLUDED");
+  const longs = withCoverage.filter(t => t.side === "LONG");
+  const shorts = withCoverage.filter(t => t.side === "SHORT");
+  const longResearch = withCoverage.filter(t => t.side === "LONG_RESEARCH");
+  const shortUniverse = withCoverage.filter(t => t.side === "SHORT_UNIVERSE");
+  const excluded = withCoverage.filter(t => t.side === "EXCLUDED");
 
   // Build a lookup of long token symbols for health badge in universe table
   const healthLookup: Record<string, string> = {};
