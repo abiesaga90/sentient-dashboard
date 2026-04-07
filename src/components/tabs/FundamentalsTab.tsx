@@ -203,8 +203,8 @@ function ResearchDeepDive({ t }: { t: any }) {
         {/* Column 2: Valuation */}
         <div>
           <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1.5">Valuation</div>
-          {row("PE", t.pe_ratio != null ? `${t.pe_ratio.toFixed(0)}x` : "—", t.pe_ratio != null && t.pe_ratio < 20 ? "text-green-400" : undefined)}
-          {row("P/S", t.ps_ratio != null ? `${t.ps_ratio.toFixed(0)}x` : "—", t.ps_ratio != null && t.ps_ratio < 20 ? "text-green-400" : undefined)}
+          {row("PE", t.pe_ratio != null ? (t.pe_ratio > 999 ? "n.m." : `${t.pe_ratio.toFixed(0)}x`) : "—", t.pe_ratio != null && t.pe_ratio < 20 ? "text-green-400" : undefined)}
+          {row("P/S", t.ps_ratio != null ? (t.ps_ratio > 999 ? "n.m." : `${t.ps_ratio.toFixed(0)}x`) : "—", t.ps_ratio != null && t.ps_ratio < 20 ? "text-green-400" : undefined)}
           {row("TVL", fmt(t.tvl))}
           {row("TVL Δ 30d", t.tvl_change_30d != null ? `${(t.tvl_change_30d * 100).toFixed(1)}%` : "—", pct(t.tvl_change_30d))}
           {row("MCap", fmt(t.market_cap))}
@@ -506,7 +506,7 @@ export function FundamentalsTab() {
                     </td>
                     )}
                     <td className={`px-2 py-1.5 text-right font-mono ${t.pe_ratio != null && t.pe_ratio > 80 ? "text-red-400" : "text-gray-300"}`}>
-                      {t.pe_ratio != null ? t.pe_ratio.toFixed(0) : "—"}
+                      {t.pe_ratio != null ? (t.pe_ratio > 999 ? "n.m." : `${t.pe_ratio.toFixed(0)}x`) : "—"}
                       {t.pe_trend && <span className="text-[8px] ml-0.5 text-gray-600">{t.pe_trend === "falling" ? "↓" : t.pe_trend === "rising" ? "↑" : ""}</span>}
                     </td>
                     <td className={`px-2 py-1.5 text-right ${pctColor(t.holders_revenue_yield_pct)}`}>
@@ -534,7 +534,7 @@ export function FundamentalsTab() {
                       {t.fdv_mcap_ratio ? `${t.fdv_mcap_ratio.toFixed(1)}x` : "—"}
                     </td>
                     <td className={`px-2 py-1.5 text-right ${t.ps_ratio && t.ps_ratio < 20 ? "text-green-400" : t.ps_ratio && t.ps_ratio < 50 ? "text-yellow-400" : "text-gray-500"}`}>
-                      {t.ps_ratio ? `${t.ps_ratio.toFixed(0)}x` : "—"}
+                      {t.ps_ratio ? (t.ps_ratio > 999 ? "n.m." : `${t.ps_ratio.toFixed(0)}x`) : "—"}
                     </td>
                     <td className={`px-2 py-1.5 text-right font-mono ${t.sm_netflow_30d > 1e6 ? "text-green-400" : t.sm_netflow_30d < -1e6 ? "text-red-400" : "text-gray-600"}`}>
                       {t.sm_netflow_30d !== 0 ? `$${(t.sm_netflow_30d/1e6).toFixed(1)}M` : "—"}
@@ -701,7 +701,7 @@ export function FundamentalsTab() {
                   </td>
                   )}
                   <td className={`py-2 text-right font-mono ${t.pe_ratio != null && t.pe_ratio > 80 ? "text-red-400" : "text-gray-300"}`}>
-                    {t.pe_ratio != null ? t.pe_ratio.toFixed(0) : "—"}
+                    {t.pe_ratio != null ? (t.pe_ratio > 999 ? "n.m." : `${t.pe_ratio.toFixed(0)}x`) : "—"}
                   </td>
                   <td className={`py-2 text-right ${pctColor(t.holders_revenue_yield_pct)}`}>
                     {t.holders_revenue_yield_pct ? `${t.holders_revenue_yield_pct.toFixed(1)}%` : "—"}
@@ -722,7 +722,7 @@ export function FundamentalsTab() {
                     {t.fdv_mcap_ratio ? `${t.fdv_mcap_ratio.toFixed(1)}x` : "—"}
                   </td>
                   <td className={`py-2 text-right ${t.ps_ratio && t.ps_ratio < 20 ? "text-green-400" : t.ps_ratio && t.ps_ratio < 50 ? "text-yellow-400" : "text-gray-500"}`}>
-                    {t.ps_ratio ? `${t.ps_ratio.toFixed(0)}x` : "—"}
+                    {t.ps_ratio ? (t.ps_ratio > 999 ? "n.m." : `${t.ps_ratio.toFixed(0)}x`) : "—"}
                   </td>
                   <td className={`py-2 text-right font-mono ${(t.nansen_sm_netflow_30d ?? 0) > 1e6 ? "text-green-400" : (t.nansen_sm_netflow_30d ?? 0) < -1e6 ? "text-red-400" : "text-gray-600"}`}>
                     {t.nansen_sm_netflow_30d ? `$${(t.nansen_sm_netflow_30d/1e6).toFixed(1)}M` : "—"}
