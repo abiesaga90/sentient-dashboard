@@ -96,6 +96,10 @@ export function SpreadTable({
         alpha_pct: v.alpha_pct != null ? Math.round(v.alpha_pct * lm * 100) / 100 : undefined,
         beta_drag_pct: v.beta_drag_pct != null ? Math.round(v.beta_drag_pct * lm * 100) / 100 : undefined,
         btc_return_pct: v.btc_return_pct,
+        ew_spread_pct: v.ew_spread_pct != null ? Math.round(v.ew_spread_pct * lm * 100) / 100 : undefined,
+        ew_long_pct: v.ew_long_pct != null ? Math.round(v.ew_long_pct * lm * 100) / 100 : undefined,
+        ew_short_pct: v.ew_short_pct != null ? Math.round(v.ew_short_pct * lm * 100) / 100 : undefined,
+        sizing_lift_pct: v.sizing_lift_pct != null ? Math.round(v.sizing_lift_pct * lm * 100) / 100 : undefined,
       };
     }
     return out;

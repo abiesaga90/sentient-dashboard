@@ -25,7 +25,7 @@ export function OverviewTab({ data }: OverviewTabProps) {
 
   const ls = data.portfolio.ls_spread;
 
-  // Leverage multiplier for levered view (gross / NAV)
+  // Leverage multiplier for levered view: gross / NAV (spreads amplified by true leverage)
   const nav = data.risk?.nav || 1;
   const gross = (data.risk?.gross_long ?? 0) + (data.risk?.gross_short ?? 0);
   const leverageRatio = gross > 0 && nav > 0 ? gross / nav : 1;
