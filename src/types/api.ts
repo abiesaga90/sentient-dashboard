@@ -424,6 +424,8 @@ export interface RankingCandidate {
   sector?: string | null;
   gate_failure?: string | null;
   in_basket?: boolean;
+  current_notional?: number | null;
+  current_pnl_pct?: number | null;
   va_signals: Record<string, VaSignalDetail>;
   sm_signals?: {
     netflow_30d?: SmSignalDetail;

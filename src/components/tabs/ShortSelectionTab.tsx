@@ -191,6 +191,7 @@ export function ShortSelectionTab() {
                 <th className="text-right py-2">Volume 24h</th>
                 <th className="text-right py-2">MCap #</th>
                 <th className="text-right py-2">Mindshare</th>
+                <th className="text-center py-2">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -198,12 +199,13 @@ export function ShortSelectionTab() {
                 .sort((a, b) => b.score - a.score)
                 .map((c, i) => {
                   const isExpanded = expanded === c.symbol;
+                  const isActive = c.current_notional != null && c.current_notional !== 0;
 
                   return (
                     <>
                       <tr
                         key={c.symbol}
-                        className="border-b border-gray-800/50 hover:bg-white/[0.02] cursor-pointer"
+                        className={`border-b border-gray-800/50 hover:bg-white/[0.02] cursor-pointer ${!isActive ? "bg-red-950/20" : ""}`}
                         onClick={() => setExpanded(isExpanded ? null : c.symbol)}
                       >
                         <td className="py-2.5 pl-2 text-gray-600">{i + 1}</td>
@@ -214,17 +216,18 @@ export function ShortSelectionTab() {
                               {SECTOR_LABELS[c.sector] || c.sector}
                             </span>
                           )}
+                          {!isActive && <span className="ml-1.5 text-[9px] font-bold text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">NEW</span>}
                         </td>
                         <td className="py-2.5 text-gray-400">{SECTOR_LABELS[c.sector || "other"] || c.sector}</td>
                         <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
                         <td className="py-2.5 text-center text-[10px]">
-                          <span className="text-purple-400">{c.va_score != null ? Math.abs(c.va_score).toFixed(1) : "?"}</span>
+                          <span className="text-purple-400">{(c.va_score ?? 0).toFixed(2)}</span>
                           <span className="text-gray-600"> / </span>
-                          <span className="text-blue-400">{c.sm_score != null ? Math.abs(c.sm_score).toFixed(1) : "?"}</span>
+                          <span className="text-blue-400">{(c.sm_score ?? 0).toFixed(2)}</span>
                           <span className="text-gray-600"> / </span>
-                          <span className="text-orange-400">{c.op_score != null ? Math.abs(c.op_score).toFixed(1) : "?"}</span>
+                          <span className="text-orange-400">{(c.op_score ?? 0).toFixed(2)}</span>
                           <span className="text-gray-600"> / </span>
-                          <span className="text-cyan-400">{c.mm_score != null ? Math.abs(c.mm_score).toFixed(1) : "?"}</span>
+                          <span className="text-cyan-400">{(c.mm_score ?? 0).toFixed(2)}</span>
                         </td>
                         <td className="py-2.5 text-right text-gray-400">{(c.fund_confidence * 100).toFixed(0)}%</td>
                         <td className={`py-2.5 text-right font-mono ${c.corr >= 0.5 ? "text-green-400" : c.corr >= 0.3 ? "text-yellow-400" : "text-red-400"}`}>
@@ -249,11 +252,16 @@ export function ShortSelectionTab() {
                             </span>
                           ) : <span className="text-gray-600">&mdash;</span>}
                         </td>
+                        <td className="py-2.5 text-center">
+                          {isActive
+                            ? <Badge variant="default">ACTIVE</Badge>
+                            : <Badge variant="danger">NEW</Badge>}
+                        </td>
                       </tr>
                       {/* Expanded signal detail */}
                       {isExpanded && (
                         <tr key={`${c.symbol}-detail`}>
-                          <td colSpan={12} className="py-3 px-4 bg-gray-900/30">
+                          <td colSpan={13} className="py-3 px-4 bg-gray-900/30">
                             <ExpandedShortDetail candidate={c} />
                           </td>
                         </tr>
