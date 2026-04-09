@@ -416,6 +416,14 @@ export interface RankingCandidate {
   fund_score_raw: number;
   n_fund_signals: number;
   fund_confidence: number;
+  va_score?: number | null;
+  sm_score?: number | null;
+  op_score?: number | null;
+  mm_score?: number | null;
+  adjusted_score?: number | null;
+  sector?: string | null;
+  gate_failure?: string | null;
+  in_basket?: boolean;
   va_signals: Record<string, VaSignalDetail>;
   sm_signals?: {
     netflow_30d?: SmSignalDetail;

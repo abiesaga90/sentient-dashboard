@@ -8,7 +8,7 @@ import { ShortSelectionTab } from "../components/tabs/ShortSelectionTab";
 import { NextRebalanceTab } from "../components/tabs/NextRebalanceTab";
 import { PumpExhaustionTab } from "../components/tabs/PumpExhaustionTab";
 import { ExecutionTab } from "../components/tabs/ExecutionTab";
-import { LongSignalsTab } from "../components/tabs/LongSignalsTab";
+import { LongSelectionTab } from "../components/tabs/LongSelectionTab";
 import { FundamentalsTab } from "../components/tabs/FundamentalsTab";
 import { PerformanceTab } from "../components/tabs/PerformanceTab";
 import { AttributionTab } from "../components/tabs/AttributionTab";
@@ -88,8 +88,8 @@ function TabContent({
       return <NextRebalanceTab />;
     case "fundamentals":
       return <FundamentalsTab />;
-    case "long-signals":
-      return <LongSignalsTab />;
+    case "long-selection":
+      return <LongSelectionTab />;
     case "performance":
       return <PerformanceTab />;
     case "attribution":
