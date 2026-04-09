@@ -76,7 +76,7 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
           const ddLabel = ntDd != null ? "Nickel" : "Internal";
           const ntHwm = ntRisk ? Number(ntRisk.risk_hwm ?? 0) : 0;
           const hwm = ntDd != null && ntHwm > 0 ? ntHwm : risk.hwm;
-          const ddUsd = hwm - portfolio.nav;
+          const ddUsd = portfolio.nav < hwm ? hwm - portfolio.nav : 0;
           return (
             <Card>
               <CardTitle>Drawdown ({ddLabel})</CardTitle>
