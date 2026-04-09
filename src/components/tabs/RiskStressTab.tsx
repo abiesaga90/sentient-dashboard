@@ -670,6 +670,11 @@ export function RiskStressTab() {
                   {dec.hours_in_zone != null && dec.dynamic_ceiling_hours != null && (
                     <span className="text-[10px] font-mono text-gray-400">
                       in zone <span className="text-white">{dec.hours_in_zone.toFixed(1)}h</span> / <span className="text-yellow-400">{dec.dynamic_ceiling_hours.toFixed(0)}h</span> ceiling
+                      {dec.trend_persistence != null && (
+                        <> | trend <span className={dec.trend_persistence > 0.6 ? "text-green-400" : dec.trend_persistence > 0.4 ? "text-gray-300" : "text-red-400"}>
+                          {(dec.trend_persistence * 100).toFixed(0)}%
+                        </span></>
+                      )}
                     </span>
                   )}
                   {dec.drift_pnl_bps != null && (
