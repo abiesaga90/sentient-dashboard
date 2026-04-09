@@ -57,10 +57,6 @@ const pillarBar = (label: string, score: number | null | undefined, color: strin
   );
 };
 
-// For shorts: higher inverted score = weaker fundamentals = better short
-const shortScoreColor = (score: number) =>
-  score > 0.3 ? "text-red-400" : score > 0.1 ? "text-red-300" : "text-gray-300";
-
 // ── Component ──
 
 export function ShortSelectionTab() {
@@ -88,8 +84,6 @@ export function ShortSelectionTab() {
 
   // Split into proposed basket vs rest
   const proposed = data.candidates.filter(c => (c.status || []).includes("in_targets"));
-  const eligible = data.candidates.filter(c => !c.gate_failure && !(c.filter_reasons?.length));
-  const gated = data.candidates.filter(c => c.gate_failure || (c.filter_reasons?.length));
 
   // Sector breakdown of proposed basket
   const sectorCounts: Record<string, number> = {};
