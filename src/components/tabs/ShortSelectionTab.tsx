@@ -520,9 +520,9 @@ export function ShortSelectionTab() {
             <div className="bg-gray-900/80 border border-gray-800 rounded-md px-3 py-2">
               <div className="text-[11px] text-gray-500 mb-1 uppercase tracking-wider">Score Formula</div>
               <code className="text-xs text-gray-300">
-                score = -1 × (VA×w + SM×w + OP×w + MM×w) × confidence × aggression × liquidity × momentum
+                score = -1 × (VA×w + SM×w + OP×w + MM×w) × confidence × liquidity × momentum × alpha_tilt
               </code>
-              <div className="text-[10px] text-gray-600 mt-1">Inverted four-pillar base score (symmetric with long side). VA = value accrual (6 signals, same weights both sides), SM = smart money (10 signals), OP = operational performance. Entry guarded by multi-timeframe momentum veto (24h+7d). Exits use spread vs basket (not absolute P&L).</div>
+              <div className="text-[10px] text-gray-600 mt-1">Inverted four-pillar base score (symmetric with long side). VA = value accrual (6 signals, same weights both sides), SM = smart money (10 signals), OP = operational performance. Alpha tilt: beta-stripped, multi-horizon (7d/30d) P&L feedback with trade-count confidence and hit-rate quality weighting. No individual TP/SL — exits via monthly rotation, 60d max hold, or DD management.</div>
             </div>
 
             {/* Floors */}
@@ -635,6 +635,10 @@ export function ShortSelectionTab() {
                 <div className="bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-500">Messari Mindshare</span>
                   <span className="text-gray-300 float-right">sentiment overlay</span>
+                </div>
+                <div className="bg-blue-900/30 border border-blue-800/30 rounded px-2 py-1.5">
+                  <span className="text-blue-400">Alpha Tilt</span>
+                  <span className="text-blue-300 float-right">10% × beta-stripped P&L</span>
                 </div>
               </div>
             </div>
