@@ -82,17 +82,11 @@ interface PerformanceResponse {
     profit_factor: number;
     hedge_ratio_pct: number;
   };
-  top_realized?: {
-    long_winners: RealizedTrade[];
-    long_losers: RealizedTrade[];
-    short_winners: RealizedTrade[];
-    short_losers: RealizedTrade[];
-  };
-  top_unrealized?: {
-    long_winners: RealizedTrade[];
-    long_losers: RealizedTrade[];
-    short_winners: RealizedTrade[];
-    short_losers: RealizedTrade[];
+  top_pnl?: {
+    long_winners: CombinedPnlEntry[];
+    long_losers: CombinedPnlEntry[];
+    short_winners: CombinedPnlEntry[];
+    short_losers: CombinedPnlEntry[];
   };
   regime_returns?: Array<{
     regime: string;
@@ -169,6 +163,13 @@ interface PerformanceResponse {
 interface RealizedTrade {
   symbol: string;
   pnl: number;
+}
+
+interface CombinedPnlEntry {
+  symbol: string;
+  realized: number;
+  unrealized: number;
+  total: number;
 }
 
 interface ShortRotationResponse {
@@ -486,115 +487,26 @@ export function PerformanceTab() {
         />
       )}
 
-      {/* Top Realized Winners & Losers */}
-      {data.top_realized && (
+      {/* Top 10 Combined PnL (Realized + Unrealized) */}
+      {data.top_pnl && (
         <Card>
           <CardHeader>
-            <CardTitle>Top 10 Cumulative Realized PnL</CardTitle>
+            <CardTitle>Top 10 P&L (Realized + Unrealized)</CardTitle>
           </CardHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Longs */}
             <div>
               <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Long Winners</div>
-              <div className="space-y-1">
-                {data.top_realized.long_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
-                {data.top_realized.long_winners.map((t, i) => (
-                  <div key={`lw-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
-                    <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
-                  </div>
-                ))}
-              </div>
+              <PnlTable entries={data.top_pnl.long_winners} prefix="lw" winnerSide />
               <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 mt-4">Long Losers</div>
-              <div className="space-y-1">
-                {data.top_realized.long_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
-                {data.top_realized.long_losers.map((t, i) => (
-                  <div key={`ll-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
-                    <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
-                  </div>
-                ))}
-              </div>
+              <PnlTable entries={data.top_pnl.long_losers} prefix="ll" />
             </div>
             {/* Shorts */}
             <div>
               <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Short Winners</div>
-              <div className="space-y-1">
-                {data.top_realized.short_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
-                {data.top_realized.short_winners.map((t, i) => (
-                  <div key={`sw-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
-                    <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
-                  </div>
-                ))}
-              </div>
+              <PnlTable entries={data.top_pnl.short_winners} prefix="sw" winnerSide />
               <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 mt-4">Short Losers</div>
-              <div className="space-y-1">
-                {data.top_realized.short_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
-                {data.top_realized.short_losers.map((t, i) => (
-                  <div key={`sl-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
-                    <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Top Unrealized Winners & Losers */}
-      {data.top_unrealized && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Top 10 Unrealized PnL (Current Positions)</CardTitle>
-          </CardHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Longs */}
-            <div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Long Winners</div>
-              <div className="space-y-1">
-                {data.top_unrealized.long_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
-                {data.top_unrealized.long_winners.map((t, i) => (
-                  <div key={`ulw-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
-                    <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 mt-4">Long Losers</div>
-              <div className="space-y-1">
-                {data.top_unrealized.long_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
-                {data.top_unrealized.long_losers.map((t, i) => (
-                  <div key={`ull-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
-                    <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* Shorts */}
-            <div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Short Winners</div>
-              <div className="space-y-1">
-                {data.top_unrealized.short_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
-                {data.top_unrealized.short_winners.map((t, i) => (
-                  <div key={`usw-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
-                    <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 mt-4">Short Losers</div>
-              <div className="space-y-1">
-                {data.top_unrealized.short_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
-                {data.top_unrealized.short_losers.map((t, i) => (
-                  <div key={`usl-${i}`} className="flex justify-between text-xs">
-                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
-                    <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
-                  </div>
-                ))}
-              </div>
+              <PnlTable entries={data.top_pnl.short_losers} prefix="sl" />
             </div>
           </div>
         </Card>
@@ -1157,6 +1069,38 @@ export function PerformanceTab() {
 }
 
 // ── Helper components ──
+
+function PnlTable({ entries, prefix, winnerSide }: { entries: CombinedPnlEntry[]; prefix: string; winnerSide?: boolean }) {
+  if (entries.length === 0) return <div className="text-xs text-gray-500">None</div>;
+  return (
+    <table className="w-full text-xs">
+      <thead>
+        <tr className="text-gray-500">
+          <th className="text-left pb-1">Symbol</th>
+          <th className="text-right pb-1">Realized</th>
+          <th className="text-right pb-1">Unreal.</th>
+          <th className="text-right pb-1">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {entries.map((t, i) => (
+          <tr key={`${prefix}-${i}`}>
+            <td className="text-gray-300 py-0.5">{t.symbol.replace("USDT", "")}</td>
+            <td className={`text-right font-mono py-0.5 ${t.realized >= 0 ? "text-green-400/70" : "text-red-400/70"}`}>
+              {formatUSD(t.realized)}
+            </td>
+            <td className={`text-right font-mono py-0.5 ${t.unrealized >= 0 ? "text-green-400/70" : "text-red-400/70"}`}>
+              {formatUSD(t.unrealized)}
+            </td>
+            <td className={`text-right font-mono font-medium py-0.5 ${winnerSide ? "text-green-400" : "text-red-400"}`}>
+              {formatUSD(t.total)}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 
 function RatioCard({ label, value }: { label: string; value: number }) {
   return (
