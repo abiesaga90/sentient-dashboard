@@ -160,11 +160,6 @@ interface PerformanceResponse {
   }>;
 }
 
-interface RealizedTrade {
-  symbol: string;
-  pnl: number;
-}
-
 interface CombinedPnlEntry {
   symbol: string;
   realized: number;
