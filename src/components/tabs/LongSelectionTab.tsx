@@ -432,35 +432,45 @@ export function LongSelectionTab() {
                       </td>
                     </tr>
                     {/* Expanded signal detail */}
-                    {isExpanded && sig && (
+                    {isExpanded && (
                       <tr key={`${sym}-detail`}>
                         <td colSpan={13} className="py-3 px-4 bg-gray-900/30">
                           <div className="grid md:grid-cols-3 gap-4">
                             <div>
-                              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">VA: Value Accrual</div>
+                              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">VA: Value Accrual ({c.n_va ?? "?"} signals)</div>
                               <div className="space-y-1.5">
-                                {Object.entries(sig.signals)
+                                {sig ? Object.entries(sig.signals)
                                   .filter(([k]) => !SM_SIGNAL_KEYS.has(k) && k !== "supply_health" && !k.startsWith("p3_"))
                                   .map(([key, s]) => (
                                     <div key={key} className="flex items-center justify-between text-xs">
                                       <span className="text-gray-400 truncate flex-1">{s.label}</span>
                                       {scoreBar(s.score, 48)}
                                     </div>
-                                  ))}
+                                  )) : (
+                                  <div className="text-xs">
+                                    {pillarBar("VA composite", c.va_score, "text-purple-400")}
+                                    {acc && <div className="mt-1 text-gray-500">Mechanism: {acc.mechanism || "unknown"}</div>}
+                                    {acc && acc.corrected_holders_revenue_30d != null && <div className="text-gray-500">Holders rev: {fmt(acc.corrected_holders_revenue_30d)}/mo</div>}
+                                  </div>
+                                )}
                               </div>
                             </div>
                             <div>
-                              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">SM: Smart Money</div>
+                              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">SM: Smart Money ({c.n_sm ?? "?"} signals)</div>
                               <div className="space-y-1.5">
-                                {Object.entries(sig.signals)
+                                {sig ? Object.entries(sig.signals)
                                   .filter(([k]) => SM_SIGNAL_KEYS.has(k))
                                   .map(([key, s]) => (
                                     <div key={key} className="flex items-center justify-between text-xs">
                                       <span className="text-gray-400 truncate flex-1">{s.label}</span>
                                       {scoreBar(s.score, 48)}
                                     </div>
-                                  ))}
-                                {sig.sm_count === 0 && <div className="text-xs text-gray-600">No SM data</div>}
+                                  )) : (
+                                  <div className="text-xs">
+                                    {pillarBar("SM composite", c.sm_score, "text-blue-400")}
+                                  </div>
+                                )}
+                                {(sig?.sm_count === 0 || (!sig && (c.n_sm ?? 0) === 0)) && <div className="text-xs text-gray-600">No SM data</div>}
                               </div>
                             </div>
                             <div>
@@ -471,7 +481,11 @@ export function LongSelectionTab() {
                                 {pillarBar("OP", c.op_score, "text-orange-400")}
                                 {pillarBar("MM", c.mm_score, "text-cyan-400")}
                                 <div className="pt-1.5 border-t border-gray-800 text-[10px] text-gray-500 font-mono">
-                                  raw={sig.raw_score.toFixed(3)} x conf={sig.confidence.toFixed(2)} = adj={sig.adjusted_score.toFixed(3)} &rarr; tilt={sig.tilt.toFixed(2)}x
+                                  {sig ? (
+                                    <>raw={sig.raw_score.toFixed(3)} x conf={sig.confidence.toFixed(2)} = adj={sig.adjusted_score.toFixed(3)} &rarr; tilt={sig.tilt.toFixed(2)}x</>
+                                  ) : (
+                                    <>adj={c.adjusted_score?.toFixed(3)} | conf={c.confidence != null ? (c.confidence * 100).toFixed(0) + "%" : "?"} | signals={c.n_signals}</>
+                                  )}
                                 </div>
                               </div>
                             </div>
