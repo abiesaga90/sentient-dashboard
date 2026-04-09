@@ -15,6 +15,7 @@ import {
   Layers,
   Scale,
   Target,
+  Activity,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -23,6 +24,7 @@ export const DASHBOARD_TABS = [
   { id: "construction", label: "Construction", icon: <Layers size={14} /> },
   { id: "risk-stress", label: "Risk & Stress", icon: <ShieldAlert size={14} /> },
   { id: "positions", label: "Positions", icon: <List size={14} /> },
+  { id: "long-signals", label: "Long Signals", icon: <Activity size={14} /> },
   { id: "long-selection", label: "Long Selection", icon: <Zap size={14} /> },
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },
   { id: "fundamentals", label: "Fundamentals", icon: <BookOpen size={14} /> },
