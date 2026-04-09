@@ -21,6 +21,7 @@ interface LongCandidate {
   n_sm?: number;
   n_p3?: number;
   n_mm?: number;
+  tilt?: number;
   volume_24h: number | null;
   market_cap: number | null;
   mcap_rank: number | null;
@@ -409,11 +410,15 @@ export function LongSelectionTab() {
                       </td>
                       <td className="py-2.5 text-right text-gray-400">{c.confidence != null ? `${(c.confidence * 100).toFixed(0)}%` : "\u2014"}</td>
                       <td className="py-2.5 text-right">
-                        {sig ? (
-                          <span className={`font-mono font-semibold ${sig.tilt >= 1.3 ? "text-green-400" : sig.tilt >= 1.1 ? "text-green-300" : sig.tilt <= 0.9 ? "text-red-400" : "text-gray-300"}`}>
-                            {sig.tilt.toFixed(2)}x
-                          </span>
-                        ) : <span className="text-gray-600">&mdash;</span>}
+                        {(() => {
+                          const tilt = c.tilt ?? sig?.tilt;
+                          if (tilt == null) return <span className="text-gray-600">&mdash;</span>;
+                          return (
+                            <span className={`font-mono font-semibold ${tilt >= 1.3 ? "text-green-400" : tilt >= 1.1 ? "text-green-300" : tilt <= 0.9 ? "text-red-400" : "text-gray-300"}`}>
+                              {tilt.toFixed(2)}x
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="py-2.5 text-right text-gray-400">{sig ? fmt(sig.fees_30d) : "\u2014"}</td>
                       <td className="py-2.5 text-right">
