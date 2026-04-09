@@ -88,6 +88,12 @@ interface PerformanceResponse {
     short_winners: RealizedTrade[];
     short_losers: RealizedTrade[];
   };
+  top_unrealized?: {
+    long_winners: RealizedTrade[];
+    long_losers: RealizedTrade[];
+    short_winners: RealizedTrade[];
+    short_losers: RealizedTrade[];
+  };
   regime_returns?: Array<{
     regime: string;
     days: number;
@@ -261,10 +267,10 @@ export function PerformanceTab() {
     <div className="p-4 space-y-4">
       {/* Ratio KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <RatioCard label="Sharpe (30d)" value={data.sharpe_30d} />
-        <RatioCard label="Sharpe (90d)" value={data.sharpe_90d} />
-        <RatioCard label="Sortino (30d)" value={data.sortino_30d} />
-        <RatioCard label="Sortino (90d)" value={data.sortino_90d} />
+        <RatioCard label="Sharpe (4w)" value={data.sharpe_30d} />
+        <RatioCard label="Sharpe (12w)" value={data.sharpe_90d} />
+        <RatioCard label="Sortino (4w)" value={data.sortino_30d} />
+        <RatioCard label="Sortino (12w)" value={data.sortino_90d} />
       </div>
 
       {/* Rolling Sharpe Chart */}
@@ -273,8 +279,8 @@ export function PerformanceTab() {
           title="Rolling Sharpe Ratio"
           data30={data.rolling_sharpe_30d}
           data90={data.rolling_sharpe_90d}
-          label30="30d"
-          label90="90d"
+          label30="4w"
+          label90="12w"
         />
       )}
 
@@ -284,8 +290,8 @@ export function PerformanceTab() {
           title="Rolling Sortino Ratio"
           data30={data.rolling_sortino_30d}
           data90={data.rolling_sortino_90d}
-          label30="30d"
-          label90="90d"
+          label30="4w"
+          label90="12w"
         />
       )}
 
@@ -527,6 +533,63 @@ export function PerformanceTab() {
                 {data.top_realized.short_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
                 {data.top_realized.short_losers.map((t, i) => (
                   <div key={`sl-${i}`} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
+                    <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Top Unrealized Winners & Losers */}
+      {data.top_unrealized && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Top 10 Unrealized PnL (Current Positions)</CardTitle>
+          </CardHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Longs */}
+            <div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Long Winners</div>
+              <div className="space-y-1">
+                {data.top_unrealized.long_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
+                {data.top_unrealized.long_winners.map((t, i) => (
+                  <div key={`ulw-${i}`} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
+                    <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 mt-4">Long Losers</div>
+              <div className="space-y-1">
+                {data.top_unrealized.long_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
+                {data.top_unrealized.long_losers.map((t, i) => (
+                  <div key={`ull-${i}`} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
+                    <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Shorts */}
+            <div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Short Winners</div>
+              <div className="space-y-1">
+                {data.top_unrealized.short_winners.length === 0 && <div className="text-xs text-gray-500">No winners yet</div>}
+                {data.top_unrealized.short_winners.map((t, i) => (
+                  <div key={`usw-${i}`} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
+                    <span className="text-green-400 font-mono">{formatUSD(t.pnl)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2 mt-4">Short Losers</div>
+              <div className="space-y-1">
+                {data.top_unrealized.short_losers.length === 0 && <div className="text-xs text-gray-500">No losers yet</div>}
+                {data.top_unrealized.short_losers.map((t, i) => (
+                  <div key={`usl-${i}`} className="flex justify-between text-xs">
                     <span className="text-gray-300">{t.symbol.replace("USDT", "")}</span>
                     <span className="text-red-400 font-mono">{formatUSD(t.pnl)}</span>
                   </div>
