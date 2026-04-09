@@ -221,13 +221,13 @@ export function ShortSelectionTab() {
                         <td className="py-2.5 text-gray-400">{SECTOR_LABELS[c.sector || "other"] || c.sector}</td>
                         <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
                         <td className="py-2.5 text-center text-[10px]">
-                          <span className="text-purple-400">{(c.va_score ?? 0).toFixed(2)}</span>
+                          <span className="text-purple-400">{c.va_score != null ? c.va_score.toFixed(2) : "\u2014"}</span>
                           <span className="text-gray-600"> / </span>
-                          <span className="text-blue-400">{(c.sm_score ?? 0).toFixed(2)}</span>
+                          <span className="text-blue-400">{c.sm_score != null ? c.sm_score.toFixed(2) : "\u2014"}</span>
                           <span className="text-gray-600"> / </span>
-                          <span className="text-orange-400">{(c.op_score ?? 0).toFixed(2)}</span>
+                          <span className="text-orange-400">{c.op_score != null ? c.op_score.toFixed(2) : "\u2014"}</span>
                           <span className="text-gray-600"> / </span>
-                          <span className="text-cyan-400">{(c.mm_score ?? 0).toFixed(2)}</span>
+                          <span className="text-cyan-400">{c.mm_score != null ? c.mm_score.toFixed(2) : "\u2014"}</span>
                         </td>
                         <td className="py-2.5 text-right text-gray-400">{(c.fund_confidence * 100).toFixed(0)}%</td>
                         <td className={`py-2.5 text-right font-mono ${c.corr >= 0.5 ? "text-green-400" : c.corr >= 0.3 ? "text-yellow-400" : "text-red-400"}`}>
