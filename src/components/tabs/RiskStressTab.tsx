@@ -665,6 +665,20 @@ export function RiskStressTab() {
                   </div>
                   <span className="text-[10px] text-gray-500">backstop {dec.backstop_hours_remaining.toFixed(0)}h</span>
                 </div>
+                {/* Zone residence timer + drift PnL */}
+                <div className="flex items-center gap-3 mb-1">
+                  {dec.hours_in_zone != null && dec.dynamic_ceiling_hours != null && (
+                    <span className="text-[10px] font-mono text-gray-400">
+                      in zone <span className="text-white">{dec.hours_in_zone.toFixed(1)}h</span> / <span className="text-yellow-400">{dec.dynamic_ceiling_hours.toFixed(0)}h</span> ceiling
+                    </span>
+                  )}
+                  {dec.drift_pnl_bps != null && (
+                    <span className={`text-[10px] font-mono font-semibold ${dec.drift_pnl_bps >= 0 ? "text-green-400" : "text-red-400"}`}>
+                      drift PnL {dec.drift_pnl_bps > 0 ? "+" : ""}{dec.drift_pnl_bps}bps (${dec.drift_pnl_usd?.toFixed(0) ?? "?"})
+                      {dec.drift_is_favorable ? " — riding" : " — correcting"}
+                    </span>
+                  )}
+                </div>
                 <div className="text-[11px]">{dec.reason}</div>
                 {dec.drift_negligible && (
                   <div className="text-[10px] text-blue-400/70 mt-1">
