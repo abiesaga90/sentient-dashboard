@@ -207,7 +207,8 @@ const SM_SIGNAL_KEYS = new Set([
 
 export function LongSelectionTab() {
   const { client, engine } = useEngine();
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expandedCurrent, setExpandedCurrent] = useState<string | null>(null);
+  const [expandedProposed, setExpandedProposed] = useState<string | null>(null);
 
   // Primary data: quantitative long selection
   const { data: selection, isLoading } = useQuery<LongSelectionResponse>({
@@ -248,11 +249,18 @@ export function LongSelectionTab() {
     );
   }
 
-  const proposed = selection.candidates.filter(c => c.in_basket);
-  const currentSet = new Set(selection.current_basket);
   const allCandidates = selection.candidates;
+  const proposed = allCandidates.filter(c => c.in_basket);
+  const current = allCandidates.filter(c => c.in_current);
+  const currentSet = new Set(selection.current_basket);
+  const proposedSet = new Set(selection.recommended_basket);
   const eligible = allCandidates.filter(c => !c.gate_failure);
   const gated = allCandidates.filter(c => c.gate_failure);
+
+  // Diff computation
+  const added = allCandidates.filter(c => c.in_basket && !c.in_current);
+  const removed = allCandidates.filter(c => c.in_current && !c.in_basket);
+  const unchanged = allCandidates.filter(c => c.in_basket && c.in_current);
 
   // Sector breakdown of proposed basket
   const sectorCounts: Record<string, number> = {};
@@ -266,6 +274,9 @@ export function LongSelectionTab() {
     : 0;
   const avgConfidence = proposed.length > 0
     ? proposed.reduce((s, c) => s + (c.confidence || 0), 0) / proposed.length
+    : 0;
+  const currentAvgScore = current.length > 0
+    ? current.reduce((s, c) => s + c.score, 0) / current.length
     : 0;
 
   return (
@@ -308,49 +319,207 @@ export function LongSelectionTab() {
         </div>
       )}
 
-      {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+      {/* KPI Row — mirrors Short Selection layout */}
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+        <KpiCard label="Current Basket" value={String(current.length)} sub="live positions" />
         <KpiCard label="Proposed Basket" value={String(proposed.length)} sub={`of ${eligible.length} eligible`} />
-        <KpiCard label="Avg Score" value={avgScore > 0 ? `+${avgScore.toFixed(2)}` : avgScore.toFixed(2)} valueColor={avgScore > 0 ? "text-green-400" : "text-red-400"} />
+        <KpiCard label="Avg Score" value={avgScore > 0 ? `+${avgScore.toFixed(2)}` : avgScore.toFixed(2)} valueColor={avgScore > 0 ? "text-green-400" : "text-red-400"} sub="higher = stronger" />
         <KpiCard label="Avg Confidence" value={`${(avgConfidence * 100).toFixed(0)}%`} />
         <KpiCard
-          label="Added"
-          value={String(selection.changes.added.length)}
-          valueColor={selection.changes.added.length > 0 ? "text-green-400" : "text-gray-500"}
-          sub={selection.changes.added.length > 0 ? selection.changes.added.map(s => s.replace("USDT", "")).join(", ") : "none"}
-        />
-        <KpiCard
-          label="Removed"
-          value={String(selection.changes.removed.length)}
-          valueColor={selection.changes.removed.length > 0 ? "text-red-400" : "text-gray-500"}
-          sub={selection.changes.removed.length > 0 ? selection.changes.removed.map(s => s.replace("USDT", "")).join(", ") : "none"}
+          label="Changes"
+          value={`+${added.length} / -${removed.length}`}
+          valueColor={added.length > 0 || removed.length > 0 ? "text-yellow-400" : "text-gray-500"}
+          sub={`${unchanged.length} unchanged`}
         />
         <KpiCard label="Universe Scored" value={String(allCandidates.length)} sub={`${gated.length} gated out`} />
       </div>
 
-      {/* Sector Diversity */}
-      <Card>
-        <CardHeader><CardTitle>Sector Diversity</CardTitle></CardHeader>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(sectorCounts)
-            .sort(([, a], [, b]) => b - a)
-            .map(([sector, count]) => (
-              <div key={sector} className="flex items-center gap-1.5 bg-gray-900/50 rounded px-2.5 py-1.5 text-xs">
-                <span className="text-gray-400">{SECTOR_LABELS[sector] || sector}</span>
-                <span className="font-mono font-semibold text-gray-200">{count}</span>
-              </div>
-            ))}
+      {/* ─── SECTION 1: Current Long Basket ─── */}
+      <Card className="border-gray-700/50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CardTitle>1. Current Long Basket ({current.length})</CardTitle>
+              <span className="text-[10px] text-gray-500 bg-gray-800/50 px-2 py-0.5 rounded">LIVE</span>
+            </div>
+            <span className="text-[10px] text-gray-500">Avg score: {currentAvgScore > 0 ? "+" : ""}{currentAvgScore.toFixed(2)}</span>
+          </div>
+        </CardHeader>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-gray-500 border-b border-gray-800">
+                <th className="text-left py-2 pl-2">#</th>
+                <th className="text-left py-2">Token</th>
+                <th className="text-left py-2">Sector</th>
+                <th className="text-left py-2">Mechanism</th>
+                <th className="text-right py-2">Score</th>
+                <th className="text-center py-2">VA / SM / OP / MM</th>
+                <th className="text-right py-2">Confidence</th>
+                <th className="text-right py-2">Tilt</th>
+                <th className="text-right py-2">Fees 30d</th>
+                <th className="text-right py-2">Holders Rev</th>
+                <th className="text-right py-2">MCap Rank</th>
+                <th className="text-right py-2">Volume 24h</th>
+                <th className="text-center py-2">Proposed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {current.sort((a, b) => b.score - a.score).map((c, i) => {
+                const sym = c.symbol;
+                const sig = signalMap.get(sym);
+                const acc = accrualMap.get(sym);
+                const staysIn = proposedSet.has(sym);
+                const isExpanded = expandedCurrent === sym;
+                const profile = sig?.va_profile || "_default";
+                return (
+                  <>
+                    <tr
+                      key={sym}
+                      className={`border-b border-gray-800/50 hover:bg-white/[0.02] cursor-pointer ${!staysIn ? "bg-red-950/15" : ""}`}
+                      onClick={() => setExpandedCurrent(isExpanded ? null : sym)}
+                    >
+                      <td className="py-2.5 pl-2 text-gray-600">{i + 1}</td>
+                      <td className="py-2.5">
+                        <span className="font-medium text-gray-200">{sym.replace("USDT", "")}</span>
+                        {sig?.va_profile && (() => {
+                          const label = VA_PROFILE_LABELS[profile] || profile;
+                          const color = VA_PROFILE_COLORS[profile] || VA_PROFILE_COLORS._default;
+                          return <span className={`ml-1.5 inline-block text-[9px] font-medium px-1.5 py-0.5 rounded border ${color}`}>{label}</span>;
+                        })()}
+                        {!staysIn && <span className="ml-1.5 text-[9px] font-bold text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">DROPPING</span>}
+                      </td>
+                      <td className="py-2.5 text-gray-400">{SECTOR_LABELS[c.sector] || c.sector}</td>
+                      <td className="py-2.5">{acc ? mechanismBadge(acc.mechanism) : <span className="text-gray-600">&mdash;</span>}</td>
+                      <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
+                      <td className="py-2.5 text-center">
+                        <span className="text-purple-400">{c.n_va ?? sig?.va_count ?? "?"}</span>
+                        <span className="text-gray-600">/</span>
+                        <span className="text-blue-400">{c.n_sm ?? sig?.sm_count ?? "?"}</span>
+                        <span className="text-gray-600">/</span>
+                        <span className="text-orange-400">{c.n_p3 ?? (c.op_score != null ? "1" : "0")}</span>
+                        <span className="text-gray-600">/</span>
+                        <span className="text-cyan-400">{c.n_mm ?? sig?.mm_count ?? "?"}</span>
+                      </td>
+                      <td className="py-2.5 text-right text-gray-400">{c.confidence != null ? `${(c.confidence * 100).toFixed(0)}%` : "\u2014"}</td>
+                      <td className="py-2.5 text-right">
+                        {(() => {
+                          const tilt = c.tilt ?? sig?.tilt;
+                          if (tilt == null) return <span className="text-gray-600">&mdash;</span>;
+                          return <span className={`font-mono font-semibold ${tilt >= 1.3 ? "text-green-400" : tilt >= 1.1 ? "text-green-300" : tilt <= 0.9 ? "text-red-400" : "text-gray-300"}`}>{tilt.toFixed(2)}x</span>;
+                        })()}
+                      </td>
+                      <td className="py-2.5 text-right text-gray-400">{sig ? fmt(sig.fees_30d) : "\u2014"}</td>
+                      <td className="py-2.5 text-right">
+                        {acc && acc.corrected_holders_revenue_30d != null && acc.corrected_holders_revenue_30d !== acc.defillama_holders_revenue_30d ? (
+                          <span className="text-yellow-400">{fmt(acc.corrected_holders_revenue_30d)}</span>
+                        ) : sig ? (
+                          <span className="text-gray-400">{fmt(sig.holders_revenue_30d)}</span>
+                        ) : "\u2014"}
+                      </td>
+                      <td className="py-2.5 text-right text-gray-400">#{c.mcap_rank ?? "\u2014"}</td>
+                      <td className="py-2.5 text-right text-gray-400">{fmt(c.volume_24h)}</td>
+                      <td className="py-2.5 text-center">
+                        {staysIn
+                          ? <Badge variant="success">KEEP</Badge>
+                          : <Badge variant="danger">DROP</Badge>}
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr key={`${sym}-detail`}>
+                        <td colSpan={13} className="py-3 px-4 bg-gray-900/30">
+                          <div className="grid md:grid-cols-3 gap-4">
+                            <div>
+                              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">VA: Value Accrual ({c.n_va ?? "?"} signals)</div>
+                              <div className="space-y-1.5">
+                                {sig ? Object.entries(sig.signals)
+                                  .filter(([k]) => !SM_SIGNAL_KEYS.has(k) && k !== "supply_health" && !k.startsWith("p3_"))
+                                  .map(([key, s]) => (
+                                    <div key={key} className="flex items-center justify-between text-xs">
+                                      <span className="text-gray-400 truncate flex-1">{s.label}</span>
+                                      {scoreBar(s.score, 48)}
+                                    </div>
+                                  )) : (
+                                  <div className="text-xs">
+                                    {pillarBar("VA composite", c.va_score, "text-purple-400")}
+                                    {acc && <div className="mt-1 text-gray-500">Mechanism: {acc.mechanism || "unknown"}</div>}
+                                    {acc && acc.corrected_holders_revenue_30d != null && <div className="text-gray-500">Holders rev: {fmt(acc.corrected_holders_revenue_30d)}/mo</div>}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">SM: Smart Money ({c.n_sm ?? "?"} signals)</div>
+                              <div className="space-y-1.5">
+                                {sig ? Object.entries(sig.signals)
+                                  .filter(([k]) => SM_SIGNAL_KEYS.has(k))
+                                  .map(([key, s]) => (
+                                    <div key={key} className="flex items-center justify-between text-xs">
+                                      <span className="text-gray-400 truncate flex-1">{s.label}</span>
+                                      {scoreBar(s.score, 48)}
+                                    </div>
+                                  )) : (
+                                  <div className="text-xs">
+                                    {pillarBar("SM composite", c.sm_score, "text-blue-400")}
+                                  </div>
+                                )}
+                                {(sig?.sm_count === 0 || (!sig && (c.n_sm ?? 0) === 0)) && <div className="text-xs text-gray-600">No SM data</div>}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Pillar Scores</div>
+                              <div className="space-y-1.5">
+                                {pillarBar("VA", c.va_score, "text-purple-400")}
+                                {pillarBar("SM", c.sm_score, "text-blue-400")}
+                                {pillarBar("OP", c.op_score, "text-orange-400")}
+                                {pillarBar("MM", c.mm_score, "text-cyan-400")}
+                                <div className="pt-1.5 border-t border-gray-800 text-[10px] text-gray-500 font-mono">
+                                  {sig ? (
+                                    <>raw={sig.raw_score.toFixed(3)} x conf={sig.confidence.toFixed(2)} = adj={sig.adjusted_score.toFixed(3)} &rarr; tilt={sig.tilt.toFixed(2)}x</>
+                                  ) : (
+                                    <>adj={c.adjusted_score?.toFixed(3)} | conf={c.confidence != null ? (c.confidence * 100).toFixed(0) + "%" : "?"} | signals={c.n_signals}</>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </Card>
 
-      {/* Proposed Long Basket */}
-      <Card>
+      {/* ─── SECTION 2: Proposed Long Basket ─── */}
+      <Card className="border-blue-800/30">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Proposed Long Basket ({proposed.length})</CardTitle>
-            <span className="text-[10px] text-gray-500">Sorted by adjusted score descending</span>
+            <div className="flex items-center gap-2">
+              <CardTitle>2. Proposed Long Basket ({proposed.length})</CardTitle>
+              <span className="text-[10px] text-blue-400 bg-blue-800/30 px-2 py-0.5 rounded">RECOMMENDED</span>
+            </div>
+            <span className="text-[10px] text-gray-500">Avg score: {avgScore > 0 ? "+" : ""}{avgScore.toFixed(2)}</span>
           </div>
         </CardHeader>
+
+        {/* Sector Diversity */}
+        <div className="px-4 pb-2">
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(sectorCounts)
+              .sort(([, a], [, b]) => b - a)
+              .map(([sector, count]) => (
+                <div key={sector} className="flex items-center gap-1.5 bg-gray-900/50 rounded px-2.5 py-1 text-xs">
+                  <span className="text-gray-400">{SECTOR_LABELS[sector] || sector}</span>
+                  <span className="font-mono font-semibold text-gray-200">{count}</span>
+                </div>
+              ))}
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
@@ -376,7 +545,7 @@ export function LongSelectionTab() {
                 const sig = signalMap.get(sym);
                 const acc = accrualMap.get(sym);
                 const isNew = !currentSet.has(sym);
-                const isExpanded = expanded === sym;
+                const isExpanded = expandedProposed === sym;
                 const profile = sig?.va_profile || "_default";
 
                 return (
@@ -384,7 +553,7 @@ export function LongSelectionTab() {
                     <tr
                       key={sym}
                       className={`border-b border-gray-800/50 hover:bg-white/[0.02] cursor-pointer ${isNew ? "bg-green-950/20" : ""}`}
-                      onClick={() => setExpanded(isExpanded ? null : sym)}
+                      onClick={() => setExpandedProposed(isExpanded ? null : sym)}
                     >
                       <td className="py-2.5 pl-2 text-gray-600">{i + 1}</td>
                       <td className="py-2.5">
@@ -432,7 +601,7 @@ export function LongSelectionTab() {
                       <td className="py-2.5 text-right text-gray-400">{fmt(c.volume_24h)}</td>
                       <td className="py-2.5 text-center">
                         {c.in_current
-                          ? <Badge variant="default">CURRENT</Badge>
+                          ? <Badge variant="default">ACTIVE</Badge>
                           : <Badge variant="success">NEW</Badge>}
                       </td>
                     </tr>
@@ -506,48 +675,107 @@ export function LongSelectionTab() {
         </div>
       </Card>
 
-      {/* Dropped from Current Basket */}
-      {selection.changes.removed.length > 0 && (
-        <Card className="border-red-800/30">
-          <CardHeader>
-            <CardTitle>Dropped from Current Basket ({selection.changes.removed.length})</CardTitle>
-          </CardHeader>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="text-gray-500 border-b border-gray-800">
-                  <th className="text-left py-2 pl-2">Token</th>
-                  <th className="text-left py-2">Sector</th>
-                  <th className="text-right py-2">Score</th>
-                  <th className="text-center py-2">VA / SM / OP / MM</th>
-                  <th className="text-right py-2">Confidence</th>
-                  <th className="text-right py-2">Volume 24h</th>
-                  <th className="text-left py-2">Reason</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selection.changes.removed.map(sym => {
-                  const c = allCandidates.find(x => x.symbol === sym);
-                  if (!c) return null;
-                  return (
-                    <tr key={sym} className="border-b border-gray-800/50 bg-red-950/10">
-                      <td className="py-2 pl-2 font-medium text-gray-300">{sym.replace("USDT", "")}</td>
-                      <td className="py-2 text-gray-400">{SECTOR_LABELS[c.sector] || c.sector}</td>
-                      <td className="py-2 text-right">{scoreBar(c.score)}</td>
-                      <td className="py-2 text-center text-[10px]">
-                        {pillarBar("VA", c.va_score, "text-purple-400")}
-                      </td>
-                      <td className="py-2 text-right text-gray-400">{c.confidence != null ? `${(c.confidence * 100).toFixed(0)}%` : "\u2014"}</td>
-                      <td className="py-2 text-right text-gray-400">{fmt(c.volume_24h)}</td>
-                      <td className="py-2 text-gray-500 text-[10px]">{c.gate_failure || "outscored"}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {/* ─── SECTION 3: Basket Changes ─── */}
+      <Card className={added.length > 0 || removed.length > 0 ? "border-yellow-800/30" : "border-green-800/30"}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>3. Basket Changes</CardTitle>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="text-green-400">+{added.length} added</span>
+              <span className="text-red-400">&minus;{removed.length} removed</span>
+              <span className="text-gray-500">{unchanged.length} unchanged</span>
+            </div>
           </div>
-        </Card>
-      )}
+        </CardHeader>
+
+        {added.length === 0 && removed.length === 0 ? (
+          <div className="px-4 pb-4 text-xs text-green-400">
+            No changes &mdash; proposed basket matches current basket.
+          </div>
+        ) : (
+          <div className="space-y-3 px-4 pb-4">
+            {/* Added */}
+            {added.length > 0 && (
+              <div>
+                <div className="text-[10px] text-green-400 uppercase tracking-wider mb-2 font-semibold">Entering Basket ({added.length})</div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-gray-500 border-b border-gray-800">
+                        <th className="text-left py-1.5 pl-2">Token</th>
+                        <th className="text-left py-1.5">Sector</th>
+                        <th className="text-right py-1.5">Score</th>
+                        <th className="text-center py-1.5">VA / SM / OP / MM</th>
+                        <th className="text-right py-1.5">Confidence</th>
+                        <th className="text-right py-1.5">Volume 24h</th>
+                        <th className="text-left py-1.5">Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {added.sort((a, b) => b.score - a.score).map(c => (
+                        <tr key={c.symbol} className="border-b border-gray-800/50 bg-green-950/15">
+                          <td className="py-1.5 pl-2 font-medium text-gray-200">{c.symbol.replace("USDT", "")}</td>
+                          <td className="py-1.5 text-gray-400">{SECTOR_LABELS[c.sector] || c.sector}</td>
+                          <td className="py-1.5 text-right">{scoreBar(c.score)}</td>
+                          <td className="py-1.5 text-center">
+                            {pillarBar("VA", c.va_score, "text-purple-400")}
+                            {pillarBar("SM", c.sm_score, "text-blue-400")}
+                            {pillarBar("OP", c.op_score, "text-orange-400")}
+                            {pillarBar("MM", c.mm_score, "text-cyan-400")}
+                          </td>
+                          <td className="py-1.5 text-right text-gray-400">{c.confidence != null ? `${(c.confidence * 100).toFixed(0)}%` : "\u2014"}</td>
+                          <td className="py-1.5 text-right text-gray-400">{fmt(c.volume_24h)}</td>
+                          <td className="py-1.5 text-green-400 text-[10px]">Outscored current member</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Removed */}
+            {removed.length > 0 && (
+              <div>
+                <div className="text-[10px] text-red-400 uppercase tracking-wider mb-2 font-semibold">Leaving Basket ({removed.length})</div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-gray-500 border-b border-gray-800">
+                        <th className="text-left py-1.5 pl-2">Token</th>
+                        <th className="text-left py-1.5">Sector</th>
+                        <th className="text-right py-1.5">Score</th>
+                        <th className="text-center py-1.5">VA / SM / OP / MM</th>
+                        <th className="text-right py-1.5">Confidence</th>
+                        <th className="text-right py-1.5">Volume 24h</th>
+                        <th className="text-left py-1.5">Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {removed.sort((a, b) => a.score - b.score).map(c => (
+                        <tr key={c.symbol} className="border-b border-gray-800/50 bg-red-950/15">
+                          <td className="py-1.5 pl-2 font-medium text-gray-300">{c.symbol.replace("USDT", "")}</td>
+                          <td className="py-1.5 text-gray-400">{SECTOR_LABELS[c.sector] || c.sector}</td>
+                          <td className="py-1.5 text-right">{scoreBar(c.score)}</td>
+                          <td className="py-1.5 text-center">
+                            {pillarBar("VA", c.va_score, "text-purple-400")}
+                            {pillarBar("SM", c.sm_score, "text-blue-400")}
+                            {pillarBar("OP", c.op_score, "text-orange-400")}
+                            {pillarBar("MM", c.mm_score, "text-cyan-400")}
+                          </td>
+                          <td className="py-1.5 text-right text-gray-400">{c.confidence != null ? `${(c.confidence * 100).toFixed(0)}%` : "\u2014"}</td>
+                          <td className="py-1.5 text-right text-gray-400">{fmt(c.volume_24h)}</td>
+                          <td className="py-1.5 text-red-400 text-[10px]">{c.gate_failure || "Outscored by new candidate"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
 
       {/* Scoring Architecture */}
       <Card>
