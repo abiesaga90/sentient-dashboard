@@ -61,7 +61,8 @@ const pillarBar = (label: string, score: number | null | undefined, color: strin
 
 export function ShortSelectionTab() {
   const { client, engine } = useEngine();
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expandedCurrent, setExpandedCurrent] = useState<string | null>(null);
+  const [expandedProposed, setExpandedProposed] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery<RankingsResponse>({
     queryKey: ["rankings", engine.id],
@@ -82,8 +83,16 @@ export function ShortSelectionTab() {
     );
   }
 
-  // Split into proposed basket vs rest
+  // Split into current (live positions) vs proposed (algorithm targets)
+  const current = data.candidates.filter(c => c.in_basket);
   const proposed = data.candidates.filter(c => (c.status || []).includes("in_targets"));
+  const currentSet = new Set(current.map(c => c.symbol));
+  const proposedSet = new Set(proposed.map(c => c.symbol));
+
+  // Diff computation
+  const added = proposed.filter(c => !currentSet.has(c.symbol));
+  const removed = current.filter(c => !proposedSet.has(c.symbol));
+  const unchanged = proposed.filter(c => currentSet.has(c.symbol));
 
   // Sector breakdown of proposed basket
   const sectorCounts: Record<string, number> = {};
@@ -100,6 +109,9 @@ export function ShortSelectionTab() {
     : 0;
   const avgCorr = proposed.length > 0
     ? proposed.reduce((s, c) => s + (c.corr || 0), 0) / proposed.length
+    : 0;
+  const currentAvgScore = current.length > 0
+    ? current.reduce((s, c) => s + c.score, 0) / current.length
     : 0;
 
   return (
@@ -133,7 +145,8 @@ export function ShortSelectionTab() {
       )}
 
       {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+        <KpiCard label="Current Basket" value={String(current.length)} sub="live positions" />
         <KpiCard label="Proposed Basket" value={String(proposed.length)} sub={`target: ${data.n_shorts}`} />
         <KpiCard
           label="Avg Score"
@@ -148,33 +161,150 @@ export function ShortSelectionTab() {
           valueColor={avgCorr > 0.5 ? "text-green-400" : "text-yellow-400"}
           sub="to long basket"
         />
+        <KpiCard
+          label="Changes"
+          value={`+${added.length} / -${removed.length}`}
+          valueColor={added.length > 0 || removed.length > 0 ? "text-yellow-400" : "text-gray-500"}
+          sub={`${unchanged.length} unchanged`}
+        />
         <KpiCard label="Universe Scored" value={String(data.count)} sub={`of ${data.universe_size}`} />
-        <KpiCard label="Signals" value={`${proposed.length > 0 ? (proposed.reduce((s, c) => s + c.n_fund_signals, 0) / proposed.length).toFixed(0) : 0} avg`} sub="per token" />
       </div>
 
-      {/* Sector Diversity */}
-      <Card>
-        <CardHeader><CardTitle>Sector Diversity</CardTitle></CardHeader>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(sectorCounts)
-            .sort(([, a], [, b]) => b - a)
-            .map(([sector, count]) => (
-              <div key={sector} className="flex items-center gap-1.5 bg-gray-900/50 rounded px-2.5 py-1.5 text-xs">
-                <span className="text-gray-400">{SECTOR_LABELS[sector] || sector}</span>
-                <span className="font-mono font-semibold text-gray-200">{count}</span>
-              </div>
-            ))}
+      {/* ─── SECTION 1: Current Short Basket ─── */}
+      <Card className="border-gray-700/50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CardTitle>1. Current Short Basket ({current.length})</CardTitle>
+              <span className="text-[10px] text-gray-500 bg-gray-800/50 px-2 py-0.5 rounded">LIVE</span>
+            </div>
+            <span className="text-[10px] text-gray-500">Avg score: {currentAvgScore > 0 ? "+" : ""}{currentAvgScore.toFixed(2)}</span>
+          </div>
+        </CardHeader>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-gray-500 border-b border-gray-800">
+                <th className="text-left py-2 pl-2">#</th>
+                <th className="text-left py-2">Token</th>
+                <th className="text-left py-2">Sector</th>
+                <th className="text-right py-2">Score</th>
+                <th className="text-center py-2">VA / SM / OP / MM</th>
+                <th className="text-right py-2">Confidence</th>
+                <th className="text-right py-2">Corr</th>
+                <th className="text-right py-2">Beta</th>
+                <th className="text-right py-2">FDV/MCap</th>
+                <th className="text-right py-2">Volume 24h</th>
+                <th className="text-right py-2">MCap #</th>
+                <th className="text-right py-2">Mindshare</th>
+                <th className="text-center py-2">Proposed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {current
+                .sort((a, b) => b.score - a.score)
+                .map((c, i) => {
+                  const isExpanded = expandedCurrent === c.symbol;
+                  const staysIn = proposedSet.has(c.symbol);
+
+                  return (
+                    <>
+                      <tr
+                        key={c.symbol}
+                        className={`border-b border-gray-800/50 hover:bg-white/[0.02] cursor-pointer ${!staysIn ? "bg-red-950/15" : ""}`}
+                        onClick={() => setExpandedCurrent(isExpanded ? null : c.symbol)}
+                      >
+                        <td className="py-2.5 pl-2 text-gray-600">{i + 1}</td>
+                        <td className="py-2.5">
+                          <span className="font-medium text-gray-200">{c.symbol.replace("USDT", "")}</span>
+                          {c.sector && (
+                            <span className="ml-1.5 inline-block text-[9px] font-medium px-1.5 py-0.5 rounded border bg-gray-500/20 text-gray-400 border-gray-500/30">
+                              {SECTOR_LABELS[c.sector] || c.sector}
+                            </span>
+                          )}
+                          {!staysIn && <span className="ml-1.5 text-[9px] font-bold text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">DROPPING</span>}
+                        </td>
+                        <td className="py-2.5 text-gray-400">{SECTOR_LABELS[c.sector || "other"] || c.sector}</td>
+                        <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
+                        <td className="py-2.5 text-center text-[10px]">
+                          <span className="text-purple-400">{c.va_score != null ? c.va_score.toFixed(2) : "\u2014"}</span>
+                          <span className="text-gray-600"> / </span>
+                          <span className="text-blue-400">{c.sm_score != null ? c.sm_score.toFixed(2) : "\u2014"}</span>
+                          <span className="text-gray-600"> / </span>
+                          <span className="text-orange-400">{c.op_score != null ? c.op_score.toFixed(2) : "\u2014"}</span>
+                          <span className="text-gray-600"> / </span>
+                          <span className="text-cyan-400">{c.mm_score != null ? c.mm_score.toFixed(2) : "\u2014"}</span>
+                        </td>
+                        <td className="py-2.5 text-right text-gray-400">{((c.fund_confidence ?? 0) * 100).toFixed(0)}%</td>
+                        <td className={`py-2.5 text-right font-mono ${(c.corr ?? 0) >= 0.5 ? "text-green-400" : (c.corr ?? 0) >= 0.3 ? "text-yellow-400" : "text-red-400"}`}>
+                          {(c.corr ?? 0).toFixed(2)}
+                        </td>
+                        <td className={`py-2.5 text-right font-mono ${(c.beta ?? 0) >= 0.7 && (c.beta ?? 0) <= 1.5 ? "text-gray-300" : "text-yellow-400"}`}>
+                          {(c.beta ?? 0).toFixed(2)}
+                        </td>
+                        <td className="py-2.5 text-right font-mono">
+                          {c.fdv_mcap_ratio != null ? (
+                            <span className={c.fdv_mcap_ratio > 3 ? "text-red-400" : c.fdv_mcap_ratio > 2 ? "text-yellow-400" : "text-gray-400"}>
+                              {c.fdv_mcap_ratio.toFixed(1)}x
+                            </span>
+                          ) : "\u2014"}
+                        </td>
+                        <td className="py-2.5 text-right text-gray-400">{fmt(c.volume_24h)}</td>
+                        <td className="py-2.5 text-right text-gray-400">#{c.mcap_rank ?? "\u2014"}</td>
+                        <td className="py-2.5 text-right font-mono">
+                          {c.mindshare_delta != null && c.mindshare_delta !== 0 ? (
+                            <span className={c.mindshare_delta > 0 ? "text-green-400" : "text-red-400"}>
+                              {c.mindshare_delta > 0 ? "+" : ""}{c.mindshare_delta.toFixed(2)}
+                            </span>
+                          ) : <span className="text-gray-600">&mdash;</span>}
+                        </td>
+                        <td className="py-2.5 text-center">
+                          {staysIn
+                            ? <Badge variant="success">KEEP</Badge>
+                            : <Badge variant="danger">DROP</Badge>}
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr key={`${c.symbol}-detail`}>
+                          <td colSpan={13} className="py-3 px-4 bg-gray-900/30">
+                            <ExpandedShortDetail candidate={c} />
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  );
+                })}
+            </tbody>
+          </table>
         </div>
       </Card>
 
-      {/* Proposed Short Basket */}
-      <Card>
+      {/* ─── SECTION 2: Proposed Short Basket ─── */}
+      <Card className="border-red-800/30">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Proposed Short Basket ({proposed.length})</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle>2. Proposed Short Basket ({proposed.length})</CardTitle>
+              <span className="text-[10px] text-red-400 bg-red-800/30 px-2 py-0.5 rounded">RECOMMENDED</span>
+            </div>
             <span className="text-[10px] text-gray-500">Sorted by inverted score descending &mdash; higher = weaker fundamentals</span>
           </div>
         </CardHeader>
+
+        {/* Sector Diversity */}
+        <div className="px-4 pb-2">
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(sectorCounts)
+              .sort(([, a], [, b]) => b - a)
+              .map(([sector, count]) => (
+                <div key={sector} className="flex items-center gap-1.5 bg-gray-900/50 rounded px-2.5 py-1 text-xs">
+                  <span className="text-gray-400">{SECTOR_LABELS[sector] || sector}</span>
+                  <span className="font-mono font-semibold text-gray-200">{count}</span>
+                </div>
+              ))}
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
@@ -198,15 +328,15 @@ export function ShortSelectionTab() {
               {proposed
                 .sort((a, b) => b.score - a.score)
                 .map((c, i) => {
-                  const isExpanded = expanded === c.symbol;
-                  const isActive = c.current_notional != null && c.current_notional !== 0;
+                  const isExpanded = expandedProposed === c.symbol;
+                  const isNew = !currentSet.has(c.symbol);
 
                   return (
                     <>
                       <tr
                         key={c.symbol}
-                        className={`border-b border-gray-800/50 hover:bg-white/[0.02] cursor-pointer ${!isActive ? "bg-red-950/20" : ""}`}
-                        onClick={() => setExpanded(isExpanded ? null : c.symbol)}
+                        className={`border-b border-gray-800/50 hover:bg-white/[0.02] cursor-pointer ${isNew ? "bg-green-950/20" : ""}`}
+                        onClick={() => setExpandedProposed(isExpanded ? null : c.symbol)}
                       >
                         <td className="py-2.5 pl-2 text-gray-600">{i + 1}</td>
                         <td className="py-2.5">
@@ -216,7 +346,7 @@ export function ShortSelectionTab() {
                               {SECTOR_LABELS[c.sector] || c.sector}
                             </span>
                           )}
-                          {!isActive && <span className="ml-1.5 text-[9px] font-bold text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">NEW</span>}
+                          {isNew && <span className="ml-1.5 text-[9px] font-bold text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded">NEW</span>}
                         </td>
                         <td className="py-2.5 text-gray-400">{SECTOR_LABELS[c.sector || "other"] || c.sector}</td>
                         <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
@@ -229,12 +359,12 @@ export function ShortSelectionTab() {
                           <span className="text-gray-600"> / </span>
                           <span className="text-cyan-400">{c.mm_score != null ? c.mm_score.toFixed(2) : "\u2014"}</span>
                         </td>
-                        <td className="py-2.5 text-right text-gray-400">{(c.fund_confidence * 100).toFixed(0)}%</td>
-                        <td className={`py-2.5 text-right font-mono ${c.corr >= 0.5 ? "text-green-400" : c.corr >= 0.3 ? "text-yellow-400" : "text-red-400"}`}>
-                          {c.corr.toFixed(2)}
+                        <td className="py-2.5 text-right text-gray-400">{((c.fund_confidence ?? 0) * 100).toFixed(0)}%</td>
+                        <td className={`py-2.5 text-right font-mono ${(c.corr ?? 0) >= 0.5 ? "text-green-400" : (c.corr ?? 0) >= 0.3 ? "text-yellow-400" : "text-red-400"}`}>
+                          {(c.corr ?? 0).toFixed(2)}
                         </td>
-                        <td className={`py-2.5 text-right font-mono ${c.beta >= 0.7 && c.beta <= 1.5 ? "text-gray-300" : "text-yellow-400"}`}>
-                          {c.beta.toFixed(2)}
+                        <td className={`py-2.5 text-right font-mono ${(c.beta ?? 0) >= 0.7 && (c.beta ?? 0) <= 1.5 ? "text-gray-300" : "text-yellow-400"}`}>
+                          {(c.beta ?? 0).toFixed(2)}
                         </td>
                         <td className="py-2.5 text-right font-mono">
                           {c.fdv_mcap_ratio != null ? (
@@ -253,12 +383,11 @@ export function ShortSelectionTab() {
                           ) : <span className="text-gray-600">&mdash;</span>}
                         </td>
                         <td className="py-2.5 text-center">
-                          {isActive
+                          {!isNew
                             ? <Badge variant="default">ACTIVE</Badge>
-                            : <Badge variant="danger">NEW</Badge>}
+                            : <Badge variant="success">NEW</Badge>}
                         </td>
                       </tr>
-                      {/* Expanded signal detail */}
                       {isExpanded && (
                         <tr key={`${c.symbol}-detail`}>
                           <td colSpan={13} className="py-3 px-4 bg-gray-900/30">
@@ -272,6 +401,122 @@ export function ShortSelectionTab() {
             </tbody>
           </table>
         </div>
+      </Card>
+
+      {/* ─── SECTION 3: Basket Changes ─── */}
+      <Card className={added.length > 0 || removed.length > 0 ? "border-yellow-800/30" : "border-green-800/30"}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>3. Basket Changes</CardTitle>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="text-green-400">+{added.length} entering</span>
+              <span className="text-red-400">&minus;{removed.length} leaving</span>
+              <span className="text-gray-500">{unchanged.length} unchanged</span>
+            </div>
+          </div>
+        </CardHeader>
+
+        {added.length === 0 && removed.length === 0 ? (
+          <div className="px-4 pb-4 text-xs text-green-400">
+            No changes &mdash; proposed basket matches current basket.
+          </div>
+        ) : (
+          <div className="space-y-3 px-4 pb-4">
+            {/* Entering */}
+            {added.length > 0 && (
+              <div>
+                <div className="text-[10px] text-green-400 uppercase tracking-wider mb-2 font-semibold">Entering Basket ({added.length})</div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-gray-500 border-b border-gray-800">
+                        <th className="text-left py-1.5 pl-2">Token</th>
+                        <th className="text-left py-1.5">Sector</th>
+                        <th className="text-right py-1.5">Score</th>
+                        <th className="text-center py-1.5">VA / SM / OP / MM</th>
+                        <th className="text-right py-1.5">Confidence</th>
+                        <th className="text-right py-1.5">Corr</th>
+                        <th className="text-right py-1.5">Beta</th>
+                        <th className="text-right py-1.5">FDV/MCap</th>
+                        <th className="text-left py-1.5">Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {added.sort((a, b) => b.score - a.score).map(c => (
+                        <tr key={c.symbol} className="border-b border-gray-800/50 bg-green-950/15">
+                          <td className="py-1.5 pl-2 font-medium text-gray-200">{c.symbol.replace("USDT", "")}</td>
+                          <td className="py-1.5 text-gray-400">{SECTOR_LABELS[c.sector || "other"] || c.sector}</td>
+                          <td className="py-1.5 text-right">{scoreBar(c.score)}</td>
+                          <td className="py-1.5 text-center text-[10px]">
+                            <span className="text-purple-400">{c.va_score?.toFixed(2) ?? "\u2014"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-blue-400">{c.sm_score?.toFixed(2) ?? "\u2014"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-orange-400">{c.op_score?.toFixed(2) ?? "\u2014"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-cyan-400">{c.mm_score?.toFixed(2) ?? "\u2014"}</span>
+                          </td>
+                          <td className="py-1.5 text-right text-gray-400">{((c.fund_confidence ?? 0) * 100).toFixed(0)}%</td>
+                          <td className={`py-1.5 text-right font-mono ${(c.corr ?? 0) >= 0.5 ? "text-green-400" : "text-yellow-400"}`}>{(c.corr ?? 0).toFixed(2)}</td>
+                          <td className="py-1.5 text-right font-mono text-gray-300">{(c.beta ?? 0).toFixed(2)}</td>
+                          <td className="py-1.5 text-right font-mono text-gray-400">{c.fdv_mcap_ratio?.toFixed(1) ?? "\u2014"}x</td>
+                          <td className="py-1.5 text-green-400 text-[10px]">Weak fundamentals + good hedge quality</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Leaving */}
+            {removed.length > 0 && (
+              <div>
+                <div className="text-[10px] text-red-400 uppercase tracking-wider mb-2 font-semibold">Leaving Basket ({removed.length})</div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-gray-500 border-b border-gray-800">
+                        <th className="text-left py-1.5 pl-2">Token</th>
+                        <th className="text-left py-1.5">Sector</th>
+                        <th className="text-right py-1.5">Score</th>
+                        <th className="text-center py-1.5">VA / SM / OP / MM</th>
+                        <th className="text-right py-1.5">Confidence</th>
+                        <th className="text-right py-1.5">Corr</th>
+                        <th className="text-right py-1.5">Beta</th>
+                        <th className="text-left py-1.5">Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {removed.sort((a, b) => a.score - b.score).map(c => (
+                        <tr key={c.symbol} className="border-b border-gray-800/50 bg-red-950/15">
+                          <td className="py-1.5 pl-2 font-medium text-gray-300">{c.symbol.replace("USDT", "")}</td>
+                          <td className="py-1.5 text-gray-400">{SECTOR_LABELS[c.sector || "other"] || c.sector}</td>
+                          <td className="py-1.5 text-right">{scoreBar(c.score)}</td>
+                          <td className="py-1.5 text-center text-[10px]">
+                            <span className="text-purple-400">{c.va_score?.toFixed(2) ?? "\u2014"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-blue-400">{c.sm_score?.toFixed(2) ?? "\u2014"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-orange-400">{c.op_score?.toFixed(2) ?? "\u2014"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-cyan-400">{c.mm_score?.toFixed(2) ?? "\u2014"}</span>
+                          </td>
+                          <td className="py-1.5 text-right text-gray-400">{((c.fund_confidence ?? 0) * 100).toFixed(0)}%</td>
+                          <td className={`py-1.5 text-right font-mono ${(c.corr ?? 0) >= 0.5 ? "text-green-400" : "text-yellow-400"}`}>{(c.corr ?? 0).toFixed(2)}</td>
+                          <td className="py-1.5 text-right font-mono text-gray-300">{(c.beta ?? 0).toFixed(2)}</td>
+                          <td className="py-1.5 text-red-400 text-[10px]">
+                            {c.gate_failure || (c.score < (proposed[proposed.length - 1]?.score ?? 0) ? "Score below cutoff" : "Outscored by new candidate")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       {/* Scoring Architecture */}
@@ -427,11 +672,11 @@ function ExpandedShortDetail({ candidate: c }: { candidate: RankingCandidate }) 
           <div className="grid grid-cols-2 gap-2 text-[10px]">
             <div className="flex justify-between">
               <span className="text-gray-500">Correlation</span>
-              <span className={c.corr >= 0.5 ? "text-green-400" : "text-yellow-400"}>{c.corr.toFixed(3)}</span>
+              <span className={(c.corr ?? 0) >= 0.5 ? "text-green-400" : "text-yellow-400"}>{(c.corr ?? 0).toFixed(3)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Beta</span>
-              <span className="text-gray-300">{c.beta.toFixed(3)}</span>
+              <span className="text-gray-300">{(c.beta ?? 0).toFixed(3)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">FDV/MCap</span>
