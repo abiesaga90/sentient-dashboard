@@ -17,6 +17,10 @@ interface LongCandidate {
   adjusted_score: number | null;
   confidence: number | null;
   n_signals: number | null;
+  n_va?: number;
+  n_sm?: number;
+  n_p3?: number;
+  n_mm?: number;
   volume_24h: number | null;
   market_cap: number | null;
   mcap_rank: number | null;
@@ -395,13 +399,13 @@ export function LongSelectionTab() {
                       <td className="py-2.5">{acc ? mechanismBadge(acc.mechanism) : <span className="text-gray-600">&mdash;</span>}</td>
                       <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
                       <td className="py-2.5 text-center">
-                        <span className="text-purple-400">{sig?.va_count ?? "?"}</span>
+                        <span className="text-purple-400">{c.n_va ?? sig?.va_count ?? "?"}</span>
                         <span className="text-gray-600">/</span>
-                        <span className="text-blue-400">{sig?.sm_count ?? "?"}</span>
+                        <span className="text-blue-400">{c.n_sm ?? sig?.sm_count ?? "?"}</span>
                         <span className="text-gray-600">/</span>
-                        <span className="text-orange-400">{c.op_score != null ? "1" : "0"}</span>
+                        <span className="text-orange-400">{c.n_p3 ?? (c.op_score != null ? "1" : "0")}</span>
                         <span className="text-gray-600">/</span>
-                        <span className="text-cyan-400">{sig?.mm_count ?? "?"}</span>
+                        <span className="text-cyan-400">{c.n_mm ?? sig?.mm_count ?? "?"}</span>
                       </td>
                       <td className="py-2.5 text-right text-gray-400">{c.confidence != null ? `${(c.confidence * 100).toFixed(0)}%` : "\u2014"}</td>
                       <td className="py-2.5 text-right">
