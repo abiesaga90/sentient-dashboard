@@ -88,6 +88,13 @@ export function ShortSelectionTab() {
   const proposed = data.candidates.filter(c => (c.status || []).includes("in_targets"));
   const currentSet = new Set(current.map(c => c.symbol));
   const proposedSet = new Set(proposed.map(c => c.symbol));
+  // Full scored universe: candidates not in proposed basket (rejected / below cutoff)
+  const notSelected = data.candidates
+    .filter(c => !proposedSet.has(c.symbol) && !c.gate_failure)
+    .sort((a, b) => b.score - a.score);
+  const gateFiltered = data.candidates
+    .filter(c => !!c.gate_failure)
+    .sort((a, b) => b.score - a.score);
 
   // Diff computation
   const added = proposed.filter(c => !currentSet.has(c.symbol));
@@ -518,6 +525,95 @@ export function ShortSelectionTab() {
           </div>
         )}
       </Card>
+
+      {/* Scored Universe — candidates not selected */}
+      {(notSelected.length > 0 || gateFiltered.length > 0) && (
+        <Card>
+          <CardHeader>
+            <CardTitle>4. Scored Universe — Not Selected ({notSelected.length + gateFiltered.length})</CardTitle>
+          </CardHeader>
+          <div className="space-y-3">
+            <div className="text-[10px] text-gray-500 px-3">
+              Candidates that passed initial filters but were not selected for the basket.
+              Sorted by score descending — top entries are closest to selection cutoff.
+            </div>
+            {notSelected.length > 0 && (
+              <div className="px-3">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Below Cutoff ({notSelected.length})</div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-500">
+                        <th className="text-left py-1.5 pl-2">#</th>
+                        <th className="text-left py-1.5">Token</th>
+                        <th className="text-left py-1.5">Sector</th>
+                        <th className="text-right py-1.5">Score</th>
+                        <th className="text-center py-1.5">VA / SM / OP / MM</th>
+                        <th className="text-right py-1.5">Corr</th>
+                        <th className="text-right py-1.5">Beta</th>
+                        <th className="text-right py-1.5">Vol 24h</th>
+                        <th className="text-right py-1.5">MCap #</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {notSelected.map((c, i) => (
+                        <tr key={c.symbol} className="border-b border-gray-800/30">
+                          <td className="py-1 pl-2 text-gray-600">{(proposed.length || 0) + i + 1}</td>
+                          <td className="py-1 font-medium text-gray-400">{c.symbol.replace("USDT", "")}</td>
+                          <td className="py-1 text-gray-500 text-[10px]">{c.sector || "—"}</td>
+                          <td className="py-1 text-right">{scoreBar(c.score)}</td>
+                          <td className="py-1 text-center text-[10px]">
+                            <span className="text-purple-400">{c.va_score?.toFixed(2) ?? "—"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-blue-400">{c.sm_score?.toFixed(2) ?? "—"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-orange-400">{c.op_score?.toFixed(2) ?? "—"}</span>
+                            <span className="text-gray-600"> / </span>
+                            <span className="text-cyan-400">{c.mm_score?.toFixed(2) ?? "—"}</span>
+                          </td>
+                          <td className={`py-1 text-right font-mono ${(c.corr ?? 0) >= 0.6 ? "text-green-400" : "text-yellow-400"}`}>{(c.corr ?? 0).toFixed(2)}</td>
+                          <td className="py-1 text-right font-mono text-gray-300">{(c.beta ?? 0).toFixed(2)}</td>
+                          <td className="py-1 text-right text-gray-400">${((c.volume_24h ?? 0) / 1e6).toFixed(1)}M</td>
+                          <td className="py-1 text-right text-gray-500">#{c.mcap_rank ?? "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            {gateFiltered.length > 0 && (
+              <div className="px-3 pb-2">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Gate Filtered ({gateFiltered.length})</div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[11px]">
+                    <thead>
+                      <tr className="border-b border-gray-800 text-gray-500">
+                        <th className="text-left py-1.5 pl-2">Token</th>
+                        <th className="text-left py-1.5">Sector</th>
+                        <th className="text-right py-1.5">Corr</th>
+                        <th className="text-right py-1.5">Beta</th>
+                        <th className="text-left py-1.5">Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gateFiltered.map(c => (
+                        <tr key={c.symbol} className="border-b border-gray-800/20">
+                          <td className="py-1 pl-2 text-gray-500">{c.symbol.replace("USDT", "")}</td>
+                          <td className="py-1 text-gray-600 text-[10px]">{c.sector || "—"}</td>
+                          <td className="py-1 text-right font-mono text-gray-500">{(c.corr ?? 0).toFixed(2)}</td>
+                          <td className="py-1 text-right font-mono text-gray-500">{(c.beta ?? 0).toFixed(2)}</td>
+                          <td className="py-1 text-red-400/70 text-[10px]">{c.gate_failure}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
 
       {/* Scoring Architecture */}
       <Card>
