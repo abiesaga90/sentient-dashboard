@@ -234,8 +234,17 @@ export function LongSelectionTab() {
     staleTime: 60_000,
   });
 
+  // Fundamentals for ALL tokens (fees, holders_rev, mechanism for non-basket tokens)
+  const { data: fundamentals } = useQuery<any[]>({
+    queryKey: ["fundamentals-all", engine.id],
+    queryFn: () => client.get("/api/fundamentals"),
+    refetchInterval: 300_000,
+    staleTime: 120_000,
+  });
+
   const signalMap = new Map(signals?.tokens?.map(t => [t.symbol, t]) || []);
   const accrualMap = new Map(accrual?.tokens?.map(t => [t.symbol, t]) || []);
+  const fundMap = new Map((fundamentals || []).map((t: any) => [t.symbol, t]));
 
   if (isLoading) {
     return <div className="p-4 text-gray-500 text-sm">Loading long selection...</div>;
@@ -368,6 +377,7 @@ export function LongSelectionTab() {
               {current.sort((a, b) => b.score - a.score).map((c, i) => {
                 const sym = c.symbol;
                 const sig = signalMap.get(sym);
+                const fund = fundMap.get(sym) as any;
                 const acc = accrualMap.get(sym);
                 const staysIn = proposedSet.has(sym);
                 const isExpanded = expandedCurrent === sym;
@@ -390,7 +400,7 @@ export function LongSelectionTab() {
                         {!staysIn && <span className="ml-1.5 text-[9px] font-bold text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">DROPPING</span>}
                       </td>
                       <td className="py-2.5 text-gray-400">{SECTOR_LABELS[c.sector] || c.sector}</td>
-                      <td className="py-2.5">{acc ? mechanismBadge(acc.mechanism) : <span className="text-gray-600">&mdash;</span>}</td>
+                      <td className="py-2.5">{acc ? mechanismBadge(acc.mechanism) : fund?.mechanism ? mechanismBadge(fund.mechanism) : <span className="text-gray-600">&mdash;</span>}</td>
                       <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
                       <td className="py-2.5 text-center">
                         <span className="text-purple-400">{c.n_va ?? sig?.va_count ?? "?"}</span>
@@ -409,12 +419,14 @@ export function LongSelectionTab() {
                           return <span className={`font-mono font-semibold ${tilt >= 1.3 ? "text-green-400" : tilt >= 1.1 ? "text-green-300" : tilt <= 0.9 ? "text-red-400" : "text-gray-300"}`}>{tilt.toFixed(2)}x</span>;
                         })()}
                       </td>
-                      <td className="py-2.5 text-right text-gray-400">{sig ? fmt(sig.fees_30d) : "\u2014"}</td>
+                      <td className="py-2.5 text-right text-gray-400">{sig ? fmt(sig.fees_30d) : fund?.fees_30d ? fmt(fund.fees_30d) : "\u2014"}</td>
                       <td className="py-2.5 text-right">
                         {acc && acc.corrected_holders_revenue_30d != null && acc.corrected_holders_revenue_30d !== acc.defillama_holders_revenue_30d ? (
                           <span className="text-yellow-400">{fmt(acc.corrected_holders_revenue_30d)}</span>
                         ) : sig ? (
                           <span className="text-gray-400">{fmt(sig.holders_revenue_30d)}</span>
+                        ) : fund?.holders_revenue_30d ? (
+                          <span className="text-gray-400">{fmt(fund.holders_revenue_30d)}</span>
                         ) : "\u2014"}
                       </td>
                       <td className="py-2.5 text-right text-gray-400">#{c.mcap_rank ?? "\u2014"}</td>
@@ -544,6 +556,7 @@ export function LongSelectionTab() {
                 const sym = c.symbol;
                 const sig = signalMap.get(sym);
                 const acc = accrualMap.get(sym);
+                const fund = fundMap.get(sym) as any;
                 const isNew = !currentSet.has(sym);
                 const isExpanded = expandedProposed === sym;
                 const profile = sig?.va_profile || "_default";
@@ -566,7 +579,7 @@ export function LongSelectionTab() {
                         {isNew && <span className="ml-1.5 text-[9px] font-bold text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded">NEW</span>}
                       </td>
                       <td className="py-2.5 text-gray-400">{SECTOR_LABELS[c.sector] || c.sector}</td>
-                      <td className="py-2.5">{acc ? mechanismBadge(acc.mechanism) : <span className="text-gray-600">&mdash;</span>}</td>
+                      <td className="py-2.5">{acc ? mechanismBadge(acc.mechanism) : fund?.mechanism ? mechanismBadge(fund.mechanism) : <span className="text-gray-600">&mdash;</span>}</td>
                       <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
                       <td className="py-2.5 text-center">
                         <span className="text-purple-400">{c.n_va ?? sig?.va_count ?? "?"}</span>
@@ -589,12 +602,14 @@ export function LongSelectionTab() {
                           );
                         })()}
                       </td>
-                      <td className="py-2.5 text-right text-gray-400">{sig ? fmt(sig.fees_30d) : "\u2014"}</td>
+                      <td className="py-2.5 text-right text-gray-400">{sig ? fmt(sig.fees_30d) : fund?.fees_30d ? fmt(fund.fees_30d) : "\u2014"}</td>
                       <td className="py-2.5 text-right">
                         {acc && acc.corrected_holders_revenue_30d != null && acc.corrected_holders_revenue_30d !== acc.defillama_holders_revenue_30d ? (
                           <span className="text-yellow-400">{fmt(acc.corrected_holders_revenue_30d)}</span>
                         ) : sig ? (
                           <span className="text-gray-400">{fmt(sig.holders_revenue_30d)}</span>
+                        ) : fund?.holders_revenue_30d ? (
+                          <span className="text-gray-400">{fmt(fund.holders_revenue_30d)}</span>
                         ) : "\u2014"}
                       </td>
                       <td className="py-2.5 text-right text-gray-400">#{c.mcap_rank ?? "\u2014"}</td>
