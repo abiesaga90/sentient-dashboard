@@ -528,90 +528,126 @@ export function ShortSelectionTab() {
 
       {/* Scored Universe — candidates not selected */}
       {(notSelected.length > 0 || gateFiltered.length > 0) && (
-        <Card>
+        <Card className="border-gray-700/50">
           <CardHeader>
             <CardTitle>4. Scored Universe — Not Selected ({notSelected.length + gateFiltered.length})</CardTitle>
           </CardHeader>
-          <div className="space-y-3">
-            <div className="text-[10px] text-gray-500 px-3">
-              Candidates that passed initial filters but were not selected for the basket.
-              Sorted by score descending — top entries are closest to selection cutoff.
-            </div>
-            {notSelected.length > 0 && (
-              <div className="px-3">
-                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Below Cutoff ({notSelected.length})</div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-[11px]">
-                    <thead>
-                      <tr className="border-b border-gray-800 text-gray-500">
-                        <th className="text-left py-1.5 pl-2">#</th>
-                        <th className="text-left py-1.5">Token</th>
-                        <th className="text-left py-1.5">Sector</th>
-                        <th className="text-right py-1.5">Score</th>
-                        <th className="text-center py-1.5">VA / SM / OP / MM</th>
-                        <th className="text-right py-1.5">Corr</th>
-                        <th className="text-right py-1.5">Beta</th>
-                        <th className="text-right py-1.5">Vol 24h</th>
-                        <th className="text-right py-1.5">MCap #</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {notSelected.map((c, i) => (
-                        <tr key={c.symbol} className="border-b border-gray-800/30">
-                          <td className="py-1 pl-2 text-gray-600">{(proposed.length || 0) + i + 1}</td>
-                          <td className="py-1 font-medium text-gray-400">{c.symbol.replace("USDT", "")}</td>
-                          <td className="py-1 text-gray-500 text-[10px]">{c.sector || "—"}</td>
-                          <td className="py-1 text-right">{scoreBar(c.score)}</td>
-                          <td className="py-1 text-center text-[10px]">
-                            <span className="text-purple-400">{c.va_score?.toFixed(2) ?? "—"}</span>
-                            <span className="text-gray-600"> / </span>
-                            <span className="text-blue-400">{c.sm_score?.toFixed(2) ?? "—"}</span>
-                            <span className="text-gray-600"> / </span>
-                            <span className="text-orange-400">{c.op_score?.toFixed(2) ?? "—"}</span>
-                            <span className="text-gray-600"> / </span>
-                            <span className="text-cyan-400">{c.mm_score?.toFixed(2) ?? "—"}</span>
-                          </td>
-                          <td className={`py-1 text-right font-mono ${(c.corr ?? 0) >= 0.6 ? "text-green-400" : "text-yellow-400"}`}>{(c.corr ?? 0).toFixed(2)}</td>
-                          <td className="py-1 text-right font-mono text-gray-300">{(c.beta ?? 0).toFixed(2)}</td>
-                          <td className="py-1 text-right text-gray-400">${((c.volume_24h ?? 0) / 1e6).toFixed(1)}M</td>
-                          <td className="py-1 text-right text-gray-500">#{c.mcap_rank ?? "—"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-            {gateFiltered.length > 0 && (
-              <div className="px-3 pb-2">
-                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Gate Filtered ({gateFiltered.length})</div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-[11px]">
-                    <thead>
-                      <tr className="border-b border-gray-800 text-gray-500">
-                        <th className="text-left py-1.5 pl-2">Token</th>
-                        <th className="text-left py-1.5">Sector</th>
-                        <th className="text-right py-1.5">Corr</th>
-                        <th className="text-right py-1.5">Beta</th>
-                        <th className="text-left py-1.5">Reason</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {gateFiltered.map(c => (
-                        <tr key={c.symbol} className="border-b border-gray-800/20">
-                          <td className="py-1 pl-2 text-gray-500">{c.symbol.replace("USDT", "")}</td>
-                          <td className="py-1 text-gray-600 text-[10px]">{c.sector || "—"}</td>
-                          <td className="py-1 text-right font-mono text-gray-500">{(c.corr ?? 0).toFixed(2)}</td>
-                          <td className="py-1 text-right font-mono text-gray-500">{(c.beta ?? 0).toFixed(2)}</td>
-                          <td className="py-1 text-red-400/70 text-[10px]">{c.gate_failure}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+          <div className="text-[10px] text-gray-500 px-3 mb-2">
+            Candidates that passed initial filters but were not selected for the basket.
+            Sorted by score descending — top entries are closest to selection cutoff.
           </div>
+          {notSelected.length > 0 && (<>
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1 px-3">Below Cutoff ({notSelected.length})</div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-gray-500 border-b border-gray-800">
+                    <th className="text-left py-2 pl-2">#</th>
+                    <th className="text-left py-2">Token</th>
+                    <th className="text-left py-2">Sector</th>
+                    <th className="text-right py-2">Score</th>
+                    <th className="text-center py-2">VA / SM / OP / MM</th>
+                    <th className="text-right py-2">Confidence</th>
+                    <th className="text-right py-2">Corr</th>
+                    <th className="text-right py-2">Beta</th>
+                    <th className="text-right py-2">FDV/MCap</th>
+                    <th className="text-right py-2">Volume 24h</th>
+                    <th className="text-right py-2">MCap #</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {notSelected.map((c, i) => (
+                    <tr key={c.symbol} className="border-b border-gray-800/50 hover:bg-white/[0.02]">
+                      <td className="py-2.5 pl-2 text-gray-600">{(proposed.length || 0) + i + 1}</td>
+                      <td className="py-2.5">
+                        <span className="font-medium text-gray-300">{c.symbol.replace("USDT", "")}</span>
+                        {c.sector && (
+                          <span className="ml-1.5 inline-block text-[9px] font-medium px-1.5 py-0.5 rounded border bg-gray-500/20 text-gray-400 border-gray-500/30">
+                            {SECTOR_LABELS[c.sector] || c.sector}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-gray-400">{SECTOR_LABELS[c.sector || "other"] || c.sector}</td>
+                      <td className="py-2.5 text-right">{scoreBar(c.score)}</td>
+                      <td className="py-2.5 text-center text-[10px]">
+                        <span className="text-purple-400">{c.va_score?.toFixed(2) ?? "\u2014"}</span>
+                        <span className="text-gray-600"> / </span>
+                        <span className="text-blue-400">{c.sm_score?.toFixed(2) ?? "\u2014"}</span>
+                        <span className="text-gray-600"> / </span>
+                        <span className="text-orange-400">{c.op_score?.toFixed(2) ?? "\u2014"}</span>
+                        <span className="text-gray-600"> / </span>
+                        <span className="text-cyan-400">{c.mm_score?.toFixed(2) ?? "\u2014"}</span>
+                      </td>
+                      <td className="py-2.5 text-right text-gray-400">{((c.fund_confidence ?? 0) * 100).toFixed(0)}%</td>
+                      <td className={`py-2.5 text-right font-mono ${(c.corr ?? 0) >= 0.6 ? "text-green-400" : "text-yellow-400"}`}>{(c.corr ?? 0).toFixed(2)}</td>
+                      <td className={`py-2.5 text-right font-mono ${(c.beta ?? 0) >= 0.7 && (c.beta ?? 0) <= 1.5 ? "text-gray-300" : "text-yellow-400"}`}>{(c.beta ?? 0).toFixed(2)}</td>
+                      <td className="py-2.5 text-right font-mono text-gray-400">{c.fdv_mcap_ratio ? `${c.fdv_mcap_ratio.toFixed(1)}x` : "\u2014"}</td>
+                      <td className="py-2.5 text-right text-gray-400">${((c.volume_24h ?? 0) / 1e6).toFixed(1)}M</td>
+                      <td className="py-2.5 text-right text-gray-500">#{c.mcap_rank ?? "\u2014"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>)}
+          {gateFiltered.length > 0 && (<>
+            <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1 mt-3 px-3">Gate Filtered ({gateFiltered.length})</div>
+            <div className="overflow-x-auto pb-2">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-gray-500 border-b border-gray-800">
+                    <th className="text-left py-2 pl-2">Token</th>
+                    <th className="text-left py-2">Sector</th>
+                    <th className="text-right py-2">Fund Score</th>
+                    <th className="text-center py-2">VA / SM / OP / MM</th>
+                    <th className="text-right py-2">Corr</th>
+                    <th className="text-right py-2">Beta</th>
+                    <th className="text-right py-2">FDV/MCap</th>
+                    <th className="text-right py-2">Volume 24h</th>
+                    <th className="text-right py-2">MCap #</th>
+                    <th className="text-left py-2">Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gateFiltered
+                    .sort((a, b) => (b.fund_score ?? 0) - (a.fund_score ?? 0))
+                    .map(c => (
+                    <tr key={c.symbol} className="border-b border-gray-800/30 hover:bg-white/[0.02]">
+                      <td className="py-2.5 pl-2">
+                        <span className="font-medium text-gray-400">{c.symbol.replace("USDT", "")}</span>
+                        {c.sector && (
+                          <span className="ml-1.5 inline-block text-[9px] font-medium px-1.5 py-0.5 rounded border bg-gray-500/20 text-gray-500 border-gray-500/30">
+                            {SECTOR_LABELS[c.sector] || c.sector}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-gray-500">{SECTOR_LABELS[c.sector || "other"] || c.sector}</td>
+                      <td className="py-2.5 text-right">{c.fund_score != null ? scoreBar(c.fund_score) : <span className="text-gray-600">&mdash;</span>}</td>
+                      <td className="py-2.5 text-center text-[10px]">
+                        <span className="text-purple-400">{c.va_score?.toFixed(2) ?? "\u2014"}</span>
+                        <span className="text-gray-600"> / </span>
+                        <span className="text-blue-400">{c.sm_score?.toFixed(2) ?? "\u2014"}</span>
+                        <span className="text-gray-600"> / </span>
+                        <span className="text-orange-400">{c.op_score?.toFixed(2) ?? "\u2014"}</span>
+                        <span className="text-gray-600"> / </span>
+                        <span className="text-cyan-400">{c.mm_score?.toFixed(2) ?? "\u2014"}</span>
+                      </td>
+                      <td className={`py-2.5 text-right font-mono ${c.corr != null ? ((c.corr ?? 0) >= 0.6 ? "text-green-400" : "text-yellow-400") : "text-gray-600"}`}>
+                        {c.corr != null ? (c.corr).toFixed(2) : "\u2014"}
+                      </td>
+                      <td className={`py-2.5 text-right font-mono ${c.beta != null ? ((c.beta ?? 0) >= 0.7 && (c.beta ?? 0) <= 1.5 ? "text-gray-300" : "text-yellow-400") : "text-gray-600"}`}>
+                        {c.beta != null ? (c.beta).toFixed(2) : "\u2014"}
+                      </td>
+                      <td className="py-2.5 text-right font-mono text-gray-500">{c.fdv_mcap_ratio ? `${c.fdv_mcap_ratio.toFixed(1)}x` : "\u2014"}</td>
+                      <td className="py-2.5 text-right text-gray-500">${((c.volume_24h ?? 0) / 1e6).toFixed(1)}M</td>
+                      <td className="py-2.5 text-right text-gray-600">#{c.mcap_rank ?? "\u2014"}</td>
+                      <td className="py-2.5 text-red-400/70 text-[10px]">{c.gate_failure}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>)}
         </Card>
       )}
 
