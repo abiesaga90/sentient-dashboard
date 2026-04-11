@@ -553,6 +553,7 @@ export function ShortSelectionTab() {
                     <th className="text-right py-2">FDV/MCap</th>
                     <th className="text-right py-2">Volume 24h</th>
                     <th className="text-right py-2">MCap #</th>
+                    <th className="text-right py-2">Mindshare</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -579,11 +580,24 @@ export function ShortSelectionTab() {
                         <span className="text-cyan-400">{c.mm_score?.toFixed(2) ?? "\u2014"}</span>
                       </td>
                       <td className="py-2.5 text-right text-gray-400">{((c.fund_confidence ?? 0) * 100).toFixed(0)}%</td>
-                      <td className={`py-2.5 text-right font-mono ${(c.corr ?? 0) >= 0.6 ? "text-green-400" : "text-yellow-400"}`}>{(c.corr ?? 0).toFixed(2)}</td>
+                      <td className={`py-2.5 text-right font-mono ${(c.corr ?? 0) >= 0.5 ? "text-green-400" : (c.corr ?? 0) >= 0.3 ? "text-yellow-400" : "text-red-400"}`}>{(c.corr ?? 0).toFixed(2)}</td>
                       <td className={`py-2.5 text-right font-mono ${(c.beta ?? 0) >= 0.7 && (c.beta ?? 0) <= 1.5 ? "text-gray-300" : "text-yellow-400"}`}>{(c.beta ?? 0).toFixed(2)}</td>
-                      <td className="py-2.5 text-right font-mono text-gray-400">{c.fdv_mcap_ratio ? `${c.fdv_mcap_ratio.toFixed(1)}x` : "\u2014"}</td>
-                      <td className="py-2.5 text-right text-gray-400">${((c.volume_24h ?? 0) / 1e6).toFixed(1)}M</td>
-                      <td className="py-2.5 text-right text-gray-500">#{c.mcap_rank ?? "\u2014"}</td>
+                      <td className="py-2.5 text-right font-mono">
+                        {c.fdv_mcap_ratio != null ? (
+                          <span className={c.fdv_mcap_ratio > 3 ? "text-red-400" : c.fdv_mcap_ratio > 2 ? "text-yellow-400" : "text-gray-400"}>
+                            {c.fdv_mcap_ratio.toFixed(1)}x
+                          </span>
+                        ) : "\u2014"}
+                      </td>
+                      <td className="py-2.5 text-right text-gray-400">{fmt(c.volume_24h)}</td>
+                      <td className="py-2.5 text-right text-gray-400">#{c.mcap_rank ?? "\u2014"}</td>
+                      <td className="py-2.5 text-right font-mono">
+                        {c.mindshare_delta != null && c.mindshare_delta !== 0 ? (
+                          <span className={c.mindshare_delta > 0 ? "text-green-400" : "text-red-400"}>
+                            {c.mindshare_delta > 0 ? "+" : ""}{c.mindshare_delta.toFixed(2)}
+                          </span>
+                        ) : <span className="text-gray-600">&mdash;</span>}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -598,13 +612,15 @@ export function ShortSelectionTab() {
                   <tr className="text-gray-500 border-b border-gray-800">
                     <th className="text-left py-2 pl-2">Token</th>
                     <th className="text-left py-2">Sector</th>
-                    <th className="text-right py-2">Fund Score</th>
+                    <th className="text-right py-2">Score</th>
                     <th className="text-center py-2">VA / SM / OP / MM</th>
+                    <th className="text-right py-2">Confidence</th>
                     <th className="text-right py-2">Corr</th>
                     <th className="text-right py-2">Beta</th>
                     <th className="text-right py-2">FDV/MCap</th>
                     <th className="text-right py-2">Volume 24h</th>
                     <th className="text-right py-2">MCap #</th>
+                    <th className="text-right py-2">Mindshare</th>
                     <th className="text-left py-2">Reason</th>
                   </tr>
                 </thead>
@@ -632,15 +648,29 @@ export function ShortSelectionTab() {
                         <span className="text-gray-600"> / </span>
                         <span className="text-cyan-400">{c.mm_score?.toFixed(2) ?? "\u2014"}</span>
                       </td>
-                      <td className={`py-2.5 text-right font-mono ${c.corr != null ? ((c.corr ?? 0) >= 0.6 ? "text-green-400" : "text-yellow-400") : "text-gray-600"}`}>
+                      <td className="py-2.5 text-right text-gray-400">{((c.fund_confidence ?? 0) * 100).toFixed(0)}%</td>
+                      <td className={`py-2.5 text-right font-mono ${c.corr != null ? ((c.corr ?? 0) >= 0.5 ? "text-green-400" : (c.corr ?? 0) >= 0.3 ? "text-yellow-400" : "text-red-400") : "text-gray-600"}`}>
                         {c.corr != null ? (c.corr).toFixed(2) : "\u2014"}
                       </td>
                       <td className={`py-2.5 text-right font-mono ${c.beta != null ? ((c.beta ?? 0) >= 0.7 && (c.beta ?? 0) <= 1.5 ? "text-gray-300" : "text-yellow-400") : "text-gray-600"}`}>
                         {c.beta != null ? (c.beta).toFixed(2) : "\u2014"}
                       </td>
-                      <td className="py-2.5 text-right font-mono text-gray-500">{c.fdv_mcap_ratio ? `${c.fdv_mcap_ratio.toFixed(1)}x` : "\u2014"}</td>
-                      <td className="py-2.5 text-right text-gray-500">${((c.volume_24h ?? 0) / 1e6).toFixed(1)}M</td>
+                      <td className="py-2.5 text-right font-mono">
+                        {c.fdv_mcap_ratio != null ? (
+                          <span className={c.fdv_mcap_ratio > 3 ? "text-red-400" : c.fdv_mcap_ratio > 2 ? "text-yellow-400" : "text-gray-400"}>
+                            {c.fdv_mcap_ratio.toFixed(1)}x
+                          </span>
+                        ) : "\u2014"}
+                      </td>
+                      <td className="py-2.5 text-right text-gray-500">{fmt(c.volume_24h)}</td>
                       <td className="py-2.5 text-right text-gray-600">#{c.mcap_rank ?? "\u2014"}</td>
+                      <td className="py-2.5 text-right font-mono">
+                        {c.mindshare_delta != null && c.mindshare_delta !== 0 ? (
+                          <span className={c.mindshare_delta > 0 ? "text-green-400" : "text-red-400"}>
+                            {c.mindshare_delta > 0 ? "+" : ""}{c.mindshare_delta.toFixed(2)}
+                          </span>
+                        ) : <span className="text-gray-600">&mdash;</span>}
+                      </td>
                       <td className="py-2.5 text-red-400/70 text-[10px]">{c.gate_failure}</td>
                     </tr>
                   ))}
