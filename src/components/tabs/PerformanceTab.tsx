@@ -261,18 +261,15 @@ export function PerformanceTab() {
 
   return (
     <div className="p-4 space-y-4">
-      {/* Ratio KPIs — real-time (live NAV) + snapshot */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Ratio KPIs — snapshot (Nickel's view) + live */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <RatioCard label="Sharpe (4w)" value={data.sharpe_30d} />
         <RatioCard label="Sharpe (4w live)" value={(data as any).sharpe_30d_live || data.sharpe_30d} />
         <RatioCard label="Sharpe (12w)" value={data.sharpe_90d} />
+        <RatioCard label="Sortino (4w)" value={data.sortino_30d} />
         <RatioCard label="Sortino (4w live)" value={(data as any).sortino_30d_live || data.sortino_30d} />
         <RatioCard label="Sortino (12w)" value={data.sortino_90d} />
       </div>
-      {(data as any).sortino_30d_live != null && Math.abs((data as any).sortino_30d_live - data.sortino_30d) > 0.05 && (
-        <div className="text-[10px] text-gray-500 -mt-2 px-1">
-          Snapshot: Sharpe {data.sharpe_30d.toFixed(2)} / Sortino {data.sortino_30d.toFixed(2)} — live NAV ${(data as any).live_nav?.toLocaleString() ?? "?"}
-        </div>
-      )}
 
       {/* Rolling Sharpe Chart */}
       {(data.rolling_sharpe_30d.length > 0 || data.rolling_sortino_30d.length > 0) && (
