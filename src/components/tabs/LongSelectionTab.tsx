@@ -244,7 +244,8 @@ export function LongSelectionTab() {
 
   const signalMap = new Map(signals?.tokens?.map(t => [t.symbol, t]) || []);
   const accrualMap = new Map(accrual?.tokens?.map(t => [t.symbol, t]) || []);
-  const fundMap = new Map((fundamentals || []).map((t: any) => [t.symbol, t]));
+  const _fundTokens = Array.isArray(fundamentals) ? fundamentals : (fundamentals as any)?.tokens || [];
+  const fundMap = new Map(_fundTokens.map((t: any) => [t.symbol, t]));
 
   if (isLoading) {
     return <div className="p-4 text-gray-500 text-sm">Loading long selection...</div>;
