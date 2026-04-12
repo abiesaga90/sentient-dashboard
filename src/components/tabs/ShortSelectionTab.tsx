@@ -154,7 +154,11 @@ export function ShortSelectionTab() {
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
         <KpiCard label="Current Basket" value={String(current.length)} sub="live positions" />
-        <KpiCard label="Proposed Basket" value={String(proposed.length)} sub={`target: ${data.n_shorts}`} />
+        <KpiCard
+          label="Proposed Basket"
+          value={proposed.length < data.n_shorts ? `${proposed.length} / ${data.n_shorts}` : String(proposed.length)}
+          sub={proposed.length < data.n_shorts ? "rebalanced — notional auto-distributed" : `target: ${data.n_shorts}`}
+        />
         <KpiCard
           label="Avg Score"
           value={avgScore > 0 ? `+${avgScore.toFixed(2)}` : avgScore.toFixed(2)}
