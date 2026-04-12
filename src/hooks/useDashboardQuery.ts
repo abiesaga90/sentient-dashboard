@@ -138,3 +138,59 @@ export function useAlphaModel() {
     staleTime: 60_000,
   });
 }
+
+export interface OptimizerConstraint {
+  name: string;
+  limit: number;
+  actual: number;
+  binding: boolean;
+  slack_pct: number;
+}
+
+export interface OptimizerWeightCompare {
+  symbol: string;
+  side: "LONG" | "SHORT";
+  target_notional: number;
+  current_notional: number;
+  target_pct: number;
+  current_pct: number;
+  drift_pct: number;
+}
+
+export interface OptimizerResponse {
+  available: boolean;
+  reason?: string;
+  targets?: Record<string, { side: string; notional: number }>;
+  active_longs?: string[];
+  short_basket?: string[];
+  gross_long?: number;
+  gross_short?: number;
+  gross_total?: number;
+  net_exposure?: number;
+  gross_pct?: number;
+  net_exposure_pct?: number;
+  avg_long_beta?: number;
+  avg_short_beta?: number;
+  beta_symmetry_delta?: number;
+  constraints?: OptimizerConstraint[];
+  binding_constraints?: string[];
+  weight_comparison?: OptimizerWeightCompare[];
+  sizing_base?: number;
+  nav?: number;
+  dd_scale?: number;
+  effective_scale?: number;
+  n_longs?: number;
+  n_shorts?: number;
+  computed_at?: string;
+  notes?: string[];
+}
+
+export function useOptimizer() {
+  const { client, engine } = useEngine();
+  return useQuery<OptimizerResponse>({
+    queryKey: ["optimizer", engine.id],
+    queryFn: () => client.get("/api/optimizer"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+}
