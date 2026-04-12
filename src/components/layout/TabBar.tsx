@@ -16,11 +16,16 @@ import {
   Scale,
   Target,
   Activity,
+  Brain,
+  GitBranch,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
   { id: "thesis", label: "Thesis", icon: <Target size={14} /> },
   { id: "overview", label: "Overview", icon: <LayoutDashboard size={14} /> },
+  { id: "alpha-model", label: "Alpha Model", icon: <Brain size={14} /> },
+  { id: "risk-model", label: "Risk Model", icon: <BarChart3 size={14} /> },
+  { id: "optimizer", label: "Optimizer", icon: <GitBranch size={14} /> },
   { id: "construction", label: "Construction", icon: <Layers size={14} /> },
   { id: "risk-stress", label: "Risk & Stress", icon: <ShieldAlert size={14} /> },
   { id: "positions", label: "Positions", icon: <List size={14} /> },

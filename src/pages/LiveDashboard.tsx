@@ -19,6 +19,9 @@ import { RiskStressTab } from "../components/tabs/RiskStressTab";
 import { MarketContextTab } from "../components/tabs/MarketContextTab";
 import { PortfolioConstructionTab } from "../components/tabs/PortfolioConstructionTab";
 import { ScalingCapacityTab } from "../components/tabs/ScalingCapacityTab";
+import { RiskModelTab } from "../components/tabs/RiskModelTab";
+import { AlphaModelTab } from "../components/tabs/AlphaModelTab";
+import { OptimizerTab } from "../components/tabs/OptimizerTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -81,6 +84,12 @@ function TabContent({
       return <OverviewTab data={dashboard} />;
     case "construction":
       return <PortfolioConstructionTab />;
+    case "alpha-model":
+      return <AlphaModelTab />;
+    case "risk-model":
+      return <RiskModelTab />;
+    case "optimizer":
+      return <OptimizerTab />;
     case "positions":
       return <PositionsTab />;
     case "short-selection":
