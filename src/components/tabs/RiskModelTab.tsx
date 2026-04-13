@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { KpiCard } from "../shared/KpiCard";
-import { useRiskModel, type RiskModelTokenMetrics } from "../../hooks/useDashboardQuery";
+import { useRiskModel } from "../../hooks/useDashboardQuery";
 
 /* ──────────────────────── Types ──────────────────────── */
 
