@@ -425,7 +425,7 @@ export function PerformanceTab() {
               </div>
             </div>
             <div>
-              <div className="text-xs text-gray-500">Information Ratio</div>
+              <div className="text-xs text-gray-500">Sharpe (ann.)</div>
               <div className={`text-lg font-bold ${data.ls_alpha.information_ratio > 1 ? "text-green-400" : data.ls_alpha.information_ratio > 0 ? "text-yellow-400" : "text-red-400"}`}>
                 {data.ls_alpha.information_ratio.toFixed(2)}
               </div>
@@ -437,7 +437,7 @@ export function PerformanceTab() {
               </div>
             </div>
             <div>
-              <div className="text-xs text-gray-500">Down-Day Capture</div>
+              <div className="text-xs text-gray-500" title="% of long-down days where shorts were profitable">Shorts Hedged %</div>
               <div className={`text-lg font-bold ${data.ls_alpha.down_day_capture_pct >= 50 ? "text-green-400" : "text-yellow-400"}`}>
                 {data.ls_alpha.down_day_capture_pct.toFixed(1)}%
               </div>
@@ -445,7 +445,7 @@ export function PerformanceTab() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-3 pt-3 border-t border-[var(--border)]">
             <div>
-              <div className="text-xs text-gray-500">Tracking Error (ann.)</div>
+              <div className="text-xs text-gray-500" title="Annualized portfolio volatility on gross basis (no benchmark subtracted)">Portfolio Vol (ann.)</div>
               <div className="text-sm text-gray-300">{data.ls_alpha.tracking_error_ann.toFixed(2)}%</div>
             </div>
             <div>
@@ -516,6 +516,7 @@ export function PerformanceTab() {
             <CardTitle>Hedge Effectiveness</CardTitle>
             <Badge
               variant={
+                data.hedge_effectiveness.hedge_quality === "EXCELLENT" ||
                 data.hedge_effectiveness.hedge_quality === "GOOD"
                   ? "success"
                   : data.hedge_effectiveness.hedge_quality === "MODERATE"
