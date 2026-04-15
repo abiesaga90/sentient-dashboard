@@ -132,6 +132,7 @@ export interface Portfolio {
       pw_vol_adj?: number | null;
       ew_vol_adj?: number | null;
       vol_adj_lift?: number | null;
+      ic?: number | null;
     }>;
     ex_outliers?: {
       label: string;
@@ -154,6 +155,7 @@ export interface Portfolio {
         pw_vol_adj?: number | null;
         ew_vol_adj?: number | null;
         vol_adj_lift?: number | null;
+        ic?: number | null;
       }>;
       cumulative_spread_pct: number;
       information_ratio: number;

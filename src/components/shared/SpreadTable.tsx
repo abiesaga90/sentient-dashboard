@@ -17,6 +17,7 @@ interface SpreadData {
   pw_vol_adj?: number | null;
   ew_vol_adj?: number | null;
   vol_adj_lift?: number | null;
+  ic?: number | null;
   insufficient_history?: boolean;
   [key: string]: number | boolean | null | undefined;
 }
@@ -129,6 +130,8 @@ export function SpreadTable({
         pw_vol_adj: v.pw_vol_adj,
         ew_vol_adj: v.ew_vol_adj,
         vol_adj_lift: v.vol_adj_lift,
+        // IC is a Spearman rank correlation — unitless and leverage-invariant.
+        ic: v.ic,
         insufficient_history: v.insufficient_history,
       };
     }
@@ -211,6 +214,7 @@ export function SpreadTable({
                 <SpreadRow label="EW Spread" field="ew_spread_pct" horizons={displayHorizons} periods={displayPeriods} />
                 <SpreadRow label="Sizing Lift" field="sizing_lift_pct" horizons={displayHorizons} periods={displayPeriods} />
                 <SpreadRow label="Vol-Adj Lift" field="vol_adj_lift" horizons={displayHorizons} periods={displayPeriods} format="ratio" />
+                <SpreadRow label="IC (rank)" field="ic" horizons={displayHorizons} periods={displayPeriods} format="ratio" />
               </>
             ) : (
               <>
