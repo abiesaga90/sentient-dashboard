@@ -2,13 +2,18 @@ import { useState } from "react";
 import { Card, CardTitle } from "../ui/Card";
 
 interface SpreadData {
-  spread_pct: number;
-  long_pct: number;
-  short_pct: number;
-  alpha_pct?: number;
-  beta_drag_pct?: number;
-  btc_return_pct?: number;
-  [key: string]: number | undefined;
+  spread_pct: number | null;
+  long_pct: number | null;
+  short_pct: number | null;
+  alpha_pct?: number | null;
+  beta_drag_pct?: number | null;
+  btc_return_pct?: number | null;
+  ew_spread_pct?: number | null;
+  ew_long_pct?: number | null;
+  ew_short_pct?: number | null;
+  sizing_lift_pct?: number | null;
+  insufficient_history?: boolean;
+  [key: string]: number | boolean | null | undefined;
 }
 
 interface ExOutlierData {
@@ -44,26 +49,30 @@ function SpreadRow({
   const cls = bold ? "text-gray-400 font-medium" : "text-gray-500";
   const valCls = (v: number) =>
     `text-right py-1.5 px-2 ${bold ? "font-bold" : ""} ${v >= 0 ? "text-green-400" : "text-red-400"}${bold ? "" : "/70"}`;
+  const nullCls = `text-right py-1.5 px-2 ${bold ? "font-bold" : ""} text-gray-600`;
+
+  const renderCell = (key: string, v: SpreadData, withBorder: boolean) => {
+    const raw = v[field as keyof SpreadData];
+    // Null/undefined → dash (insufficient history or field not populated)
+    if (raw == null || typeof raw !== "number") {
+      return (
+        <td key={key} className={`${nullCls}${withBorder ? " border-l border-gray-800" : ""}`}>
+          —
+        </td>
+      );
+    }
+    return (
+      <td key={key} className={`${valCls(raw)}${withBorder ? " border-l border-gray-800" : ""}`}>
+        {raw >= 0 ? "+" : ""}{raw.toFixed(2)}%
+      </td>
+    );
+  };
 
   return (
     <tr className="border-b border-gray-800/50">
       <td className={`py-1.5 pr-4 ${cls}`}>{label}</td>
-      {horizons && Object.entries(horizons).map(([h, v]) => {
-        const val = (v[field as keyof SpreadData] as number) ?? 0;
-        return (
-          <td key={h} className={valCls(val)}>
-            {val >= 0 ? "+" : ""}{val.toFixed(2)}%
-          </td>
-        );
-      })}
-      {periods && Object.entries(periods).map(([p, v]) => {
-        const val = (v[field as keyof SpreadData] as number) ?? 0;
-        return (
-          <td key={p} className={`${valCls(val)} border-l border-gray-800`}>
-            {val >= 0 ? "+" : ""}{val.toFixed(2)}%
-          </td>
-        );
-      })}
+      {horizons && Object.entries(horizons).map(([h, v]) => renderCell(h, v, false))}
+      {periods && Object.entries(periods).map(([p, v]) => renderCell(p, v, true))}
     </tr>
   );
 }
@@ -85,21 +94,25 @@ export function SpreadTable({
   const activeCapture = exOuts && exo ? exo.down_day_capture_pct : downDayCapture;
   const activeCumulative = exOuts && exo ? exo.cumulative_spread_pct : cumulativeSpread;
 
+  const scaleNum = (n: number | null | undefined): number | null =>
+    n == null ? null : Math.round(n * lm * 100) / 100;
+
   const scaleSpread = (d: Record<string, SpreadData> | undefined): Record<string, SpreadData> | undefined => {
     if (!d || lm === 1) return d;
     const out: Record<string, SpreadData> = {};
     for (const [k, v] of Object.entries(d)) {
       out[k] = {
-        spread_pct: Math.round(v.spread_pct * lm * 100) / 100,
-        long_pct: Math.round(v.long_pct * lm * 100) / 100,
-        short_pct: Math.round(v.short_pct * lm * 100) / 100,
-        alpha_pct: v.alpha_pct != null ? Math.round(v.alpha_pct * lm * 100) / 100 : undefined,
-        beta_drag_pct: v.beta_drag_pct != null ? Math.round(v.beta_drag_pct * lm * 100) / 100 : undefined,
+        spread_pct: scaleNum(v.spread_pct),
+        long_pct: scaleNum(v.long_pct),
+        short_pct: scaleNum(v.short_pct),
+        alpha_pct: scaleNum(v.alpha_pct),
+        beta_drag_pct: scaleNum(v.beta_drag_pct),
         btc_return_pct: v.btc_return_pct,
-        ew_spread_pct: v.ew_spread_pct != null ? Math.round(v.ew_spread_pct * lm * 100) / 100 : undefined,
-        ew_long_pct: v.ew_long_pct != null ? Math.round(v.ew_long_pct * lm * 100) / 100 : undefined,
-        ew_short_pct: v.ew_short_pct != null ? Math.round(v.ew_short_pct * lm * 100) / 100 : undefined,
-        sizing_lift_pct: v.sizing_lift_pct != null ? Math.round(v.sizing_lift_pct * lm * 100) / 100 : undefined,
+        ew_spread_pct: scaleNum(v.ew_spread_pct),
+        ew_long_pct: scaleNum(v.ew_long_pct),
+        ew_short_pct: scaleNum(v.ew_short_pct),
+        sizing_lift_pct: scaleNum(v.sizing_lift_pct),
+        insufficient_history: v.insufficient_history,
       };
     }
     return out;
