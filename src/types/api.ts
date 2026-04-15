@@ -127,6 +127,11 @@ export interface Portfolio {
       ew_long_pct?: number | null;
       ew_short_pct?: number | null;
       sizing_lift_pct?: number | null;
+      pw_vol_pct?: number | null;
+      ew_vol_pct?: number | null;
+      pw_vol_adj?: number | null;
+      ew_vol_adj?: number | null;
+      vol_adj_lift?: number | null;
     }>;
     ex_outliers?: {
       label: string;
@@ -144,6 +149,11 @@ export interface Portfolio {
         ew_long_pct?: number | null;
         ew_short_pct?: number | null;
         sizing_lift_pct?: number | null;
+        pw_vol_pct?: number | null;
+        ew_vol_pct?: number | null;
+        pw_vol_adj?: number | null;
+        ew_vol_adj?: number | null;
+        vol_adj_lift?: number | null;
       }>;
       cumulative_spread_pct: number;
       information_ratio: number;

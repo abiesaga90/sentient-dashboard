@@ -12,6 +12,11 @@ interface SpreadData {
   ew_long_pct?: number | null;
   ew_short_pct?: number | null;
   sizing_lift_pct?: number | null;
+  pw_vol_pct?: number | null;
+  ew_vol_pct?: number | null;
+  pw_vol_adj?: number | null;
+  ew_vol_adj?: number | null;
+  vol_adj_lift?: number | null;
   insufficient_history?: boolean;
   [key: string]: number | boolean | null | undefined;
 }
@@ -38,13 +43,14 @@ interface SpreadTableProps {
 }
 
 function SpreadRow({
-  label, field, horizons, periods, bold,
+  label, field, horizons, periods, bold, format = "pct",
 }: {
   label: string;
   field: string;
   horizons?: Record<string, SpreadData>;
   periods?: Record<string, SpreadData>;
   bold?: boolean;
+  format?: "pct" | "ratio";
 }) {
   const cls = bold ? "text-gray-400 font-medium" : "text-gray-500";
   const valCls = (v: number) =>
@@ -61,9 +67,12 @@ function SpreadRow({
         </td>
       );
     }
+    const display = format === "ratio"
+      ? `${raw >= 0 ? "+" : ""}${raw.toFixed(2)}`
+      : `${raw >= 0 ? "+" : ""}${raw.toFixed(2)}%`;
     return (
       <td key={key} className={`${valCls(raw)}${withBorder ? " border-l border-gray-800" : ""}`}>
-        {raw >= 0 ? "+" : ""}{raw.toFixed(2)}%
+        {display}
       </td>
     );
   };
@@ -112,6 +121,14 @@ export function SpreadTable({
         ew_long_pct: scaleNum(v.ew_long_pct),
         ew_short_pct: scaleNum(v.ew_short_pct),
         sizing_lift_pct: scaleNum(v.sizing_lift_pct),
+        // Vol-adj is a unitless ratio (return / vol). Numerator and
+        // denominator scale identically under leverage, so the ratio
+        // is leverage-invariant — pass through unscaled.
+        pw_vol_pct: v.pw_vol_pct,
+        ew_vol_pct: v.ew_vol_pct,
+        pw_vol_adj: v.pw_vol_adj,
+        ew_vol_adj: v.ew_vol_adj,
+        vol_adj_lift: v.vol_adj_lift,
         insufficient_history: v.insufficient_history,
       };
     }
@@ -193,6 +210,7 @@ export function SpreadTable({
                 <SpreadRow label="PW Spread" field="spread_pct" horizons={displayHorizons} periods={displayPeriods} bold />
                 <SpreadRow label="EW Spread" field="ew_spread_pct" horizons={displayHorizons} periods={displayPeriods} />
                 <SpreadRow label="Sizing Lift" field="sizing_lift_pct" horizons={displayHorizons} periods={displayPeriods} />
+                <SpreadRow label="Vol-Adj Lift" field="vol_adj_lift" horizons={displayHorizons} periods={displayPeriods} format="ratio" />
               </>
             ) : (
               <>
