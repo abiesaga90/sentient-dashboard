@@ -26,6 +26,9 @@ interface LongToken {
   tilt_pre_alpha: number;
   tilt: number;
   annualized_vol: number;
+  residual_vol?: number;      // vol after regressing on short basket (residual-vol sizing)
+  vol_saved_pct?: number;     // 1 - residual/standalone, in percent
+  sizing_vol_used?: string;   // "residual" | "standalone" — which vol the weight used
   weight_pct: number;
   beta: number;
   alpha_roi: number;
@@ -352,8 +355,35 @@ const longColumns: Column<LongToken>[] = [
   },
   {
     key: "vol", header: "Vol",
-    render: (r) => <span className="text-gray-400 text-[12px]">{(r.annualized_vol * 100).toFixed(1)}%</span>,
+    render: (r) => {
+      const isResidualMode = r.sizing_vol_used === "residual";
+      const standaloneStr = `${(r.annualized_vol * 100).toFixed(1)}%`;
+      if (!isResidualMode) {
+        return <span className="text-gray-400 text-[12px]">{standaloneStr}</span>;
+      }
+      // In residual mode, gray out the standalone and emphasize nothing — the next column shows residual
+      return <span className="text-gray-600 text-[12px] line-through decoration-gray-700">{standaloneStr}</span>;
+    },
     sortKey: (r) => r.annualized_vol, align: "right",
+  },
+  {
+    key: "resid_vol", header: "Resid Vol",
+    render: (r) => {
+      const rv = r.residual_vol;
+      if (rv == null) return <span className="text-gray-700 text-[11px]">&mdash;</span>;
+      const saved = r.vol_saved_pct ?? 0;
+      const isResidualMode = r.sizing_vol_used === "residual";
+      // Color by how much vol was "saved" by the hedge (higher saved = more hedged = bigger concentration bonus)
+      const savedColor = saved > 30 ? "text-emerald-400" : saved > 15 ? "text-emerald-500" : saved > 5 ? "text-gray-300" : "text-gray-500";
+      const primaryColor = isResidualMode ? "text-gray-200 font-medium" : "text-gray-400";
+      return (
+        <div className="flex flex-col items-end leading-tight">
+          <span className={`${primaryColor} text-[12px]`}>{(rv * 100).toFixed(1)}%</span>
+          <span className={`${savedColor} text-[9px]`}>-{saved.toFixed(0)}% hedged</span>
+        </div>
+      );
+    },
+    sortKey: (r) => r.residual_vol ?? 0, align: "right",
   },
   {
     key: "beta", header: "\u03b2",
@@ -567,7 +597,21 @@ function TiltWaterfall({ token, side }: { token: LongToken | ShortToken; side: "
       {Math.abs(alphaBoostPct) > 0.1 && row("× Alpha ROI", `${alphaBoostPct > 0 ? "+" : ""}${alphaBoostPct.toFixed(1)}%`, `realized + unrealized PnL`, sc(alphaBoostPct))}
       <div className="border-t border-gray-800 my-1" />
       {row("= Final Tilt", `${token.tilt.toFixed(4)}×`, "", sc(token.tilt - 1))}
-      {side === "LONG" && vol != null && vol > 0 && row(`÷ Vol (${(vol * 100).toFixed(1)}% ann)`, `→ raw wt ${(token.raw_weight ?? 0).toFixed(3)}`, "", null)}
+      {side === "LONG" && vol != null && vol > 0 && (() => {
+        const longTok = token as LongToken;
+        const residVol = longTok.residual_vol;
+        const isResidMode = longTok.sizing_vol_used === "residual";
+        if (isResidMode && residVol != null && residVol > 0) {
+          const saved = longTok.vol_saved_pct ?? 0;
+          return row(
+            `÷ Residual Vol (${(residVol * 100).toFixed(1)}% ann)`,
+            `→ raw wt ${(token.raw_weight ?? 0).toFixed(3)}`,
+            `standalone ${(vol * 100).toFixed(1)}% → -${saved.toFixed(0)}% hedged by shorts`,
+            null,
+          );
+        }
+        return row(`÷ Vol (${(vol * 100).toFixed(1)}% ann)`, `→ raw wt ${(token.raw_weight ?? 0).toFixed(3)}`, "", null);
+      })()}
       {row("Normalized", `→ ${token.weight_pct.toFixed(1)}%`, side === "LONG" ? "of long budget" : "of short budget", null)}
     </div>
   );
@@ -706,6 +750,64 @@ function TiltHealthSummary({ longs, shorts }: { longs: LongToken[]; shorts: Shor
   );
 }
 
+// ── Residual Vol Explainer (shown when signal_proportional_residual mode is active) ──
+
+function ResidualVolExplainer({ longs, sizingMode }: { longs: LongToken[]; sizingMode: string }) {
+  if (sizingMode !== "signal_proportional_residual") return null;
+
+  const withResid = longs.filter(l => l.residual_vol != null && l.annualized_vol > 0);
+  const avgSaved = withResid.length > 0
+    ? withResid.reduce((acc, l) => acc + (l.vol_saved_pct ?? 0), 0) / withResid.length
+    : 0;
+  const maxSavedToken = withResid.reduce<LongToken | null>(
+    (best, l) => (best == null || (l.vol_saved_pct ?? 0) > (best.vol_saved_pct ?? 0)) ? l : best,
+    null,
+  );
+  const minSavedToken = withResid.reduce<LongToken | null>(
+    (worst, l) => (worst == null || (l.vol_saved_pct ?? 0) < (worst.vol_saved_pct ?? 0)) ? l : worst,
+    null,
+  );
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <span className="flex items-center gap-2">
+            Long Sizing: Residual-Vol (hedge-aware)
+            <span className="text-[10px] font-normal px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+              ACTIVE
+            </span>
+          </span>
+        </CardTitle>
+      </CardHeader>
+      <div className="px-4 pb-4 space-y-3">
+        <p className="text-[12px] text-gray-400 leading-relaxed">
+          Long weights are computed as <span className="font-mono text-gray-200">tilt / residual_vol<sup>0.5</sup></span>,
+          where <span className="text-gray-200">residual_vol</span> is each long's vol <em>after</em> regressing its log returns on the equal-weighted short-basket return.
+          This measures the vol that <em>survives the hedge</em> — i.e. each long's true marginal contribution to spread P&L variance under the beta-neutral budget split.
+          Fundamental tilts (VA, SM, OP, MM) are fully preserved — only the vol denominator changes from standalone to hedge-adjusted.
+        </p>
+        <p className="text-[11px] text-gray-500 leading-relaxed">
+          A long whose returns are largely explained by the short basket (high "hedged" %) contributes little net spread risk and <em>earns a concentration bonus</em>.
+          A long that moves independently of the shorts keeps its full risk weight.
+          Floored at 20% of standalone vol to cap concentration at max 5× the standalone-sizing equivalent.
+        </p>
+        <div className="grid grid-cols-3 gap-3 pt-1">
+          <KpiBox label="Avg Vol Hedged" value={`${avgSaved.toFixed(0)}%`} />
+          <KpiBox
+            label="Most Hedged"
+            value={maxSavedToken ? `${maxSavedToken.symbol.replace("USDT", "")} ${(maxSavedToken.vol_saved_pct ?? 0).toFixed(0)}%` : "—"}
+          />
+          <KpiBox
+            label="Least Hedged"
+            value={minSavedToken ? `${minSavedToken.symbol.replace("USDT", "")} ${(minSavedToken.vol_saved_pct ?? 0).toFixed(0)}%` : "—"}
+          />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 // ── Main Tab ──
 
 export function PortfolioConstructionTab() {
@@ -733,6 +835,9 @@ export function PortfolioConstructionTab() {
       {/* Tilt Health Summary */}
       <TiltHealthSummary longs={data.long_side.tokens} shorts={data.short_side.tokens} />
 
+      {/* Residual-Vol Sizing Explainer (only shown in residual mode) */}
+      <ResidualVolExplainer longs={data.long_side.tokens} sizingMode={data.long_side.sizing_mode} />
+
       {/* Long Side */}
       <Card>
         <CardHeader>
@@ -749,7 +854,11 @@ export function PortfolioConstructionTab() {
         <div className="px-4 pb-4">
           <SectorBreakdown tokens={data.long_side.tokens} />
           <div className="text-[11px] text-gray-500 mb-2">
-            weight = tilt / vol<sup>{data.long_side.vol_power}</sup> (normalized) — click row for tilt waterfall
+            {data.long_side.sizing_mode === "signal_proportional_residual" ? (
+              <>weight = tilt / residual_vol<sup>{data.long_side.vol_power}</sup> (normalized) — residual vol = std of returns after regressing on short basket — click row for tilt waterfall</>
+            ) : (
+              <>weight = tilt / vol<sup>{data.long_side.vol_power}</sup> (normalized) — click row for tilt waterfall</>
+            )}
           </div>
           <ExpandableTable
             columns={longColumns}
