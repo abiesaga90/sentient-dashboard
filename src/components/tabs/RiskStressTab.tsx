@@ -305,6 +305,13 @@ export function RiskStressTab() {
     hours_to_breakeven: number | null;
     hours_since_last_rebalance: number;
     backstop_hours_remaining: number;
+    // Phase 0 halt flag (re-enabled 2026-04-15)
+    drift_rebalance_enabled?: boolean;
+    halt_reason?: string | null;
+    // Phase 2 reversal probability model fields
+    reversal_prob?: number;
+    reversal_model_used?: boolean;
+    legacy_fav_ratio?: number;
   }
   interface DriftCosts {
     holding_cost_bps: number;
@@ -564,10 +571,71 @@ export function RiskStressTab() {
       )}
 
       {/* ── Drift Analysis v2 — Decision Engine ── */}
-      {driftData && driftData.drift_stats && (
+      {driftData && driftData.drift_stats && (() => {
+        // Engine state badge — three modes:
+        //   ENGINE ACTIVE        — drift_rebalance_enabled + reversal_model_used
+        //   ENGINE ACTIVE LEGACY — drift_rebalance_enabled + no Phase 2 model yet
+        //   ENGINE HALTED        — drift_rebalance_enabled false (consumer ignores)
+        const dec = driftData.decision as DriftDecision | undefined;
+        const rebalanceEnabled = dec?.drift_rebalance_enabled ?? false;
+        const modelUsed = dec?.reversal_model_used ?? false;
+        let engineLabel = "ENGINE HALTED";
+        let engineVariant: "default" | "success" | "warning" | "danger" | "info" = "default";
+        let engineTitle = "Drift-triggered rebalances disabled. Only compliance and the 168h backstop can fire.";
+        if (rebalanceEnabled && modelUsed) {
+          engineLabel = "ENGINE ACTIVE";
+          engineVariant = "success";
+          engineTitle = "Phase 2 reversal-probability model is driving favorability state.";
+        } else if (rebalanceEnabled && !modelUsed) {
+          engineLabel = "ENGINE ACTIVE · LEGACY";
+          engineVariant = "info";
+          engineTitle = "Drift signals can fire rebalances. Phase 2 model not yet fit; legacy categorical path active.";
+        }
+
+        // Reversal probability mini-gauge (Phase 2)
+        const revProb = dec?.reversal_prob;
+        const showRev = modelUsed && revProb != null;
+        const revPct = showRev ? Math.round(revProb! * 100) : null;
+        const revColor = showRev
+          ? revProb! >= 0.65
+            ? "text-green-400"
+            : revProb! >= 0.35
+            ? "text-yellow-400"
+            : "text-red-400"
+          : "text-gray-600";
+
+        // Legacy-vs-new divergence indicator (only when both available + disagree by ≥0.10)
+        const legacyFav = dec?.legacy_fav_ratio;
+        const showDivergence =
+          modelUsed && revProb != null && legacyFav != null && Math.abs(revProb - legacyFav) >= 0.10;
+
+        return (
         <Card>
           <CardHeader>
-            <CardTitle>Exposure Drift Analysis</CardTitle>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle>Exposure Drift Analysis</CardTitle>
+              <div className="flex items-center gap-2">
+                <Badge variant={engineVariant} className="text-[10px]" title={engineTitle}>
+                  {engineLabel}
+                </Badge>
+                {showRev && (
+                  <span
+                    className="text-[10px] font-mono bg-gray-800 px-2 py-0.5 rounded"
+                    title="Phase 2 reversal probability — P(|beta_drift_24h| < |beta_drift_now|)"
+                  >
+                    p<sub>rev</sub>=<span className={`${revColor} font-semibold`}>{revPct}%</span>
+                  </span>
+                )}
+                {showDivergence && (
+                  <span
+                    className="text-[10px] font-mono bg-purple-900/30 text-purple-300 px-2 py-0.5 rounded"
+                    title="Legacy categorical path disagrees with Phase 2 reversal model by ≥10%"
+                  >
+                    canary L={(legacyFav! * 100).toFixed(0)}% / R={(revProb! * 100).toFixed(0)}%
+                  </span>
+                )}
+              </div>
+            </div>
           </CardHeader>
 
           {/* Current State pills */}
@@ -918,7 +986,8 @@ export function RiskStressTab() {
             )}
           </div>
         </Card>
-      )}
+        );
+      })()}
 
       {/* ── Mean Reversion Monitor ── */}
       {meanRevData && meanRevData.positions && meanRevData.positions.length > 0 && (
