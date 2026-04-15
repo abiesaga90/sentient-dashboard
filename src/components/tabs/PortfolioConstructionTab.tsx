@@ -752,7 +752,12 @@ function TiltHealthSummary({ longs, shorts }: { longs: LongToken[]; shorts: Shor
 
 // ── Residual Vol Explainer (shown when signal_proportional_residual mode is active) ──
 
+type ResidSortKey = "hedged" | "standalone" | "residual" | "target" | "weight";
+
 function ResidualVolExplainer({ longs, sizingMode }: { longs: LongToken[]; sizingMode: string }) {
+  const [sortKey, setSortKey] = useState<ResidSortKey>("hedged");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
   if (sizingMode !== "signal_proportional_residual") return null;
 
   const withResid = longs.filter(l => l.residual_vol != null && l.annualized_vol > 0);
@@ -766,6 +771,49 @@ function ResidualVolExplainer({ longs, sizingMode }: { longs: LongToken[]; sizin
   const minSavedToken = withResid.reduce<LongToken | null>(
     (worst, l) => (worst == null || (l.vol_saved_pct ?? 0) < (worst.vol_saved_pct ?? 0)) ? l : worst,
     null,
+  );
+
+  // Implied weight uplift from residual sizing: (standalone_vol/residual_vol)^0.5 − 1
+  // Represents "how much bigger did this name get because residual sizing measured
+  // its risk more accurately than standalone vol." Normalization across the basket
+  // cancels any common shift.
+  const uplift = (l: LongToken) => {
+    const rv = l.residual_vol ?? l.annualized_vol;
+    if (rv <= 0 || l.annualized_vol <= 0) return 0;
+    return Math.sqrt(l.annualized_vol / rv) - 1;
+  };
+
+  const sortFn = (a: LongToken, b: LongToken) => {
+    const getVal = (t: LongToken) => {
+      switch (sortKey) {
+        case "standalone": return t.annualized_vol;
+        case "residual":   return t.residual_vol ?? 0;
+        case "target":     return t.target_notional;
+        case "weight":     return t.weight_pct;
+        case "hedged":
+        default:           return t.vol_saved_pct ?? 0;
+      }
+    };
+    const va = getVal(a);
+    const vb = getVal(b);
+    return sortDir === "desc" ? vb - va : va - vb;
+  };
+
+  const handleSort = (key: ResidSortKey) => {
+    if (sortKey === key) setSortDir(d => d === "desc" ? "asc" : "desc");
+    else { setSortKey(key); setSortDir("desc"); }
+  };
+
+  const sorted = [...withResid].sort(sortFn);
+
+  const headerCell = (key: ResidSortKey, label: string, align: "left" | "right" = "right") => (
+    <th
+      className={`py-1.5 px-2 text-[10px] text-gray-500 font-medium uppercase tracking-wider cursor-pointer select-none hover:text-gray-300 ${align === "right" ? "text-right" : "text-left"}`}
+      onClick={() => handleSort(key)}
+    >
+      {label}
+      {sortKey === key && <span className="ml-1">{sortDir === "desc" ? "▼" : "▲"}</span>}
+    </th>
   );
 
   return (
@@ -792,7 +840,7 @@ function ResidualVolExplainer({ longs, sizingMode }: { longs: LongToken[]; sizin
           A long that moves independently of the shorts keeps its full risk weight.
           Floored at 20% of standalone vol to cap concentration at max 5× the standalone-sizing equivalent.
         </p>
-        <div className="grid grid-cols-3 gap-3 pt-1">
+        <div className="grid grid-cols-3 gap-3">
           <KpiBox label="Avg Vol Hedged" value={`${avgSaved.toFixed(0)}%`} />
           <KpiBox
             label="Most Hedged"
@@ -802,6 +850,79 @@ function ResidualVolExplainer({ longs, sizingMode }: { longs: LongToken[]; sizin
             label="Least Hedged"
             value={minSavedToken ? `${minSavedToken.symbol.replace("USDT", "")} ${(minSavedToken.vol_saved_pct ?? 0).toFixed(0)}%` : "—"}
           />
+        </div>
+
+        {/* Full per-long breakdown: standalone vs residual vs hedged % with notionals */}
+        <div className="pt-2">
+          <div className="flex items-baseline justify-between mb-1.5">
+            <span className="text-[11px] text-gray-500 uppercase tracking-wider">Per-Long Breakdown</span>
+            <span className="text-[10px] text-gray-600">click column header to sort</span>
+          </div>
+          <div className="overflow-hidden rounded border border-gray-800">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-900/40">
+                <tr className="border-b border-gray-800">
+                  {headerCell("hedged" as ResidSortKey, "Symbol", "left")}
+                  {headerCell("standalone", "Standalone")}
+                  {headerCell("residual", "Residual")}
+                  {headerCell("hedged", "Hedged")}
+                  <th className="py-1.5 px-2 text-[10px] text-gray-500 font-medium uppercase tracking-wider text-right">Uplift</th>
+                  {headerCell("target", "Target $")}
+                  <th className="py-1.5 px-2 text-[10px] text-gray-500 font-medium uppercase tracking-wider text-right">Current $</th>
+                  {headerCell("weight", "Weight")}
+                </tr>
+              </thead>
+              <tbody>
+                {sorted.map((t) => {
+                  const saved = t.vol_saved_pct ?? 0;
+                  const up = uplift(t) * 100;
+                  const savedColor =
+                    saved > 30 ? "text-emerald-400" :
+                    saved > 15 ? "text-emerald-500" :
+                    saved > 5  ? "text-gray-300" : "text-gray-500";
+                  const upliftColor =
+                    up > 15 ? "text-emerald-400" :
+                    up > 5  ? "text-emerald-500" :
+                    up < -1 ? "text-red-400" : "text-gray-500";
+                  return (
+                    <tr key={t.symbol} className="border-b border-gray-800/40 hover:bg-gray-800/20">
+                      <td className="py-1 px-2">
+                        <span className="font-medium text-gray-200 text-[12px]">
+                          {t.symbol.replace("USDT", "")}
+                        </span>
+                      </td>
+                      <td className="py-1 px-2 text-right text-gray-500 text-[12px]">
+                        {(t.annualized_vol * 100).toFixed(1)}%
+                      </td>
+                      <td className="py-1 px-2 text-right text-gray-200 text-[12px] font-medium">
+                        {((t.residual_vol ?? 0) * 100).toFixed(1)}%
+                      </td>
+                      <td className={`py-1 px-2 text-right text-[12px] font-medium ${savedColor}`}>
+                        {saved > 0 ? "-" : ""}{saved.toFixed(0)}%
+                      </td>
+                      <td className={`py-1 px-2 text-right text-[12px] ${upliftColor}`}>
+                        {up >= 0 ? "+" : ""}{up.toFixed(0)}%
+                      </td>
+                      <td className="py-1 px-2 text-right text-gray-300 text-[12px]">
+                        {formatUSD(t.target_notional)}
+                      </td>
+                      <td className="py-1 px-2 text-right text-gray-500 text-[12px]">
+                        {formatUSD(t.current_notional)}
+                      </td>
+                      <td className="py-1 px-2 text-right text-gray-200 text-[12px] font-semibold">
+                        {t.weight_pct.toFixed(1)}%
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="text-[10px] text-gray-600 mt-1.5 leading-relaxed">
+            <span className="text-gray-500">Uplift</span> = implied per-name weight change from residual sizing,
+            (standalone/residual)<sup>0.5</sup> − 1, before basket renormalization.
+            Positive → this long is more concentrated than it would be under standalone-vol sizing.
+          </div>
         </div>
       </div>
     </Card>
