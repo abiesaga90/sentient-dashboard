@@ -220,6 +220,16 @@ export interface RiskData {
   recovery_stage: string;
   net_beta_pct: number | null;
   target_beta_tilt_pct: number;
+  spread_vol?: {
+    daily_spread_vol_pct: number | null;
+    annual_spread_vol_pct: number | null;
+    dd_budget_ratio_sigma: number | null;
+    spread_vol_target_pct: number | null;
+    vol_regime: string;
+    ls_correlation_30d: number | null;
+    dd_budget_dollars: number | null;
+    daily_pnl_vol_dollars: number | null;
+  };
 }
 
 // ── Equity ──

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   LineChart,
@@ -258,6 +258,8 @@ export function RiskStressTab() {
     max_positive_pct_lev: number;
     max_negative_pct_lev: number;
     current_pct_lev: number | null;
+    dd_stop_sigma?: number;
+    p_breach_pct?: number;
   }
   interface SpreadRiskResponse {
     horizons: SpreadRiskHorizon[];
@@ -269,6 +271,14 @@ export function RiskStressTab() {
     long_count: number;
     short_count: number;
     strategy_days_live: number;
+    dd_context?: {
+      dd_pct: number;
+      dd_budget_pct: number;
+      dd_budget_dollars: number;
+      daily_spread_vol_pct: number;
+      daily_pnl_vol_dollars: number;
+      dd_budget_ratio_sigma: number;
+    };
   }
 
   const { data: spreadRisk } = useQuery<SpreadRiskResponse>({
@@ -329,6 +339,37 @@ export function RiskStressTab() {
     persistence: number;
     contribution_bps: number;
     direction: "favorable" | "unfavorable" | "neutral";
+    metadata?: {
+      composite_score?: number;
+      composite_net?: number;
+      sub_scores?: {
+        velocity?: number;
+        trend?: number;
+        exdiv_proximity?: number;
+        price_sensitivity?: number;
+        funding_surplus?: number;
+        basis_spread?: number;
+        post_exdiv_drought?: number;
+        post_exdiv_drought_raw?: number;
+      };
+      strc_annual_rate_pct?: number;
+      btc_perp_annual_pct?: number;
+      strc_perp_spread_pct?: number;
+      drought_posterior?: number;
+      drought_signal_weight?: number;
+      drought_cycles_scored?: number;
+      drought_gated_by_pre_velocity?: boolean;
+      daily_buy_m?: number;
+      weekly_purchase_m?: number;
+      weekly_btc?: number;
+      atm_remaining_b?: number;
+      strc_next_exdiv?: string | null;
+      days_to_exdiv?: number;
+      strc_prev_exdiv?: string | null;
+      days_since_exdiv?: number;
+      drought_active?: boolean;
+      strc_pct_of_total?: number;
+    };
   }
   interface DriftBands {
     lower_pct: number;
@@ -392,6 +433,8 @@ export function RiskStressTab() {
     staleTime: 600_000,
     retry: false,
   });
+
+  const [expandedFactor, setExpandedFactor] = useState<string | null>(null);
 
   interface MeanRevPosition {
     symbol: string;
@@ -557,6 +600,33 @@ export function RiskStressTab() {
                     );
                   })}
                 </tr>
+                {/* DD Stop context rows */}
+                <tr className="border-t-2 border-yellow-900/50">
+                  <td className="px-3 py-2 text-yellow-500 text-[10px] font-medium">DD Stop (σ)</td>
+                  {spreadRisk.horizons.map((h) => {
+                    const sigma = h.dd_stop_sigma;
+                    if (sigma == null) return <td key={h.period} className="px-3 py-2 text-right text-gray-600">—</td>;
+                    const color = sigma >= 3 ? "text-green-400" : sigma >= 2 ? "text-yellow-400" : "text-red-400";
+                    return (
+                      <td key={h.period} className={`px-3 py-2 text-right font-mono text-[10px] font-bold ${color}`}>
+                        {sigma.toFixed(1)}σ
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 text-yellow-500/70 text-[10px]">P(breach)</td>
+                  {spreadRisk.horizons.map((h) => {
+                    const p = h.p_breach_pct;
+                    if (p == null) return <td key={h.period} className="px-3 py-2 text-right text-gray-600">—</td>;
+                    const color = p <= 5 ? "text-green-400" : p <= 20 ? "text-yellow-400" : "text-red-400";
+                    return (
+                      <td key={h.period} className={`px-3 py-2 text-right font-mono text-[10px] ${color}`}>
+                        {p.toFixed(1)}%
+                      </td>
+                    );
+                  })}
+                </tr>
               </tbody>
             </table>
           </div>
@@ -566,6 +636,12 @@ export function RiskStressTab() {
             <span>Obs: <span className="text-gray-400">{spreadRisk.n_observations}</span></span>
             <span>Since: <span className="text-gray-400">{spreadRisk.data_start}</span></span>
             <span>{spreadRisk.long_count}L / {spreadRisk.short_count}S</span>
+            {spreadRisk.dd_context && (
+              <>
+                <span className="border-l border-gray-700 pl-4">Daily Vol: <span className="text-gray-400">{spreadRisk.dd_context.daily_spread_vol_pct.toFixed(2)}%</span></span>
+                <span>DD Budget: <span className={spreadRisk.dd_context.dd_budget_ratio_sigma < 2 ? "text-red-400 font-bold" : "text-gray-400"}>{spreadRisk.dd_context.dd_budget_ratio_sigma.toFixed(1)}σ</span></span>
+              </>
+            )}
           </div>
         </Card>
       )}
@@ -813,9 +889,32 @@ export function RiskStressTab() {
                       : fName.includes("smart money") ? `${f.current_value >= 0 ? "+" : ""}$${Math.abs(f.current_value).toFixed(0)}M`
                       : fName.includes("open interest") || fName.includes("breakout") ? `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(1)}%`
                       : `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(2)}%`;
+                    const isSaylor = fName.includes("saylor");
+                    const hasMeta = isSaylor && f.metadata?.sub_scores;
+                    const isExpanded = expandedFactor === f.factor;
                     return (
-                      <tr key={f.factor}>
-                        <td className="px-3 py-1.5 text-gray-300">{f.factor}</td>
+                      <React.Fragment key={f.factor}>
+                      <tr className={hasMeta ? "cursor-pointer hover:bg-gray-800/40" : ""} onClick={() => hasMeta && setExpandedFactor(isExpanded ? null : f.factor)}>
+                        <td className="px-3 py-1.5 text-gray-300">
+                          {hasMeta && (isExpanded ? <ChevronDown className="inline w-3 h-3 mr-1 text-gray-500" /> : <ChevronRight className="inline w-3 h-3 mr-1 text-gray-500" />)}
+                          {f.factor}
+                          {isSaylor && f.metadata?.drought_active && (
+                            <span
+                              className="ml-2 inline-flex items-center px-1.5 py-[1px] rounded text-[9px] font-mono uppercase bg-red-900/40 text-red-300 border border-red-800/50"
+                              title={`Post-STRC-ex-div drought: ${f.metadata.days_since_exdiv}d since ex-div, ${f.metadata.days_to_exdiv}d until next. Dry powder deployed — structural buying pauses.`}
+                            >
+                              drought {f.metadata.days_since_exdiv}d
+                            </span>
+                          )}
+                          {isSaylor && !f.metadata?.drought_active && f.metadata?.daily_buy_m != null && f.metadata.daily_buy_m > 0 && (
+                            <span
+                              className="ml-2 inline-flex items-center px-1.5 py-[1px] rounded text-[9px] font-mono uppercase bg-green-900/40 text-green-300 border border-green-800/50"
+                              title={`Active structural buying at $${f.metadata.daily_buy_m.toFixed(0)}M/day. ${f.metadata.days_to_exdiv}d until next STRC ex-div.`}
+                            >
+                              buying ${f.metadata.daily_buy_m.toFixed(0)}M/d
+                            </span>
+                          )}
+                        </td>
                         <td className="px-3 py-1.5 text-right font-mono text-gray-300">{valStr}</td>
                         <td className="px-3 py-1.5 text-right font-mono text-gray-500">{f.persistence.toFixed(2)}</td>
                         <td className="px-3 py-1.5 text-right font-mono text-gray-300">{f.contribution_bps.toFixed(1)} bps</td>
@@ -823,6 +922,42 @@ export function RiskStressTab() {
                           <span className="font-mono">{dirIcon}</span> {f.direction}
                         </td>
                       </tr>
+                      {isExpanded && f.metadata?.sub_scores && (() => {
+                        const s = f.metadata.sub_scores;
+                        const m = f.metadata;
+                        const subRows: { label: string; weight: string; score: number | undefined; detail?: string }[] = [
+                          { label: "Velocity", weight: "30%", score: s.velocity, detail: m.daily_buy_m != null ? `$${m.daily_buy_m.toFixed(0)}M/day` : undefined },
+                          { label: "Trend", weight: "20%", score: s.trend },
+                          { label: "Ex-div proximity", weight: "15%", score: s.exdiv_proximity, detail: m.days_to_exdiv != null ? `${m.days_to_exdiv}d to ex-div` : undefined },
+                          { label: "Price sensitivity", weight: "10%", score: s.price_sensitivity },
+                          { label: "Funding surplus", weight: "15%", score: s.funding_surplus, detail: m.weekly_purchase_m != null ? `$${m.weekly_purchase_m.toFixed(0)}M/wk` : undefined },
+                          { label: "Basis spread", weight: "10%", score: s.basis_spread, detail: m.strc_perp_spread_pct != null ? `STRC ${m.strc_annual_rate_pct?.toFixed(1)}% vs perp ${m.btc_perp_annual_pct?.toFixed(1)}%` : undefined },
+                        ];
+                        const droughtLabel = m.drought_active ? "ACTIVE" : m.drought_gated_by_pre_velocity ? "gated (low pre-vel)" : "dormant";
+                        return (
+                          <>
+                            {subRows.map((r) => (
+                              <tr key={r.label} className="bg-gray-900/30">
+                                <td className="pl-8 pr-3 py-1 text-gray-500 text-[11px]">
+                                  <span className="text-gray-600 mr-1">├─</span>{r.label} <span className="text-gray-600">({r.weight})</span>
+                                </td>
+                                <td className="px-3 py-1 text-right font-mono text-gray-400 text-[11px]">{r.score != null ? r.score.toFixed(0) : "—"}</td>
+                                <td colSpan={3} className="px-3 py-1 text-right font-mono text-gray-600 text-[11px]">{r.detail || ""}</td>
+                              </tr>
+                            ))}
+                            <tr className="bg-gray-900/30">
+                              <td className="pl-8 pr-3 py-1 text-gray-500 text-[11px]">
+                                <span className="text-gray-600 mr-1">└─</span>Drought penalty
+                              </td>
+                              <td className="px-3 py-1 text-right font-mono text-red-400/70 text-[11px]">{s.post_exdiv_drought != null ? `-${s.post_exdiv_drought.toFixed(0)}` : "—"}</td>
+                              <td colSpan={3} className="px-3 py-1 text-right font-mono text-gray-600 text-[11px]">
+                                {droughtLabel} · posterior {m.drought_posterior?.toFixed(2)} · {m.drought_cycles_scored ?? 0} cycles
+                              </td>
+                            </tr>
+                          </>
+                        );
+                      })()}
+                      </React.Fragment>
                     );
                   })}
                 </tbody>

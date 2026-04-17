@@ -154,6 +154,99 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
         </Card>
       </div>
 
+      {/* Spread Vol Metrics */}
+      {risk.spread_vol && risk.spread_vol.daily_spread_vol_pct != null && (
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+          <Card>
+            <CardTitle>Daily Spread Vol</CardTitle>
+            <div className={cn(
+              "text-lg font-bold mt-1",
+              (risk.spread_vol.vol_regime === "ELEVATED") ? "text-red-400" :
+              (risk.spread_vol.vol_regime === "NORMAL") ? "text-yellow-400" : "text-green-400"
+            )}>
+              {risk.spread_vol.daily_spread_vol_pct.toFixed(2)}%
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              30d rolling | Ann: {risk.spread_vol.annual_spread_vol_pct?.toFixed(1)}%
+            </div>
+          </Card>
+
+          <Card>
+            <CardTitle>DD Budget Ratio</CardTitle>
+            <div className={cn(
+              "text-lg font-bold mt-1",
+              (risk.spread_vol.dd_budget_ratio_sigma ?? 0) < 2 ? "text-red-400" :
+              (risk.spread_vol.dd_budget_ratio_sigma ?? 0) < 3 ? "text-yellow-400" : "text-green-400"
+            )}>
+              {risk.spread_vol.dd_budget_ratio_sigma?.toFixed(1)}σ
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              {formatUSD(risk.spread_vol.dd_budget_dollars ?? 0, 0)} / {formatUSD(risk.spread_vol.daily_pnl_vol_dollars ?? 0, 0)} daily vol
+            </div>
+          </Card>
+
+          <Card>
+            <CardTitle>Vol Target</CardTitle>
+            <div className="text-lg font-bold mt-1 text-gray-300">
+              {risk.spread_vol.spread_vol_target_pct?.toFixed(2)}%
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              For P(stop)&lt;5% at current gross
+            </div>
+          </Card>
+
+          <Card>
+            <CardTitle>Vol Regime</CardTitle>
+            <div className={cn(
+              "text-lg font-bold mt-1",
+              risk.spread_vol.vol_regime === "ELEVATED" ? "text-red-400" :
+              risk.spread_vol.vol_regime === "NORMAL" ? "text-yellow-400" : "text-green-400"
+            )}>
+              {risk.spread_vol.vol_regime}
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              &gt;3% elevated | 2-3% normal | &lt;2% low
+            </div>
+          </Card>
+
+          <Card>
+            <CardTitle>L/S Correlation</CardTitle>
+            <div className={cn(
+              "text-lg font-bold mt-1",
+              (risk.spread_vol.ls_correlation_30d ?? 0) >= 0.8 ? "text-green-400" :
+              (risk.spread_vol.ls_correlation_30d ?? 0) >= 0.6 ? "text-yellow-400" : "text-red-400"
+            )}>
+              {risk.spread_vol.ls_correlation_30d?.toFixed(3)}
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              30d rolling | Dropping = rising vol
+            </div>
+          </Card>
+
+          <Card>
+            <CardTitle>Spread Sharpe</CardTitle>
+            {(() => {
+              const vol = risk.spread_vol.annual_spread_vol_pct;
+              const dailyMean = (portfolio.ls_spread as any)?.spread_24h_pct ?? 0;
+              const sharpe = vol && vol > 0 ? (dailyMean * 365 / vol) : 0;
+              return (
+                <>
+                  <div className={cn(
+                    "text-lg font-bold mt-1",
+                    sharpe > 1 ? "text-green-400" : sharpe > 0 ? "text-yellow-400" : "text-red-400"
+                  )}>
+                    {sharpe.toFixed(2)}
+                  </div>
+                  <div className="text-[10px] text-gray-600 mt-1">
+                    Annualized (30d rolling)
+                  </div>
+                </>
+              );
+            })()}
+          </Card>
+        </div>
+      )}
+
       {/* Unrealized P&L */}
       {positions && positions.length > 0 && (() => {
         const longUpnl = positions.filter(p => p.side === "LONG").reduce((s, p) => s + (p.pnl_usd || 0), 0);
