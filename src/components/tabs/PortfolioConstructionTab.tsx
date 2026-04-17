@@ -1,5 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { usePortfolioConstruction } from "../../hooks/useDashboardQuery";
+import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import type { Column } from "../shared/DataTable";
 import { formatUSD, formatPct } from "../../lib/utils";
@@ -1021,6 +1023,188 @@ export function PortfolioConstructionTab() {
           />
         </div>
       </Card>
+
+      {/* ── Spread Vol Contribution (MCTR) ── */}
+      <SpreadVolContribution />
     </div>
+  );
+}
+
+// ── Spread Vol Contribution Table ──
+
+interface MctrEntry {
+  symbol: string;
+  side: string;
+  weight: number;
+  beta: number;
+  corr_to_spread: number;
+  corr_to_basket: number;
+  vol_daily_pct: number;
+  return_30d_pct: number;
+  return_1y_pct: number;
+  mctr_daily_pct: number;
+  mctr_pct_of_total: number;
+}
+
+interface SpreadVolDecompResponse {
+  decomposition: {
+    total_spread_vol_daily_pct: number;
+    total_spread_vol_annual_pct: number;
+    beta_mismatch: { vol_daily_pct: number; pct_of_total: number; beta_gap: number };
+    sector_mismatch: { vol_daily_pct: number; pct_of_total: number };
+    idiosyncratic: { vol_daily_pct: number; pct_of_total: number };
+    per_position_mctr: MctrEntry[];
+  };
+  n_longs: number;
+  n_shorts: number;
+}
+
+function SpreadVolContribution() {
+  const { client, engine } = useEngine();
+  const { data } = useQuery<SpreadVolDecompResponse>({
+    queryKey: ["spread-vol-decomposition", engine.id],
+    queryFn: () => client.get("/api/spread-vol-decomposition"),
+    refetchInterval: 3600_000,
+    staleTime: 1800_000,
+    retry: false,
+  });
+
+  const [showSide, setShowSide] = useState<"LONG" | "SHORT" | "ALL">("LONG");
+  const [sortBy, setSortBy] = useState<"mctr" | "corr" | "vol" | "ret">("mctr");
+
+  if (!data?.decomposition?.per_position_mctr) return null;
+
+  const entries = data.decomposition.per_position_mctr
+    .filter((e) => showSide === "ALL" || e.side === showSide)
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "mctr": return a.mctr_pct_of_total - b.mctr_pct_of_total; // most negative first (best hedgers)
+        case "corr": return b.corr_to_basket - a.corr_to_basket;
+        case "vol": return a.vol_daily_pct - b.vol_daily_pct;
+        case "ret": return b.return_1y_pct - a.return_1y_pct;
+        default: return 0;
+      }
+    });
+
+  const decomp = data.decomposition;
+
+  return (
+    <Card>
+      <div className="flex items-center justify-between">
+        <CardHeader>
+          <CardTitle>Spread Vol Contribution (MCTR)</CardTitle>
+        </CardHeader>
+        <div className="flex gap-2 mr-4">
+          {(["LONG", "SHORT", "ALL"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setShowSide(s)}
+              className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+                showSide === s
+                  ? "bg-blue-500/20 border-blue-500/50 text-blue-400"
+                  : "bg-gray-800 border-gray-700 text-gray-600 hover:text-gray-400"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Decomposition summary */}
+      <div className="flex gap-6 px-3 pb-2 text-[10px] text-gray-500">
+        <span>Daily Spread Vol: <span className="text-gray-300 font-medium">{decomp.total_spread_vol_daily_pct.toFixed(2)}%</span></span>
+        <span>Beta Mismatch: <span className="text-gray-400">{decomp.beta_mismatch.pct_of_total.toFixed(0)}%</span></span>
+        <span>Sector Mismatch: <span className="text-gray-400">{decomp.sector_mismatch.pct_of_total.toFixed(0)}%</span></span>
+        <span>Idiosyncratic: <span className="text-gray-400">{decomp.idiosyncratic.pct_of_total.toFixed(0)}%</span></span>
+        <span>Beta Gap: <span className="text-gray-400">{decomp.beta_mismatch.beta_gap.toFixed(3)}</span></span>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead className="border-b border-[var(--border)]">
+            <tr>
+              <th className="px-3 py-2 text-left text-gray-500">Symbol</th>
+              <th className="px-3 py-2 text-left text-gray-500">Side</th>
+              <th
+                className={`px-3 py-2 text-right cursor-pointer hover:text-gray-300 ${sortBy === "mctr" ? "text-blue-400" : "text-gray-500"}`}
+                onClick={() => setSortBy("mctr")}
+              >MCTR%</th>
+              <th
+                className={`px-3 py-2 text-right cursor-pointer hover:text-gray-300 ${sortBy === "corr" ? "text-blue-400" : "text-gray-500"}`}
+                onClick={() => setSortBy("corr")}
+              >Corr</th>
+              <th
+                className={`px-3 py-2 text-right cursor-pointer hover:text-gray-300 ${sortBy === "vol" ? "text-blue-400" : "text-gray-500"}`}
+                onClick={() => setSortBy("vol")}
+              >Daily Vol</th>
+              <th className="px-3 py-2 text-right text-gray-500">Beta</th>
+              <th
+                className={`px-3 py-2 text-right cursor-pointer hover:text-gray-300 ${sortBy === "ret" ? "text-blue-400" : "text-gray-500"}`}
+                onClick={() => setSortBy("ret")}
+              >30d Ret</th>
+              <th className="px-3 py-2 text-right text-gray-500">1Y Ret</th>
+              <th className="px-3 py-2 text-left text-gray-500 w-32">Contribution</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--border)]">
+            {entries.map((e) => {
+              const barWidth = Math.min(Math.abs(e.mctr_pct_of_total) * 3, 100);
+              const isHedger = e.mctr_pct_of_total < 0;
+              return (
+                <tr key={`${e.symbol}-${e.side}`} className="hover:bg-gray-800/30">
+                  <td className="px-3 py-1.5 font-mono text-gray-200">{e.symbol.replace("USDT", "")}</td>
+                  <td className="px-3 py-1.5">
+                    <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${
+                      e.side === "LONG" ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
+                    }`}>{e.side}</span>
+                  </td>
+                  <td className={`px-3 py-1.5 text-right font-mono font-bold ${
+                    isHedger ? "text-green-400" : "text-red-400"
+                  }`}>
+                    {e.mctr_pct_of_total >= 0 ? "+" : ""}{e.mctr_pct_of_total.toFixed(1)}%
+                  </td>
+                  <td className={`px-3 py-1.5 text-right font-mono ${
+                    e.corr_to_basket >= 0.8 ? "text-green-400" : e.corr_to_basket >= 0.6 ? "text-gray-300" : "text-red-400"
+                  }`}>
+                    {e.corr_to_basket.toFixed(3)}
+                  </td>
+                  <td className="px-3 py-1.5 text-right font-mono text-gray-400">
+                    {e.vol_daily_pct.toFixed(2)}%
+                  </td>
+                  <td className="px-3 py-1.5 text-right font-mono text-gray-400">
+                    {e.beta.toFixed(2)}
+                  </td>
+                  <td className={`px-3 py-1.5 text-right font-mono ${
+                    e.return_30d_pct >= 0 ? "text-green-400" : "text-red-400"
+                  }`}>
+                    {e.return_30d_pct >= 0 ? "+" : ""}{e.return_30d_pct.toFixed(1)}%
+                  </td>
+                  <td className={`px-3 py-1.5 text-right font-mono ${
+                    e.return_1y_pct >= 0 ? "text-green-400" : "text-red-400"
+                  }`}>
+                    {e.return_1y_pct >= 0 ? "+" : ""}{e.return_1y_pct.toFixed(1)}%
+                  </td>
+                  <td className="px-3 py-1.5">
+                    <div className="flex items-center gap-1">
+                      <div className="w-24 h-2 bg-gray-800 rounded overflow-hidden">
+                        <div
+                          className={`h-full rounded ${isHedger ? "bg-green-500/60" : "bg-red-500/60"}`}
+                          style={{ width: `${barWidth}%`, marginLeft: isHedger ? `${100 - barWidth}%` : "0" }}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="text-[10px] text-gray-600 px-3 py-2">
+        MCTR = marginal contribution to spread vol. Green (negative) = reduces spread vol (good hedge). Red (positive) = adds to spread vol.
+        Corr = correlation to equal-weighted long basket. Click column headers to sort.
+      </div>
+    </Card>
   );
 }
