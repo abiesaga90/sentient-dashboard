@@ -186,25 +186,37 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
           </Card>
 
           <Card>
-            <CardTitle>Vol Target</CardTitle>
+            <CardTitle>Vol Target (MC)</CardTitle>
             {(() => {
-              const target = risk.spread_vol.spread_vol_target_pct ?? 0;
-              const current = risk.spread_vol.daily_spread_vol_pct ?? 0;
-              const util = target > 0 ? current / target : 0;
+              const sv = risk.spread_vol;
+              const targetMc = sv.spread_vol_target_pct_mc;
+              const targetClosed = sv.spread_vol_target_pct ?? 0;
+              const target = targetMc ?? targetClosed;
+              const current = sv.daily_spread_vol_pct ?? 0;
+              const pstop = sv.p_stop_current_pct;
+              const drift = sv.daily_spread_drift_pct;
+              // Calibrated thresholds on P(stop), not utilization —
+              // green <5%, yellow <10%, red ≥10%
               const color =
-                util >= 1 ? "text-red-400" :
-                util >= 0.75 ? "text-yellow-400" : "text-green-400";
+                pstop == null ? "text-gray-300" :
+                pstop >= 10 ? "text-red-400" :
+                pstop >= 5 ? "text-yellow-400" : "text-green-400";
               return (
                 <>
                   <div className={cn("text-lg font-bold mt-1", color)}>
                     {target.toFixed(2)}%
                   </div>
                   <div className="text-[10px] text-gray-500 mt-1">
-                    Current {current.toFixed(2)}% ({(util * 100).toFixed(0)}% of budget)
+                    Current {current.toFixed(2)}% | P(stop) {pstop != null ? `${pstop.toFixed(1)}%` : "—"}
                   </div>
                   <div className="text-[10px] text-gray-600 mt-0.5">
-                    P(hit 9.5% DD stop)&lt;5% over 1y @ {risk.gross_pct.toFixed(0)}% gross
+                    1y MC @ {risk.gross_pct.toFixed(0)}% gross, drift {drift != null ? `${drift.toFixed(3)}%/d` : "—"}, elastic trim
                   </div>
+                  {targetMc != null && (
+                    <div className="text-[9px] text-gray-700 mt-0.5">
+                      Zero-drift ref: {targetClosed.toFixed(2)}%
+                    </div>
+                  )}
                 </>
               );
             })()}

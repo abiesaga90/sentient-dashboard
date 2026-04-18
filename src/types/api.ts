@@ -229,6 +229,11 @@ export interface RiskData {
     ls_correlation_30d: number | null;
     dd_budget_dollars: number | null;
     daily_pnl_vol_dollars: number | null;
+    // MC-based P(stop) fields (drift + elastic DD scaling, 1y horizon)
+    daily_spread_drift_pct?: number | null;
+    spread_vol_target_pct_mc?: number | null;
+    p_stop_current_pct?: number | null;
+    p_stop_horizon_days?: number | null;
   };
 }
 
