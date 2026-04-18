@@ -187,12 +187,27 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
 
           <Card>
             <CardTitle>Vol Target</CardTitle>
-            <div className="text-lg font-bold mt-1 text-gray-300">
-              {risk.spread_vol.spread_vol_target_pct?.toFixed(2)}%
-            </div>
-            <div className="text-[10px] text-gray-600 mt-1">
-              For P(stop)&lt;5% at current gross
-            </div>
+            {(() => {
+              const target = risk.spread_vol.spread_vol_target_pct ?? 0;
+              const current = risk.spread_vol.daily_spread_vol_pct ?? 0;
+              const util = target > 0 ? current / target : 0;
+              const color =
+                util >= 1 ? "text-red-400" :
+                util >= 0.75 ? "text-yellow-400" : "text-green-400";
+              return (
+                <>
+                  <div className={cn("text-lg font-bold mt-1", color)}>
+                    {target.toFixed(2)}%
+                  </div>
+                  <div className="text-[10px] text-gray-500 mt-1">
+                    Current {current.toFixed(2)}% ({(util * 100).toFixed(0)}% of budget)
+                  </div>
+                  <div className="text-[10px] text-gray-600 mt-0.5">
+                    P(hit 9.5% DD stop)&lt;5% over 1y @ {risk.gross_pct.toFixed(0)}% gross
+                  </div>
+                </>
+              );
+            })()}
           </Card>
 
           <Card>
