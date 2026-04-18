@@ -14,12 +14,14 @@ import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { SpreadTable } from "../shared/SpreadTable";
 import { usePnl, useRiskHistory } from "../../hooks/useDashboardQuery";
 import type { DashboardResponse } from "../../types/api";
+import { SizingStatusCard } from "../overview/SizingStatusCard";
 
 interface OverviewTabProps {
   data: DashboardResponse;
+  onNavigate?: (tabId: string) => void;
 }
 
-export function OverviewTab({ data }: OverviewTabProps) {
+export function OverviewTab({ data, onNavigate }: OverviewTabProps) {
   const { data: pnl } = usePnl();
   const { data: riskHistory } = useRiskHistory();
 
@@ -58,6 +60,9 @@ export function OverviewTab({ data }: OverviewTabProps) {
         ntRisk={data.nt_risk as Record<string, unknown> | undefined}
         positions={data.positions?.positions}
       />
+
+      {/* Option 2 sizing status — one-row summary, click for detail */}
+      <SizingStatusCard onNavigate={onNavigate} />
 
       {/* Equity Curve */}
       <EquityCurve

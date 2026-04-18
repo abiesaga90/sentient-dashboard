@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Header } from "../components/layout/Header";
 import { StatusBar } from "../components/layout/StatusBar";
 import { TabBar } from "../components/layout/TabBar";
+import { SizingShadowAlert } from "../components/layout/SizingShadowAlert";
 import { OverviewTab } from "../components/tabs/OverviewTab";
 import { PositionsTab } from "../components/tabs/PositionsTab";
 import { ShortSelectionTab } from "../components/tabs/ShortSelectionTab";
@@ -50,6 +51,7 @@ export function LiveDashboard() {
     <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col">
       <Header status={status} />
       <StatusBar dashboard={dashboard} status={status} />
+      <SizingShadowAlert onNavigate={setActiveTab} />
       <TabBar
         activeTab={activeTab}
         onChange={setActiveTab}
@@ -66,7 +68,11 @@ export function LiveDashboard() {
             <div className="text-gray-400 text-sm">Connecting to engine...</div>
           </div>
         ) : dashboard ? (
-          <TabContent activeTab={activeTab} dashboard={dashboard} />
+          <TabContent
+            activeTab={activeTab}
+            dashboard={dashboard}
+            onNavigate={setActiveTab}
+          />
         ) : null}
       </main>
     </div>
@@ -76,13 +82,15 @@ export function LiveDashboard() {
 function TabContent({
   activeTab,
   dashboard,
+  onNavigate,
 }: {
   activeTab: string;
   dashboard: NonNullable<ReturnType<typeof useDashboard>["data"]>;
+  onNavigate: (tabId: string) => void;
 }) {
   switch (activeTab) {
     case "overview":
-      return <OverviewTab data={dashboard} />;
+      return <OverviewTab data={dashboard} onNavigate={onNavigate} />;
     case "construction":
       return <PortfolioConstructionTab />;
     case "alpha-model":
