@@ -6,7 +6,16 @@ import { useRiskModel } from "../../hooks/useDashboardQuery";
 
 /* ──────────────────────── Types ──────────────────────── */
 
-type SortKey = "symbol" | "side" | "beta" | "downside_beta" | "vol" | "correlation" | "delta";
+type SortKey =
+  | "symbol"
+  | "side"
+  | "beta"
+  | "downside_beta"
+  | "vol"
+  | "correlation"
+  | "delta"
+  | "residual_vol"
+  | "residual_vol_ratio";
 
 interface TableRow {
   symbol: string;
@@ -16,6 +25,8 @@ interface TableRow {
   vol: number;
   correlation: number;
   delta: number; // downside_beta - beta (positive = worse hedge than it looks)
+  residual_vol: number | null;
+  residual_vol_ratio: number | null; // residual_vol / standalone_vol
 }
 
 /* ──────────────────────── Helpers ──────────────────────── */
@@ -54,6 +65,15 @@ const colorForDelta = (delta: number): string => {
   if (delta > 0.05) return "text-yellow-400";
   if (delta < -0.05) return "text-green-400";
   return "text-gray-400";
+};
+
+/** residual_vol / standalone_vol. Low = well-hedged, high = idio-dominant. */
+const colorForResidRatio = (ratio: number | null): string => {
+  if (ratio == null) return "text-gray-500";
+  if (ratio < 0.3) return "text-green-400";
+  if (ratio < 0.6) return "text-yellow-400";
+  if (ratio < 0.85) return "text-orange-400";
+  return "text-red-400";
 };
 
 const fmtTimestamp = (iso: string): string => {
@@ -98,6 +118,8 @@ export function RiskModelTab() {
         vol: m.vol,
         correlation: m.correlation,
         delta: m.downside_beta - m.beta,
+        residual_vol: m.residual_vol ?? null,
+        residual_vol_ratio: m.residual_vol_ratio ?? null,
       });
     }
     return out;
@@ -259,6 +281,8 @@ export function RiskModelTab() {
                 {headerCell("Δ", "delta")}
                 {headerCell("Vol (ann)", "vol")}
                 {headerCell("Corr", "correlation")}
+                {headerCell("Resid Vol", "residual_vol")}
+                {headerCell("Resid/σ", "residual_vol_ratio")}
               </tr>
             </thead>
             <tbody>
@@ -288,11 +312,17 @@ export function RiskModelTab() {
                   <td className={`px-3 py-1.5 text-right font-mono ${colorForCorr(r.correlation)}`}>
                     {fmtNum(r.correlation, 2)}
                   </td>
+                  <td className={`px-3 py-1.5 text-right font-mono ${colorForVol(r.residual_vol ?? r.vol)}`}>
+                    {r.residual_vol == null ? "—" : fmtPct(r.residual_vol)}
+                  </td>
+                  <td className={`px-3 py-1.5 text-right font-mono ${colorForResidRatio(r.residual_vol_ratio)}`}>
+                    {r.residual_vol_ratio == null ? "—" : r.residual_vol_ratio.toFixed(2)}
+                  </td>
                 </tr>
               ))}
               {sortedRows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-4 text-center text-gray-500">
+                  <td colSpan={9} className="px-3 py-4 text-center text-gray-500">
                     No tokens to display
                   </td>
                 </tr>
@@ -301,11 +331,20 @@ export function RiskModelTab() {
           </table>
         </div>
 
-        <div className="mt-3 text-[11px] text-gray-600 leading-relaxed">
-          <strong className="text-gray-500">Δ column:</strong> downside β minus
-          symmetric β. Positive Δ = the position is a worse hedge during basket
-          drawdowns than its symmetric beta suggests. Watch for high positive Δ on
-          shorts (hedge quality erodes when you need it most).
+        <div className="mt-3 text-[11px] text-gray-600 leading-relaxed space-y-1">
+          <div>
+            <strong className="text-gray-500">Δ column:</strong> downside β minus
+            symmetric β. Positive Δ = the position is a worse hedge during
+            basket drawdowns than its symmetric beta suggests.
+          </div>
+          <div>
+            <strong className="text-gray-500">Resid Vol / Resid/σ:</strong>{" "}
+            volatility that survives hedging against the opposite basket (longs
+            vs shorts, shorts vs longs). The ratio is residual ÷ standalone —
+            low = well-hedged, high = idio-dominant. This is the denominator
+            used by the residual-vol sizing mode on both sides. Floor at 0.20
+            caps any single name's weight at 5× what pure inv-vol would give.
+          </div>
         </div>
       </Card>
     </div>

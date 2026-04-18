@@ -22,6 +22,7 @@ import { ScalingCapacityTab } from "../components/tabs/ScalingCapacityTab";
 import { RiskModelTab } from "../components/tabs/RiskModelTab";
 import { AlphaModelTab } from "../components/tabs/AlphaModelTab";
 import { OptimizerTab } from "../components/tabs/OptimizerTab";
+import { SizingShadowTab } from "../components/tabs/SizingShadowTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -90,6 +91,8 @@ function TabContent({
       return <RiskModelTab />;
     case "optimizer":
       return <OptimizerTab />;
+    case "sizing-shadow":
+      return <SizingShadowTab />;
     case "positions":
       return <PositionsTab />;
     case "short-selection":

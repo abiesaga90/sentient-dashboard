@@ -59,6 +59,10 @@ export interface RiskModelTokenMetrics {
   downside_beta: number;
   vol: number;
   correlation: number;
+  /** Vol after hedging vs opposite basket — longs: vs shorts, shorts: vs longs. */
+  residual_vol?: number;
+  /** residual_vol / vol. 1.0 = un-hedged idio, 0.2 = hit floor (perfectly hedged). */
+  residual_vol_ratio?: number;
 }
 
 export interface RiskModelResponse {
@@ -190,6 +194,90 @@ export function useOptimizer() {
   return useQuery<OptimizerResponse>({
     queryKey: ["optimizer", engine.id],
     queryFn: () => client.get("/api/optimizer"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+}
+
+// ── Option 2 sizing-mode + shadow run ──
+// See nickel-ls-rv tasks/option2_symmetric_residual_vol.md for context.
+
+export interface SizingModeSideConfig {
+  mode: string;
+  formula: string;
+  vol_power: number;
+  residual_vol_floor_ratio: number;
+  blend_alpha?: number;
+}
+
+export interface SizingModeResponse {
+  longs: SizingModeSideConfig;
+  shorts: SizingModeSideConfig;
+  symmetric: boolean;
+  vol_lookback_hours: number;
+  hedge_basket_for_longs: string;
+  hedge_basket_for_shorts: string;
+}
+
+export function useSizingMode() {
+  const { client, engine } = useEngine();
+  return useQuery<SizingModeResponse>({
+    queryKey: ["sizing-mode", engine.id],
+    queryFn: () => client.get("/api/sizing/mode"),
+    refetchInterval: 300_000,
+    staleTime: 60_000,
+  });
+}
+
+export interface SizingShadowPerShort {
+  symbol: string;
+  live_notional: number;
+  shadow_notional: number;
+  live_share_pct: number;
+  shadow_share_pct: number;
+  delta_share_pct: number;
+  beta: number | null;
+  correlation: number | null;
+  vol: number | null;
+  residual_vol: number | null;
+  residual_vol_ratio: number | null;
+}
+
+export interface SizingShadowResponse {
+  available: boolean;
+  reason?: string;
+  served_from?: string;
+  computed_at?: string;
+  live_mode?: string;
+  shadow_mode?: string;
+  nav?: number;
+  sizing_base?: number;
+  totals?: {
+    live_short_gross: number;
+    shadow_short_gross: number;
+    live_long_gross: number;
+    shadow_long_gross: number;
+    max_abs_delta_share_pct: number;
+    n_shorts_live: number;
+    n_shorts_shadow: number;
+  };
+  beta_neutrality_err_pct?: {
+    live: number | null;
+    shadow: number | null;
+  };
+  per_short?: SizingShadowPerShort[];
+  thresholds?: {
+    delta_share_warn_pct: number;
+    delta_share_crit_pct: number;
+    beta_neutrality_crit_pct: number;
+  };
+}
+
+export function useSizingShadow() {
+  const { client, engine } = useEngine();
+  return useQuery<SizingShadowResponse>({
+    queryKey: ["sizing-shadow", engine.id],
+    queryFn: () => client.get("/api/sizing/shadow/latest"),
     refetchInterval: 60_000,
     staleTime: 30_000,
   });
