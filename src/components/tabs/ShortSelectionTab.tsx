@@ -66,7 +66,7 @@ export function ShortSelectionTab() {
 
   const { data, isLoading } = useQuery<RankingsResponse>({
     queryKey: ["rankings", engine.id],
-    queryFn: () => client.get("/api/rankings", { limit: 200 }),
+    queryFn: () => client.get("/api/rankings", { limit: 500 }),
     refetchInterval: 60_000,
     staleTime: 30_000,
   });
