@@ -282,3 +282,37 @@ export function useSizingShadow() {
     staleTime: 30_000,
   });
 }
+
+export interface SizingShadowHistoryPoint {
+  ts: string;
+  cum_pnl_live_usd: number;
+  cum_pnl_shadow_usd: number;
+  segment_pnl_live_usd: number;
+  segment_pnl_shadow_usd: number;
+  max_abs_delta_share_pct: number | null;
+  beta_err_live_pct: number | null;
+  beta_err_shadow_pct: number | null;
+}
+
+export interface SizingShadowHistoryResponse {
+  available: boolean;
+  reason?: string;
+  n_points?: number;
+  start_ts?: string;
+  end_ts?: string;
+  cumulative_live_usd?: number;
+  cumulative_shadow_usd?: number;
+  cumulative_delta_usd?: number;
+  points: SizingShadowHistoryPoint[];
+  note?: string;
+}
+
+export function useSizingShadowHistory(limit: number = 500) {
+  const { client, engine } = useEngine();
+  return useQuery<SizingShadowHistoryResponse>({
+    queryKey: ["sizing-shadow-history", engine.id, limit],
+    queryFn: () => client.get("/api/sizing/shadow/history", { limit }),
+    refetchInterval: 120_000,
+    staleTime: 60_000,
+  });
+}

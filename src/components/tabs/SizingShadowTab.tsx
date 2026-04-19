@@ -3,8 +3,20 @@ import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { KpiCard } from "../shared/KpiCard";
 import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  Legend,
+  ReferenceLine,
+} from "recharts";
+import {
   useSizingMode,
   useSizingShadow,
+  useSizingShadowHistory,
   type SizingShadowPerShort,
 } from "../../hooks/useDashboardQuery";
 
@@ -92,6 +104,7 @@ const sideDirection = (
 export function SizingShadowTab() {
   const { data: mode, isLoading: modeLoading } = useSizingMode();
   const { data: shadow, isLoading: shadowLoading, error } = useSizingShadow();
+  const { data: history } = useSizingShadowHistory();
 
   const [sortKey, setSortKey] = useState<SortKey>("delta_share_pct");
   const [sortDesc, setSortDesc] = useState(true);
@@ -355,6 +368,9 @@ export function SizingShadowTab() {
         </div>
       </Card>
 
+      {/* Cumulative P&L curve — live vs shadow + delta */}
+      <ShadowEquityCurve history={history} />
+
       {/* Per-short table */}
       <Card>
         <CardHeader>
@@ -526,5 +542,129 @@ function headerCell(
         <span className="ml-1 text-gray-400">{sortDesc ? "↓" : "↑"}</span>
       )}
     </th>
+  );
+}
+
+/* ────────────────── Shadow equity curve ────────────────── */
+
+function ShadowEquityCurve({
+  history,
+}: {
+  history: ReturnType<typeof useSizingShadowHistory>["data"];
+}) {
+  if (!history) return null;
+
+  if (!history.available || (history.points?.length ?? 0) < 2) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Cumulative shadow P&L (shorts only)</CardTitle>
+        </CardHeader>
+        <div className="text-xs text-gray-500">
+          {history.reason ??
+            "Not enough snapshots yet — the curve needs ≥2 rebalances. Check back after the next rotation."}
+        </div>
+      </Card>
+    );
+  }
+
+  const chartData = history.points.map((p) => ({
+    ts: p.ts,
+    live: p.cum_pnl_live_usd,
+    shadow: p.cum_pnl_shadow_usd,
+    delta: p.cum_pnl_shadow_usd - p.cum_pnl_live_usd,
+    label: new Date(p.ts).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    }),
+  }));
+
+  const cumLive = history.cumulative_live_usd ?? 0;
+  const cumShadow = history.cumulative_shadow_usd ?? 0;
+  const cumDelta = history.cumulative_delta_usd ?? cumShadow - cumLive;
+  const deltaColor =
+    cumDelta > 0 ? "text-green-400" : cumDelta < 0 ? "text-red-400" : "text-gray-300";
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <CardTitle>Cumulative shadow P&L (shorts only)</CardTitle>
+          <div className="text-xs text-gray-400">
+            Live: <span className="text-gray-200 font-mono">${cumLive.toFixed(0)}</span>{" "}
+            · Shadow:{" "}
+            <span className="text-gray-200 font-mono">${cumShadow.toFixed(0)}</span>{" "}
+            · Δ:{" "}
+            <span className={`font-mono ${deltaColor}`}>
+              {cumDelta >= 0 ? "+" : ""}${cumDelta.toFixed(0)}
+            </span>
+          </div>
+        </div>
+      </CardHeader>
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#222" />
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 11, fill: "#888" }}
+              stroke="#333"
+            />
+            <YAxis
+              tick={{ fontSize: 11, fill: "#888" }}
+              stroke="#333"
+              tickFormatter={(v) => `$${Math.round(v / 1000)}k`}
+            />
+            <Tooltip
+              contentStyle={{
+                background: "#111",
+                border: "1px solid #333",
+                fontSize: 12,
+              }}
+              formatter={(value, name) => {
+                const v = typeof value === "number" ? value : Number(value ?? 0);
+                const sign = v >= 0 ? "+" : "";
+                return [`${sign}$${v.toFixed(0)}`, String(name)];
+              }}
+            />
+            <Legend
+              wrapperStyle={{ fontSize: 12 }}
+              iconType="line"
+            />
+            <ReferenceLine y={0} stroke="#444" strokeDasharray="2 4" />
+            <Line
+              type="monotone"
+              dataKey="live"
+              name="Live"
+              stroke="#60a5fa"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="shadow"
+              name="Shadow (Option 2)"
+              stroke="#34d399"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="delta"
+              name="Δ (shadow − live)"
+              stroke="#fbbf24"
+              strokeWidth={1.5}
+              strokeDasharray="4 2"
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-2 text-[11px] text-gray-500">
+        {history.note ??
+          "Shorts-only. Applies each snapshot's notionals to the realized price move until the next snapshot."}{" "}
+        Positive delta = Option 2 would have outperformed.
+      </div>
+    </Card>
   );
 }
