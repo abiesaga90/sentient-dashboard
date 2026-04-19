@@ -28,12 +28,14 @@ const COLOR_NEUTRAL = "#bfb3a8"; // Sandstone
 const COLOR_DEEP = "#4e6ba8"; // brighter indigo for dark bg
 const LEV_COLORS: Record<string, string> = {
   "1.0x": "#0b688c",
-  "1.5x": "#4e6ba8",
-  "2.0x": "#8a5fc4",
-  "2.5x": "#c45f9f",
-  "3.0x": "#d06643",
+  "1.5x": "#3f7bb8",
+  "2.0x": "#6d6cc0",
+  "2.5x": "#9a5fbf",
+  "3.0x": "#bf58a9",
+  "3.5x": "#d0608a",
+  "4.0x": "#d06643",
 };
-const LEVERAGE_GRID = ["1.0x", "1.5x", "2.0x", "2.5x", "3.0x"] as const;
+const LEVERAGE_GRID = ["1.0x", "1.5x", "2.0x", "2.5x", "3.0x", "3.5x", "4.0x"] as const;
 
 // ── API types ──
 interface SeriesRow {
@@ -149,34 +151,34 @@ export function LeverageCalibrationTab() {
       {/* Headline KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
         <KpiCard
-          label="Unlevered ann. vol"
+          label="Ann. vol (at 4× cap)"
           value={fmtPct(data.stats.ann_vol_unlev)}
           sub={`EWMA now: ${fmtPct(data.stats.ewma_vol_ann_current)}`}
         />
         <KpiCard
-          label="Unlevered Sharpe"
+          label="Sharpe"
           value={(data.stats.sharpe_unlev ?? 0).toFixed(2)}
-          sub={`ann. ret ${fmtPct(data.stats.ann_ret_unlev)}`}
+          sub={`ann. ret ${fmtPct(data.stats.ann_ret_unlev)} at 4×`}
         />
         <KpiCard
-          label="Unlevered max DD"
+          label="Max DD (at 4× cap)"
           value={fmtPct(data.stats.max_dd_unlev)}
           sub={`ulcer ${fmtPct(data.stats.ulcer_unlev)}`}
           valueColor="text-[#d06643]"
         />
         <KpiCard
-          label="95%-worst 30d DD"
+          label="95%-worst 30d DD (at 4×)"
           value={fmtPct(data.stats.dd_95_unlev)}
           sub="5th pctl of rolling"
         />
         <KpiCard
-          label="Safe lev (max DD)"
+          label="Safe actual lev (max DD)"
           value={`${(data.stats.implied_safe_lev_max_dd ?? 0).toFixed(2)}x`}
           sub={`to hit ${ddStopPctDisplay.toFixed(1)}% stop`}
           valueColor="text-[#0b688c]"
         />
         <KpiCard
-          label="Safe lev (fwd vol)"
+          label="Safe actual lev (fwd vol)"
           value={`${(data.stats.implied_safe_lev_vol ?? 0).toFixed(2)}x`}
           sub="EWMA 1σ/mo"
           valueColor="text-[#0b688c]"
@@ -199,15 +201,16 @@ export function LeverageCalibrationTab() {
           </div>
         </CardHeader>
         <p className="text-xs text-gray-400">
-          Unlevered = 1× = baseline strategy (1$ long + 1$ short per $1 NAV = 2× gross).
-          Overlays show what DDs a multiplier on top of baseline would have produced.
+          <strong className="text-gray-200">Actual leverage</strong> — L_actual = 2 × gross notional / NAV.
+          <strong className="text-gray-200"> 4.0× = Nickel maximum</strong> (200% gross cap = 100% long + 100% short).
+          Grid steps 0.5×. DD, vol, forward 1σ scale as (L/4) × value-at-cap. Sharpe is leverage-invariant.
           Live inception: <span className="text-gray-200">{data.inception_live}</span>.
           Pre-inception is a backtest proxy using current baskets (survivorship bias).
         </p>
       </Card>
 
       {/* Chart 1: Equity curve with leverage overlays */}
-      <ChartContainer title="Unlevered Equity Curve with Leverage Overlays" height={320}>
+      <ChartContainer title="Equity Curve by Gross Leverage (1.0× = unlevered, 2.0× = baseline)" height={320}>
         <LineChart data={data.series}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
           <XAxis
@@ -250,7 +253,7 @@ export function LeverageCalibrationTab() {
       </ChartContainer>
 
       {/* Chart 2: Underwater drawdown */}
-      <ChartContainer title="Underwater Drawdown by Leverage" height={320}>
+      <ChartContainer title="Underwater Drawdown by Gross Leverage" height={320}>
         <AreaChart data={data.series}>
           <defs>
             {LEVERAGE_GRID.map((lev) => (
@@ -388,7 +391,7 @@ export function LeverageCalibrationTab() {
       </div>
 
       {/* Chart 5: Leverage frontier (MONEY CHART) */}
-      <ChartContainer title="Leverage → Drawdown Frontier" height={340}>
+      <ChartContainer title="Gross Leverage → Drawdown Frontier" height={340}>
         <LineChart data={data.leverage_frontier}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
           <XAxis
@@ -481,11 +484,11 @@ export function LeverageCalibrationTab() {
             stroke={COLOR_WARN}
             strokeDasharray="4 4"
           />
-          {["1.00", "1.50", "2.00", "2.50", "3.00"].map((L) => (
+          {["1.00", "1.50", "2.00", "2.50", "3.00", "3.50", "4.00"].map((L) => (
             <Bar
               key={L}
               dataKey={`dd_${L}`}
-              name={`${L}x`}
+              name={`${parseFloat(L).toFixed(1)}x`}
               fill={LEV_COLORS[`${parseFloat(L).toFixed(1)}x`] ?? COLOR_UNLEV}
               fillOpacity={0.85}
             />
@@ -539,7 +542,9 @@ export function LeverageCalibrationTab() {
           <table className="w-full text-xs">
             <thead className="border-b border-[var(--border)]">
               <tr>
-                <th className="px-3 py-1.5 text-left text-gray-500">Leverage</th>
+                <th className="px-3 py-1.5 text-left text-gray-500">Actual Lev</th>
+                <th className="px-3 py-1.5 text-right text-gray-500" title="Gross notional / NAV = L_actual / 2">Gross %</th>
+                <th className="px-3 py-1.5 text-right text-gray-500" title="Per-side exposure = gross / 2">Per-side %</th>
                 <th className="px-3 py-1.5 text-right text-gray-500">Ann. vol</th>
                 <th className="px-3 py-1.5 text-right text-gray-500">Hist. max DD</th>
                 <th className="px-3 py-1.5 text-right text-gray-500">95%-worst 30d DD</th>
@@ -548,28 +553,39 @@ export function LeverageCalibrationTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {data.leverage_frontier.map((f) => (
-                <tr key={f.leverage} className="hover:bg-[var(--bg-card-hover)]">
-                  <td className="px-3 py-1.5 text-gray-200 font-medium">
-                    {f.leverage.toFixed(2)}x
-                  </td>
-                  <td className="px-3 py-1.5 text-right text-gray-300">{fmtPct(f.ann_vol)}</td>
-                  <td className={`px-3 py-1.5 text-right ${f.max_dd < -ddStopPct ? "text-[#d06643] font-semibold" : "text-gray-300"}`}>
-                    {fmtPct(f.max_dd)}
-                  </td>
-                  <td className="px-3 py-1.5 text-right text-gray-300">{fmtPct(f.dd_95)}</td>
-                  <td className="px-3 py-1.5 text-right text-gray-400">{fmtPct(f.dd_forward_1sig)}</td>
-                  <td className="px-3 py-1.5 text-center">
-                    {f.breaches_stop ? (
-                      <span className="text-[#d06643]">Yes</span>
-                    ) : (
-                      <span className="text-green-400">No</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {data.leverage_frontier.map((f) => {
+                const grossPct = f.leverage * 50; // L_actual / 2 × 100%
+                const perSidePct = grossPct / 2;
+                const isNickelCap = Math.abs(f.leverage - 4.0) < 0.01;
+                return (
+                  <tr key={f.leverage} className={`hover:bg-[var(--bg-card-hover)] ${isNickelCap ? "bg-[#d06643]/5" : ""}`}>
+                    <td className="px-3 py-1.5 text-gray-200 font-medium">
+                      {f.leverage.toFixed(2)}x
+                      {isNickelCap && <span className="ml-2 text-[9px] text-[#d06643]">Nickel max</span>}
+                    </td>
+                    <td className="px-3 py-1.5 text-right text-gray-300">{grossPct.toFixed(0)}%</td>
+                    <td className="px-3 py-1.5 text-right text-gray-500">{perSidePct.toFixed(0)}%</td>
+                    <td className="px-3 py-1.5 text-right text-gray-300">{fmtPct(f.ann_vol)}</td>
+                    <td className={`px-3 py-1.5 text-right ${f.max_dd < -ddStopPct ? "text-[#d06643] font-semibold" : "text-gray-300"}`}>
+                      {fmtPct(f.max_dd)}
+                    </td>
+                    <td className="px-3 py-1.5 text-right text-gray-300">{fmtPct(f.dd_95)}</td>
+                    <td className="px-3 py-1.5 text-right text-gray-400">{fmtPct(f.dd_forward_1sig)}</td>
+                    <td className="px-3 py-1.5 text-center">
+                      {f.breaches_stop ? (
+                        <span className="text-[#d06643]">Yes</span>
+                      ) : (
+                        <span className="text-green-400">No</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+        </div>
+        <div className="text-[10px] text-gray-600 mt-2 px-3">
+          Gross % = L_actual × 50%. Per-side % = long side = short side as % of NAV. Nickel cap: 200% gross / 4.0× actual.
         </div>
       </Card>
 
