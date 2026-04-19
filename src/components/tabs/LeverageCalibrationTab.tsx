@@ -151,34 +151,34 @@ export function LeverageCalibrationTab() {
       {/* Headline KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
         <KpiCard
-          label="Ann. vol (at 4× cap)"
+          label="Ann. vol (1Y, at 4× cap)"
           value={fmtPct(data.stats.ann_vol_unlev)}
           sub={`EWMA now: ${fmtPct(data.stats.ewma_vol_ann_current)}`}
         />
         <KpiCard
-          label="Sharpe"
+          label="Sharpe (1Y)"
           value={(data.stats.sharpe_unlev ?? 0).toFixed(2)}
           sub={`ann. ret ${fmtPct(data.stats.ann_ret_unlev)} at 4×`}
         />
         <KpiCard
-          label="Max DD (at 4× cap)"
+          label="Max DD (1Y hist, at 4×)"
           value={fmtPct(data.stats.max_dd_unlev)}
           sub={`ulcer ${fmtPct(data.stats.ulcer_unlev)}`}
           valueColor="text-[#d06643]"
         />
         <KpiCard
-          label="95%-worst 30d DD (at 4×)"
+          label="95%-worst 30d DD (1Y)"
           value={fmtPct(data.stats.dd_95_unlev)}
           sub="5th pctl of rolling"
         />
         <KpiCard
-          label="Safe actual lev (max DD)"
+          label="Safe lev (1Y max-DD basis)"
           value={`${(data.stats.implied_safe_lev_max_dd ?? 0).toFixed(2)}x`}
           sub={`to hit ${ddStopPctDisplay.toFixed(1)}% stop`}
           valueColor="text-[#0b688c]"
         />
         <KpiCard
-          label="Safe actual lev (fwd vol)"
+          label="Safe lev (EWMA fwd vol)"
           value={`${(data.stats.implied_safe_lev_vol ?? 0).toFixed(2)}x`}
           sub="EWMA 1σ/mo"
           valueColor="text-[#0b688c]"

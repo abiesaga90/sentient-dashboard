@@ -307,6 +307,43 @@ export interface SizingShadowHistoryResponse {
   note?: string;
 }
 
+// ── Unified Risk Posture (banner, single source of truth) ──
+
+export interface RiskPostureResponse {
+  timestamp: string;
+  sigma_daily_pct: number | null;
+  sigma_annual_pct: number | null;
+  vol_regime: string | null;
+  p_stop_7d_pct: number | null;
+  p_stop_30d_pct: number | null;
+  p_stop_365d_pct: number | null;
+  dd_current_pct: number;
+  dd_stop_pct: number;
+  dd_budget_used_pct: number;
+  dd_band: "green" | "amber" | "red";
+  gross_current_pct: number;
+  safe_gross_pct: number | null;
+  safe_lev_actual: number | null;
+  gross_budget_used_pct: number | null;
+  gross_band: "green" | "amber" | "red";
+  ls_correlation_30d: number | null;
+  daily_drift_pct: number | null;
+  dd_budget_sigma: number | null;
+  dd_budget_dollars: number | null;
+  nav: number;
+  hwm: number;
+}
+
+export function useRiskPosture() {
+  const { client, engine } = useEngine();
+  return useQuery<RiskPostureResponse>({
+    queryKey: ["risk-posture", engine.id],
+    queryFn: () => client.get("/api/risk-posture"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+}
+
 export function useSizingShadowHistory(limit: number = 500) {
   const { client, engine } = useEngine();
   return useQuery<SizingShadowHistoryResponse>({

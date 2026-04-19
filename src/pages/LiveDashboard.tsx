@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Header } from "../components/layout/Header";
 import { StatusBar } from "../components/layout/StatusBar";
 import { TabBar } from "../components/layout/TabBar";
+import { RiskPostureBanner } from "../components/layout/RiskPostureBanner";
 import { SizingShadowAlert } from "../components/layout/SizingShadowAlert";
 import { OverviewTab } from "../components/tabs/OverviewTab";
 import { PositionsTab } from "../components/tabs/PositionsTab";
@@ -52,6 +53,7 @@ export function LiveDashboard() {
     <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col">
       <Header status={status} />
       <StatusBar dashboard={dashboard} status={status} />
+      <RiskPostureBanner />
       <SizingShadowAlert onNavigate={setActiveTab} />
       <TabBar
         activeTab={activeTab}
