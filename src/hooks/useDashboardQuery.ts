@@ -358,6 +358,8 @@ export interface RiskPostureResponse {
   gross_budget_used_pct: number | null;
   gross_band: "green" | "amber" | "red";
   ls_correlation_30d: number | null;
+  target_spread_vol_pct: number | null;
+  vol_budget_ratio: number | null;
   daily_drift_pct: number | null;
   dd_budget_sigma: number | null;
   dd_budget_dollars: number | null;
