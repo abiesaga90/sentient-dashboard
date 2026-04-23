@@ -186,35 +186,37 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
           </Card>
 
           <Card>
-            <CardTitle>Vol Target (MC)</CardTitle>
+            <CardTitle>Vol Budget (MC)</CardTitle>
             {(() => {
               const sv = risk.spread_vol;
-              const targetMc = sv.spread_vol_target_pct_mc;
-              const targetClosed = sv.spread_vol_target_pct ?? 0;
-              const target = targetMc ?? targetClosed;
+              const budgetMc = sv.spread_vol_target_pct_mc;
+              const budgetClosed = sv.spread_vol_target_pct ?? 0;
+              const budget = budgetMc ?? budgetClosed;
               const current = sv.daily_spread_vol_pct ?? 0;
               const pstop = sv.p_stop_current_pct;
               const drift = sv.daily_spread_drift_pct;
-              // Calibrated thresholds on P(stop), not utilization —
-              // green <5%, yellow <10%, red ≥10%
+              // Current vol above the zero-drift ceiling = "safe only because of drift"
+              const driftDependent = budgetMc != null && current > budgetClosed;
+              // P(stop) primary, then drift-dependence as a yellow warning override
               const color =
                 pstop == null ? "text-gray-300" :
                 pstop >= 10 ? "text-red-400" :
-                pstop >= 5 ? "text-yellow-400" : "text-green-400";
+                pstop >= 5 ? "text-yellow-400" :
+                driftDependent ? "text-yellow-400" : "text-green-400";
               return (
                 <>
                   <div className={cn("text-lg font-bold mt-1", color)}>
-                    {target.toFixed(2)}%
+                    {budget.toFixed(2)}%
                   </div>
                   <div className="text-[10px] text-gray-500 mt-1">
                     Current {current.toFixed(2)}% | P(stop) {pstop != null ? `${pstop.toFixed(1)}%` : "—"}
                   </div>
                   <div className="text-[10px] text-gray-600 mt-0.5">
-                    1y MC @ {risk.gross_pct.toFixed(0)}% gross, drift {drift != null ? `${drift.toFixed(3)}%/d` : "—"}, elastic trim
+                    Ceiling, not a target. 1y MC @ {risk.gross_pct.toFixed(0)}% gross, drift {drift != null ? `${drift.toFixed(3)}%/d` : "—"}, elastic trim
                   </div>
-                  {targetMc != null && (
-                    <div className="text-[9px] text-gray-700 mt-0.5">
-                      Zero-drift ref: {targetClosed.toFixed(2)}%
+                  {budgetMc != null && (
+                    <div className={cn("text-[9px] mt-0.5", driftDependent ? "text-yellow-500" : "text-gray-700")}>
+                      Zero-drift ref: {budgetClosed.toFixed(2)}%{driftDependent ? " — current above this, headroom relies on drift" : ""}
                     </div>
                   )}
                 </>
