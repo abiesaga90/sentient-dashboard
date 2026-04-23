@@ -15,6 +15,7 @@ import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { ChartContainer } from "../shared/ChartContainer";
 import { SpreadTable } from "../shared/SpreadTable";
+import { DispersionChart } from "../shared/DispersionChart";
 import { useDashboard } from "../../hooks/useDashboardQuery";
 import { formatUSD } from "../../lib/utils";
 
@@ -261,6 +262,9 @@ export function PerformanceTab() {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Dispersion & vol budget regime chart */}
+      <DispersionChart days={365} />
+
       {/* Ratio KPIs — snapshot (Nickel's view) + live */}
       <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
         <RatioCard label="Sharpe (4w)" value={data.sharpe_30d} />

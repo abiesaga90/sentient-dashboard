@@ -386,3 +386,35 @@ export function useSizingShadowHistory(limit: number = 500) {
     staleTime: 60_000,
   });
 }
+
+// ── Dispersion history (regime chart on Performance tab) ──
+
+export interface DispersionHistoryPoint {
+  date: string;
+  ls_corr_30d: number | null;
+  ls_corr_90d: number | null;
+  spread_vol_pct: number | null;
+  target_spread_vol_pct: number | null;
+  vol_budget_ratio: number | null;
+}
+
+export interface DispersionHistoryResponse {
+  available: boolean;
+  reason?: string;
+  timestamp?: string;
+  lookback_days?: number;
+  basket?: { n_longs: number; n_shorts: number; gross_pct: number };
+  target_spread_vol_pct?: number | null;
+  note?: string;
+  series: DispersionHistoryPoint[];
+}
+
+export function useDispersionHistory(days: number = 365) {
+  const { client, engine } = useEngine();
+  return useQuery<DispersionHistoryResponse>({
+    queryKey: ["dispersion-history", engine.id, days],
+    queryFn: () => client.get("/api/dispersion/history", { days }),
+    refetchInterval: 600_000, // 10 min — backend caches for 30 min
+    staleTime: 300_000,
+  });
+}
