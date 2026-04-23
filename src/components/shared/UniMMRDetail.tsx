@@ -158,15 +158,16 @@ export function UniMMRDetail() {
               <Tooltip
                 contentStyle={{ background: "#0b1220", border: "1px solid #1f2937", fontSize: 11 }}
                 labelFormatter={(v) => new Date(v as number).toLocaleString()}
-                formatter={(value: unknown, name: string, item: { payload?: { unimmr_raw?: number } }) => {
-                  if (name === "unimmr_clipped") {
-                    const raw = item?.payload?.unimmr_raw;
+                formatter={(value, name, item) => {
+                  const nm = String(name ?? "");
+                  if (nm === "unimmr_clipped") {
+                    const raw = (item as { payload?: { unimmr_raw?: number } })?.payload?.unimmr_raw;
                     const display = raw != null
                       ? (raw >= 100 ? raw.toFixed(0) : raw >= 10 ? raw.toFixed(1) : raw.toFixed(2))
                       : "—";
                     return [display, "uniMMR"];
                   }
-                  return [String(value), name];
+                  return [String(value), nm];
                 }}
               />
               <Line
