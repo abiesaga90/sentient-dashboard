@@ -107,7 +107,10 @@ export function DispersionChart({ days = 365 }: { days?: number }) {
           <Tooltip
             contentStyle={{ background: "#0b1220", border: "1px solid #1f2937", fontSize: 12 }}
             labelStyle={{ color: "#e5e7eb" }}
-            formatter={(v: number) => (v == null ? "—" : v.toFixed(3))}
+            formatter={(v: unknown) => {
+              const n = typeof v === "number" ? v : Number(v);
+              return Number.isFinite(n) ? n.toFixed(3) : "—";
+            }}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <ReferenceLine y={0.90} stroke="#f59e0b" strokeDasharray="3 3" label={{ value: "0.90", fill: "#f59e0b", fontSize: 10, position: "right" }} />
@@ -165,10 +168,10 @@ export function DispersionChart({ days = 365 }: { days?: number }) {
           <Tooltip
             contentStyle={{ background: "#0b1220", border: "1px solid #1f2937", fontSize: 12 }}
             labelStyle={{ color: "#e5e7eb" }}
-            formatter={(v: number, name: string) => {
-              if (v == null) return "—";
-              if (name === "Vol budget") return `${v.toFixed(2)}×`;
-              return `${v.toFixed(2)}%`;
+            formatter={(v: unknown, name: unknown) => {
+              const n = typeof v === "number" ? v : Number(v);
+              if (!Number.isFinite(n)) return "—";
+              return name === "Vol budget" ? `${n.toFixed(2)}×` : `${n.toFixed(2)}%`;
             }}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
