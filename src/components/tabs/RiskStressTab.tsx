@@ -20,6 +20,7 @@ import { DataTable, type Column } from "../shared/DataTable";
 import { KpiCard } from "../shared/KpiCard";
 import { ChartContainer } from "../shared/ChartContainer";
 import { AdlMonitor } from "../overview/AdlMonitor";
+import { UniMMRDetail } from "../shared/UniMMRDetail";
 import { formatUSD, formatPct, pnlColor } from "../../lib/utils";
 import type { AdlData, HedgeQualityResponse, PerShortHedge } from "../../types/api";
 
@@ -483,6 +484,9 @@ export function RiskStressTab() {
 
   return (
     <div className="space-y-4 p-4">
+      {/* ── uniMMR (Binance PM liquidation ratio) ── */}
+      <UniMMRDetail />
+
       {/* ── Spread Risk Distribution (top of page) ── */}
       {spreadRisk && spreadRisk.horizons && (
         <Card>

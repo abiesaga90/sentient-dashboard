@@ -52,6 +52,37 @@ export function useRiskHistory(hours: number = 168) {
   });
 }
 
+export interface PmRiskSnapshot {
+  timestamp: string;
+  unimmr: number | null;
+  status: "HEALTHY" | "WARNING" | "REDUCTION" | "LIQUIDATION" | string;
+  account_equity: number | null;
+  actual_equity: number | null;
+  account_maint_margin: number | null;
+  account_initial_margin: number | null;
+  mm_pct: number | null;
+}
+
+export function usePmRisk() {
+  const { client, engine } = useEngine();
+  return useQuery<PmRiskSnapshot | { error: string }>({
+    queryKey: ["pm-risk", engine.id],
+    queryFn: () => client.get("/api/pm_risk"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+}
+
+export function usePmRiskHistory(hours: number = 168) {
+  const { client, engine } = useEngine();
+  return useQuery<{ history: PmRiskSnapshot[]; count: number }>({
+    queryKey: ["pm-risk-history", engine.id, hours],
+    queryFn: () => client.get("/api/pm_risk/history", { hours }),
+    refetchInterval: 120_000,
+    staleTime: 60_000,
+  });
+}
+
 // ── Phase 4: three-layer architecture tabs ──
 
 export interface RiskModelTokenMetrics {

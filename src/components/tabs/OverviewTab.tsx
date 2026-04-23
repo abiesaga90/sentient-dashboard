@@ -15,6 +15,7 @@ import { SpreadTable } from "../shared/SpreadTable";
 import { usePnl, useRiskHistory } from "../../hooks/useDashboardQuery";
 import type { DashboardResponse } from "../../types/api";
 import { SizingStatusCard } from "../overview/SizingStatusCard";
+import { UniMMRCard } from "../overview/UniMMRCard";
 
 interface OverviewTabProps {
   data: DashboardResponse;
@@ -61,8 +62,11 @@ export function OverviewTab({ data, onNavigate }: OverviewTabProps) {
         positions={data.positions?.positions}
       />
 
-      {/* Option 2 sizing status — one-row summary, click for detail */}
-      <SizingStatusCard onNavigate={onNavigate} />
+      {/* uniMMR (Binance PM liquidation ratio) + Option 2 sizing status */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <UniMMRCard onNavigate={onNavigate} />
+        <SizingStatusCard onNavigate={onNavigate} />
+      </div>
 
       {/* Equity Curve */}
       <EquityCurve
