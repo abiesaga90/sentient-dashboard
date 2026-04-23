@@ -57,6 +57,18 @@ export interface Position {
   inv_vol_weight: number | null;
   rsi_daily: number | null;
   rsi_weekly: number | null;
+  current_tilt?: number | null;
+  current_adjusted_score?: number | null;
+  entry_signals?: {
+    va_score?: number | null;
+    sm_score?: number | null;
+    p3_score?: number | null;
+    adjusted_score?: number | null;
+    long_tilt?: number | null;
+    short_correlation?: number | null;
+    short_beta?: number | null;
+    short_momentum_7d?: number | null;
+  };
 }
 
 export interface BetaAggregate {

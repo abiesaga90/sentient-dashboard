@@ -80,6 +80,34 @@ const columns: Column<Position>[] = [
     align: "right",
   },
   {
+    key: "current_tilt",
+    header: "Tilt",
+    render: (r) => {
+      if (r.side !== "LONG") return <span className="text-gray-700">—</span>;
+      const t = r.current_tilt;
+      if (t == null) return <span className="text-gray-600">—</span>;
+      // >1.10 = overweight conviction, 0.90–1.10 = neutral, <0.90 = underweight
+      const color =
+        t > 1.10 ? "text-green-400" :
+        t < 0.90 ? "text-red-400" : "text-gray-300";
+      const entryTilt = r.entry_signals?.long_tilt;
+      const adj = r.current_adjusted_score;
+      const tip = [
+        `Current resize tilt: ${t.toFixed(3)}`,
+        entryTilt != null ? `Entry tilt: ${entryTilt.toFixed(3)}` : "Entry tilt: — (stale)",
+        adj != null ? `adj_score: ${adj >= 0 ? "+" : ""}${adj.toFixed(3)}` : null,
+        "weight ∝ tilt / residual_vol^0.5",
+      ].filter(Boolean).join("\n");
+      return (
+        <span className={`font-mono text-[11px] ${color}`} title={tip}>
+          {t.toFixed(2)}
+        </span>
+      );
+    },
+    sortKey: (r) => r.current_tilt ?? 0,
+    align: "right",
+  },
+  {
     key: "pnl_pct",
     header: "P&L %",
     render: (r) => <PnlText value={r.pnl_pct} format="pct" />,

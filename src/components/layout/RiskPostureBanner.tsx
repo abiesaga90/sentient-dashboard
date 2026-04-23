@@ -22,11 +22,25 @@ function pStopBand(p: number | null): Band {
   return "green";
 }
 
-function corrBand(c: number | null): Band {
-  if (c == null) return "green";
-  if (c >= 0.95) return "amber"; // dispersion collapse risk
-  if (c <= 0.50) return "amber"; // decorrelation = basis risk
+function volBudgetBand(r: number | null): Band {
+  // realized_spread_vol / target_spread_vol at current gross.
+  // Target = the vol at which P(stop) = 5%/yr at current gross.
+  // < 0.5: alpha compressed — realized dispersion half of budgeted,
+  //   strategy is under-utilizing its risk budget (Qube framing).
+  // > 1.0: realized vol exceeds the vol that the DD budget assumes —
+  //   over-risked, drawdown plan is under-reserved.
+  if (r == null) return "green";
+  if (r >= 1.0) return "red";
+  if (r < 0.5) return "amber";
   return "green";
+}
+
+function volBudgetLabel(r: number | null): string {
+  if (r == null) return "";
+  if (r >= 1.0) return "over budget";
+  if (r < 0.5) return "alpha compressed";
+  if (r < 0.75) return "under-levered";
+  return "calibrated";
 }
 
 export function RiskPostureBanner() {
@@ -44,8 +58,8 @@ export function RiskPostureBanner() {
   const gr = BAND_COLORS[data.gross_band];
   const psBand = pStopBand(data.p_stop_30d_pct);
   const ps = BAND_COLORS[psBand];
-  const cBand = corrBand(data.ls_correlation_30d);
-  const cCol = BAND_COLORS[cBand];
+  const vbBand = volBudgetBand(data.vol_budget_ratio);
+  const vb = BAND_COLORS[vbBand];
   const regimeCol = REGIME_COLOR[data.vol_regime ?? "UNKNOWN"];
 
   return (
@@ -95,18 +109,19 @@ export function RiskPostureBanner() {
       <Divider />
 
       <Metric
-        label="L/S corr 30d"
-        value={data.ls_correlation_30d != null ? data.ls_correlation_30d.toFixed(3) : "—"}
-        sub={data.ls_correlation_30d != null && data.ls_correlation_30d >= 0.95
-          ? "dispersion tight"
-          : data.ls_correlation_30d != null && data.ls_correlation_30d <= 0.50
-          ? "basis risk"
-          : "healthy"}
-        valueClass={cCol.text}
+        label="Vol budget"
+        value={data.vol_budget_ratio != null
+          ? `${data.vol_budget_ratio.toFixed(2)}×`
+          : "—"}
+        sub={data.sigma_daily_pct != null && data.target_spread_vol_pct != null
+          ? `${data.sigma_daily_pct.toFixed(2)}% / ${data.target_spread_vol_pct.toFixed(2)}% · ${volBudgetLabel(data.vol_budget_ratio)}`
+          : volBudgetLabel(data.vol_budget_ratio)}
+        valueClass={vb.text}
+        dot={vb.dot}
       />
 
       <div className="ml-auto text-[10px] text-gray-600">
-        MC elastic-trim aware · refreshed 60s
+        Vol budget = realized / target (5% P(stop)/yr at current gross) · refreshed 60s
       </div>
     </div>
   );
