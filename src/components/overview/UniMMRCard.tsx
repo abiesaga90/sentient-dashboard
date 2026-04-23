@@ -89,6 +89,12 @@ export function UniMMRCard({
         </div>
       </CardHeader>
 
+      {/* Always-visible one-line explainer */}
+      <div className="text-[11px] text-gray-500 -mt-1 mb-2">
+        Uniform Maintenance Margin Ratio — the single number that governs
+        Portfolio Margin liquidation on Binance. Higher = safer.
+      </div>
+
       <div className={cn("text-2xl font-bold font-mono", valueColor)}>
         {displayUnimmr}
         <span className="text-xs font-normal text-gray-500 ml-2">
