@@ -83,7 +83,6 @@ const columns: Column<Position>[] = [
     key: "current_tilt",
     header: "Tilt",
     render: (r) => {
-      if (r.side !== "LONG") return <span className="text-gray-700">—</span>;
       const t = r.current_tilt;
       if (t == null) return <span className="text-gray-600">—</span>;
       // >1.10 = overweight conviction, 0.90–1.10 = neutral, <0.90 = underweight
@@ -94,7 +93,9 @@ const columns: Column<Position>[] = [
       const adj = r.current_adjusted_score;
       const tip = [
         `Current resize tilt: ${t.toFixed(3)}`,
-        entryTilt != null ? `Entry tilt: ${entryTilt.toFixed(3)}` : "Entry tilt: — (stale)",
+        r.side === "LONG"
+          ? (entryTilt != null ? `Entry tilt: ${entryTilt.toFixed(3)}` : "Entry tilt: — (stale)")
+          : null,
         adj != null ? `adj_score: ${adj >= 0 ? "+" : ""}${adj.toFixed(3)}` : null,
         "weight ∝ tilt / residual_vol^0.5",
       ].filter(Boolean).join("\n");
@@ -147,11 +148,24 @@ const columns: Column<Position>[] = [
     align: "right",
   },
   {
-    key: "daily_vol",
-    header: "Vol",
-    render: (r) =>
-      r.daily_vol_pct != null ? `${r.daily_vol_pct.toFixed(1)}%` : "—",
-    sortKey: (r) => r.daily_vol_pct ?? 0,
+    key: "annualized_vol",
+    header: "Vol (ann)",
+    render: (r) => {
+      if (r.annualized_vol != null) {
+        const annPct = r.annualized_vol * 100;
+        const dailyPct = annPct / Math.sqrt(365);
+        return (
+          <span
+            className="font-mono text-[11px] text-gray-300"
+            title={`Annualized vol: ${annPct.toFixed(1)}%\nDaily vol: ${dailyPct.toFixed(2)}%`}
+          >
+            {annPct.toFixed(0)}%
+          </span>
+        );
+      }
+      return r.daily_vol_pct != null ? `${r.daily_vol_pct.toFixed(1)}%` : "—";
+    },
+    sortKey: (r) => r.annualized_vol ?? r.daily_vol_pct ?? 0,
     align: "right",
   },
   {
