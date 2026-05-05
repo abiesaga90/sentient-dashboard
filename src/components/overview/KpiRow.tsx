@@ -256,7 +256,10 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
             <CardTitle>Spread Sharpe</CardTitle>
             {(() => {
               const vol = risk.spread_vol.annual_spread_vol_pct;
-              const dailyMean = (portfolio.ls_spread as any)?.spread_24h_pct ?? 0;
+              const period30 = (portfolio.ls_spread as any)?.periods?.["30d"];
+              const cum30Pct = period30?.spread_pct ?? null;
+              const days30 = period30?.days ?? 30;
+              const dailyMean = cum30Pct != null && days30 > 0 ? cum30Pct / days30 : 0;
               const sharpe = vol && vol > 0 ? (dailyMean * 365 / vol) : 0;
               return (
                 <>
