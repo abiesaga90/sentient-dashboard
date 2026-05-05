@@ -225,8 +225,79 @@ export function PositionsTab() {
       ? positions
       : positions.filter((p) => p.side === sideFilter);
 
+  // Unrealized P&L aggregates across all open positions
+  const longPositions = positions.filter((p) => p.side === "LONG");
+  const shortPositions = positions.filter((p) => p.side === "SHORT");
+  const sumPnl = (arr: Position[]) => arr.reduce((a, p) => a + (p.pnl_usd ?? 0), 0);
+  const sumNotional = (arr: Position[]) => arr.reduce((a, p) => a + (p.notional ?? 0), 0);
+  const totalPnl = sumPnl(positions);
+  const longPnl = sumPnl(longPositions);
+  const shortPnl = sumPnl(shortPositions);
+  const totalNotional = sumNotional(positions);
+  const longNotional = sumNotional(longPositions);
+  const shortNotional = sumNotional(shortPositions);
+  const totalPnlPct = totalNotional > 0 ? (totalPnl / totalNotional) * 100 : 0;
+  const longPnlPct = longNotional > 0 ? (longPnl / longNotional) * 100 : 0;
+  const shortPnlPct = shortNotional > 0 ? (shortPnl / shortNotional) * 100 : 0;
+  const winners = positions.filter((p) => (p.pnl_usd ?? 0) > 0).length;
+  const losers = positions.filter((p) => (p.pnl_usd ?? 0) < 0).length;
+  const tone = (v: number) =>
+    Math.abs(v) < 0.01 ? "text-gray-300" : v > 0 ? "text-green-400" : "text-red-400";
+
   return (
     <div className="p-4 space-y-4">
+      {/* Unrealized P&L Summary */}
+      {positions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Unrealized P&L (open positions)</CardTitle>
+          </CardHeader>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Total Unrealized</div>
+              <div className={`text-lg font-mono font-semibold ${tone(totalPnl)}`}>
+                {totalPnl >= 0 ? "+" : ""}${totalPnl.toFixed(2)}
+              </div>
+              <div className={`text-[10px] mt-0.5 ${tone(totalPnlPct)}`}>
+                {totalPnlPct >= 0 ? "+" : ""}{totalPnlPct.toFixed(2)}% on ${totalNotional.toFixed(0)} gross
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Longs ({longPositions.length})</div>
+              <div className={`text-lg font-mono font-semibold ${tone(longPnl)}`}>
+                {longPnl >= 0 ? "+" : ""}${longPnl.toFixed(2)}
+              </div>
+              <div className={`text-[10px] mt-0.5 ${tone(longPnlPct)}`}>
+                {longPnlPct >= 0 ? "+" : ""}{longPnlPct.toFixed(2)}% on ${longNotional.toFixed(0)}
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Shorts ({shortPositions.length})</div>
+              <div className={`text-lg font-mono font-semibold ${tone(shortPnl)}`}>
+                {shortPnl >= 0 ? "+" : ""}${shortPnl.toFixed(2)}
+              </div>
+              <div className={`text-[10px] mt-0.5 ${tone(shortPnlPct)}`}>
+                {shortPnlPct >= 0 ? "+" : ""}{shortPnlPct.toFixed(2)}% on ${shortNotional.toFixed(0)}
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+              <div className="text-[10px] text-gray-500 uppercase">Winners / Losers</div>
+              <div className="text-lg font-mono font-semibold text-gray-200">
+                <span className="text-green-400">{winners}</span>
+                <span className="text-gray-500"> / </span>
+                <span className="text-red-400">{losers}</span>
+              </div>
+              <div className="text-[10px] text-gray-600 mt-0.5">
+                {positions.length > 0 ? `${((winners / positions.length) * 100).toFixed(0)}% green` : "—"}
+              </div>
+            </div>
+          </div>
+          <div className="mt-2 text-[10px] text-gray-600">
+            Mark-to-market on open positions only. Realized P&L (closed trades) is shown on the Performance tab.
+          </div>
+        </Card>
+      )}
+
       {/* Beta Hedging Summary */}
       {beta && (
         <Card>
