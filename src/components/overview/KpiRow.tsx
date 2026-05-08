@@ -107,7 +107,7 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
                   ? "bg-blue-500/20 border-blue-500/50 text-blue-400"
                   : "bg-gray-800 border-gray-700 text-gray-600 hover:text-gray-400"
               }`}
-              title={exposureLevered ? "Showing % of NAV (levered)" : `Showing % of notional (÷${leverage.toFixed(1)}x)`}
+              title={exposureLevered ? `Levered: % of notional capital, actual deployed (${leverage.toFixed(2)}x)` : `Deleveraged: normalized to 1.0x gross (÷${leverage.toFixed(2)}x)`}
             >
               {exposureLevered ? "Levered" : `÷${leverage.toFixed(1)}x`}
             </button>
