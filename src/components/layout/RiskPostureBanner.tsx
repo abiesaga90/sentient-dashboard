@@ -109,7 +109,7 @@ export function RiskPostureBanner() {
       <Divider />
 
       <Metric
-        label="Vol budget"
+        label={`Vol budget${data.vol_budget_source === "mc" ? " (MC)" : data.vol_budget_source === "closed_form" ? " (CF)" : ""}`}
         value={data.vol_budget_ratio != null
           ? `${data.vol_budget_ratio.toFixed(2)}×`
           : "—"}
@@ -121,7 +121,7 @@ export function RiskPostureBanner() {
       />
 
       <div className="ml-auto text-[10px] text-gray-600">
-        Vol budget = realized / target (5% P(stop)/yr at current gross) · refreshed 60s
+        Vol budget = realized / target (5% P(stop)/yr at current gross{data.vol_budget_source === "mc" ? ", MC w/ drift + elastic trim" : data.vol_budget_source === "closed_form" ? ", closed-form fallback" : ""}) · refreshed 60s
       </div>
     </div>
   );
