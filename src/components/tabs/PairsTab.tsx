@@ -239,17 +239,17 @@ const sectorColumns: Column<SectorRow>[] = [
     align: "right" as const,
   },
   {
-    key: "total_pnl_today",
-    header: "Day P&L",
+    key: "unrealized_pnl",
+    header: "Net Unrl P&L",
     render: (r) => {
-      const v = r.total_pnl_today ?? 0;
+      const v = r.unrealized_pnl ?? ((r.unrealized_long ?? 0) + (r.unrealized_short ?? 0));
       return (
         <span className={`font-mono font-semibold ${v >= 0 ? "text-green-400" : "text-red-400"}`}>
           {v >= 0 ? "+" : ""}${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}
         </span>
       );
     },
-    sortKey: (r) => r.total_pnl_today ?? 0,
+    sortKey: (r) => r.unrealized_pnl ?? ((r.unrealized_long ?? 0) + (r.unrealized_short ?? 0)),
     align: "right",
   },
   {
