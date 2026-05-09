@@ -474,7 +474,7 @@ export function PairsTab() {
             <DataTable
               columns={sectorColumns}
               data={sectorData.sectors}
-              defaultSort="net_pct_of_gross"
+              defaultSort="unrealized_pnl"
               defaultDir="desc"
               maxHeight="400px"
             />
