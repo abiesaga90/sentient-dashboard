@@ -8,7 +8,6 @@ import { OverviewTab } from "../components/tabs/OverviewTab";
 import { PositionsTab } from "../components/tabs/PositionsTab";
 import { ShortSelectionTab } from "../components/tabs/ShortSelectionTab";
 import { NextRebalanceTab } from "../components/tabs/NextRebalanceTab";
-import { PumpExhaustionTab } from "../components/tabs/PumpExhaustionTab";
 import { ExecutionTab } from "../components/tabs/ExecutionTab";
 import { LongSignalsTab } from "../components/tabs/LongSignalsTab";
 import { LongSelectionTab } from "../components/tabs/LongSelectionTab";
@@ -134,8 +133,6 @@ function TabContent({
       return <ExecutionTab />;
     case "scaling":
       return <ScalingCapacityTab />;
-    case "pump-exhaustion":
-      return <PumpExhaustionTab />;
     default:
       return (
         <div className="p-4">

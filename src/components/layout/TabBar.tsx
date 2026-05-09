@@ -43,7 +43,6 @@ export const DASHBOARD_TABS = [
   { id: "market-context", label: "Market Context", icon: <Globe size={14} /> },
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
   { id: "scaling", label: "Scaling & Capacity", icon: <Scale size={14} /> },
-  { id: "pump-exhaustion", label: "Pump Scanner", icon: <Zap size={14} /> },
   { id: "next-rebalance", label: "Rotation", icon: <Clock size={14} /> },
 ] as const;
 

@@ -48,6 +48,8 @@ interface SectorRow {
   short_concentration_pct?: number;
   unrealized_long?: number;
   unrealized_short?: number;
+  long_symbols?: string[];
+  short_symbols?: string[];
 }
 
 interface SectorHistoryRow {
@@ -118,7 +120,33 @@ const sectorColumns: Column<SectorRow>[] = [
   {
     key: "sector",
     header: "Sector",
-    render: (r) => <span className="font-medium text-gray-100 capitalize">{r.sector.replace(/_/g, " ")}</span>,
+    render: (r) => (
+      <div className="flex flex-col gap-1 min-w-[220px]">
+        <span className="font-medium text-gray-100 capitalize">{r.sector.replace(/_/g, " ")}</span>
+        {(r.long_symbols && r.long_symbols.length > 0) || (r.short_symbols && r.short_symbols.length > 0) ? (
+          <div className="flex flex-wrap gap-1 max-w-[420px]">
+            {(r.long_symbols ?? []).map((sym) => (
+              <span
+                key={`L-${sym}`}
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-300 border border-green-500/20"
+                title={`Long ${sym}`}
+              >
+                L {sym}
+              </span>
+            ))}
+            {(r.short_symbols ?? []).map((sym) => (
+              <span
+                key={`S-${sym}`}
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-300 border border-red-500/20"
+                title={`Short ${sym}`}
+              >
+                S {sym}
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    ),
     sortKey: (r) => r.sector,
   },
   {
