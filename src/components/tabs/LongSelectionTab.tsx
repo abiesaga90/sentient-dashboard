@@ -106,6 +106,32 @@ interface LongSignalsResponse {
   };
 }
 
+interface WatchlistEntry {
+  symbol: string;
+  thesis: string;
+  sector: string;
+  fundamental_score: number | null;
+  fdv: number | null;
+  market_cap: number | null;
+  float_pct: number | null;
+  volume_24h_usd: number | null;
+  tvl: number | null;
+  revenue_30d: number | null;
+  fees_30d: number | null;
+  last_updated: string | null;
+  selected: boolean;
+  in_short_basket: boolean;
+}
+
+interface WatchlistResponse {
+  conviction_shorts: WatchlistEntry[];
+  long_research: WatchlistEntry[];
+  watchlist: WatchlistEntry[];
+  conviction_count: number;
+  research_count: number;
+  count: number;
+}
+
 interface AccrualResponse {
   tokens: AccrualToken[];
   summary: {
@@ -238,6 +264,14 @@ export function LongSelectionTab() {
   const { data: fundamentals } = useQuery<any[]>({
     queryKey: ["fundamentals-all", engine.id],
     queryFn: () => client.get("/api/fundamentals"),
+    refetchInterval: 300_000,
+    staleTime: 120_000,
+  });
+
+  // Long research watchlist (curated tokens tracked for potential basket inclusion)
+  const { data: watchlist } = useQuery<WatchlistResponse>({
+    queryKey: ["watchlist", engine.id],
+    queryFn: () => client.get("/api/watchlist"),
     refetchInterval: 300_000,
     staleTime: 120_000,
   });
@@ -792,6 +826,77 @@ export function LongSelectionTab() {
           </div>
         )}
       </Card>
+
+      {/* ─── SECTION 4: Long Research Watchlist ─── */}
+      {watchlist && watchlist.long_research && watchlist.long_research.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>4. Long Research Watchlist ({watchlist.long_research.length})</CardTitle>
+              <span className="text-[10px] text-gray-500">curated candidates tracked for potential basket inclusion</span>
+            </div>
+          </CardHeader>
+          <div className="px-4 pb-4">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-gray-500 border-b border-gray-800">
+                    <th className="text-left py-1.5 pl-2">Token</th>
+                    <th className="text-left py-1.5">Sector</th>
+                    <th className="text-right py-1.5">MCap</th>
+                    <th className="text-right py-1.5">FDV</th>
+                    <th className="text-right py-1.5">MC/FDV</th>
+                    <th className="text-right py-1.5">24h Vol</th>
+                    <th className="text-right py-1.5">Fees 30d</th>
+                    <th className="text-right py-1.5">Holder Rev 30d</th>
+                    <th className="text-left py-1.5 pl-3">Thesis</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {watchlist.long_research.map((w) => {
+                    const ratio = w.market_cap && w.fdv ? w.market_cap / w.fdv : null;
+                    const ratioColor =
+                      ratio == null ? "text-gray-600" :
+                      ratio >= 0.5 ? "text-green-400" :
+                      ratio >= 0.3 ? "text-yellow-400" : "text-red-400";
+                    return (
+                      <tr key={w.symbol} className="border-b border-gray-900 hover:bg-gray-900/30">
+                        <td className="py-1.5 pl-2 font-medium text-gray-200">
+                          {w.symbol.replace("USDT", "")}
+                        </td>
+                        <td className="py-1.5 text-gray-400 capitalize">
+                          {w.sector === "long_research" ? "—" : w.sector.replace(/_/g, " ")}
+                        </td>
+                        <td className="py-1.5 text-right text-gray-300 font-mono">
+                          {fmt(w.market_cap)}
+                        </td>
+                        <td className="py-1.5 text-right text-gray-300 font-mono">
+                          {fmt(w.fdv)}
+                        </td>
+                        <td className={`py-1.5 text-right font-mono ${ratioColor}`}>
+                          {ratio != null ? ratio.toFixed(2) : "—"}
+                        </td>
+                        <td className="py-1.5 text-right text-gray-400 font-mono">
+                          {fmt(w.volume_24h_usd)}
+                        </td>
+                        <td className="py-1.5 text-right text-gray-400 font-mono">
+                          {fmt(w.fees_30d)}
+                        </td>
+                        <td className="py-1.5 text-right text-gray-400 font-mono">
+                          {fmt(w.revenue_30d)}
+                        </td>
+                        <td className="py-1.5 pl-3 text-gray-500 text-[11px] max-w-[420px]">
+                          {w.thesis}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Scoring Architecture */}
       <Card>
