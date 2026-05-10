@@ -217,6 +217,7 @@ export function PositionsTab() {
     gross_long: number;
     gross_short: number;
     target_beta_tilt_pct?: number;
+    nav?: number;
   }>({
     queryKey: ["risk", engine.id],
     queryFn: () => client.get("/api/risk"),
@@ -320,6 +321,8 @@ export function PositionsTab() {
           ? (grossUsd / risk.gross_pct) * 100
           : 100_000;
         const leverageX = grossUsd / notionalCapital;
+        const navUsd = risk?.nav && risk.nav > 0 ? risk.nav : null;
+        const actualLeverageX = navUsd ? grossUsd / navUsd : null;
         const netNotionalUsd = longNotional - shortNotional;
         // Prefer authoritative risk values; fall back to local compute if /api/risk unavailable
         const grossPct = risk?.gross_pct ?? (grossUsd / notionalCapital) * 100;
@@ -331,7 +334,10 @@ export function PositionsTab() {
             <CardHeader>
               <CardTitle>Exposure & Beta Hedging</CardTitle>
               <div className="text-[10px] text-gray-500 mt-0.5">
-                Levered (% of notional ${(notionalCapital / 1000).toFixed(0)}k) — leverage {leverageX.toFixed(2)}x
+                Levered (% of notional ${(notionalCapital / 1000).toFixed(0)}k) — gross/notional {leverageX.toFixed(2)}x
+                {actualLeverageX != null && navUsd != null && (
+                  <> · gross/NAV (actual leverage on equity) {actualLeverageX.toFixed(2)}x · NAV ${(navUsd / 1000).toFixed(1)}k</>
+                )}
               </div>
             </CardHeader>
 
@@ -364,8 +370,18 @@ export function PositionsTab() {
                 </div>
               </div>
               <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Leverage</div>
+                <div className="text-[10px] text-gray-500 uppercase">Lev (Notional)</div>
                 <div className="text-lg font-mono font-semibold text-gray-200">{leverageX.toFixed(2)}x</div>
+                <div className="text-[9px] text-gray-600 mt-0.5">gross / ${(notionalCapital / 1000).toFixed(0)}k</div>
+              </div>
+              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+                <div className="text-[10px] text-gray-500 uppercase">Lev (Actual)</div>
+                <div className={`text-lg font-mono font-semibold ${actualLeverageX != null && actualLeverageX > 2 ? "text-yellow-400" : "text-gray-200"}`}>
+                  {actualLeverageX != null ? `${actualLeverageX.toFixed(2)}x` : "—"}
+                </div>
+                <div className="text-[9px] text-gray-600 mt-0.5">
+                  {navUsd != null ? `gross / NAV $${(navUsd / 1000).toFixed(1)}k` : "NAV unavailable"}
+                </div>
               </div>
             </div>
 
