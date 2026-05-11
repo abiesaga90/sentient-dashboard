@@ -1351,7 +1351,28 @@ export function RiskStressTab() {
           label: string;
         };
         const og = (risk as any).dd_overgear as
-          | { enabled?: boolean; breakpoint_pct?: number; max_scale?: number; max_gross_ratio?: number | null }
+          | {
+              enabled?: boolean;
+              breakpoint_pct?: number;
+              max_scale?: number;
+              max_gross_ratio?: number | null;
+              sortino_gate_enabled?: boolean;
+              sortino_gate_threshold?: number;
+              sortino_4w?: number | null;
+              unlocked?: boolean | null;
+            }
+          | undefined;
+        const ramp = (risk as any).scale_ramp_limit as
+          | { enabled?: boolean; max_increase_per_day_pct?: number }
+          | undefined;
+        const vb = (risk as any).vol_budget_cap as
+          | {
+              enabled?: boolean;
+              ratio?: number | null;
+              floor_ratio?: number;
+              realized_vol?: number | null;
+              target_vol?: number | null;
+            }
           | undefined;
         // Fallback schedule (legacy curve) if backend hasn't shipped dd_trim_schedule yet
         const fallback: ScheduleRow[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 9.5].map((dd) => ({
@@ -1432,6 +1453,63 @@ export function RiskStressTab() {
                   <span className="text-emerald-400">
                     Overgear ON · 0% DD → {(og?.max_scale ?? 2.0).toFixed(1)}× ({((og?.max_scale ?? 2.0) * 100).toFixed(0)}% gross)
                   </span>
+                )}
+              </div>
+
+              {/* ── Risk-budget overlays (Sortino gate · ramp limit · vol budget) ── */}
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2 text-[10px]">
+                {/* Sortino confidence gate */}
+                {og?.sortino_gate_enabled && (
+                  <div className={`rounded p-2 border ${
+                    og.unlocked === true ? "border-emerald-700 bg-emerald-900/20" :
+                    og.unlocked === false ? "border-amber-700 bg-amber-900/20" :
+                    "border-gray-700 bg-gray-800/30"
+                  }`}>
+                    <div className="text-gray-400 mb-0.5">Sortino gate</div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={
+                        og.unlocked === true ? "text-emerald-300" :
+                        og.unlocked === false ? "text-amber-300" : "text-gray-500"
+                      }>
+                        {og.unlocked === true ? "Unlocked"
+                          : og.unlocked === false ? "Locked"
+                          : "—"}
+                      </span>
+                      <span className="text-gray-500">
+                        {og.sortino_4w != null ? og.sortino_4w.toFixed(2) : "—"} / {(og.sortino_gate_threshold ?? 1.0).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="text-gray-600 mt-0.5">Blocks scale &gt; 1.0 until 4w Sortino confirms</div>
+                  </div>
+                )}
+
+                {/* Scale ramp limit */}
+                {ramp?.enabled && (
+                  <div className="rounded p-2 border border-gray-700 bg-gray-800/30">
+                    <div className="text-gray-400 mb-0.5">Scale-up rate limit</div>
+                    <div className="text-gray-200">≤ {(ramp.max_increase_per_day_pct ?? 0).toFixed(0)} pp gross / day</div>
+                    <div className="text-gray-600 mt-0.5">Trim instant · scale-up prorated</div>
+                  </div>
+                )}
+
+                {/* Vol budget cap */}
+                {vb?.enabled && (
+                  <div className={`rounded p-2 border ${
+                    vb.ratio != null && vb.ratio < 1.0 ? "border-amber-700 bg-amber-900/20" : "border-gray-700 bg-gray-800/30"
+                  }`}>
+                    <div className="text-gray-400 mb-0.5">Vol budget cap</div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={vb.ratio != null && vb.ratio < 1.0 ? "text-amber-300" : "text-gray-200"}>
+                        {vb.ratio != null ? `×${vb.ratio.toFixed(2)}` : "—"}
+                      </span>
+                      <span className="text-gray-500">
+                        {vb.realized_vol != null && vb.target_vol != null
+                          ? `${(vb.realized_vol * 100).toFixed(2)}% / ${(vb.target_vol * 100).toFixed(2)}%`
+                          : ""}
+                      </span>
+                    </div>
+                    <div className="text-gray-600 mt-0.5">Downward-only · floor ×{(vb.floor_ratio ?? 0.5).toFixed(2)}</div>
+                  </div>
                 )}
               </div>
             </div>
