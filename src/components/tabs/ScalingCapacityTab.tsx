@@ -14,6 +14,8 @@ import {
   CartesianGrid,
   Tooltip,
   ReferenceLine,
+  ComposedChart,
+  Area,
 } from "recharts";
 
 // ── Types ──────────────────────────────────────────────────────
@@ -21,6 +23,48 @@ import {
 interface SortinoPoint {
   date: string;
   value: number;
+}
+
+interface SortinoProjectionPoint {
+  day: number;
+  date: string | null;
+  p05: number;
+  p25: number;
+  p50: number;
+  p75: number;
+  p95: number;
+  p_above_gate: number;
+}
+
+interface SortinoCrossPoint {
+  days_ahead: number;
+  date: string | null;
+  median_sortino: number;
+  p_above_gate: number;
+}
+
+interface SortinoProjection {
+  available: boolean;
+  reason?: string;
+  window_days?: number;
+  horizon_days?: number;
+  lookback_days?: number | null;
+  n_sims?: number;
+  gate?: number;
+  current_sortino?: number;
+  sample_daily_mean?: number;
+  sample_daily_std?: number;
+  sample_annualized_return_pct?: number;
+  sample_annualized_vol_pct?: number;
+  scenario_mode?: boolean;
+  median_cross?: SortinoCrossPoint | null;
+  p25_cross?: SortinoCrossPoint | null;
+  p50_cross?: SortinoCrossPoint | null;
+  p75_cross?: SortinoCrossPoint | null;
+  breakeven_daily_return?: number | null;
+  breakeven_daily_return_pct?: number | null;
+  breakeven_annualized_pct?: number | null;
+  projection?: SortinoProjectionPoint[];
 }
 
 interface TokenCapacity {
@@ -72,6 +116,7 @@ interface ScalingResponse {
     sortino_4w: number | null;
     sortino_gate_ok: boolean;
     sortino_trend: SortinoPoint[];
+    sortino_projection?: SortinoProjection;
     ptt_dd_pct: number;
     dd_gate_ok: boolean;
     avg_slippage_bps: number;
@@ -124,6 +169,231 @@ function advPctColor(pct: number | null | undefined): string {
   if (pct > 2) return "text-red-400";
   if (pct > 1) return "text-yellow-400";
   return "text-gray-300";
+}
+
+function fmtCross(c: SortinoCrossPoint | null | undefined): {
+  primary: string;
+  sub: string;
+} {
+  if (!c) return { primary: "Not within horizon", sub: "" };
+  return {
+    primary: `${c.days_ahead}d`,
+    sub: `${c.date ?? "--"} · median ${c.median_sortino.toFixed(2)} · P ${(c.p_above_gate * 100).toFixed(0)}%`,
+  };
+}
+
+// Recharts Area with two dataKeys can't render a "band" directly — feed
+// per-point [lower, upper] tuples and render with type="step"/"monotone".
+function buildBandSeries(proj: SortinoProjectionPoint[]) {
+  return proj.map((p) => ({
+    day: p.day,
+    date: p.date,
+    p05: p.p05,
+    p25: p.p25,
+    p50: p.p50,
+    p75: p.p75,
+    p95: p.p95,
+    p_above_gate: p.p_above_gate,
+    band90: [p.p05, p.p95] as [number, number],
+    band50: [p.p25, p.p75] as [number, number],
+    p_above_pct: p.p_above_gate * 100,
+  }));
+}
+
+// ── Sortino Projection Panel ──────────────────────────────────
+
+function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
+  const points = proj.projection ?? [];
+  if (points.length === 0) return null;
+  const data = buildBandSeries(points);
+  const gate = proj.gate ?? 1.5;
+  const medianCross = fmtCross(proj.median_cross);
+  const pCross = fmtCross(proj.p50_cross);
+  const breakevenDaily = proj.breakeven_daily_return_pct;
+  const breakevenAnn = proj.breakeven_annualized_pct;
+  const sampleRet = proj.sample_annualized_return_pct;
+  const sampleVol = proj.sample_annualized_vol_pct;
+
+  // Use the date axis if available, otherwise day index
+  const xKey = data[0]?.date ? "date" : "day";
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          Forward Sortino Projection
+        </h3>
+        <span className="text-[10px] text-gray-500">
+          Bootstrap last {proj.lookback_days ?? "?"}d · {proj.n_sims ?? "?"} sims
+          {sampleRet != null && sampleVol != null
+            ? ` · sample ${sampleRet >= 0 ? "+" : ""}${sampleRet.toFixed(1)}% / ${sampleVol.toFixed(1)}% vol (ann.)`
+            : ""}
+        </span>
+      </div>
+
+      {/* Headline tiles */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <KpiCard
+          label="Median crosses 1.5"
+          value={medianCross.primary}
+          valueColor={proj.median_cross ? "text-green-400" : "text-gray-500"}
+          sub={medianCross.sub || " "}
+        />
+        <KpiCard
+          label="P(≥1.5) ≥ 50% at"
+          value={pCross.primary}
+          valueColor={proj.p50_cross ? "text-green-400" : "text-gray-500"}
+          sub={pCross.sub || " "}
+        />
+        <KpiCard
+          label="Break-even daily return"
+          value={
+            breakevenDaily != null
+              ? `${breakevenDaily >= 0 ? "+" : ""}${breakevenDaily.toFixed(3)}%`
+              : "--"
+          }
+          valueColor="text-blue-400"
+          sub={
+            breakevenAnn != null
+              ? `≈ ${breakevenAnn >= 0 ? "+" : ""}${breakevenAnn.toFixed(1)}% annualized`
+              : ""
+          }
+        />
+      </div>
+
+      {/* Fan chart: p05-p95 outer, p25-p75 inner, p50 line, gate */}
+      <ChartContainer title="Projected 28-Day Sortino (forward)" height={260}>
+        <ComposedChart data={data}>
+          <defs>
+            <linearGradient id="band90grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.15} />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.05} />
+            </linearGradient>
+            <linearGradient id="band50grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.15} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+          <XAxis
+            dataKey={xKey}
+            tick={{ fill: "#64748b", fontSize: 10 }}
+            tickFormatter={(v) =>
+              typeof v === "string" && v.length >= 10 ? v.slice(5) : String(v)
+            }
+            minTickGap={32}
+          />
+          <YAxis
+            tick={{ fill: "#64748b", fontSize: 10 }}
+            domain={["auto", "auto"]}
+          />
+          <Tooltip
+            contentStyle={{
+              background: "#111118",
+              border: "1px solid #1e1e2e",
+              borderRadius: 6,
+              fontSize: 12,
+            }}
+            formatter={(v: unknown, name: unknown) => {
+              if (Array.isArray(v))
+                return [
+                  `${Number(v[0]).toFixed(2)} — ${Number(v[1]).toFixed(2)}`,
+                  String(name),
+                ];
+              return [Number(v).toFixed(2), String(name)];
+            }}
+            labelFormatter={(l) => `Forward: ${l}`}
+          />
+          <ReferenceLine
+            y={gate}
+            stroke="#ef4444"
+            strokeDasharray="6 3"
+            label={{
+              value: `${gate} Gate`,
+              fill: "#ef4444",
+              fontSize: 10,
+              position: "right",
+            }}
+          />
+          <Area
+            type="monotone"
+            dataKey="band90"
+            name="p05–p95"
+            stroke="none"
+            fill="url(#band90grad)"
+            isAnimationActive={false}
+          />
+          <Area
+            type="monotone"
+            dataKey="band50"
+            name="p25–p75"
+            stroke="none"
+            fill="url(#band50grad)"
+            isAnimationActive={false}
+          />
+          <Line
+            type="monotone"
+            dataKey="p50"
+            name="median"
+            stroke="#60a5fa"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+          />
+        </ComposedChart>
+      </ChartContainer>
+
+      {/* P(>= gate) curve */}
+      <ChartContainer title="P(Sortino ≥ 1.5) over horizon" height={160}>
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+          <XAxis
+            dataKey={xKey}
+            tick={{ fill: "#64748b", fontSize: 10 }}
+            tickFormatter={(v) =>
+              typeof v === "string" && v.length >= 10 ? v.slice(5) : String(v)
+            }
+            minTickGap={32}
+          />
+          <YAxis
+            tick={{ fill: "#64748b", fontSize: 10 }}
+            domain={[0, 100]}
+            tickFormatter={(v) => `${v}%`}
+          />
+          <Tooltip
+            contentStyle={{
+              background: "#111118",
+              border: "1px solid #1e1e2e",
+              borderRadius: 6,
+              fontSize: 12,
+            }}
+            formatter={(v: unknown) => [`${Number(v).toFixed(0)}%`, "P(≥1.5)"]}
+            labelFormatter={(l) => `Forward: ${l}`}
+          />
+          <ReferenceLine y={50} stroke="#a3a3a3" strokeDasharray="4 4" />
+          <ReferenceLine y={25} stroke="#525252" strokeDasharray="2 4" />
+          <ReferenceLine y={75} stroke="#525252" strokeDasharray="2 4" />
+          <Line
+            type="monotone"
+            dataKey="p_above_pct"
+            stroke="#22c55e"
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ChartContainer>
+
+      <p className="text-[10px] text-gray-500 leading-snug">
+        Bootstrap simulation of forward daily returns from the last{" "}
+        {proj.lookback_days ?? "?"} days. Each forward day adds one simulated
+        return and rolls one historical day out of the 28-day window, so early
+        crossings may reflect a bad day aging out rather than fresh upside.
+        Break-even is the average daily return needed for the rolling window to
+        clear the gate at current downside vol.
+      </p>
+    </div>
+  );
 }
 
 // ── Component ──────────────────────────────────────────────────
@@ -297,6 +567,11 @@ export function ScalingCapacityTab() {
               />
             </LineChart>
           </ChartContainer>
+        )}
+
+        {/* ── Forward Sortino Projection ── */}
+        {st.sortino_projection?.available && st.sortino_projection.projection && (
+          <SortinoProjectionPanel proj={st.sortino_projection} />
         )}
 
         {/* Infrastructure Gate KPIs */}
