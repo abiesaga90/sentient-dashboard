@@ -57,6 +57,14 @@ interface SortinoProjection {
   sample_annualized_return_pct?: number;
   sample_annualized_vol_pct?: number;
   scenario_mode?: boolean;
+  prior?: string;
+  prior_meta?: {
+    n_days?: number;
+    start_date?: string | null;
+    end_date?: string | null;
+    ann_return_pct?: number;
+    ann_vol_pct?: number;
+  };
   median_cross?: SortinoCrossPoint | null;
   p25_cross?: SortinoCrossPoint | null;
   p50_cross?: SortinoCrossPoint | null;
@@ -219,15 +227,42 @@ function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
           Forward Sortino Projection
         </h3>
-        <span className="text-[10px] text-gray-500">
-          Bootstrap last {proj.lookback_days ?? "?"}d · {proj.n_sims ?? "?"} sims
-          {sampleRet != null && sampleVol != null
-            ? ` · sample ${sampleRet >= 0 ? "+" : ""}${sampleRet.toFixed(1)}% / ${sampleVol.toFixed(1)}% vol (ann.)`
-            : ""}
+        <span className="text-[10px] text-gray-500 text-right">
+          {(() => {
+            const prior = (proj.prior ?? "live").toLowerCase();
+            const pm = proj.prior_meta ?? {};
+            if (prior === "backtest" && pm.start_date && pm.end_date) {
+              return (
+                <>
+                  Prior: backtest {pm.start_date} → {pm.end_date} ({pm.n_days}d)
+                  {pm.ann_return_pct != null && pm.ann_vol_pct != null
+                    ? ` · ann ${pm.ann_return_pct >= 0 ? "+" : ""}${pm.ann_return_pct.toFixed(1)}% / ${pm.ann_vol_pct.toFixed(1)}% vol`
+                    : ""}
+                  {` · ${proj.n_sims ?? "?"} sims`}
+                </>
+              );
+            }
+            if (prior === "scenario") {
+              return (
+                <>
+                  Prior: scenario · sample {sampleRet != null ? `${sampleRet >= 0 ? "+" : ""}${sampleRet.toFixed(1)}% / ${sampleVol?.toFixed(1)}% vol` : ""}
+                  {` · ${proj.n_sims ?? "?"} sims`}
+                </>
+              );
+            }
+            return (
+              <>
+                Prior: live last {proj.lookback_days ?? "?"}d · {proj.n_sims ?? "?"} sims
+                {sampleRet != null && sampleVol != null
+                  ? ` · sample ${sampleRet >= 0 ? "+" : ""}${sampleRet.toFixed(1)}% / ${sampleVol.toFixed(1)}% vol`
+                  : ""}
+              </>
+            );
+          })()}
         </span>
       </div>
 
@@ -385,12 +420,39 @@ function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
       </ChartContainer>
 
       <p className="text-[10px] text-gray-500 leading-snug">
-        Bootstrap simulation of forward daily returns from the last{" "}
-        {proj.lookback_days ?? "?"} days. Each forward day adds one simulated
-        return and rolls one historical day out of the 28-day window, so early
-        crossings may reflect a bad day aging out rather than fresh upside.
-        Break-even is the average daily return needed for the rolling window to
-        clear the gate at current downside vol.
+        {(() => {
+          const prior = (proj.prior ?? "live").toLowerCase();
+          if (prior === "backtest") {
+            const pm = proj.prior_meta ?? {};
+            return (
+              <>
+                Forward daily returns are bootstrapped from the strategy backtest
+                ({pm.start_date ?? "?"} → {pm.end_date ?? "?"},{" "}
+                {pm.n_days ?? "?"} days, ann{" "}
+                {pm.ann_return_pct != null
+                  ? `${pm.ann_return_pct >= 0 ? "+" : ""}${pm.ann_return_pct.toFixed(1)}%`
+                  : "?"}{" "}
+                / {pm.ann_vol_pct?.toFixed(1) ?? "?"}% vol) — the long-run thesis
+                distribution, not the recent live drawdown. The 28-day window
+                still starts from current live returns, so existing drawdown
+                tarnishes early days until it ages out. Break-even is the
+                average daily return needed for the rolling window to clear the
+                gate at current downside vol.
+              </>
+            );
+          }
+          return (
+            <>
+              Bootstrap of forward daily returns from the last{" "}
+              {proj.lookback_days ?? "?"} days of live NAV. Each forward day
+              adds one simulated return and rolls one historical day out of the
+              28-day window, so early crossings may reflect a bad day aging out
+              rather than fresh upside. Break-even is the average daily return
+              needed for the rolling window to clear the gate at current
+              downside vol.
+            </>
+          );
+        })()}
       </p>
     </div>
   );
