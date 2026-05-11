@@ -7,6 +7,7 @@ import { PnlText } from "../shared/PnlText";
 import { Badge } from "../ui/Badge";
 import { formatUSD } from "../../lib/utils";
 import type { Position, BetaAggregate } from "../../types/api";
+import { BasketPnlChart, type BasketPnlPoint } from "../positions/BasketPnlChart";
 
 type SideFilter = "all" | "LONG" | "SHORT";
 
@@ -225,6 +226,13 @@ export function PositionsTab() {
     staleTime: 15_000,
   });
 
+  const { data: pnlHistory } = useQuery<{ series: BasketPnlPoint[]; count: number; days: number }>({
+    queryKey: ["basket-pnl-history", engine.id],
+    queryFn: () => client.get("/api/basket-pnl/history", { days: 90 }),
+    refetchInterval: 5 * 60_000,
+    staleTime: 60_000,
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
@@ -309,6 +317,16 @@ export function PositionsTab() {
           </div>
           <div className="mt-2 text-[10px] text-gray-600">
             Mark-to-market on open positions only. Realized P&L (closed trades) is shown on the Performance tab.
+          </div>
+        </Card>
+      )}
+
+      {/* Long vs Short unrealized P&L over time */}
+      {pnlHistory && pnlHistory.series.length > 1 && (
+        <Card>
+          <BasketPnlChart series={pnlHistory.series} />
+          <div className="mt-2 text-[10px] text-gray-600">
+            Daily snapshots, last {pnlHistory.days}d. Green = longs unrealized P&L, red = shorts unrealized P&L (signed, losses negative). Blue dashed = spread (L + S). Spread widening (blue rising) = longs outperforming shorts; spread narrowing/falling = shorts outperforming longs.
           </div>
         </Card>
       )}
