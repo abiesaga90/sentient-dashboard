@@ -29,24 +29,39 @@ interface EquityResponse {
   now?: string;
 }
 
-// Granularity + lookback per period. Short windows get tick-level (60s)
-// from risk_history; longer windows down-sample to keep payloads small;
-// the legacy daily snapshots cover the longest views.
+// Granularity + lookback per period. Every period goes through the granular
+// endpoint with `auto` bucket selection — backend picks tick/hourly/4h/12h
+// based on `hours`. Live NAV is always tailed.
 function periodFetch(
   period: Period,
-): { granularity: "tick" | "hourly" | "daily"; hours?: number } | null {
+): { granularity: "auto"; hours: number } {
+  const now = new Date();
   switch (period) {
     case "1W":
-      return { granularity: "tick", hours: 24 * 7 };
+      return { granularity: "auto", hours: 24 * 7 };
     case "1M":
-      return { granularity: "hourly", hours: 24 * 30 };
-    case "MTD":
-    case "QTD":
-    case "YTD":
+      return { granularity: "auto", hours: 24 * 30 };
+    case "MTD": {
+      const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+      const h = Math.max(24, Math.ceil((now.getTime() - start.getTime()) / 3_600_000));
+      return { granularity: "auto", hours: h };
+    }
+    case "QTD": {
+      const qStart = Math.floor(now.getUTCMonth() / 3) * 3;
+      const start = new Date(Date.UTC(now.getUTCFullYear(), qStart, 1));
+      const h = Math.max(24, Math.ceil((now.getTime() - start.getTime()) / 3_600_000));
+      return { granularity: "auto", hours: h };
+    }
+    case "YTD": {
+      const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
+      const h = Math.max(24, Math.ceil((now.getTime() - start.getTime()) / 3_600_000));
+      return { granularity: "auto", hours: h };
+    }
     case "ALL":
-      return { granularity: "daily" };
+      // Cover any realistic live-strategy duration; backend caps at retention.
+      return { granularity: "auto", hours: 24 * 365 };
     default:
-      return null;
+      return { granularity: "auto", hours: 24 * 7 };
   }
 }
 
@@ -108,28 +123,23 @@ export function EquityCurve({ data, startingCapital }: EquityCurveProps) {
 
   const fetchSpec = periodFetch(period);
 
-  // For ALL / MTD / QTD / YTD we use the prop data (daily snapshots from the
-  // dashboard-wide query). For 1W and 1M we fetch granular series directly and
-  // poll every 30s so the chart tracks NAV in near real time.
+  // All periods fetch from the granular endpoint with `auto` bucket selection.
+  // Backend picks the right density based on hours. Poll every 30s for live NAV.
   const granularQuery = useQuery<EquityResponse>({
-    queryKey: ["equity", engine.id, fetchSpec?.granularity, fetchSpec?.hours],
+    queryKey: ["equity", engine.id, fetchSpec.granularity, fetchSpec.hours],
     queryFn: () => {
       const params = new URLSearchParams();
-      if (fetchSpec) {
-        params.set("granularity", fetchSpec.granularity);
-        if (fetchSpec.hours) params.set("hours", String(fetchSpec.hours));
-      }
+      params.set("granularity", fetchSpec.granularity);
+      params.set("hours", String(fetchSpec.hours));
       return client.get(`/api/equity?${params.toString()}`);
     },
-    enabled: !!fetchSpec && fetchSpec.granularity !== "daily",
     refetchInterval: 30_000,
     staleTime: 15_000,
   });
 
-  const granularity: "tick" | "hourly" | "daily" =
-    (granularQuery.data?.granularity as "tick" | "hourly" | "daily") ||
-    fetchSpec?.granularity ||
-    "daily";
+  type GranKind = "tick" | "hourly" | "4h" | "12h" | "daily";
+  const granularity: GranKind =
+    (granularQuery.data?.granularity as GranKind) || "tick";
 
   const chartData = useMemo(() => {
     const cutoff = periodCutoff(period, new Date());
@@ -143,7 +153,19 @@ export function EquityCurve({ data, startingCapital }: EquityCurveProps) {
         })
       : series;
 
-    const points = filtered.map((d) => ({ date: d.date, nav: d.nav }));
+    // Outlier defense: drop points whose NAV is >2x the rolling median over
+    // the visible window. Guards against historical data-corruption events
+    // (e.g. 2026-04-22 misfire) that still live in risk_history.
+    let points = filtered.map((d) => ({ date: d.date, nav: d.nav }));
+    if (points.length > 8) {
+      const navs = points.map((p) => p.nav).filter((n) => Number.isFinite(n));
+      const sorted = [...navs].sort((a, b) => a - b);
+      const median = sorted[Math.floor(sorted.length / 2)];
+      if (median > 0) {
+        const cap = median * 2;
+        points = points.filter((p) => p.nav > 0 && p.nav <= cap);
+      }
+    }
 
     if (period === "ALL" && points.length > 0 && points[0].nav !== startingCapital) {
       points.unshift({ date: "Start", nav: startingCapital });
