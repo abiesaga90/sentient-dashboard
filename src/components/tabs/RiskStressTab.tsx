@@ -1341,41 +1341,103 @@ export function RiskStressTab() {
         </div>
       </Card>
 
-      {/* ── DD Trim Schedule ── */}
-      <Card>
-        <CardHeader>
-          <CardTitle>DD Trim Schedule</CardTitle>
-        </CardHeader>
-        <div className="px-4 pb-4">
-          <div className="text-[10px] text-gray-500 mb-2">
-            Formula: scale = (1 - DD / {stopPct}%)^0.5 | Trims every 1pp DD worsening | Source: {(risk as any).dd_source === "nt" ? "Nickel" : "Internal"}
-          </div>
-          <div className="grid grid-cols-10 gap-1 text-[10px]">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 9.5].map((dd) => {
-              const scale = dd >= stopPct ? 0 : Math.pow(1 - dd / stopPct, 0.5);
-              const isActive = Math.abs(ddPct - dd) < 0.5;
-              const isPast = ddPct > dd;
-              return (
-                <div key={dd} className={`text-center rounded py-1 ${
-                  isActive ? "bg-amber-900/50 border border-amber-500" :
-                  isPast ? "bg-gray-800/80" : "bg-gray-800/30"
-                }`}>
-                  <div className="text-gray-400">{dd}%</div>
-                  <div className={`font-medium ${scale === 0 ? "text-red-400" : scale < 0.5 ? "text-amber-400" : "text-gray-200"}`}>
-                    {(scale * 100).toFixed(0)}%
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex gap-4 mt-2 text-[10px] text-gray-500">
-            <span>Current DD: {formatPct(-ddPct)}</span>
-            <span>Scale: {((risk as any).dd_scale ?? 1).toFixed ? `${(((risk as any).dd_scale ?? 1) * 100).toFixed(1)}%` : "—"}</span>
-            <span>Last trim: {(risk as any).last_trim_dd_pct > 0 ? formatPct(-(risk as any).last_trim_dd_pct) : "None"}</span>
-            <span>Next trim at: {formatPct(-((risk as any).next_trim_dd_pct ?? 3.0))}</span>
-          </div>
-        </div>
-      </Card>
+      {/* ── DD Trim Schedule (overgear + trim ladder) ── */}
+      {(() => {
+        type ScheduleRow = {
+          dd_pct: number;
+          scale: number;
+          gross_pct: number;
+          region: "overgear" | "trim" | "stop";
+          label: string;
+        };
+        const og = (risk as any).dd_overgear as
+          | { enabled?: boolean; breakpoint_pct?: number; max_scale?: number; max_gross_ratio?: number | null }
+          | undefined;
+        // Fallback schedule (legacy curve) if backend hasn't shipped dd_trim_schedule yet
+        const fallback: ScheduleRow[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 9.5].map((dd) => ({
+          dd_pct: dd,
+          scale: dd >= stopPct ? 0 : Math.pow(1 - dd / stopPct, 0.5),
+          gross_pct: (dd >= stopPct ? 0 : Math.pow(1 - dd / stopPct, 0.5)) * 100,
+          region: dd >= stopPct ? "stop" : "trim",
+          label: `${dd}%`,
+        }));
+        const schedule: ScheduleRow[] =
+          (risk as any).dd_trim_schedule && Array.isArray((risk as any).dd_trim_schedule)
+            ? ((risk as any).dd_trim_schedule as ScheduleRow[])
+            : fallback;
+        const overgearOn = !!og?.enabled;
+        const maxGrossPct = og?.max_gross_ratio != null ? og.max_gross_ratio * 100 : null;
+
+        // Cell coloring & active state
+        const cellBg = (r: ScheduleRow, active: boolean, past: boolean) => {
+          if (active) return "bg-amber-900/50 border border-amber-500";
+          if (r.region === "overgear") return past ? "bg-emerald-900/40" : "bg-emerald-900/20";
+          if (r.region === "stop") return "bg-red-900/40";
+          return past ? "bg-gray-800/80" : "bg-gray-800/30";
+        };
+        const valueColor = (r: ScheduleRow) => {
+          if (r.region === "stop") return "text-red-400";
+          if (r.region === "overgear") return "text-emerald-300";
+          if (r.scale < 0.5) return "text-amber-400";
+          return "text-gray-200";
+        };
+
+        const formula = overgearOn
+          ? `Overgear: scale = 2 − DD when DD < ${og?.breakpoint_pct ?? 1}%  ·  Trim: scale = (1 − DD/${stopPct}%)^0.5`
+          : `Formula: scale = (1 − DD/${stopPct}%)^0.5 | Trims every 1pp DD worsening`;
+
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>DD Trim Schedule</CardTitle>
+            </CardHeader>
+            <div className="px-4 pb-4">
+              <div className="text-[10px] text-gray-500 mb-2">
+                {formula} · Source: {(risk as any).dd_source === "nt" ? "Nickel" : "Internal"}
+                {maxGrossPct != null ? ` · Hard cap: ${maxGrossPct.toFixed(0)}% gross` : ""}
+              </div>
+              <div
+                className="grid gap-1 text-[10px]"
+                style={{ gridTemplateColumns: `repeat(${schedule.length}, minmax(0, 1fr))` }}
+              >
+                {schedule.map((r) => {
+                  const active = Math.abs(ddPct - r.dd_pct) < 0.5;
+                  const past = ddPct > r.dd_pct;
+                  return (
+                    <div key={r.label} className={`text-center rounded py-1 ${cellBg(r, active, past)}`}>
+                      <div className="text-gray-400">{r.label}</div>
+                      <div className={`font-medium ${valueColor(r)}`}>
+                        {r.gross_pct.toFixed(0)}%
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex flex-wrap gap-4 mt-2 text-[10px] text-gray-500">
+                <span>Current DD: {formatPct(-ddPct)}</span>
+                <span>
+                  Scale: {((risk as any).dd_scale ?? 1).toFixed
+                    ? `${(((risk as any).dd_scale ?? 1) * 100).toFixed(1)}%`
+                    : "—"}
+                </span>
+                <span>
+                  Last trim: {(risk as any).last_trim_dd_pct > 0
+                    ? formatPct(-(risk as any).last_trim_dd_pct)
+                    : "None"}
+                </span>
+                <span>
+                  Next trim at: {formatPct(-((risk as any).next_trim_dd_pct ?? 3.0))}
+                </span>
+                {overgearOn && (
+                  <span className="text-emerald-400">
+                    Overgear ON · 0% DD → {(og?.max_scale ?? 2.0).toFixed(1)}× ({((og?.max_scale ?? 2.0) * 100).toFixed(0)}% gross)
+                  </span>
+                )}
+              </div>
+            </div>
+          </Card>
+        );
+      })()}
 
 
       {/* ── ADL Monitor ── */}
