@@ -122,6 +122,8 @@ interface ScalingResponse {
     days_at_current_tier: number | null;
     tier_start_date: string | null;
     sortino_4w: number | null;
+    sortino_4w_close?: number | null;
+    sortino_4w_is_live?: boolean;
     sortino_gate_ok: boolean;
     sortino_trend: SortinoPoint[];
     sortino_projection?: SortinoProjection;
@@ -465,8 +467,8 @@ export function ScalingCapacityTab() {
   const { data, isLoading } = useQuery<ScalingResponse>({
     queryKey: ["scaling", engine.id],
     queryFn: () => client.get("/api/scaling"),
-    refetchInterval: 60_000,
-    staleTime: 30_000,
+    refetchInterval: 30_000,
+    staleTime: 15_000,
   });
 
   if (isLoading || !data) {
@@ -497,10 +499,14 @@ export function ScalingCapacityTab() {
             }`}
           />
           <KpiCard
-            label="Rolling 4w Sortino"
+            label={st.sortino_4w_is_live ? "Rolling 4w Sortino \u00b7 live" : "Rolling 4w Sortino"}
             value={st.sortino_4w != null ? st.sortino_4w.toFixed(2) : "N/A"}
             valueColor={st.sortino_4w != null ? gateColor(st.sortino_gate_ok) : "text-gray-500"}
-            sub="Gate: \u2265 1.5"
+            sub={
+              st.sortino_4w_is_live && st.sortino_4w_close != null
+                ? `Gate: \u2265 1.5 \u00b7 close ${st.sortino_4w_close.toFixed(2)}`
+                : "Gate: \u2265 1.5"
+            }
           />
           <KpiCard
             label="PTT Drawdown"
