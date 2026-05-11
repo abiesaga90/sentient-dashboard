@@ -77,7 +77,15 @@ export interface BetaAggregate {
   long_beta_notional: number;
   short_beta_notional: number;
   net_beta_usd: number;
+  // Canonical (legacy: NAV-denominated in /api/positions; notional in /api/risk)
   net_beta_pct: number;
+  // Three-denominator breakouts
+  net_beta_pct_notional?: number;
+  net_beta_pct_nav?: number;
+  net_beta_pct_gross?: number;
+  denom_notional?: number;
+  denom_nav?: number;
+  denom_gross?: number;
   avg_long_beta: number | null;
   avg_short_beta: number | null;
   beta_ratio: number | null;
@@ -203,8 +211,24 @@ export interface RiskData {
   hwm: number;
   gross_long: number;
   gross_short: number;
+  gross_usd?: number;
+  net_usd?: number;
+  net_beta_usd?: number;
   gross_pct: number;
   net_pct: number;
+  // Three-denominator breakouts (added 2026-05-11; populated live from
+  // engine cache in /api/risk so the dashboard can show all three views).
+  gross_pct_notional?: number;
+  gross_pct_nav?: number;
+  net_pct_notional?: number;
+  net_pct_nav?: number;
+  net_pct_gross?: number;
+  net_beta_pct_notional?: number;
+  net_beta_pct_nav?: number;
+  net_beta_pct_gross?: number;
+  denom_notional?: number;
+  denom_nav?: number;
+  denom_gross?: number;
   n_longs: number;
   n_shorts: number;
   vol_scale: number;
@@ -358,6 +382,7 @@ export interface DashboardResponse {
     losers_total_pnl: number;
     winners_count: number;
     losers_count: number;
+    beta?: BetaAggregate;
   };
   equity: {
     equity: EquityPoint[];

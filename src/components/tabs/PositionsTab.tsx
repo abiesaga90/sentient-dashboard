@@ -6,8 +6,9 @@ import { DataTable, type Column } from "../shared/DataTable";
 import { PnlText } from "../shared/PnlText";
 import { Badge } from "../ui/Badge";
 import { formatUSD } from "../../lib/utils";
-import type { Position, BetaAggregate } from "../../types/api";
+import type { Position, BetaAggregate, RiskData } from "../../types/api";
 import { BasketPnlChart, type BasketPnlPoint } from "../positions/BasketPnlChart";
+import { ExposurePanel } from "../shared/ExposurePanel";
 
 type SideFilter = "all" | "LONG" | "SHORT";
 
@@ -211,15 +212,7 @@ export function PositionsTab() {
     refetchInterval: 30_000,
   });
 
-  const { data: risk } = useQuery<{
-    gross_pct: number;
-    net_pct: number;
-    net_beta_pct: number;
-    gross_long: number;
-    gross_short: number;
-    target_beta_tilt_pct?: number;
-    nav?: number;
-  }>({
+  const { data: risk } = useQuery<RiskData>({
     queryKey: ["risk", engine.id],
     queryFn: () => client.get("/api/risk"),
     refetchInterval: 30_000,
@@ -331,129 +324,8 @@ export function PositionsTab() {
         </Card>
       )}
 
-      {/* Exposure & Beta Hedging — Levered (/notional) */}
-      {beta && (() => {
-        // Notional capital derived from /api/risk: gross_$ / gross_pct * 100
-        const grossUsd = risk ? risk.gross_long + risk.gross_short : longNotional + shortNotional;
-        const notionalCapital = risk && risk.gross_pct > 0
-          ? (grossUsd / risk.gross_pct) * 100
-          : 100_000;
-        const leverageX = grossUsd / notionalCapital;
-        const navUsd = risk?.nav && risk.nav > 0 ? risk.nav : null;
-        const actualLeverageX = navUsd ? grossUsd / navUsd : null;
-        const netNotionalUsd = longNotional - shortNotional;
-        // Prefer authoritative risk values; fall back to local compute if /api/risk unavailable
-        const grossPct = risk?.gross_pct ?? (grossUsd / notionalCapital) * 100;
-        const netPct = risk?.net_pct ?? (netNotionalUsd / notionalCapital) * 100;
-        const netBetaPct = risk?.net_beta_pct ?? (beta.net_beta_usd / notionalCapital) * 100;
-        const targetBetaPct = risk?.target_beta_tilt_pct;
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Exposure & Beta Hedging</CardTitle>
-              <div className="text-[10px] text-gray-500 mt-0.5">
-                Levered (% of notional ${(notionalCapital / 1000).toFixed(0)}k) — gross/notional {leverageX.toFixed(2)}x
-                {actualLeverageX != null && navUsd != null && (
-                  <> · gross/NAV (actual leverage on equity) {actualLeverageX.toFixed(2)}x · NAV ${(navUsd / 1000).toFixed(1)}k</>
-                )}
-              </div>
-            </CardHeader>
-
-            {/* Notional row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 text-xs">
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Long Notional</div>
-                <div className="text-lg font-mono font-semibold text-green-400">{formatUSD(longNotional)}</div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Short Notional</div>
-                <div className="text-lg font-mono font-semibold text-red-400">{formatUSD(shortNotional)}</div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Gross %</div>
-                <div className="text-lg font-mono font-semibold text-gray-200">
-                  {grossPct.toFixed(2)}%
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Net Notional $</div>
-                <div className={`text-lg font-mono font-semibold ${Math.abs(netNotionalUsd) < 500 ? "text-green-400" : "text-yellow-400"}`}>
-                  {netNotionalUsd >= 0 ? "+" : ""}{formatUSD(netNotionalUsd)}
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Net Notional %</div>
-                <div className={`text-lg font-mono font-semibold ${Math.abs(netPct) < 2 ? "text-green-400" : "text-yellow-400"}`}>
-                  {netPct > 0 ? "+" : ""}{netPct.toFixed(2)}%
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Lev (Notional)</div>
-                <div className="text-lg font-mono font-semibold text-gray-200">{leverageX.toFixed(2)}x</div>
-                <div className="text-[9px] text-gray-600 mt-0.5">gross / ${(notionalCapital / 1000).toFixed(0)}k</div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Lev (Actual)</div>
-                <div className={`text-lg font-mono font-semibold ${actualLeverageX != null && actualLeverageX > 2 ? "text-yellow-400" : "text-gray-200"}`}>
-                  {actualLeverageX != null ? `${actualLeverageX.toFixed(2)}x` : "—"}
-                </div>
-                <div className="text-[9px] text-gray-600 mt-0.5">
-                  {navUsd != null ? `gross / NAV $${(navUsd / 1000).toFixed(1)}k` : "NAV unavailable"}
-                </div>
-              </div>
-            </div>
-
-            {/* Beta row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 text-xs mt-3">
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Long Basket β</div>
-                <div className="text-lg font-mono font-semibold text-green-400">
-                  {beta.long_basket_beta?.toFixed(3) ?? "—"}
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Short Basket β</div>
-                <div className="text-lg font-mono font-semibold text-red-400">
-                  {beta.short_basket_beta?.toFixed(3) ?? "—"}
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Beta Ratio</div>
-                <div className="text-lg font-mono font-semibold text-gray-200">
-                  {beta.beta_ratio?.toFixed(3) ?? "—"}
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Net Beta $</div>
-                <div className={`text-lg font-mono font-semibold ${Math.abs(beta.net_beta_usd) < 500 ? "text-green-400" : "text-yellow-400"}`}>
-                  {beta.net_beta_usd >= 0 ? "+" : ""}{formatUSD(beta.net_beta_usd)}
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Net Beta %</div>
-                <div className={`text-lg font-mono font-semibold ${Math.abs(netBetaPct) < 5 ? "text-green-400" : Math.abs(netBetaPct) < 10 ? "text-yellow-400" : "text-red-400"}`}>
-                  {netBetaPct > 0 ? "+" : ""}{netBetaPct.toFixed(2)}%
-                </div>
-                {targetBetaPct != null && (
-                  <div className="text-[10px] text-gray-600 mt-0.5">
-                    target {targetBetaPct >= 0 ? "+" : ""}{targetBetaPct.toFixed(2)}%
-                  </div>
-                )}
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Short Avg Corr</div>
-                <div className="text-lg font-mono font-semibold text-gray-200">
-                  {beta.short_basket_avg_corr?.toFixed(3) ?? "—"}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-2 text-[10px] text-gray-600">
-              Long β×notional = {formatUSD(beta.long_beta_notional)} | Short β×notional = {formatUSD(beta.short_beta_notional)} | Net β = {beta.net_beta_usd >= 0 ? "+" : ""}{formatUSD(beta.net_beta_usd)} ({netBetaPct >= 0 ? "+" : ""}{netBetaPct.toFixed(2)}% of notional). All percentages are levered (/notional capital).
-            </div>
-          </Card>
-        );
-      })()}
+      {/* Exposure & Beta Hedging — 3 denominator views (Gross / Notional [Nickel] / NAV) */}
+      {beta && <ExposurePanel positions={positions} beta={beta} risk={risk} />}
 
       {/* Funding Summary — weighted across all positions, sign-aware */}
       {(() => {

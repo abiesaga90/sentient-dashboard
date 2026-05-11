@@ -12,6 +12,7 @@ import { MonthlyReturns } from "../overview/MonthlyReturns";
 import { DailyPnlChart } from "../overview/DailyPnlChart";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { SpreadTable } from "../shared/SpreadTable";
+import { ExposurePanel } from "../shared/ExposurePanel";
 import { usePnl, useRiskHistory } from "../../hooks/useDashboardQuery";
 import type { DashboardResponse } from "../../types/api";
 import { SizingStatusCard } from "../overview/SizingStatusCard";
@@ -61,6 +62,15 @@ export function OverviewTab({ data, onNavigate }: OverviewTabProps) {
         ntRisk={data.nt_risk as Record<string, unknown> | undefined}
         positions={data.positions?.positions}
       />
+
+      {/* Exposure & Beta Hedging — 3 denominator views (Gross / Notional [Nickel] / NAV) */}
+      {data.positions?.beta && (
+        <ExposurePanel
+          positions={data.positions.positions}
+          beta={data.positions.beta}
+          risk={data.risk}
+        />
+      )}
 
       {/* uniMMR (Binance PM liquidation ratio) + Option 2 sizing status */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
