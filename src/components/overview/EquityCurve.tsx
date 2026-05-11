@@ -153,7 +153,6 @@ export function EquityCurve({ data, startingCapital }: EquityCurveProps) {
   }, [data, granularQuery.data, period, startingCapital]);
 
   const liveNav = granularQuery.data?.live_nav;
-  const lastPointNav = chartData.length > 0 ? chartData[chartData.length - 1].nav : null;
 
   const action = (
     <div className="flex items-center gap-3">
@@ -216,9 +215,10 @@ export function EquityCurve({ data, startingCapital }: EquityCurveProps) {
             fontSize: "12px",
           }}
           labelStyle={{ color: "#94a3b8" }}
-          labelFormatter={(d: string) =>
-            d === "Start" ? "Inception" : formatTick(d, granularity)
-          }
+          labelFormatter={(d: unknown) => {
+            const s = typeof d === "string" ? d : String(d ?? "");
+            return s === "Start" ? "Inception" : formatTick(s, granularity);
+          }}
           formatter={(value) => [formatUSD(Number(value)), "NAV"]}
         />
         <Area
