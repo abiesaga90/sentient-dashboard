@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   AreaChart,
   Area,
@@ -9,6 +10,7 @@ import {
 } from "recharts";
 import { ChartContainer } from "../shared/ChartContainer";
 import { formatUSD } from "../../lib/utils";
+import { useEngine } from "../../hooks/useEngine";
 import type { EquityPoint } from "../../types/api";
 
 interface EquityCurveProps {
@@ -18,6 +20,35 @@ interface EquityCurveProps {
 
 const PERIODS = ["1W", "1M", "MTD", "QTD", "YTD", "ALL"] as const;
 type Period = (typeof PERIODS)[number];
+
+interface EquityResponse {
+  equity: EquityPoint[];
+  count: number;
+  granularity?: string;
+  live_nav?: number | null;
+  now?: string;
+}
+
+// Granularity + lookback per period. Short windows get tick-level (60s)
+// from risk_history; longer windows down-sample to keep payloads small;
+// the legacy daily snapshots cover the longest views.
+function periodFetch(
+  period: Period,
+): { granularity: "tick" | "hourly" | "daily"; hours?: number } | null {
+  switch (period) {
+    case "1W":
+      return { granularity: "tick", hours: 24 * 7 };
+    case "1M":
+      return { granularity: "hourly", hours: 24 * 30 };
+    case "MTD":
+    case "QTD":
+    case "YTD":
+    case "ALL":
+      return { granularity: "daily" };
+    default:
+      return null;
+  }
+}
 
 function periodCutoff(period: Period, now: Date): Date | null {
   if (period === "ALL") return null;
@@ -44,46 +75,109 @@ function periodCutoff(period: Period, now: Date): Date | null {
   return null;
 }
 
+function parsePointTime(s: string): number {
+  // Accept both "YYYY-MM-DD" (daily snapshots) and ISO timestamps.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return Date.parse(`${s}T00:00:00Z`);
+  return Date.parse(s);
+}
+
+function formatTick(s: string, granularity: string): string {
+  const t = parsePointTime(s);
+  if (!Number.isFinite(t)) return s;
+  const d = new Date(t);
+  if (granularity === "daily") {
+    // MM-DD
+    return `${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+  }
+  if (granularity === "hourly") {
+    // MM-DD HH:00
+    return `${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")} ${String(d.getUTCHours()).padStart(2, "0")}:00`;
+  }
+  // tick — HH:MM (assume same day for 1W view) — or date if older
+  const now = Date.now();
+  const ageHours = (now - t) / 3_600_000;
+  if (ageHours < 24) {
+    return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+  }
+  return `${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")} ${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+}
+
 export function EquityCurve({ data, startingCapital }: EquityCurveProps) {
   const [period, setPeriod] = useState<Period>("ALL");
+  const { client, engine } = useEngine();
+
+  const fetchSpec = periodFetch(period);
+
+  // For ALL / MTD / QTD / YTD we use the prop data (daily snapshots from the
+  // dashboard-wide query). For 1W and 1M we fetch granular series directly and
+  // poll every 30s so the chart tracks NAV in near real time.
+  const granularQuery = useQuery<EquityResponse>({
+    queryKey: ["equity", engine.id, fetchSpec?.granularity, fetchSpec?.hours],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (fetchSpec) {
+        params.set("granularity", fetchSpec.granularity);
+        if (fetchSpec.hours) params.set("hours", String(fetchSpec.hours));
+      }
+      return client.get(`/api/equity?${params.toString()}`);
+    },
+    enabled: !!fetchSpec && fetchSpec.granularity !== "daily",
+    refetchInterval: 30_000,
+    staleTime: 15_000,
+  });
+
+  const granularity: "tick" | "hourly" | "daily" =
+    (granularQuery.data?.granularity as "tick" | "hourly" | "daily") ||
+    fetchSpec?.granularity ||
+    "daily";
 
   const chartData = useMemo(() => {
     const cutoff = periodCutoff(period, new Date());
+    const series: EquityPoint[] =
+      granularQuery.data?.equity ?? data ?? [];
+
     const filtered = cutoff
-      ? data.filter((d) => {
-          // d.date is "YYYY-MM-DD"; parse as UTC midnight for stable compare
-          const ts = Date.parse(`${d.date}T00:00:00Z`);
+      ? series.filter((d) => {
+          const ts = parsePointTime(d.date);
           return Number.isFinite(ts) && ts >= cutoff.getTime();
         })
-      : data;
+      : series;
 
     const points = filtered.map((d) => ({ date: d.date, nav: d.nav }));
 
-    // For ALL view, prepend the starting-capital baseline so the curve
-    // starts from inception. Period views start from the first in-range
-    // observation — the starting capital marker would be misleading.
     if (period === "ALL" && points.length > 0 && points[0].nav !== startingCapital) {
       points.unshift({ date: "Start", nav: startingCapital });
     }
 
     return points;
-  }, [data, period, startingCapital]);
+  }, [data, granularQuery.data, period, startingCapital]);
+
+  const liveNav = granularQuery.data?.live_nav;
+  const lastPointNav = chartData.length > 0 ? chartData[chartData.length - 1].nav : null;
 
   const action = (
-    <div className="flex gap-1">
-      {PERIODS.map((p) => (
-        <button
-          key={p}
-          onClick={() => setPeriod(p)}
-          className={`px-2 py-0.5 text-[10px] rounded uppercase tracking-wider transition-colors ${
-            period === p
-              ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-              : "text-gray-500 hover:text-gray-300 border border-transparent"
-          }`}
-        >
-          {p}
-        </button>
-      ))}
+    <div className="flex items-center gap-3">
+      {liveNav != null && (
+        <span className="text-[10px] text-emerald-400 flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          live {formatUSD(liveNav)}
+        </span>
+      )}
+      <div className="flex gap-1">
+        {PERIODS.map((p) => (
+          <button
+            key={p}
+            onClick={() => setPeriod(p)}
+            className={`px-2 py-0.5 text-[10px] rounded uppercase tracking-wider transition-colors ${
+              period === p
+                ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                : "text-gray-500 hover:text-gray-300 border border-transparent"
+            }`}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
     </div>
   );
 
@@ -102,6 +196,10 @@ export function EquityCurve({ data, startingCapital }: EquityCurveProps) {
           tick={{ fill: "#64748b", fontSize: 10 }}
           tickLine={false}
           axisLine={{ stroke: "#1e1e2e" }}
+          tickFormatter={(d: string) =>
+            d === "Start" ? "Start" : formatTick(d, granularity)
+          }
+          minTickGap={32}
         />
         <YAxis
           tick={{ fill: "#64748b", fontSize: 10 }}
@@ -118,6 +216,9 @@ export function EquityCurve({ data, startingCapital }: EquityCurveProps) {
             fontSize: "12px",
           }}
           labelStyle={{ color: "#94a3b8" }}
+          labelFormatter={(d: string) =>
+            d === "Start" ? "Inception" : formatTick(d, granularity)
+          }
           formatter={(value) => [formatUSD(Number(value)), "NAV"]}
         />
         <Area
@@ -126,6 +227,7 @@ export function EquityCurve({ data, startingCapital }: EquityCurveProps) {
           stroke="#3b82f6"
           strokeWidth={2}
           fill="url(#navGradient)"
+          isAnimationActive={false}
         />
       </AreaChart>
     </ChartContainer>
