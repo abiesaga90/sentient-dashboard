@@ -124,6 +124,9 @@ interface ScalingResponse {
     sortino_4w: number | null;
     sortino_4w_close?: number | null;
     sortino_4w_is_live?: boolean;
+    sortino_5d?: number | null;
+    sortino_7d?: number | null;
+    sortino_14d?: number | null;
     sortino_gate_ok: boolean;
     sortino_trend: SortinoPoint[];
     sortino_projection?: SortinoProjection;
@@ -535,6 +538,51 @@ export function ScalingCapacityTab() {
             )}
           </Card>
         </div>
+
+        {/* Leading-indicator Sortinos (5d / 7d / 14d / 28d) */}
+        {(st.sortino_5d != null || st.sortino_7d != null || st.sortino_14d != null) && (
+          <Card>
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  Sortino Ladder · leading indicators
+                </div>
+                <div className="text-[10px] text-gray-500">
+                  Small-window values are noisy; treat as directional hints, not gates
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: "5-day", value: st.sortino_5d ?? null, note: "noisiest" },
+                  { label: "7-day", value: st.sortino_7d ?? null, note: "" },
+                  { label: "14-day", value: st.sortino_14d ?? null, note: "" },
+                  { label: "28-day · gate", value: st.sortino_4w ?? null, note: "≥ 1.5" },
+                ].map((row) => {
+                  const v = row.value;
+                  const colorClass =
+                    v == null
+                      ? "text-gray-500"
+                      : v >= 1.5
+                        ? "text-emerald-400"
+                        : v >= 0
+                          ? "text-amber-400"
+                          : "text-red-400";
+                  return (
+                    <div key={row.label} className="flex flex-col">
+                      <div className="text-[10px] text-gray-500">{row.label}</div>
+                      <div className={`text-xl font-mono ${colorClass}`}>
+                        {v == null ? "—" : v >= 0 ? `+${v.toFixed(2)}` : v.toFixed(2)}
+                      </div>
+                      {row.note && (
+                        <div className="text-[9px] text-gray-600 mt-0.5">{row.note}</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Tier Ladder */}
         <Card>
