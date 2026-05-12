@@ -4,6 +4,7 @@ import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { KpiCard } from "../shared/KpiCard";
+import { TeroxxValuationPanel } from "../shared/TeroxxValuationPanel";
 import type { RankingCandidate, RankingsResponse } from "../../types/api";
 
 // ── Helpers ──
@@ -775,6 +776,9 @@ export function ShortSelectionTab() {
           </div>
         </Card>
       )}
+
+      {/* Teroxx Valuation cross-reference — short-biased sort */}
+      <TeroxxValuationPanel highlight="short" />
     </div>
   );
 }
