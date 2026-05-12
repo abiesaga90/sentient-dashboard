@@ -1171,7 +1171,24 @@ function RollingChart({
           formatter={(v) => [(Number(v)).toFixed(3)]}
         />
         <Legend wrapperStyle={{ fontSize: "11px", color: "#94a3b8" }} />
-        {/* Zero reference line */}
+        {/* Zero baseline */}
+        <ReferenceLine
+          y={0}
+          stroke="#374151"
+          strokeDasharray="2 3"
+        />
+        {/* Nickel minimum expectation (1.5 for both Sharpe and Sortino) */}
+        <ReferenceLine
+          y={1.5}
+          stroke="#10b981"
+          strokeDasharray="6 3"
+          label={{
+            value: "Nickel min 1.5",
+            fill: "#10b981",
+            fontSize: 10,
+            position: "right",
+          }}
+        />
         <Line
           type="monotone"
           dataKey={label30}
