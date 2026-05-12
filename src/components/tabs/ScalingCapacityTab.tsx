@@ -16,6 +16,7 @@ import {
   ReferenceLine,
   ComposedChart,
   Area,
+  Legend,
 } from "recharts";
 
 // ── Types ──────────────────────────────────────────────────────
@@ -679,17 +680,16 @@ export function ScalingCapacityTab() {
                   position: "right",
                 }}
               />
-              {/* Time-series overlays for shorter rolling windows. Each Line
-                  is a real rolling-Sortino series at the named window. The 28d
-                  is the gate; 5/7/14d are leading indicators. */}
+              {/* Shorter rolling windows are leading indicators — drawn thin
+                  and muted so the 28d gate line dominates the read. */}
               <Line
                 type="monotone"
                 dataKey="value_5d"
                 name="5d"
                 stroke="#f59e0b"
-                strokeWidth={1.25}
+                strokeWidth={1}
                 strokeDasharray="2 3"
-                strokeOpacity={0.85}
+                strokeOpacity={0.5}
                 dot={false}
                 connectNulls
                 isAnimationActive={false}
@@ -699,9 +699,9 @@ export function ScalingCapacityTab() {
                 dataKey="value_7d"
                 name="7d"
                 stroke="#a78bfa"
-                strokeWidth={1.25}
+                strokeWidth={1}
                 strokeDasharray="3 3"
-                strokeOpacity={0.85}
+                strokeOpacity={0.5}
                 dot={false}
                 connectNulls
                 isAnimationActive={false}
@@ -711,19 +711,31 @@ export function ScalingCapacityTab() {
                 dataKey="value_14d"
                 name="14d"
                 stroke="#34d399"
-                strokeWidth={1.5}
+                strokeWidth={1.25}
+                strokeOpacity={0.65}
                 dot={false}
                 connectNulls
                 isAnimationActive={false}
               />
+              {/* 28d is THE gate — bold, brighter blue, drawn last so it sits on top */}
               <Line
                 type="monotone"
                 dataKey="value"
                 name="28d (gate)"
-                stroke="#3b82f6"
-                strokeWidth={2}
+                stroke="#60a5fa"
+                strokeWidth={3.25}
                 dot={false}
                 isAnimationActive={false}
+              />
+              <Legend
+                verticalAlign="bottom"
+                height={28}
+                iconType="line"
+                wrapperStyle={{
+                  fontSize: 11,
+                  color: "#94a3b8",
+                  paddingTop: 6,
+                }}
               />
             </LineChart>
           </ChartContainer>
