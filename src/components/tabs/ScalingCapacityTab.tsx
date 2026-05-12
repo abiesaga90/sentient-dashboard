@@ -655,7 +655,9 @@ export function ScalingCapacityTab() {
               />
               <YAxis
                 tick={{ fill: "#64748b", fontSize: 10 }}
-                domain={["auto", "auto"]}
+                domain={[-10, 10]}
+                allowDataOverflow
+                ticks={[-10, -5, 0, 1.5, 5, 10]}
               />
               <Tooltip
                 contentStyle={{
