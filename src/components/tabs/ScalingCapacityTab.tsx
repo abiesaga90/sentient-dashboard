@@ -644,10 +644,25 @@ export function ScalingCapacityTab() {
           </div>
         </Card>
 
-        {/* Sortino Trend Chart */}
-        {st.sortino_trend.length > 0 && (
+        {/* Sortino Trend Chart — clamp y-values to [-10, +10] for clean
+            rendering. Short-window (5d/7d) Sortino can spike to ±25
+            after a single tail trade; without clamping those spikes
+            crush the meaningful range around the 1.5 gate. Original
+            values are preserved on the original keys for the tooltip,
+            clamped values live on `_c` suffix keys for the lines. */}
+        {st.sortino_trend.length > 0 && (() => {
+          const clamp = (v: number | null | undefined) =>
+            v == null ? null : Math.max(-10, Math.min(10, v));
+          const chartData = st.sortino_trend.map((p) => ({
+            ...p,
+            value_c: clamp(p.value),
+            value_5d_c: clamp(p.value_5d ?? null),
+            value_7d_c: clamp(p.value_7d ?? null),
+            value_14d_c: clamp(p.value_14d ?? null),
+          }));
+          return (
           <ChartContainer title="Rolling 28-Day Sortino" height={240}>
-            <LineChart data={st.sortino_trend}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
               <XAxis
                 dataKey="date"
@@ -667,7 +682,17 @@ export function ScalingCapacityTab() {
                   borderRadius: 6,
                   fontSize: 12,
                 }}
-                formatter={(v) => [Number(v).toFixed(2), "Sortino"]}
+                formatter={(_v, name, item) => {
+                  // Resolve true (unclamped) value from the data row so the
+                  // tooltip always shows the real Sortino, not the clamped
+                  // chart value. The dataKey on each Line ends in "_c";
+                  // strip that and read the original field.
+                  const dataKey = (item?.dataKey as string) || "";
+                  const realKey = dataKey.endsWith("_c") ? dataKey.slice(0, -2) : dataKey;
+                  const raw = (item?.payload as Record<string, unknown>)?.[realKey];
+                  const n = typeof raw === "number" ? raw : Number(raw);
+                  return [Number.isFinite(n) ? n.toFixed(2) : "—", String(name)];
+                }}
               />
               <ReferenceLine
                 y={1.5}
@@ -681,10 +706,11 @@ export function ScalingCapacityTab() {
                 }}
               />
               {/* Shorter rolling windows are leading indicators — drawn thin
-                  and muted so the 28d gate line dominates the read. */}
+                  and muted so the 28d gate line dominates the read. Lines
+                  use *_c (clamped) dataKeys; tooltip resolves originals. */}
               <Line
                 type="monotone"
-                dataKey="value_5d"
+                dataKey="value_5d_c"
                 name="5d"
                 stroke="#f59e0b"
                 strokeWidth={1}
@@ -696,7 +722,7 @@ export function ScalingCapacityTab() {
               />
               <Line
                 type="monotone"
-                dataKey="value_7d"
+                dataKey="value_7d_c"
                 name="7d"
                 stroke="#a78bfa"
                 strokeWidth={1}
@@ -708,7 +734,7 @@ export function ScalingCapacityTab() {
               />
               <Line
                 type="monotone"
-                dataKey="value_14d"
+                dataKey="value_14d_c"
                 name="14d"
                 stroke="#34d399"
                 strokeWidth={1.25}
@@ -720,7 +746,7 @@ export function ScalingCapacityTab() {
               {/* 28d is THE gate — bold, brighter blue, drawn last so it sits on top */}
               <Line
                 type="monotone"
-                dataKey="value"
+                dataKey="value_c"
                 name="28d (gate)"
                 stroke="#60a5fa"
                 strokeWidth={3.25}
@@ -739,7 +765,8 @@ export function ScalingCapacityTab() {
               />
             </LineChart>
           </ChartContainer>
-        )}
+          );
+        })()}
 
         {/* ── Forward Sortino Projection ── */}
         {st.sortino_projection?.available && st.sortino_projection.projection && (
