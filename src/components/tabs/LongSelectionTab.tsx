@@ -231,6 +231,26 @@ const SM_SIGNAL_KEYS = new Set([
 
 // ── Component ──
 
+// Teroxx valuation snapshot — screening only
+interface TeroxxTicker {
+  symbol: string;
+  name: string | null;
+  sector: string | null;
+  verdict: string;
+  spot_usd: number | null;
+  pwpt_usd: number | null;
+  return_pwpt: number | null;
+  return_bear: number | null;
+  return_base: number | null;
+  return_bull: number | null;
+}
+interface TeroxxValuation {
+  extracted_at: string;
+  methodology: string;
+  note: string;
+  tickers: TeroxxTicker[];
+}
+
 export function LongSelectionTab() {
   const { client, engine } = useEngine();
   const [expandedCurrent, setExpandedCurrent] = useState<string | null>(null);
@@ -266,6 +286,14 @@ export function LongSelectionTab() {
     queryFn: () => client.get("/api/fundamentals"),
     refetchInterval: 300_000,
     staleTime: 120_000,
+  });
+
+  // Teroxx Research valuation snapshot (screening only — does NOT feed model)
+  const { data: teroxx } = useQuery<TeroxxValuation>({
+    queryKey: ["teroxx-valuation", engine.id],
+    queryFn: () => client.get("/api/valuation/teroxx"),
+    refetchInterval: 600_000,
+    staleTime: 300_000,
   });
 
   // Long research watchlist (curated tokens tracked for potential basket inclusion)
@@ -897,6 +925,124 @@ export function LongSelectionTab() {
           </div>
         </Card>
       )}
+
+      {/* Teroxx Valuation — Screening Only */}
+      {teroxx && teroxx.tickers && (() => {
+        const allCandSyms = new Set(allCandidates.map((c) => c.symbol));
+        const basketSyms = new Set(proposed.map((c) => c.symbol));
+        // Cross-reference Teroxx coverage with our universe — overlap first,
+        // then non-overlap. Sort by PWPT return descending within each.
+        const rows = [...teroxx.tickers]
+          .filter((t) => t.return_pwpt != null || t.verdict === "RESERVE")
+          .map((t) => ({
+            ...t,
+            in_basket: basketSyms.has(t.symbol),
+            in_universe: allCandSyms.has(t.symbol),
+          }))
+          .sort((a, b) => {
+            // basket members first, then in-universe, then others
+            const ar = (a.in_basket ? 2 : 0) + (a.in_universe ? 1 : 0);
+            const br = (b.in_basket ? 2 : 0) + (b.in_universe ? 1 : 0);
+            if (ar !== br) return br - ar;
+            return (b.return_pwpt ?? -999) - (a.return_pwpt ?? -999);
+          });
+        const verdictColor = (v: string) =>
+          v === "OVERWEIGHT" ? "bg-emerald-900/40 text-emerald-300 border-emerald-700"
+            : v === "UNDERWEIGHT" ? "bg-red-900/40 text-red-300 border-red-700"
+              : v === "NEUTRAL" ? "bg-amber-900/40 text-amber-300 border-amber-700"
+                : "bg-gray-800/40 text-gray-400 border-gray-700";
+        const returnColor = (r: number | null) => {
+          if (r == null) return "text-gray-500";
+          if (r >= 0.5) return "text-emerald-400";
+          if (r >= 0) return "text-emerald-500/70";
+          if (r >= -0.3) return "text-amber-400";
+          return "text-red-400";
+        };
+        // Disagreements: in_basket but Teroxx says UW, or in_basket but PWPT<-30%
+        const conflicts = rows.filter(
+          (r) => r.in_basket && (r.verdict === "UNDERWEIGHT" || (r.return_pwpt != null && r.return_pwpt < -0.3))
+        );
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between gap-3">
+                <span>Teroxx Valuation · screening only</span>
+                <span className="text-[10px] font-normal text-gray-500">
+                  Does NOT feed the model — used for promotion / re-rate decisions only
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <div className="px-4 pb-4 space-y-3">
+              <div className="text-[10px] text-gray-500">
+                Snapshot: {teroxx.extracted_at.slice(0, 10)} · {teroxx.methodology}
+              </div>
+              {conflicts.length > 0 && (
+                <div className="text-[11px] text-amber-300 bg-amber-900/20 border border-amber-800/40 rounded p-2">
+                  ⚠ <strong>Disagreements</strong> with Teroxx on basket members:
+                  {" "}
+                  {conflicts.map((r) => `${r.symbol.replace("USDT", "")} (${r.verdict}, PWPT ${r.return_pwpt != null ? (r.return_pwpt * 100).toFixed(0) + "%" : "—"})`).join(", ")}.
+                  Worth interrogating the quant model's positive read.
+                </div>
+              )}
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-gray-500 border-b border-gray-800">
+                    <tr>
+                      <th className="text-left py-1.5 pr-3">Symbol</th>
+                      <th className="text-left pr-3">Sector</th>
+                      <th className="text-center pr-3">Verdict</th>
+                      <th className="text-right pr-3">Spot</th>
+                      <th className="text-right pr-3">PWPT</th>
+                      <th className="text-right pr-3">Bear / Base / Bull</th>
+                      <th className="text-right pr-3">Implied 12m</th>
+                      <th className="text-center pr-3">In basket</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r) => (
+                      <tr
+                        key={r.symbol}
+                        className={`border-b border-gray-900 ${r.in_basket ? "bg-blue-900/10" : ""}`}
+                      >
+                        <td className="py-1.5 pr-3 font-mono">{r.symbol.replace("USDT", "")}</td>
+                        <td className="pr-3 text-gray-400">{r.sector ?? "—"}</td>
+                        <td className="pr-3 text-center">
+                          <span className={`px-1.5 py-0.5 rounded border text-[10px] ${verdictColor(r.verdict)}`}>
+                            {r.verdict.slice(0, 3)}
+                          </span>
+                        </td>
+                        <td className="pr-3 text-right text-gray-400 font-mono">
+                          {r.spot_usd != null ? `$${r.spot_usd.toLocaleString(undefined, { maximumFractionDigits: r.spot_usd < 1 ? 4 : 2 })}` : "—"}
+                        </td>
+                        <td className={`pr-3 text-right font-mono ${returnColor(r.return_pwpt)}`}>
+                          {r.pwpt_usd != null ? `$${r.pwpt_usd.toLocaleString(undefined, { maximumFractionDigits: r.pwpt_usd < 1 ? 4 : 2 })}` : "—"}
+                        </td>
+                        <td className="pr-3 text-right text-[10px] text-gray-500 font-mono">
+                          {r.return_bear != null && r.return_base != null && r.return_bull != null
+                            ? `${(r.return_bear * 100).toFixed(0)}% / ${(r.return_base * 100).toFixed(0)}% / ${(r.return_bull * 100).toFixed(0)}%`
+                            : "—"}
+                        </td>
+                        <td className={`pr-3 text-right font-mono font-semibold ${returnColor(r.return_pwpt)}`}>
+                          {r.return_pwpt != null ? `${r.return_pwpt >= 0 ? "+" : ""}${(r.return_pwpt * 100).toFixed(0)}%` : "—"}
+                        </td>
+                        <td className="pr-3 text-center">
+                          {r.in_basket ? (
+                            <Badge variant="info">long</Badge>
+                          ) : r.in_universe ? (
+                            <span className="text-gray-500 text-[10px]">universe</span>
+                          ) : (
+                            <span className="text-gray-700 text-[10px]">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* Scoring Architecture */}
       <Card>
