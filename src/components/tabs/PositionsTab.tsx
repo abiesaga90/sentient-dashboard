@@ -36,12 +36,22 @@ const columns: Column<Position>[] = [
     header: "Tags",
     render: (r) =>
       r.tags && r.tags.length > 0 ? (
-        <div className="flex gap-1">
-          {r.tags.map((t) => (
-            <Badge key={t} variant="default" className="text-[10px] px-1 py-0">
-              {t}
-            </Badge>
-          ))}
+        <div className="flex gap-1 flex-wrap">
+          {r.tags.map((t) => {
+            const isPinned = t === "PINNED";
+            return (
+              <Badge
+                key={t}
+                variant={isPinned ? "warning" : "default"}
+                className={`text-[10px] px-1 py-0 ${
+                  isPinned ? "font-semibold tracking-wide" : ""
+                }`}
+                title={isPinned ? "Force-pinned via ALWAYS_INCLUDE_SHORTS (discretionary conviction short)" : undefined}
+              >
+                {t}
+              </Badge>
+            );
+          })}
         </div>
       ) : (
         <span className="text-gray-600">—</span>
