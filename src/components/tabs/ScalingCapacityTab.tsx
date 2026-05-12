@@ -531,10 +531,14 @@ export function ScalingCapacityTab() {
                   PAUSED
                   {!st.sortino_gate_ok ? " \u00B7 Sortino" : ""}
                   {!st.dd_gate_ok ? " \u00B7 DD" : ""}
-                  {!st.infra_gate_ok ? " \u00B7 Infra" : ""}
                 </Badge>
               )}
             </div>
+            {!st.infra_gate_ok && (
+              <div className="text-[10px] text-amber-400 mt-1">
+                Infra \u00B7 informational (slippage above 10 bps local threshold; not a Nickel hard gate)
+              </div>
+            )}
             {st.next_tier_label && (
               <div className="text-xs text-gray-500">
                 Next: {st.next_tier_label}
@@ -773,19 +777,31 @@ export function ScalingCapacityTab() {
           <SortinoProjectionPanel proj={st.sortino_projection} />
         )}
 
-        {/* Infrastructure Gate KPIs */}
+        {/* Infrastructure Execution KPIs (informational, not Nickel hard gates) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <KpiCard
-            label="Avg Slippage (30d)"
+            label="Avg Slippage (30d) \u00b7 informational"
             value={`${st.avg_slippage_bps.toFixed(1)} bps`}
-            valueColor={gateColor(st.avg_slippage_bps < 10)}
-            sub={`${st.n_trades_30d} trades`}
+            valueColor={
+              st.avg_slippage_bps < 10
+                ? "text-green-400"
+                : st.avg_slippage_bps < 30
+                  ? "text-amber-400"
+                  : "text-red-400"
+            }
+            sub={`${st.n_trades_30d} trades \u00b7 arrival=decision-time mid`}
           />
           <KpiCard
-            label="Fill Ratio (30d)"
+            label="Fill Ratio (30d) \u00b7 informational"
             value={`${st.fill_ratio_pct.toFixed(1)}%`}
-            valueColor={gateColor(st.fill_ratio_pct >= 95)}
-            sub="Gate: \u2265 95%"
+            valueColor={
+              st.fill_ratio_pct >= 95
+                ? "text-green-400"
+                : st.fill_ratio_pct >= 85
+                  ? "text-amber-400"
+                  : "text-red-400"
+            }
+            sub="Local convention: \u2265 95%"
           />
           <KpiCard
             label="Funding Drag (ann.)"
