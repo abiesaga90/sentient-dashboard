@@ -18,7 +18,7 @@ interface EquityCurveProps {
   startingCapital: number;
 }
 
-const PERIODS = ["1W", "1M", "MTD", "QTD", "YTD", "ALL"] as const;
+const PERIODS = ["1D", "1W", "1M", "MTD", "QTD", "YTD", "ALL"] as const;
 type Period = (typeof PERIODS)[number];
 
 interface EquityResponse {
@@ -37,6 +37,9 @@ function periodFetch(
 ): { granularity: "auto"; hours: number } {
   const now = new Date();
   switch (period) {
+    case "1D":
+      // 24h of per-tick data (60s) — finest available
+      return { granularity: "auto", hours: 24 };
     case "1W":
       return { granularity: "auto", hours: 24 * 7 };
     case "1M":
@@ -67,6 +70,11 @@ function periodFetch(
 
 function periodCutoff(period: Period, now: Date): Date | null {
   if (period === "ALL") return null;
+  if (period === "1D") {
+    const d = new Date(now);
+    d.setUTCHours(d.getUTCHours() - 24);
+    return d;
+  }
   if (period === "1W") {
     const d = new Date(now);
     d.setUTCDate(d.getUTCDate() - 7);
