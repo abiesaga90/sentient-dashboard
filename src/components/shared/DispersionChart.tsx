@@ -99,7 +99,12 @@ export function DispersionChart({ days = 365 }: { days?: number }) {
             tickFormatter={(d: string) => d.slice(5)}
           />
           <YAxis
-            domain={[0.4, 1.0]}
+            domain={[
+              (dataMin: number) =>
+                Math.max(0, Math.floor((dataMin - 0.02) * 20) / 20),
+              (dataMax: number) =>
+                Math.min(1, Math.ceil((dataMax + 0.02) * 20) / 20),
+            ]}
             tick={TICK}
             width={44}
             tickFormatter={(v: number) => v.toFixed(2)}
