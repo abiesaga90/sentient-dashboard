@@ -88,7 +88,7 @@ function formatTick(s: string, gran: string): string {
   if (gran === "4h" || gran === "12h" || gran === "hourly") {
     return `${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")} ${String(d.getUTCHours()).padStart(2, "0")}:00`;
   }
-  // tick — HH:MM
+  // tick / 15m / 30m — HH:MM
   return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 }
 
