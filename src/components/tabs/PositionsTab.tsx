@@ -149,7 +149,12 @@ const columns: Column<Position>[] = [
         </span>
       );
     },
-    sortKey: (r) => (r as any).funding_rate_ann ?? 0,
+    // Sort by *effective* funding (sign-adjusted by side) so the order
+    // matches the displayed value: positive = we receive, negative = we pay.
+    sortKey: (r) => {
+      const ann = (r as any).funding_rate_ann ?? 0;
+      return r.side === "SHORT" ? ann : -ann;
+    },
     align: "right",
   },
   {
