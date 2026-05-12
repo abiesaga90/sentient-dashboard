@@ -674,6 +674,51 @@ export function ScalingCapacityTab() {
                   position: "right",
                 }}
               />
+              {/* Leading-indicator overlays: where the shorter windows sit RIGHT NOW.
+                  These are horizontal levels (not time series), so the chart shows
+                  the 28d trajectory against today's 5d/7d/14d as forecast levels. */}
+              {st.sortino_5d != null && (
+                <ReferenceLine
+                  y={st.sortino_5d}
+                  stroke="#f59e0b"
+                  strokeDasharray="2 3"
+                  strokeOpacity={0.7}
+                  label={{
+                    value: `5d ${st.sortino_5d >= 0 ? "+" : ""}${st.sortino_5d.toFixed(1)}`,
+                    fill: "#f59e0b",
+                    fontSize: 9,
+                    position: "insideLeft",
+                  }}
+                />
+              )}
+              {st.sortino_7d != null && (
+                <ReferenceLine
+                  y={st.sortino_7d}
+                  stroke="#a78bfa"
+                  strokeDasharray="2 3"
+                  strokeOpacity={0.7}
+                  label={{
+                    value: `7d ${st.sortino_7d >= 0 ? "+" : ""}${st.sortino_7d.toFixed(1)}`,
+                    fill: "#a78bfa",
+                    fontSize: 9,
+                    position: "insideLeft",
+                  }}
+                />
+              )}
+              {st.sortino_14d != null && (
+                <ReferenceLine
+                  y={st.sortino_14d}
+                  stroke="#34d399"
+                  strokeDasharray="2 3"
+                  strokeOpacity={0.7}
+                  label={{
+                    value: `14d ${st.sortino_14d >= 0 ? "+" : ""}${st.sortino_14d.toFixed(1)}`,
+                    fill: "#34d399",
+                    fontSize: 9,
+                    position: "insideLeft",
+                  }}
+                />
+              )}
               <Line
                 type="monotone"
                 dataKey="value"
