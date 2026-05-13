@@ -170,9 +170,10 @@ export function PStopHistoryChart() {
                 fontSize: 11,
               }}
               labelStyle={{ color: "#cbd5e1" }}
-              formatter={(v: number | null) =>
-                v == null ? "—" : `${v.toFixed(2)}%`
-              }
+              formatter={(value: unknown) => {
+                if (value == null || typeof value !== "number") return "—";
+                return `${value.toFixed(2)}%`;
+              }}
             />
             <Legend
               wrapperStyle={{ fontSize: 11, color: "#94a3b8" }}
