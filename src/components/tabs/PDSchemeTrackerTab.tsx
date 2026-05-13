@@ -531,6 +531,109 @@ export function PDSchemeTrackerTab() {
           </div>
         </div>
       </Card>
+
+      {/* Canonical cohort playbook reference */}
+      <PlaybookReference />
+    </div>
+  );
+}
+
+function Phase({ title, color, rows }: {
+  title: string; color: string; rows: [string, string][];
+}) {
+  return (
+    <div>
+      <div className={`${color} font-medium mb-1`}>{title}</div>
+      <table className="w-full text-[11px]">
+        <tbody>
+          {rows.map(([signal, why], i) => (
+            <tr key={i} className="border-b border-gray-800/30">
+              <td className="py-1 pr-3 text-gray-300 align-top w-[55%]">{signal}</td>
+              <td className="py-1 text-gray-500 italic">{why}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function PlaybookReference() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Card>
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full text-left"
+      >
+        <CardTitle>
+          <span className="text-gray-300 text-sm">
+            📖 Canonical Chinese-CEX-cohort P&amp;D playbook
+          </span>
+          <span className="text-[10px] text-gray-500 ml-2">
+            (SIREN · RAVE · LAB · GUA · BILL · UB · M · H lifecycle)
+          </span>
+        </CardTitle>
+        <span className="text-gray-500 text-xs">{open ? "▼" : "▶"}</span>
+      </button>
+      {open && (
+        <div className="mt-3 space-y-4 text-[11px]">
+          <Phase
+            title="Phase 1: Setup — best LONG entry (pre-pump)"
+            color="text-blue-400"
+            rows={[
+              ["BNB Chain or Solana deployment", "Default cohort venues (cheap gas, MM-friendly)"],
+              ["Bitget listing first (spot → margin → perp)", '"The Chinese CEX cartel venue" per @zachxbt'],
+              ["Sister listings on Gate / MEXC / KuCoin / XT", "Chinese-CEX cluster"],
+              ["Aster DEX trading campaign", "BNB-affiliated front-running"],
+              ["<15% circulating, ≥3× FDV/MC", "Locked supply weaponised for distribution"],
+              ["Top-10 wallets >85%", "Orchestrators control float"],
+              ["Known incubator: Manta Network, HairDAO, DWF Labs, Amber Group", "Cohort sponsors"],
+              ["Fluff narrative: AI/MBTI/metaphysics (GUA), DeSci hair (LAB), AI agent (SIREN), Chinese meme (币安人生)", "Disguises pure speculation"],
+            ]}
+          />
+          <Phase
+            title="Phase 2: Catalyst — last LONG entry (mid-pump)"
+            color="text-green-400"
+            rows={[
+              ["Binance Alpha showcase", "Mainstream retail discovery — pump begins"],
+              ["Binance Futures perp launch", "Retail can lever — parabolic leg"],
+              ["CT mentions surge ($SYMBOL cashtag volume)", "FOMO entering"],
+              ["Pump multiple ≥3× from listing", "Late but momentum alive"],
+              ["Funding flips ≥+50% ann", "Crowded long forming — often exact peak"],
+            ]}
+          />
+          <Phase
+            title="Phase 3: Distribution — SHORT entry zone"
+            color="text-orange-400"
+            rows={[
+              ["0xNoxxx-style alerts: X tokens moved from Bitget cold wallet", "Insider preparation to dump"],
+              ["Nansen smart money 7d outflow ≥ -$5M", "Smart wallets exit before retail"],
+              ["CEX inflow 7d ≥ +$10M", "Pre-distribution staging"],
+              ["CT divergence: zachxbt 'crime cartel' vs shillers '$20+ coming'", "Cycle apex marker"],
+              ["Pump multiple ≥5–10×", "Reflexive top"],
+              ["@antiMoonn / @Eveningtraders posting short setups", "Smart-money shorts activated"],
+              ["Funding ≥+200% ann (GUA-level)", "Late-stage crowded long, ripe to flip"],
+            ]}
+          />
+          <Phase
+            title="Phase 4: Terminal — close shorts"
+            color="text-red-400"
+            rows={[
+              ["Bitget removes the pair (like $ZEREBRO)", "Scheme over — cover shorts"],
+              ["Volume collapses ≥80% from peak", "Liquidity exit by orchestrators"],
+              ["CT goes silent", "No more retail to harvest"],
+            ]}
+          />
+          <div className="text-[10px] text-gray-500 italic border-t border-gray-800 pt-2">
+            Scanner coverage: Phase 1 (Live — Bitget feed, small_mc pillar, CN-pattern detector, incubator),
+            Phase 2 (Live — CMS feed, perp_launched_at, funding_favor),
+            Phase 3 (Partial — Nansen sparse, manual X-inject),
+            Phase 4 (Not wired — Bitget delisting detection pending).
+          </div>
+        </div>
+      )}
+    </Card>
     </div>
   );
 }
