@@ -37,6 +37,7 @@ export const DASHBOARD_TABS = [
   { id: "long-signals", label: "Long Signals", icon: <Activity size={14} /> },
   { id: "long-selection", label: "Long Selection", icon: <Zap size={14} /> },
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },
+  { id: "pd-tracker", label: "P&D Tracker", icon: <AlertTriangle size={14} /> },
   { id: "fundamentals", label: "Fundamentals", icon: <BookOpen size={14} /> },
   { id: "performance", label: "Performance", icon: <TrendingUp size={14} /> },
   { id: "attribution", label: "Attribution", icon: <BarChart3 size={14} /> },
@@ -45,7 +46,6 @@ export const DASHBOARD_TABS = [
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
   { id: "scaling", label: "Scaling & Capacity", icon: <Scale size={14} /> },
   { id: "next-rebalance", label: "Rotation", icon: <Clock size={14} /> },
-  { id: "pd-tracker", label: "P&D Tracker", icon: <AlertTriangle size={14} /> },
 ] as const;
 
 interface TabBarProps {
