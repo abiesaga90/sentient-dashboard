@@ -138,7 +138,7 @@ export function TeroxxValuationPanel({ highlight = "both" }: Props) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
-          <span>Teroxx Valuation · screening only</span>
+          <span>Discretionary Valuation · screening only</span>
           <span className="text-[10px] font-normal text-gray-500">
             Does NOT feed the model — used for promotion / re-rate decisions only
           </span>
@@ -152,7 +152,7 @@ export function TeroxxValuationPanel({ highlight = "both" }: Props) {
         {/* Conflicts banners */}
         {conflictsLong.length > 0 && (
           <div className="text-[11px] text-amber-300 bg-amber-900/20 border border-amber-800/40 rounded p-2">
-            ⚠ <strong>Long positions Teroxx rates rich</strong> (UW or PWPT &lt; −30%):{" "}
+            ⚠ <strong>Long positions rated rich by discretionary valuation</strong> (UW or PWPT &lt; −30%):{" "}
             {conflictsLong
               .map(
                 (r) =>
@@ -166,7 +166,7 @@ export function TeroxxValuationPanel({ highlight = "both" }: Props) {
         )}
         {conflictsShort.length > 0 && (
           <div className="text-[11px] text-rose-300 bg-rose-900/20 border border-rose-800/40 rounded p-2">
-            ⚠ <strong>Short positions Teroxx rates cheap</strong> (OW or PWPT &gt; +30%):{" "}
+            ⚠ <strong>Short positions rated cheap by discretionary valuation</strong> (OW or PWPT &gt; +30%):{" "}
             {conflictsShort
               .map(
                 (r) =>

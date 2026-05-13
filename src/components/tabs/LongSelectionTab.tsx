@@ -899,7 +899,7 @@ export function LongSelectionTab() {
         </Card>
       )}
 
-      {/* Teroxx Valuation cross-reference (shared component, both sides) */}
+      {/* Discretionary valuation cross-reference (shared component, both sides) */}
       <TeroxxValuationPanel highlight="long" />
 
       {/* Scoring Architecture */}

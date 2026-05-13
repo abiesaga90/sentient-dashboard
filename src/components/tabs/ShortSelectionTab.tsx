@@ -777,7 +777,7 @@ export function ShortSelectionTab() {
         </Card>
       )}
 
-      {/* Teroxx Valuation cross-reference — short-biased sort */}
+      {/* Discretionary valuation cross-reference — short-biased sort */}
       <TeroxxValuationPanel highlight="short" />
     </div>
   );
