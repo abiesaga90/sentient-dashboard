@@ -334,7 +334,7 @@ export function PositionsTab() {
         <Card>
           <BasketPnlChart series={pnlHistory.series} />
           <div className="mt-2 text-[10px] text-gray-600">
-            Daily snapshots, last {pnlHistory.days}d. Green = longs unrealized P&L, red = shorts unrealized P&L (signed, losses negative). Blue dashed = spread (L + S). Spread widening (blue rising) = longs outperforming shorts; spread narrowing/falling = shorts outperforming longs.
+            Green = longs unrealized P&L, red = shorts unrealized P&L (signed, losses negative). Blue dashed = spread (L + S). Spread widening (blue rising) = longs outperforming shorts; spread narrowing/falling = shorts outperforming longs. Granularity auto-adjusts to the selected period (15m for 1D, hourly for 1W, 4h for 1M, daily for ALL).
           </div>
         </Card>
       )}
