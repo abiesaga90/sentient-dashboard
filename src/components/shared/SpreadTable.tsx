@@ -92,7 +92,10 @@ export function SpreadTable({
   cumulativeSpread, leverageRatio, netBetaPct,
 }: SpreadTableProps) {
   const [levered, setLevered] = useState(false);
-  const [exOuts, setExOuts] = useState(false);
+  // Default to Ex-outliers ON when ex_outliers data is available. The
+  // unfiltered view is wildly distorted by names like LAB / SIREN that
+  // pumped 25×+ in our lookback windows — the "honest" spread strips them.
+  const [exOuts, setExOuts] = useState(Boolean(exOutliers));
   const [attribution, setAttribution] = useState(false);
   const [ewCompare, setEwCompare] = useState(false);
 
