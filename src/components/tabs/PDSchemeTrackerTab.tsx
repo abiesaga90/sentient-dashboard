@@ -105,11 +105,6 @@ function fmtAge(hours: number | null | undefined): string {
   return `${(hours / 24).toFixed(1)}d`;
 }
 
-function fmtPct(v: number | null | undefined, digits = 0): string {
-  if (v == null) return "—";
-  return `${v.toFixed(digits)}%`;
-}
-
 function fmtMultiple(v: number | null | undefined): string {
   if (v == null) return "—";
   return `${v.toFixed(2)}×`;
@@ -647,6 +642,5 @@ function PlaybookReference() {
         </div>
       )}
     </Card>
-    </div>
   );
 }
