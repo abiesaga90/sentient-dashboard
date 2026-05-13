@@ -627,7 +627,12 @@ export function RiskStressTab() {
                   })}
                 </tr>
                 <tr>
-                  <td className="px-3 py-2 text-yellow-500/70 text-[10px]">P(breach)</td>
+                  <td
+                    className="px-3 py-2 text-yellow-500/70 text-[10px]"
+                    title="Closed-form first-passage probability: 2 × Φ(-remaining_buffer / N-day_levered_vol). Reflection-principle estimate assuming ZERO drift and CONSTANT gross — a conservative baseline. The decision-relevant 'P(stop) 30d' in the Risk Posture banner uses Monte Carlo with positive drift and elastic gross trim, which is typically materially lower."
+                  >
+                    P(stop) zero-drift
+                  </td>
                   {spreadRisk.horizons.map((h) => {
                     const p = h.p_breach_pct;
                     if (p == null) return <td key={h.period} className="px-3 py-2 text-right text-gray-600">—</td>;
