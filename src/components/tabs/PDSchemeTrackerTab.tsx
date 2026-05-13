@@ -27,6 +27,32 @@ interface Candidate {
   source?: string;
   notes?: string | null;
   updated_at?: string;
+  // Live-enriched fields
+  binance_perp_listed?: boolean;
+  market_cap_usd?: number | null;
+  fdv_usd?: number | null;
+  volume_24h_usd?: number | null;
+  funding_rate_8h?: number | null;
+  funding_rate_ann_pct?: number | null;
+  current_price?: number | null;
+  return_24h_pct?: number | null;
+  return_7d_pct?: number | null;
+  return_30d_pct?: number | null;
+}
+
+function fmtUsd(v: number | null | undefined): string {
+  if (v == null) return "—";
+  const a = Math.abs(v);
+  if (a >= 1e9) return `$${(v / 1e9).toFixed(2)}B`;
+  if (a >= 1e6) return `$${(v / 1e6).toFixed(1)}M`;
+  if (a >= 1e3) return `$${(v / 1e3).toFixed(1)}K`;
+  return `$${v.toFixed(2)}`;
+}
+
+function fmtFunding(ann: number | null | undefined): string {
+  if (ann == null) return "—";
+  const sign = ann >= 0 ? "+" : "";
+  return `${sign}${ann.toFixed(0)}%`;
 }
 
 interface AlphaOnly {
@@ -36,6 +62,10 @@ interface AlphaOnly {
 }
 
 interface ScamBalance {
+  n_held_long: number;
+  n_held_short: number;
+  held_long_symbols: string[];
+  held_short_symbols: string[];
   n_long_alerted: number;
   n_short_alerted: number;
   n_long_watch: number;
@@ -142,6 +172,25 @@ function CandidateRow({ c, side }: { c: Candidate; side: "long" | "short" }) {
             {c.state}
           </Badge>
         </td>
+        <td className="py-1.5 px-2 text-center text-[11px]">
+          {c.binance_perp_listed ? (
+            <span className="text-green-400">✓</span>
+          ) : <span className="text-gray-600">—</span>}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[11px] text-gray-300">
+          {fmtUsd(c.market_cap_usd)}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[11px] text-gray-300">
+          {fmtUsd(c.volume_24h_usd)}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[11px]">
+          {c.funding_rate_ann_pct != null ? (
+            <span className={c.funding_rate_ann_pct > 50 ? "text-red-400" :
+                             c.funding_rate_ann_pct < -50 ? "text-green-400" : "text-gray-400"}>
+              {fmtFunding(c.funding_rate_ann_pct)}
+            </span>
+          ) : <span className="text-gray-600">—</span>}
+        </td>
         <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
           {fmtAge(c.cross_age_hours)}
         </td>
@@ -152,9 +201,6 @@ function CandidateRow({ c, side }: { c: Candidate; side: "long" | "short" }) {
             </Badge>
           ) : <span className="text-gray-600">—</span>}
         </td>
-        <td className="py-1.5 px-2 text-center text-[11px] text-gray-400">
-          {c.bitget_listing_type ?? "—"}
-        </td>
         <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
           {fmtPct(c.top10_pct)}
         </td>
@@ -164,13 +210,10 @@ function CandidateRow({ c, side }: { c: Candidate; side: "long" | "short" }) {
         <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
           {fmtMultiple(c.pump_multiple)}
         </td>
-        <td className="py-1.5 px-2 text-center text-[10px] text-gray-500">
-          {c.source ?? "—"}
-        </td>
       </tr>
       {expanded && (
         <tr className="border-b border-gray-800">
-          <td colSpan={10} className="py-3 px-4 bg-gray-900/30">
+          <td colSpan={12} className="py-3 px-4 bg-gray-900/30">
             <div className="grid grid-cols-2 gap-4 text-[11px]">
               <div>
                 <div className="text-gray-500 mb-1 uppercase tracking-wider">Pillars</div>
@@ -214,13 +257,15 @@ function CandidateTable({ items, side, emptyMsg }: {
             <th className="text-left py-1 pr-3">Symbol</th>
             <th className="text-right py-1 px-2">Score</th>
             <th className="text-center py-1 px-2">State</th>
-            <th className="text-right py-1 px-2">Age</th>
+            <th className="text-center py-1 px-2" title="Available on Binance Perp">B.Perp</th>
+            <th className="text-right py-1 px-2">MC</th>
+            <th className="text-right py-1 px-2" title="24h quote volume">24h Vol</th>
+            <th className="text-right py-1 px-2" title="Annualised 8h funding rate">Fund% ann</th>
+            <th className="text-right py-1 px-2" title="Days since cross-listing observed">Age</th>
             <th className="text-center py-1 px-2">Chain</th>
-            <th className="text-center py-1 px-2">Bitget</th>
             <th className="text-right py-1 px-2">Top-10</th>
             <th className="text-right py-1 px-2">FDV/MC</th>
             <th className="text-right py-1 px-2">Pump×</th>
-            <th className="text-center py-1 px-2">Source</th>
           </tr>
         </thead>
         <tbody>
@@ -290,18 +335,28 @@ export function PDSchemeTrackerTab() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3">
           <div>
-            <div className="text-[10px] text-gray-500 uppercase">Scam longs</div>
+            <div className="text-[10px] text-gray-500 uppercase">Scam longs <span className="text-gray-600">held</span></div>
             <div className="text-2xl text-green-400 font-medium">
-              {scam_balance.n_long_alerted}
+              {scam_balance.n_held_long}
             </div>
-            <div className="text-[10px] text-gray-600">+ {scam_balance.n_long_watch} on watch</div>
+            <div className="text-[10px] text-gray-500 truncate" title={scam_balance.held_long_symbols.join(", ")}>
+              {scam_balance.held_long_symbols.length > 0
+                ? scam_balance.held_long_symbols.map(s => s.replace(/USDT$/, "")).join(", ")
+                : "—"}
+            </div>
+            <div className="text-[9px] text-gray-700 mt-0.5">+ {scam_balance.n_long_watch} on watch</div>
           </div>
           <div>
-            <div className="text-[10px] text-gray-500 uppercase">Scam shorts</div>
+            <div className="text-[10px] text-gray-500 uppercase">Scam shorts <span className="text-gray-600">held</span></div>
             <div className="text-2xl text-red-400 font-medium">
-              {scam_balance.n_short_alerted}
+              {scam_balance.n_held_short}
             </div>
-            <div className="text-[10px] text-gray-600">+ {scam_balance.n_short_watch} on watch</div>
+            <div className="text-[10px] text-gray-500 truncate" title={scam_balance.held_short_symbols.join(", ")}>
+              {scam_balance.held_short_symbols.length > 0
+                ? scam_balance.held_short_symbols.map(s => s.replace(/USDT$/, "")).join(", ")
+                : "—"}
+            </div>
+            <div className="text-[9px] text-gray-700 mt-0.5">+ {scam_balance.n_short_watch} on watch</div>
           </div>
           <div>
             <div className="text-[10px] text-gray-500 uppercase">Imbalance</div>
