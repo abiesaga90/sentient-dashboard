@@ -204,8 +204,20 @@ function CandidateRow({ c, side }: { c: Candidate; side: "long" | "short" }) {
             </Badge>
           ) : <span className="text-gray-600">—</span>}
         </td>
-        <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
-          {fmtPct(c.top10_pct)}
+        <td className="py-1.5 px-2 text-right text-[11px]">
+          {c.top10_pct != null ? (
+            <span className={c.top10_pct >= 85 ? "text-red-400 font-medium" : c.top10_pct >= 70 ? "text-yellow-400" : "text-gray-400"}>
+              {c.top10_pct.toFixed(0)}%
+            </span>
+          ) : <span className="text-gray-600">—</span>}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[11px]">
+          {c.circulating_pct != null ? (
+            <span className={c.circulating_pct < 15 ? "text-red-400 font-medium" : c.circulating_pct < 30 ? "text-yellow-400" : "text-gray-400"}
+                  title={c.circulating_pct < 15 ? "Low float — high distribution risk on unlocks" : ""}>
+              {c.circulating_pct.toFixed(0)}%
+            </span>
+          ) : <span className="text-gray-600">—</span>}
         </td>
         <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
           {fmtMultiple(c.fdv_mcap)}
@@ -226,7 +238,7 @@ function CandidateRow({ c, side }: { c: Candidate; side: "long" | "short" }) {
       </tr>
       {expanded && (
         <tr className="border-b border-gray-800">
-          <td colSpan={13} className="py-3 px-4 bg-gray-900/30">
+          <td colSpan={14} className="py-3 px-4 bg-gray-900/30">
             <div className="grid grid-cols-2 gap-4 text-[11px]">
               <div>
                 <div className="text-gray-500 mb-1 uppercase tracking-wider">Pillars</div>
@@ -286,7 +298,8 @@ function CandidateTable({ items, side, emptyMsg }: {
             <th className="text-right py-1 px-2" title="Annualised 8h funding rate">Fund% ann</th>
             <th className="text-right py-1 px-2" title="Days since cross-listing observed">Age</th>
             <th className="text-center py-1 px-2">Chain</th>
-            <th className="text-right py-1 px-2">Top-10</th>
+            <th className="text-right py-1 px-2" title="Top-10 holder concentration (Nansen, when available)">Top-10</th>
+            <th className="text-right py-1 px-2" title="Circulating supply / total supply — low % = locked supply overhang, concentration proxy">Circ%</th>
             <th className="text-right py-1 px-2">FDV/MC</th>
             <th className="text-right py-1 px-2">Pump×</th>
             <th className="text-center py-1 px-2" title="Chinese-cohort pattern score (0-1). 🚩 ≥0.6 = LAB/GUA-like cohort; ⚠ ≥0.35 = partial match; clean = no signals.">CN Pattern</th>
