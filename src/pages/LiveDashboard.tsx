@@ -25,6 +25,7 @@ import { AlphaModelTab } from "../components/tabs/AlphaModelTab";
 import { OptimizerTab } from "../components/tabs/OptimizerTab";
 import { SizingShadowTab } from "../components/tabs/SizingShadowTab";
 import { LeverageCalibrationTab } from "../components/tabs/LeverageCalibrationTab";
+import { PDSchemeTrackerTab } from "../components/tabs/PDSchemeTrackerTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -133,6 +134,8 @@ function TabContent({
       return <ExecutionTab />;
     case "scaling":
       return <ScalingCapacityTab />;
+    case "pd-tracker":
+      return <PDSchemeTrackerTab />;
     default:
       return (
         <div className="p-4">

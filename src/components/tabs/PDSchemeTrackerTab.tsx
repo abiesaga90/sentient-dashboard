@@ -1,0 +1,457 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEngine } from "../../hooks/useEngine";
+import { Card, CardHeader, CardTitle } from "../ui/Card";
+import { Badge } from "../ui/Badge";
+
+interface Candidate {
+  symbol: string;
+  state: string;
+  long_score: number | null;
+  short_score: number | null;
+  long_pillars?: Record<string, number>;
+  short_pillars?: Record<string, number>;
+  alpha_listed_at?: string | null;
+  bitget_listed_at?: string | null;
+  bitget_listing_type?: string | null;
+  cross_age_hours?: number | null;
+  chain?: string | null;
+  incubator?: string | null;
+  fluff_score?: number | null;
+  top10_pct?: number | null;
+  fdv_mcap?: number | null;
+  circulating_pct?: number | null;
+  pump_multiple?: number | null;
+  last_long_alert_at?: string | null;
+  last_short_alert_at?: string | null;
+  source?: string;
+  notes?: string | null;
+  updated_at?: string;
+}
+
+interface AlphaOnly {
+  symbol: string;
+  first_seen: string;
+  chain?: string | null;
+}
+
+interface ScamBalance {
+  n_long_alerted: number;
+  n_short_alerted: number;
+  n_long_watch: number;
+  n_short_watch: number;
+  imbalance: number;
+  message: string | null;
+}
+
+interface SourceHealth {
+  last_observation: string | null;
+  rows_last_24h: number;
+  error?: string;
+}
+
+interface PDResponse {
+  longs: Candidate[];
+  shorts: Candidate[];
+  alpha_only: AlphaOnly[];
+  scam_balance: ScamBalance;
+  source_health: {
+    binance_alpha: SourceHealth;
+    bitget: SourceHealth;
+    x_feed: SourceHealth;
+    last_scan: string | null;
+    scanner_enabled: boolean;
+  };
+  history: Candidate[];
+  fetched_at: string;
+}
+
+function fmtAge(hours: number | null | undefined): string {
+  if (hours == null) return "—";
+  if (hours < 24) return `${hours.toFixed(0)}h`;
+  return `${(hours / 24).toFixed(1)}d`;
+}
+
+function fmtPct(v: number | null | undefined, digits = 0): string {
+  if (v == null) return "—";
+  return `${v.toFixed(digits)}%`;
+}
+
+function fmtMultiple(v: number | null | undefined): string {
+  if (v == null) return "—";
+  return `${v.toFixed(2)}×`;
+}
+
+function fmtTime(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  return d.toISOString().slice(0, 16).replace("T", " ");
+}
+
+function stateBadgeVariant(state: string): "success" | "danger" | "warning" | "info" | "default" {
+  if (state === "LONG_ALERTED") return "success";
+  if (state === "SHORT_ALERTED") return "danger";
+  if (state === "LONG_WATCH") return "info";
+  if (state === "SHORT_WATCH") return "warning";
+  return "default";
+}
+
+function ScoreCell({ score, threshold }: { score: number | null | undefined; threshold: number }) {
+  if (score == null) return <span className="text-gray-600">—</span>;
+  const cls = score >= threshold
+    ? "text-green-400 font-semibold"
+    : score >= threshold - 0.15
+      ? "text-yellow-400"
+      : "text-gray-400";
+  return <span className={cls}>{score.toFixed(2)}</span>;
+}
+
+function PillarPopover({ pillars }: { pillars?: Record<string, number> }) {
+  if (!pillars || Object.keys(pillars).length === 0) return null;
+  return (
+    <div className="text-[10px] text-gray-500 grid grid-cols-2 gap-x-3 mt-1">
+      {Object.entries(pillars).map(([k, v]) => (
+        <span key={k}>
+          {k}: <span className="text-gray-300">{v.toFixed(2)}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function CandidateRow({ c, side }: { c: Candidate; side: "long" | "short" }) {
+  const [expanded, setExpanded] = useState(false);
+  const score = side === "long" ? c.long_score : c.short_score;
+  const pillars = side === "long" ? c.long_pillars : c.short_pillars;
+  const threshold = side === "long" ? 0.60 : 0.65;
+  const symbol = c.symbol.replace(/USDT$/, "");
+
+  return (
+    <>
+      <tr
+        className="border-b border-gray-800/50 hover:bg-gray-900/40 cursor-pointer"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <td className="py-1.5 pr-3 font-medium text-gray-200">{symbol}</td>
+        <td className="py-1.5 px-2 text-right">
+          <ScoreCell score={score} threshold={threshold} />
+        </td>
+        <td className="py-1.5 px-2 text-center">
+          <Badge variant={stateBadgeVariant(c.state)} className="text-[10px] px-1 py-0">
+            {c.state}
+          </Badge>
+        </td>
+        <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
+          {fmtAge(c.cross_age_hours)}
+        </td>
+        <td className="py-1.5 px-2 text-center text-[11px]">
+          {c.chain ? (
+            <Badge variant={c.chain === "BNB" ? "warning" : "default"} className="text-[10px] px-1 py-0">
+              {c.chain}
+            </Badge>
+          ) : <span className="text-gray-600">—</span>}
+        </td>
+        <td className="py-1.5 px-2 text-center text-[11px] text-gray-400">
+          {c.bitget_listing_type ?? "—"}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
+          {fmtPct(c.top10_pct)}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
+          {fmtMultiple(c.fdv_mcap)}
+        </td>
+        <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
+          {fmtMultiple(c.pump_multiple)}
+        </td>
+        <td className="py-1.5 px-2 text-center text-[10px] text-gray-500">
+          {c.source ?? "—"}
+        </td>
+      </tr>
+      {expanded && (
+        <tr className="border-b border-gray-800">
+          <td colSpan={10} className="py-3 px-4 bg-gray-900/30">
+            <div className="grid grid-cols-2 gap-4 text-[11px]">
+              <div>
+                <div className="text-gray-500 mb-1 uppercase tracking-wider">Pillars</div>
+                <PillarPopover pillars={pillars} />
+              </div>
+              <div>
+                <div className="text-gray-500 mb-1 uppercase tracking-wider">Listings</div>
+                <div>Binance Alpha: <span className="text-gray-300">{fmtTime(c.alpha_listed_at)}</span></div>
+                <div>Bitget: <span className="text-gray-300">{fmtTime(c.bitget_listed_at)}</span></div>
+                {c.last_long_alert_at && (
+                  <div>Last long alert: <span className="text-green-400">{fmtTime(c.last_long_alert_at)}</span></div>
+                )}
+                {c.last_short_alert_at && (
+                  <div>Last short alert: <span className="text-red-400">{fmtTime(c.last_short_alert_at)}</span></div>
+                )}
+              </div>
+            </div>
+            {c.notes && (
+              <div className="mt-3 text-[11px] text-gray-400 italic border-l-2 border-gray-700 pl-3">
+                {c.notes}
+              </div>
+            )}
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
+function CandidateTable({ items, side, emptyMsg }: {
+  items: Candidate[]; side: "long" | "short"; emptyMsg: string;
+}) {
+  if (items.length === 0) {
+    return <div className="text-[11px] text-gray-500 py-3 italic">{emptyMsg}</div>;
+  }
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="text-gray-500 text-[10px] uppercase tracking-wider border-b border-gray-800">
+            <th className="text-left py-1 pr-3">Symbol</th>
+            <th className="text-right py-1 px-2">Score</th>
+            <th className="text-center py-1 px-2">State</th>
+            <th className="text-right py-1 px-2">Age</th>
+            <th className="text-center py-1 px-2">Chain</th>
+            <th className="text-center py-1 px-2">Bitget</th>
+            <th className="text-right py-1 px-2">Top-10</th>
+            <th className="text-right py-1 px-2">FDV/MC</th>
+            <th className="text-right py-1 px-2">Pump×</th>
+            <th className="text-center py-1 px-2">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((c) => <CandidateRow key={c.symbol} c={c} side={side} />)}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function SourceHealthRow({ name, h }: { name: string; h: SourceHealth }) {
+  const fresh = h.last_observation && (
+    (Date.now() - new Date(h.last_observation).getTime()) < 30 * 60 * 1000
+  );
+  const dot = h.error ? "🔴" : fresh ? "🟢" : "🟡";
+  return (
+    <span className="text-[10px] text-gray-400">
+      {dot} {name}: <span className="text-gray-200">{h.rows_last_24h}/24h</span>
+      {h.error && <span className="text-red-400 ml-1">({h.error.slice(0, 40)})</span>}
+    </span>
+  );
+}
+
+export function PDSchemeTrackerTab() {
+  const { client, engine } = useEngine();
+
+  const { data, isLoading, error } = useQuery<PDResponse>({
+    queryKey: ["pd-scheme", engine.id],
+    queryFn: () => client.get("/api/pd-scheme"),
+    refetchInterval: 300_000,
+    staleTime: 120_000,
+  });
+
+  if (isLoading && !data) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
+        Loading P&D Scheme Tracker…
+      </div>
+    );
+  }
+  if (error || !data) {
+    return (
+      <div className="p-4">
+        <Card>
+          <div className="text-red-400 text-sm">
+            Failed to load P&D Scheme data. The screener may still be initialising.
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  const { longs, shorts, alpha_only, scam_balance, source_health, history } = data;
+
+  return (
+    <div className="space-y-4 p-2">
+      {/* Scam-balance gauge */}
+      <Card>
+        <div className="flex items-center justify-between">
+          <CardTitle>P&D Scheme Tracker</CardTitle>
+          <div className="text-[10px] text-gray-500">
+            Last scan: {fmtTime(source_health.last_scan)}
+            {!source_health.scanner_enabled && (
+              <span className="text-red-400 ml-2">SCANNER DISABLED</span>
+            )}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3">
+          <div>
+            <div className="text-[10px] text-gray-500 uppercase">Scam longs</div>
+            <div className="text-2xl text-green-400 font-medium">
+              {scam_balance.n_long_alerted}
+            </div>
+            <div className="text-[10px] text-gray-600">+ {scam_balance.n_long_watch} on watch</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-gray-500 uppercase">Scam shorts</div>
+            <div className="text-2xl text-red-400 font-medium">
+              {scam_balance.n_short_alerted}
+            </div>
+            <div className="text-[10px] text-gray-600">+ {scam_balance.n_short_watch} on watch</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-gray-500 uppercase">Imbalance</div>
+            <div className={`text-2xl font-medium ${Math.abs(scam_balance.imbalance) >= 2 ? "text-yellow-400" : "text-gray-300"}`}>
+              {scam_balance.imbalance > 0 ? "+" : ""}{scam_balance.imbalance}
+            </div>
+            <div className="text-[10px] text-gray-600">short minus long</div>
+          </div>
+          <div className="md:col-span-2 flex items-center">
+            {scam_balance.message && (
+              <div className="text-[11px] text-yellow-400 border-l-2 border-yellow-500 pl-3">
+                {scam_balance.message}
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+
+      {/* Longs */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <span className="text-green-400">🟢 Potential LONGS</span>
+            <span className="text-[10px] text-gray-500 ml-2">
+              ({longs.length} candidates — sorted by long_score)
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CandidateTable
+          items={longs}
+          side="long"
+          emptyMsg="No long candidates yet. Wait for the next cross-match or a fresh Binance Alpha listing."
+        />
+      </Card>
+
+      {/* Shorts */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <span className="text-red-400">🔴 Potential SHORTS</span>
+            <span className="text-[10px] text-gray-500 ml-2">
+              ({shorts.length} candidates — sorted by short_score)
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CandidateTable
+          items={shorts}
+          side="short"
+          emptyMsg="No short candidates yet."
+        />
+      </Card>
+
+      {/* Alpha-only (diagnostic — collapsible visual) */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <span className="text-yellow-400/80">⚠️ Alpha-only watchlist</span>
+            <span className="text-[10px] text-gray-500 ml-2">
+              ({alpha_only.length} on Binance Alpha but not yet on Bitget — pre-alert pipeline)
+            </span>
+          </CardTitle>
+        </CardHeader>
+        {alpha_only.length === 0 ? (
+          <div className="text-[11px] text-gray-500 italic">No Alpha-only tokens.</div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 text-[11px]">
+            {alpha_only.slice(0, 30).map((a) => (
+              <div key={a.symbol} className="border border-gray-800 rounded px-2 py-1.5 bg-gray-900/30">
+                <div className="font-medium text-gray-200">{a.symbol.replace(/USDT$/, "")}</div>
+                <div className="text-[10px] text-gray-500">{fmtTime(a.first_seen)}</div>
+                {a.chain && <div className="text-[10px] text-yellow-400">{a.chain}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      {/* History */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <span className="text-gray-300">📜 Alert history</span>
+            <span className="text-[10px] text-gray-500 ml-2">
+              ({history.length} past alerts)
+            </span>
+          </CardTitle>
+        </CardHeader>
+        {history.length === 0 ? (
+          <div className="text-[11px] text-gray-500 italic">No alerts have fired yet.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-gray-500 text-[10px] uppercase tracking-wider border-b border-gray-800">
+                  <th className="text-left py-1 pr-3">Symbol</th>
+                  <th className="text-center py-1 px-2">State</th>
+                  <th className="text-right py-1 px-2">Long</th>
+                  <th className="text-right py-1 px-2">Short</th>
+                  <th className="text-right py-1 px-2">Pump×</th>
+                  <th className="text-right py-1 px-2">FDV/MC</th>
+                  <th className="text-right py-1 px-2">Long alert</th>
+                  <th className="text-right py-1 px-2">Short alert</th>
+                  <th className="text-center py-1 px-2">Chain</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((h) => (
+                  <tr key={h.symbol} className="border-b border-gray-800/50">
+                    <td className="py-1.5 pr-3 font-medium text-gray-200">
+                      {h.symbol.replace(/USDT$/, "")}
+                    </td>
+                    <td className="py-1.5 px-2 text-center">
+                      <Badge variant={stateBadgeVariant(h.state)} className="text-[10px] px-1 py-0">
+                        {h.state}
+                      </Badge>
+                    </td>
+                    <td className="py-1.5 px-2 text-right">{h.long_score?.toFixed(2) ?? "—"}</td>
+                    <td className="py-1.5 px-2 text-right">{h.short_score?.toFixed(2) ?? "—"}</td>
+                    <td className="py-1.5 px-2 text-right">{fmtMultiple(h.pump_multiple)}</td>
+                    <td className="py-1.5 px-2 text-right">{fmtMultiple(h.fdv_mcap)}</td>
+                    <td className="py-1.5 px-2 text-right text-[10px] text-green-400/70">
+                      {fmtTime(h.last_long_alert_at)}
+                    </td>
+                    <td className="py-1.5 px-2 text-right text-[10px] text-red-400/70">
+                      {fmtTime(h.last_short_alert_at)}
+                    </td>
+                    <td className="py-1.5 px-2 text-center text-[10px] text-gray-400">
+                      {h.chain ?? "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      {/* Source-feed health */}
+      <Card>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <CardTitle>
+            <span className="text-gray-400 text-sm">Source feed health</span>
+          </CardTitle>
+          <div className="flex items-center gap-4 flex-wrap">
+            <SourceHealthRow name="Binance Alpha (CMS)" h={source_health.binance_alpha} />
+            <SourceHealthRow name="Bitget (API)" h={source_health.bitget} />
+            <SourceHealthRow name="X feed" h={source_health.x_feed} />
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
