@@ -40,9 +40,8 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
 
         {/* Daily Return */}
         {(() => {
-          const dailyPct = portfolio.daily_return_pct ?? 0;
-          const leverage = risk.gross_pct / 100;
-          const notionalPct = leverage > 0 ? dailyPct / leverage : 0;
+          const navPct = portfolio.daily_return_pct ?? 0;
+          const notionalPct = (portfolio as any).daily_return_pct_notional ?? navPct;
           const prevNav = (portfolio as any).prev_day_nav;
           const pnlUsd = prevNav ? portfolio.nav - prevNav : 0;
           return (
@@ -54,12 +53,12 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
               )}>
                 {notionalPct > 0 ? "+" : ""}{notionalPct.toFixed(2)}%
                 <span className="text-sm font-normal text-gray-500 ml-1">
-                  on notional ({leverage.toFixed(1)}x)
+                  on $100k notional
                 </span>
               </div>
               <div className="text-[10px] text-gray-600 mt-1 space-y-0.5">
                 <div>
-                  {dailyPct > 0 ? "+" : ""}{dailyPct.toFixed(2)}% on NAV
+                  {navPct > 0 ? "+" : ""}{navPct.toFixed(2)}% on NAV
                 </div>
                 <div>{formatUSD(prevNav)} → {formatUSD(portfolio.nav)} ({pnlUsd >= 0 ? "+" : ""}{formatUSD(pnlUsd)})</div>
                 <div>{(portfolio as any).prev_day_date ?? ""} close → now</div>
