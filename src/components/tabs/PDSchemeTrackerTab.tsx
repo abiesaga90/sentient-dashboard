@@ -38,6 +38,9 @@ interface Candidate {
   return_24h_pct?: number | null;
   return_7d_pct?: number | null;
   return_30d_pct?: number | null;
+  // Chinese-cohort pattern (analyst flag, not in score)
+  chinese_pattern_score?: number | null;
+  chinese_pattern_flags?: string[] | null;
 }
 
 function fmtUsd(v: number | null | undefined): string {
@@ -210,10 +213,20 @@ function CandidateRow({ c, side }: { c: Candidate; side: "long" | "short" }) {
         <td className="py-1.5 px-2 text-right text-[11px] text-gray-400">
           {fmtMultiple(c.pump_multiple)}
         </td>
+        <td className="py-1.5 px-2 text-center text-[11px]"
+            title={c.chinese_pattern_flags?.join(" | ") ?? ""}>
+          {(() => {
+            const s = c.chinese_pattern_score ?? 0;
+            if (s >= 0.6) return <span className="text-red-400 font-medium">🚩 {s.toFixed(2)}</span>;
+            if (s >= 0.35) return <span className="text-yellow-400">⚠ {s.toFixed(2)}</span>;
+            if (s > 0) return <span className="text-gray-500">{s.toFixed(2)}</span>;
+            return <span className="text-green-400/60">clean</span>;
+          })()}
+        </td>
       </tr>
       {expanded && (
         <tr className="border-b border-gray-800">
-          <td colSpan={12} className="py-3 px-4 bg-gray-900/30">
+          <td colSpan={13} className="py-3 px-4 bg-gray-900/30">
             <div className="grid grid-cols-2 gap-4 text-[11px]">
               <div>
                 <div className="text-gray-500 mb-1 uppercase tracking-wider">Pillars</div>
@@ -231,6 +244,16 @@ function CandidateRow({ c, side }: { c: Candidate; side: "long" | "short" }) {
                 )}
               </div>
             </div>
+            {c.chinese_pattern_flags && c.chinese_pattern_flags.length > 0 && (
+              <div className="mt-3 text-[11px] border-l-2 border-red-700 pl-3">
+                <div className="text-red-400 font-medium mb-1">
+                  🚩 Chinese-cohort pattern (score {(c.chinese_pattern_score ?? 0).toFixed(2)})
+                </div>
+                {c.chinese_pattern_flags.map((f, i) => (
+                  <div key={i} className="text-gray-400">• {f}</div>
+                ))}
+              </div>
+            )}
             {c.notes && (
               <div className="mt-3 text-[11px] text-gray-400 italic border-l-2 border-gray-700 pl-3">
                 {c.notes}
@@ -266,6 +289,7 @@ function CandidateTable({ items, side, emptyMsg }: {
             <th className="text-right py-1 px-2">Top-10</th>
             <th className="text-right py-1 px-2">FDV/MC</th>
             <th className="text-right py-1 px-2">Pump×</th>
+            <th className="text-center py-1 px-2" title="Chinese-cohort pattern score (0-1). 🚩 ≥0.6 = LAB/GUA-like cohort; ⚠ ≥0.35 = partial match; clean = no signals.">CN Pattern</th>
           </tr>
         </thead>
         <tbody>
