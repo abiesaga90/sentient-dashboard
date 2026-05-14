@@ -40,6 +40,7 @@ interface LongToken {
   confidence: number;
   va_count: number;
   sm_count: number;
+  p3_count?: number;
   mm_count?: number;
   has_nansen: boolean;
   market_cap: number | null;
@@ -930,7 +931,8 @@ export function LongSignalsTab() {
                   const p3 = tokenMap[t.symbol];
                   const isExpanded = expanded === t.symbol;
                   const hasCorrection = a && !a.defillama_accurate;
-                  const p3Count = p3 ? Object.keys(p3.components).length : 0;
+                  const p3Count = (p3 ? Object.keys(p3.components).length : 0) || t.p3_count || 0;
+                  const p3Enabled = (p3 && p3.enabled) || (t.p3_count != null && t.p3_count > 0);
 
                   return (
                     <tr key={t.symbol} className="border-b border-gray-800/50 hover:bg-white/[0.02] cursor-pointer" onClick={() => setExpanded(isExpanded ? null : t.symbol)}>
@@ -945,10 +947,10 @@ export function LongSignalsTab() {
                             return <span className={`ml-1.5 inline-block text-[9px] font-medium px-1.5 py-0.5 rounded border ${color}`}>{label}</span>;
                           })()}
                           {hasCorrection && <span className="ml-1 text-yellow-500">*</span>}
-                          {p3 && p3.enabled && (
+                          {p3Enabled && (
                             <span
                               className="ml-1 text-[10px] font-semibold text-orange-400 bg-orange-500/10 px-1 rounded cursor-pointer hover:bg-orange-500/20"
-                              title={`OP: ${Object.keys(p3.components).length} signals — click for detail`}
+                              title={`OP: ${p3Count} signals — click for detail`}
                               onClick={(e) => { e.stopPropagation(); setSubTab(t.symbol); }}
                             >OP</span>
                           )}
