@@ -42,12 +42,12 @@ interface LongToken {
   sm_count: number;
   p3_count?: number;
   mm_count?: number;
+  signals: Record<string, Signal>;
   has_nansen: boolean;
   market_cap: number | null;
   fees_30d: number | null;
   holders_revenue_30d: number | null;
   supply_delta_30d_pct: number | null;
-  signals: Record<string, Signal>;
   mindshare_gainer: number;
   mindshare_loser: number;
   mindshare_delta: number;
@@ -959,9 +959,14 @@ export function LongSignalsTab() {
                         <td className={`py-2.5 text-right font-mono font-semibold ${tiltColor(t.tilt)}`}>{t.tilt.toFixed(2)}x</td>
                         <td className="py-2.5 text-right">{scoreBar(t.raw_score)}</td>
                         <td className="py-2.5 text-right">
-                          {p3 && p3.enabled && p3.signal != null
-                            ? scoreBar(p3.signal, 40)
-                            : <span className="text-gray-600">&mdash;</span>}
+                          {(() => {
+                            const p3sig = p3?.enabled && p3.signal != null
+                              ? p3.signal
+                              : (t.signals as Record<string, {score?: number}>)?.p3_composite?.score ?? null;
+                            return p3sig != null
+                              ? scoreBar(p3sig, 40)
+                              : <span className="text-gray-600">&mdash;</span>;
+                          })()}
                         </td>
                         <td className="py-2.5 text-right text-gray-400">{(t.confidence * 100).toFixed(0)}%</td>
                         <td className="py-2.5 text-center">
