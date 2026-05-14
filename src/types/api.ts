@@ -57,6 +57,7 @@ export interface Position {
   inv_vol_weight: number | null;
   rsi_daily: number | null;
   rsi_weekly: number | null;
+  fdv_mcap_ratio?: number | null;
   current_tilt?: number | null;
   current_adjusted_score?: number | null;
   entry_signals?: {

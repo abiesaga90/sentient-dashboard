@@ -214,6 +214,18 @@ const columns: Column<Position>[] = [
     sortKey: (r) => r.correlation ?? 0,
     align: "right",
   },
+  {
+    key: "fdv_mcap_ratio",
+    header: "FDV/MC",
+    render: (r) => {
+      const v = r.fdv_mcap_ratio;
+      if (v == null) return <span className="text-gray-600">—</span>;
+      const color = v >= 3.0 ? "text-red-400" : v >= 1.5 ? "text-yellow-400" : "text-emerald-400";
+      return <span className={color} title={`FDV/Market Cap: ${v.toFixed(2)}x`}>{v.toFixed(2)}x</span>;
+    },
+    sortKey: (r) => r.fdv_mcap_ratio ?? 0,
+    align: "right",
+  },
 ];
 
 export function PositionsTab() {
