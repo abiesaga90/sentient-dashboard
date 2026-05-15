@@ -217,9 +217,110 @@ function buildBandSeries(proj: SortinoProjectionPoint[]) {
   }));
 }
 
+// ── DD Recovery Panel ────────────────────────────────────────
+
+function DDRecoveryPanel({
+  ddPct,
+  ddStopPct = 9.5,
+  gatePct = 5.0,
+  notional,
+  dailyPortfolioVolUsd,
+}: {
+  ddPct: number;
+  ddStopPct?: number;
+  gatePct?: number;
+  notional: number;
+  dailyPortfolioVolUsd?: number | null;
+}) {
+  const gapPct = Math.max(0, ddPct - gatePct);
+  const gapUsd = (gapPct / 100) * notional;
+  const gapSigmas =
+    dailyPortfolioVolUsd && dailyPortfolioVolUsd > 0
+      ? gapUsd / dailyPortfolioVolUsd
+      : null;
+  // Bar: 0 → ddStopPct. Gate and current marked.
+  const barFillPct = Math.min(100, (ddPct / ddStopPct) * 100);
+  const gateMarkerPct = (gatePct / ddStopPct) * 100;
+
+  const sigmaLabel =
+    gapSigmas == null
+      ? null
+      : gapSigmas < 1
+        ? "< 1 good day"
+        : gapSigmas < 1.5
+          ? "1–2 good days"
+          : gapSigmas < 3
+            ? "several days"
+            : "extended recovery";
+
+  return (
+    <Card className="border-amber-800/40">
+      <div className="px-4 py-3 space-y-3">
+        <div className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+          DD Recovery — Scaling Gate Blocker
+        </div>
+
+        {/* Progress bar: 0% → ddStopPct */}
+        <div className="relative">
+          <div className="relative w-full bg-gray-800 rounded-full h-3">
+            <div
+              className="absolute top-0 left-0 h-3 rounded-l-full bg-amber-500/60"
+              style={{ width: `${barFillPct}%` }}
+            />
+            {/* Gate line */}
+            <div
+              className="absolute top-0 h-3 w-0.5 bg-red-400"
+              style={{ left: `${gateMarkerPct}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-[10px] text-gray-500 mt-1">
+            <span>0%</span>
+            <span
+              className="text-red-400"
+              style={{ position: "absolute", left: `${gateMarkerPct}%`, transform: "translateX(-50%)" }}
+            >
+              Gate {gatePct}%
+            </span>
+            <span>Stop {ddStopPct}%</span>
+          </div>
+        </div>
+
+        {/* Gap metrics */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-1">
+          <div>
+            <div className="text-[10px] text-gray-500">Gap to gate</div>
+            <div className="text-xl font-mono text-amber-400">{gapPct.toFixed(2)}%</div>
+            <div className="text-[10px] text-gray-600">{formatUSD(gapUsd)} of notional</div>
+          </div>
+          <div>
+            <div className="text-[10px] text-gray-500">NAV recovery needed</div>
+            <div className="text-xl font-mono text-gray-300">{formatUSD(gapUsd)}</div>
+            <div className="text-[10px] text-gray-600">+{gapPct.toFixed(2)}% of notional</div>
+          </div>
+          {gapSigmas != null && (
+            <div>
+              <div className="text-[10px] text-gray-500">Daily sigmas to gate</div>
+              <div className="text-xl font-mono text-blue-400">{gapSigmas.toFixed(1)}σ</div>
+              <div className="text-[10px] text-gray-600">{sigmaLabel}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 // ── Sortino Projection Panel ──────────────────────────────────
 
-function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
+function SortinoProjectionPanel({
+  proj,
+  gateAlreadyClear = false,
+  currentSortino,
+}: {
+  proj: SortinoProjection;
+  gateAlreadyClear?: boolean;
+  currentSortino?: number | null;
+}) {
   const points = proj.projection ?? [];
   if (points.length === 0) return null;
   const data = buildBandSeries(points);
@@ -231,15 +332,28 @@ function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
   const sampleRet = proj.sample_annualized_return_pct;
   const sampleVol = proj.sample_annualized_vol_pct;
 
+  // P(stays above gate) at 30d — used when gate is already cleared
+  const pStaysAbove30d = (() => {
+    const pt = points.find((p) => p.day === 30) ?? points[points.length - 1];
+    return pt ? pt.p_above_gate : null;
+  })();
+
   // Use the date axis if available, otherwise day index
   const xKey = data[0]?.date ? "date" : "day";
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-          Forward Sortino Projection
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            {gateAlreadyClear ? "Sortino Regression Risk" : "Forward Sortino Projection"}
+          </h3>
+          {gateAlreadyClear && (
+            <span className="text-[10px] text-gray-500 italic">
+              gate cleared — showing probability of staying above 1.5
+            </span>
+          )}
+        </div>
         <span className="text-[10px] text-gray-500 text-right">
           {(() => {
             const prior = (proj.prior ?? "live").toLowerCase();
@@ -277,18 +391,52 @@ function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
 
       {/* Headline tiles */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <KpiCard
-          label="Median crosses 1.5"
-          value={medianCross.primary}
-          valueColor={proj.median_cross ? "text-green-400" : "text-gray-500"}
-          sub={medianCross.sub || " "}
-        />
-        <KpiCard
-          label="P(≥1.5) ≥ 50% at"
-          value={pCross.primary}
-          valueColor={proj.p50_cross ? "text-green-400" : "text-gray-500"}
-          sub={pCross.sub || " "}
-        />
+        {gateAlreadyClear ? (
+          <KpiCard
+            label="Sortino Gate"
+            value="CLEARED"
+            valueColor="text-green-400"
+            sub={
+              currentSortino != null
+                ? `Current: ${currentSortino.toFixed(2)} ≥ ${gate} gate`
+                : `Already above ${gate} gate`
+            }
+          />
+        ) : (
+          <KpiCard
+            label="Median crosses 1.5"
+            value={medianCross.primary}
+            valueColor={proj.median_cross ? "text-green-400" : "text-gray-500"}
+            sub={medianCross.sub || " "}
+          />
+        )}
+        {gateAlreadyClear ? (
+          <KpiCard
+            label="P(stays ≥1.5) · 30d"
+            value={
+              pStaysAbove30d != null
+                ? `${(pStaysAbove30d * 100).toFixed(0)}%`
+                : "--"
+            }
+            valueColor={
+              pStaysAbove30d == null
+                ? "text-gray-500"
+                : pStaysAbove30d >= 0.8
+                  ? "text-green-400"
+                  : pStaysAbove30d >= 0.6
+                    ? "text-amber-400"
+                    : "text-red-400"
+            }
+            sub="Probability of remaining above gate"
+          />
+        ) : (
+          <KpiCard
+            label="P(≥1.5) ≥ 50% at"
+            value={pCross.primary}
+            valueColor={proj.p50_cross ? "text-green-400" : "text-gray-500"}
+            sub={pCross.sub || " "}
+          />
+        )}
         <KpiCard
           label="Break-even daily return"
           value={
@@ -306,7 +454,10 @@ function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
       </div>
 
       {/* Fan chart: p05-p95 outer, p25-p75 inner, p50 line, gate */}
-      <ChartContainer title="Projected 28-Day Sortino (forward)" height={260}>
+      <ChartContainer
+        title={gateAlreadyClear ? "Sortino Distribution (regression risk)" : "Projected 28-Day Sortino (forward)"}
+        height={260}
+      >
         <ComposedChart data={data}>
           <defs>
             <linearGradient id="band90grad" x1="0" y1="0" x2="0" y2="1">
@@ -388,7 +539,10 @@ function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
       </ChartContainer>
 
       {/* P(>= gate) curve */}
-      <ChartContainer title="P(Sortino ≥ 1.5) over horizon" height={160}>
+      <ChartContainer
+        title={gateAlreadyClear ? "P(Sortino stays ≥ 1.5) over horizon" : "P(Sortino ≥ 1.5) over horizon"}
+        height={160}
+      >
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
           <XAxis
@@ -433,6 +587,9 @@ function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
           const prior = (proj.prior ?? "live").toLowerCase();
           if (prior === "backtest") {
             const pm = proj.prior_meta ?? {};
+            const baseNote = gateAlreadyClear
+              ? `Since Sortino is already above the gate, these simulations show regression risk — downward slope means increasing probability of falling below 1.5 over time. Break-even is the minimum daily return to keep the rolling window above the gate.`
+              : `The 28-day window still starts from current live returns, so existing drawdown tarnishes early days until it ages out. Break-even is the average daily return needed for the rolling window to clear the gate at current downside vol.`;
             return (
               <>
                 Forward daily returns are bootstrapped from the strategy backtest
@@ -442,11 +599,7 @@ function SortinoProjectionPanel({ proj }: { proj: SortinoProjection }) {
                   ? `${pm.ann_return_pct >= 0 ? "+" : ""}${pm.ann_return_pct.toFixed(1)}%`
                   : "?"}{" "}
                 / {pm.ann_vol_pct?.toFixed(1) ?? "?"}% vol) — the long-run thesis
-                distribution, not the recent live drawdown. The 28-day window
-                still starts from current live returns, so existing drawdown
-                tarnishes early days until it ages out. Break-even is the
-                average daily return needed for the rolling window to clear the
-                gate at current downside vol.
+                distribution, not the recent live drawdown. {baseNote}
               </>
             );
           }
@@ -478,6 +631,19 @@ export function ScalingCapacityTab() {
     staleTime: 15_000,
   });
 
+  const { data: riskVol } = useQuery<{ daily_spread_vol_pct: number | null; gross_pct: number | null }>({
+    queryKey: ["risk_vol_snapshot", engine.id],
+    queryFn: async () => {
+      const d = await client.get("/api/dashboard");
+      return {
+        daily_spread_vol_pct: (d?.risk?.spread_vol?.daily_spread_vol_pct as number | null) ?? null,
+        gross_pct: (d?.risk?.gross_pct as number | null) ?? null,
+      };
+    },
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+  });
+
   if (isLoading || !data) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500 text-sm">
@@ -487,6 +653,13 @@ export function ScalingCapacityTab() {
   }
 
   const { scaling_tracker: st, capacity_analysis: ca, scaling_scenarios, capacity_ceiling } = data;
+
+  const dailyPortfolioVolUsd = (() => {
+    const sv = riskVol?.daily_spread_vol_pct;
+    const gp = riskVol?.gross_pct;
+    if (!sv || !gp || !st.current_notional) return null;
+    return (sv / 100) * (gp / 100) * st.current_notional;
+  })();
 
   return (
     <div className="p-4 space-y-6">
@@ -546,6 +719,15 @@ export function ScalingCapacityTab() {
             )}
           </Card>
         </div>
+
+        {/* DD Recovery panel — only when DD gate is the blocker */}
+        {!st.dd_gate_ok && (
+          <DDRecoveryPanel
+            ddPct={st.ptt_dd_pct}
+            notional={st.current_notional}
+            dailyPortfolioVolUsd={dailyPortfolioVolUsd}
+          />
+        )}
 
         {/* Leading-indicator Sortinos (5d / 7d / 14d / 28d) */}
         {(st.sortino_5d != null || st.sortino_7d != null || st.sortino_14d != null) && (
@@ -774,7 +956,11 @@ export function ScalingCapacityTab() {
 
         {/* ── Forward Sortino Projection ── */}
         {st.sortino_projection?.available && st.sortino_projection.projection && (
-          <SortinoProjectionPanel proj={st.sortino_projection} />
+          <SortinoProjectionPanel
+            proj={st.sortino_projection}
+            gateAlreadyClear={st.sortino_gate_ok}
+            currentSortino={st.sortino_4w}
+          />
         )}
 
         {/* Infrastructure Execution KPIs (informational, not Nickel hard gates) */}

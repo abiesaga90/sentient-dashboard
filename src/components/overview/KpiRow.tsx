@@ -16,8 +16,10 @@ interface KpiRowProps {
   positions?: PositionData[];
 }
 
+type ExposureView = "gross" | "notional" | "nav";
+
 export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
-  const [exposureLevered, setExposureLevered] = useState(true);
+  const [exposureView, setExposureView] = useState<ExposureView>("gross");
   const leverage = risk.gross_pct / 100;
 
   return (
@@ -97,45 +99,107 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
 
         {/* Exposure */}
         <Card>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-1">
             <CardTitle>Exposure</CardTitle>
-            <button
-              onClick={() => setExposureLevered(!exposureLevered)}
-              className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors ${
-                !exposureLevered
-                  ? "bg-blue-500/20 border-blue-500/50 text-blue-400"
-                  : "bg-gray-800 border-gray-700 text-gray-600 hover:text-gray-400"
-              }`}
-              title={exposureLevered ? `Levered: % of notional capital, actual deployed (${leverage.toFixed(2)}x)` : `Deleveraged: normalized to 1.0x gross (÷${leverage.toFixed(2)}x)`}
-            >
-              {exposureLevered ? "Levered" : `÷${leverage.toFixed(1)}x`}
-            </button>
+            <div className="flex gap-0.5">
+              {(["gross", "notional", "nav"] as ExposureView[]).map((v) => {
+                const labels: Record<ExposureView, string> = { gross: "Strategy", notional: "Nickel", nav: "Equity" };
+                const active = exposureView === v;
+                return (
+                  <button
+                    key={v}
+                    onClick={() => setExposureView(v)}
+                    className={`text-[9px] px-1.5 py-0.5 rounded border transition-colors ${
+                      active
+                        ? v === "notional"
+                          ? "bg-[#0b688c] border-[#0b688c] text-white"
+                          : "bg-gray-700 border-gray-600 text-gray-200"
+                        : "bg-transparent border-transparent text-gray-600 hover:text-gray-400"
+                    }`}
+                  >
+                    {labels[v]}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="mt-1 space-y-1">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Gross</span>
-              <span className="text-gray-200 font-semibold">
-                {formatPct(exposureLevered ? risk.gross_pct : (leverage > 0 ? risk.gross_pct / leverage : 0))}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Net</span>
-              <span className="text-gray-200 font-semibold">
-                {formatPct(exposureLevered ? risk.net_pct : (leverage > 0 ? risk.net_pct / leverage : 0))}
-              </span>
-            </div>
-            {risk.net_beta_pct != null && (
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Beta Net</span>
-                <span className="text-gray-200 font-semibold">
-                  {formatPct(exposureLevered ? risk.net_beta_pct : (leverage > 0 ? risk.net_beta_pct / leverage : 0))}
-                </span>
+          {(() => {
+            const grossUsd = (risk.gross_usd ?? 0);
+            const netUsd = (risk.net_usd ?? 0);
+            const netBetaUsd = (risk.net_beta_pct ?? 0) / 100 * (risk.denom_notional ?? 100_000);
+            if (exposureView === "gross") {
+              // Strategy view: net & net-beta as % of gross
+              const netPct = risk.net_pct_gross ?? (grossUsd > 0 ? (netUsd / grossUsd) * 100 : 0);
+              const netBetaPct = risk.net_beta_pct_gross ?? netPct;
+              return (
+                <div className="mt-1 space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Gross</span>
+                    <span className="text-gray-200 font-semibold">100%</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Net</span>
+                    <span className="text-gray-200 font-semibold">{formatPct(netPct)}</span>
+                  </div>
+                  {risk.net_beta_pct != null && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Beta Net</span>
+                      <span className="text-gray-200 font-semibold">{formatPct(netBetaPct)}</span>
+                    </div>
+                  )}
+                  <div className="text-[10px] text-gray-600">Net / Gross · hedge quality · {leverage.toFixed(2)}x lev</div>
+                </div>
+              );
+            }
+            if (exposureView === "notional") {
+              // Nickel view: % of notional — matches NT /v1/risk
+              return (
+                <div className="mt-1 space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Gross</span>
+                    <span className="text-gray-200 font-semibold">{formatPct(risk.gross_pct)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Net</span>
+                    <span className="text-gray-200 font-semibold">{formatPct(risk.net_pct)}</span>
+                  </div>
+                  {risk.net_beta_pct != null && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Beta Net</span>
+                      <span className="text-gray-200 font-semibold">{formatPct(risk.net_beta_pct)}</span>
+                    </div>
+                  )}
+                  <div className="text-[10px] text-gray-600">
+                    Net / Notional · target {formatPct(risk.target_beta_tilt_pct)} · {leverage.toFixed(2)}x
+                  </div>
+                </div>
+              );
+            }
+            // Equity view: % of NAV
+            const navUsd = risk.nav ?? 0;
+            const netPctNav = risk.net_pct_nav ?? (navUsd > 0 ? (netUsd / navUsd) * 100 : 0);
+            const netBetaPctNav = risk.net_beta_pct_nav ?? netPctNav;
+            const grossPctNav = risk.gross_pct_nav ?? (navUsd > 0 ? (grossUsd / navUsd) * 100 : 0);
+            return (
+              <div className="mt-1 space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Gross</span>
+                  <span className="text-gray-200 font-semibold">{formatPct(grossPctNav)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Net</span>
+                  <span className="text-gray-200 font-semibold">{formatPct(netPctNav)}</span>
+                </div>
+                {risk.net_beta_pct != null && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Beta Net</span>
+                    <span className="text-gray-200 font-semibold">{formatPct(netBetaPctNav)}</span>
+                  </div>
+                )}
+                <div className="text-[10px] text-gray-600">Net / NAV · P&L sensitivity · {leverage.toFixed(2)}x</div>
               </div>
-            )}
-          </div>
-          <div className="text-[10px] text-gray-600 mt-1">
-            Target: {formatPct(risk.target_beta_tilt_pct)} | {leverage.toFixed(1)}x leverage
-          </div>
+            );
+          })()}
         </Card>
 
         {/* Positions */}
