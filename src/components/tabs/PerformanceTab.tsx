@@ -419,7 +419,7 @@ export function PerformanceTab() {
           </CardHeader>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <div className="text-xs text-gray-500">Cumulative Return</div>
+              <div className="text-xs text-gray-500">Spread Return (price)</div>
               <div className={`text-lg font-bold ${data.ls_alpha.cumulative_spread_pct >= 0 ? "text-green-400" : "text-red-400"}`}>
                 {data.ls_alpha.cumulative_spread_pct >= 0 ? "+" : ""}{data.ls_alpha.cumulative_spread_pct.toFixed(2)}%
               </div>

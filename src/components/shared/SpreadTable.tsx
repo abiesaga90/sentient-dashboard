@@ -236,7 +236,7 @@ export function SpreadTable({
             <span>Down-day capture: <span className="text-gray-300 font-medium">{activeCapture.toFixed(0)}%</span></span>
           )}
           {activeCumulative != null && (
-            <span>Cumulative: <span className={`font-medium ${activeCumulative * lm >= 0 ? "text-green-400" : "text-red-400"}`}>
+            <span>Spread return (price): <span className={`font-medium ${activeCumulative * lm >= 0 ? "text-green-400" : "text-red-400"}`}>
               {activeCumulative * lm >= 0 ? "+" : ""}{(activeCumulative * lm).toFixed(2)}%
             </span></span>
           )}
