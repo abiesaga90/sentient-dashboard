@@ -53,7 +53,11 @@ interface FrontierPoint {
   dd_95: number;
   dd_forward_1sig: number;
   ann_vol: number;
+  ann_ret?: number;
+  sharpe?: number;
   breaches_stop: boolean;
+  stopped_out?: boolean;
+  stop_date?: string | null;
 }
 
 interface StressScenario {
@@ -101,8 +105,11 @@ interface LevCalibResponse {
     dd_95_unlev?: number;
     ulcer_unlev?: number;
     ewma_vol_ann_current?: number;
-    implied_safe_lev_max_dd?: number;
-    implied_safe_lev_dd95?: number;
+    ann_vol_pretrim_at_cap?: number;
+    sharpe_pretrim?: number;
+    max_safe_lev?: number;
+    stopped_out_at_cap?: boolean;
+    stop_date_at_cap?: string | null;
     implied_safe_lev_vol?: number;
   };
   dd_histogram: DdHistBin[];
@@ -148,39 +155,43 @@ export function LeverageCalibrationTab() {
 
   return (
     <div className="p-4 space-y-4">
-      {/* Headline KPIs */}
+      {/* Headline KPIs (all trim-aware: realized from path sim with hard stop) */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
         <KpiCard
-          label="Ann. vol (1Y, at 4× cap)"
+          label="Ann. vol at 4× (realized)"
           value={fmtPct(data.stats.ann_vol_unlev)}
-          sub={`EWMA now: ${fmtPct(data.stats.ewma_vol_ann_current)}`}
+          sub={`pre-trim ${fmtPct(data.stats.ann_vol_pretrim_at_cap)} · EWMA ${fmtPct(data.stats.ewma_vol_ann_current)}`}
         />
         <KpiCard
-          label="Sharpe (1Y)"
+          label="Sharpe at 4× (realized)"
           value={(data.stats.sharpe_unlev ?? 0).toFixed(2)}
-          sub={`ann. ret ${fmtPct(data.stats.ann_ret_unlev)} at 4×`}
+          sub={`pre-trim ${(data.stats.sharpe_pretrim ?? 0).toFixed(2)} · ret ${fmtPct(data.stats.ann_ret_unlev)}`}
         />
         <KpiCard
-          label="Max DD (1Y hist, at 4×)"
+          label="Max DD at 4× (trim+stop)"
           value={fmtPct(data.stats.max_dd_unlev)}
-          sub={`ulcer ${fmtPct(data.stats.ulcer_unlev)}`}
+          sub={
+            data.stats.stopped_out_at_cap
+              ? `stopped ${data.stats.stop_date_at_cap ?? ""}`
+              : `ulcer ${fmtPct(data.stats.ulcer_unlev)}`
+          }
           valueColor="text-[#d06643]"
         />
         <KpiCard
           label="95%-worst 30d DD (1Y)"
           value={fmtPct(data.stats.dd_95_unlev)}
-          sub="5th pctl of rolling"
+          sub="5th pctl, trim-aware"
         />
         <KpiCard
-          label="Safe lev (1Y max-DD basis)"
-          value={`${(data.stats.implied_safe_lev_max_dd ?? 0).toFixed(2)}x`}
-          sub={`to hit ${ddStopPctDisplay.toFixed(1)}% stop`}
+          label="Max L w/o stop-out"
+          value={`${(data.stats.max_safe_lev ?? 0).toFixed(1)}x`}
+          sub={`largest grid L that didn't breach ${ddStopPctDisplay.toFixed(1)}% in 1Y`}
           valueColor="text-[#0b688c]"
         />
         <KpiCard
-          label="Safe lev (EWMA fwd vol)"
+          label="Vol-budget safe lev"
           value={`${(data.stats.implied_safe_lev_vol ?? 0).toFixed(2)}x`}
-          sub="EWMA 1σ/mo"
+          sub="2σ/mo headroom (linear)"
           valueColor="text-[#0b688c]"
         />
       </div>
@@ -201,11 +212,14 @@ export function LeverageCalibrationTab() {
           </div>
         </CardHeader>
         <p className="text-xs text-gray-400">
-          <strong className="text-gray-200">Actual leverage</strong> — L_actual = 2 × gross notional / NAV.
-          <strong className="text-gray-200"> 4.0× = Nickel maximum</strong> (200% gross cap = 100% long + 100% short).
-          Grid steps 0.5×. DD, vol, forward 1σ scale as (L/4) × value-at-cap. Sharpe is leverage-invariant.
+          <strong className="text-gray-200">Actual leverage</strong>: L_actual = 2 × gross notional / NAV.
+          <strong className="text-gray-200"> 4.0× = Nickel cap</strong> (200% gross). Grid steps 0.5×.
+          All curves run the live elastic-trim schedule path-dependently: scale = (1 − floor(peak_dd) / {ddStopPctDisplay.toFixed(1)})^0.5
+          at 1pp DD steps, saturating at 1.0 below 1pp (overgear-equivalent), with 1pp hysteresis on restore.
+          At peak_dd ≥ {ddStopPctDisplay.toFixed(1)}% the path is frozen (matches live DD_STOP liquidation; no auto-recovery).
+          Vol and Sharpe in the frontier are <em>realized</em> from the simulated nav, not (L/4) × cap.
           Live inception: <span className="text-gray-200">{data.inception_live}</span>.
-          Pre-inception is a backtest proxy using current baskets (survivorship bias).
+          Pre-inception is backtested with current baskets (survivorship bias).
         </p>
       </Card>
 
@@ -452,9 +466,12 @@ export function LeverageCalibrationTab() {
       </ChartContainer>
       <Card>
         <div className="text-xs text-gray-400">
-          Read the frontier: the x where each line crosses the dashed DD_STOP is the maximum
-          leverage that basis supports. Historical max-DD is the conservative read. 95%-worst
-          is Kelly-ish. Forward 1σ is the vol-target read using today's EWMA σ.
+          Read the frontier: all three lines are realized from the same trim-aware path sim,
+          so each L on the x-axis reflects what the strategy would actually have done at that
+          cap (with elastic trim restoring on recovery, hard stop at {ddStopPctDisplay.toFixed(1)}%).
+          Max-DD is the worst trough touched; 95%-worst is the 5th pctl of rolling 30d DD;
+          Forward 1σ is realized vol at that L divided by √12. The "Max L w/o stop-out" KPI
+          above is the largest L where the path survives the full 1Y without breaching.
         </div>
       </Card>
 
@@ -545,11 +562,12 @@ export function LeverageCalibrationTab() {
                 <th className="px-3 py-1.5 text-left text-gray-500">Actual Lev</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="Gross notional / NAV = L_actual / 2">Gross %</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="Per-side exposure = gross / 2">Per-side %</th>
-                <th className="px-3 py-1.5 text-right text-gray-500">Ann. vol</th>
+                <th className="px-3 py-1.5 text-right text-gray-500" title="Realized from trim-aware sim">Ann. vol</th>
+                <th className="px-3 py-1.5 text-right text-gray-500" title="Realized from trim-aware sim">Sharpe</th>
                 <th className="px-3 py-1.5 text-right text-gray-500">Hist. max DD</th>
                 <th className="px-3 py-1.5 text-right text-gray-500">95%-worst 30d DD</th>
-                <th className="px-3 py-1.5 text-right text-gray-500">Fwd 1σ/mo</th>
-                <th className="px-3 py-1.5 text-center text-gray-500">Breaches stop?</th>
+                <th className="px-3 py-1.5 text-right text-gray-500" title="Realized vol / √12">Fwd 1σ/mo</th>
+                <th className="px-3 py-1.5 text-center text-gray-500">Stop status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
@@ -566,16 +584,21 @@ export function LeverageCalibrationTab() {
                     <td className="px-3 py-1.5 text-right text-gray-300">{grossPct.toFixed(0)}%</td>
                     <td className="px-3 py-1.5 text-right text-gray-500">{perSidePct.toFixed(0)}%</td>
                     <td className="px-3 py-1.5 text-right text-gray-300">{fmtPct(f.ann_vol)}</td>
+                    <td className="px-3 py-1.5 text-right text-gray-300">{(f.sharpe ?? 0).toFixed(2)}</td>
                     <td className={`px-3 py-1.5 text-right ${f.max_dd < -ddStopPct ? "text-[#d06643] font-semibold" : "text-gray-300"}`}>
                       {fmtPct(f.max_dd)}
                     </td>
                     <td className="px-3 py-1.5 text-right text-gray-300">{fmtPct(f.dd_95)}</td>
                     <td className="px-3 py-1.5 text-right text-gray-400">{fmtPct(f.dd_forward_1sig)}</td>
                     <td className="px-3 py-1.5 text-center">
-                      {f.breaches_stop ? (
-                        <span className="text-[#d06643]">Yes</span>
+                      {f.stopped_out ? (
+                        <span className="text-[#d06643] font-semibold" title={f.stop_date ?? undefined}>
+                          Stopped{f.stop_date ? ` ${f.stop_date}` : ""}
+                        </span>
+                      ) : f.breaches_stop ? (
+                        <span className="text-[#d06643]">Breach</span>
                       ) : (
-                        <span className="text-green-400">No</span>
+                        <span className="text-green-400">Safe</span>
                       )}
                     </td>
                   </tr>
