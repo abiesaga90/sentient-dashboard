@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   LineChart,
@@ -119,11 +120,42 @@ interface LevCalibResponse {
   notes?: string[];
 }
 
+type WindowKey = "ytd" | "live" | "90d" | "1y";
+
+const LIVE_INCEPTION = "2026-02-22";
+
+function daysBetween(fromIso: string, toDate: Date): number {
+  const from = new Date(fromIso + "T00:00:00Z").getTime();
+  const to = toDate.getTime();
+  return Math.max(30, Math.floor((to - from) / 86_400_000));
+}
+
+function windowToLookbackDays(key: WindowKey, now: Date): number {
+  if (key === "ytd") {
+    const yStart = `${now.getUTCFullYear()}-01-01`;
+    return daysBetween(yStart, now);
+  }
+  if (key === "live") return daysBetween(LIVE_INCEPTION, now);
+  if (key === "90d") return 90;
+  return 365;
+}
+
+function windowLabel(key: WindowKey, now: Date): string {
+  const days = windowToLookbackDays(key, now);
+  if (key === "ytd") return `YTD (${days}d)`;
+  if (key === "live") return `Since Live (${days}d)`;
+  if (key === "90d") return "90d";
+  return "1Y";
+}
+
 export function LeverageCalibrationTab() {
   const { client, engine } = useEngine();
+  const [windowKey, setWindowKey] = useState<WindowKey>("ytd");
+  const now = useMemo(() => new Date(), []);
+  const lookbackDays = windowToLookbackDays(windowKey, now);
   const { data, isLoading, error } = useQuery<LevCalibResponse>({
-    queryKey: ["leverage-calibration", engine.id],
-    queryFn: () => client.get("/api/leverage-calibration"),
+    queryKey: ["leverage-calibration", engine.id, lookbackDays],
+    queryFn: () => client.get(`/api/leverage-calibration?lookback_days=${lookbackDays}`),
     refetchInterval: 300_000,
     staleTime: 120_000,
   });
@@ -178,14 +210,14 @@ export function LeverageCalibrationTab() {
           valueColor="text-[#d06643]"
         />
         <KpiCard
-          label="95%-worst 30d DD (1Y)"
+          label={`95%-worst 30d DD (${windowLabel(windowKey, now)})`}
           value={fmtPct(data.stats.dd_95_unlev)}
           sub="5th pctl, trim-aware"
         />
         <KpiCard
           label="Max L w/o stop-out"
           value={`${(data.stats.max_safe_lev ?? 0).toFixed(1)}x`}
-          sub={`largest grid L that didn't breach ${ddStopPctDisplay.toFixed(1)}% in 1Y`}
+          sub={`largest grid L that didn't breach ${ddStopPctDisplay.toFixed(1)}% (${windowLabel(windowKey, now)})`}
           valueColor="text-[#0b688c]"
         />
         <KpiCard
@@ -199,9 +231,25 @@ export function LeverageCalibrationTab() {
       {/* Header card */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle>Leverage Calibration</CardTitle>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex rounded border border-[var(--border)] overflow-hidden text-[11px]">
+                {(["ytd", "live", "90d", "1y"] as WindowKey[]).map((k) => (
+                  <button
+                    key={k}
+                    onClick={() => setWindowKey(k)}
+                    className={`px-2.5 py-1 transition-colors ${
+                      windowKey === k
+                        ? "bg-[#0b688c] text-white"
+                        : "text-gray-400 hover:bg-[var(--bg-card-hover)]"
+                    }`}
+                    title={`lookback_days = ${windowToLookbackDays(k, now)}`}
+                  >
+                    {windowLabel(k, now)}
+                  </button>
+                ))}
+              </div>
               <Badge variant="default">
                 {data.stats.n_days ?? 0} days · {data.n_longs}L / {data.n_shorts}S
               </Badge>
