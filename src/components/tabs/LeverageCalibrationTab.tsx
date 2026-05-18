@@ -89,10 +89,11 @@ interface DdHistBin {
 interface LevCalibResponse {
   available: boolean;
   reason?: string;
-  inception_live: string;
+  inception_live?: string;
   dd_stop_pct: number;
   lookback_days?: number;
   live_only?: boolean;
+  input_source?: string;
   sortino_gate_enabled?: boolean;
   sortino_gate_threshold?: number;
   leverage_grid?: number[];
@@ -127,7 +128,7 @@ interface LevCalibResponse {
   notes?: string[];
 }
 
-type WindowKey = "live_only" | "ytd" | "since_live" | "90d" | "1y";
+type WindowKey = "30d_real" | "live_only" | "ytd" | "since_live" | "90d" | "1y";
 
 const LIVE_INCEPTION = "2026-02-22";
 
@@ -138,6 +139,7 @@ function daysBetween(fromIso: string, toDate: Date): number {
 }
 
 function windowToLookbackDays(key: WindowKey, now: Date): number {
+  if (key === "30d_real") return 30;
   if (key === "ytd") {
     const yStart = `${now.getUTCFullYear()}-01-01`;
     return daysBetween(yStart, now);
@@ -149,6 +151,7 @@ function windowToLookbackDays(key: WindowKey, now: Date): number {
 
 function windowLabel(key: WindowKey, now: Date): string {
   const days = windowToLookbackDays(key, now);
+  if (key === "30d_real") return `30d Real`;
   if (key === "live_only") return `Live Only (${days}d)`;
   if (key === "ytd") return `YTD (${days}d)`;
   if (key === "since_live") return `Since Live (${days}d)`;
@@ -158,16 +161,17 @@ function windowLabel(key: WindowKey, now: Date): string {
 
 export function LeverageCalibrationTab() {
   const { client, engine } = useEngine();
-  const [windowKey, setWindowKey] = useState<WindowKey>("live_only");
+  const [windowKey, setWindowKey] = useState<WindowKey>("30d_real");
   const [sortinoGate, setSortinoGate] = useState<boolean>(true);
   const now = useMemo(() => new Date(), []);
   const lookbackDays = windowToLookbackDays(windowKey, now);
   const liveOnly = windowKey === "live_only";
+  const useLiveReturns = windowKey === "30d_real";
   const { data, isLoading, error } = useQuery<LevCalibResponse>({
-    queryKey: ["leverage-calibration", engine.id, lookbackDays, liveOnly, sortinoGate],
+    queryKey: ["leverage-calibration", engine.id, lookbackDays, liveOnly, sortinoGate, useLiveReturns],
     queryFn: () =>
       client.get(
-        `/api/leverage-calibration?lookback_days=${lookbackDays}&live_only=${liveOnly ? 1 : 0}&sortino_gate=${sortinoGate ? 1 : 0}`,
+        `/api/leverage-calibration?lookback_days=${lookbackDays}&live_only=${liveOnly ? 1 : 0}&sortino_gate=${sortinoGate ? 1 : 0}&use_live_returns=${useLiveReturns ? 1 : 0}`,
       ),
     refetchInterval: 300_000,
     staleTime: 120_000,
@@ -248,7 +252,7 @@ export function LeverageCalibrationTab() {
             <CardTitle>Leverage Calibration</CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex rounded border border-[var(--border)] overflow-hidden text-[11px]">
-                {(["live_only", "since_live", "ytd", "90d", "1y"] as WindowKey[]).map((k) => (
+                {(["30d_real", "live_only", "since_live", "ytd", "90d", "1y"] as WindowKey[]).map((k) => (
                   <button
                     key={k}
                     onClick={() => setWindowKey(k)}
@@ -258,9 +262,11 @@ export function LeverageCalibrationTab() {
                         : "text-gray-400 hover:bg-[var(--bg-card-hover)]"
                     }`}
                     title={
-                      k === "live_only"
-                        ? `Clips to dates >= live inception (${LIVE_INCEPTION}). No survivorship bias.`
-                        : `lookback_days = ${windowToLookbackDays(k, now)}`
+                      k === "30d_real"
+                        ? "Path-sim on REAL portfolio returns (last 30d), re-leveraged under the live trim schedule. Most representative of current basket + sizing."
+                        : k === "live_only"
+                        ? `Clips to dates >= live inception (${LIVE_INCEPTION}). 1/N spread proxy (legacy).`
+                        : `lookback_days = ${windowToLookbackDays(k, now)} (1/N spread proxy)`
                     }
                   >
                     {windowLabel(k, now)}
@@ -283,8 +289,13 @@ export function LeverageCalibrationTab() {
                 Sortino gate: {sortinoGate ? "on" : "off"}
               </button>
               <Badge variant="default">
-                {data.stats.n_days ?? 0} days · {data.n_longs}L / {data.n_shorts}S
+                {data.stats.n_days ?? 0} days{data.n_longs ? ` · ${data.n_longs}L / ${data.n_shorts}S` : ""}
               </Badge>
+              {data.input_source && (
+                <Badge variant="default" title={`Source: ${data.input_source}`}>
+                  {useLiveReturns ? "real returns" : "1/N spread"}
+                </Badge>
+              )}
               <Badge variant="warning">
                 DD_STOP {ddStopPctDisplay.toFixed(1)}%
               </Badge>
