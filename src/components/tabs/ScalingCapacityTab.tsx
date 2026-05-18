@@ -634,10 +634,12 @@ export function ScalingCapacityTab() {
   const { data: riskVol } = useQuery<{ daily_spread_vol_pct: number | null; gross_pct: number | null }>({
     queryKey: ["risk_vol_snapshot", engine.id],
     queryFn: async () => {
-      const d = await client.get("/api/dashboard");
+      const d = (await client.get("/api/dashboard")) as
+        | { risk?: { spread_vol?: { daily_spread_vol_pct?: number | null }; gross_pct?: number | null } }
+        | undefined;
       return {
-        daily_spread_vol_pct: (d?.risk?.spread_vol?.daily_spread_vol_pct as number | null) ?? null,
-        gross_pct: (d?.risk?.gross_pct as number | null) ?? null,
+        daily_spread_vol_pct: d?.risk?.spread_vol?.daily_spread_vol_pct ?? null,
+        gross_pct: d?.risk?.gross_pct ?? null,
       };
     },
     staleTime: 60_000,

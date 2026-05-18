@@ -126,7 +126,6 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
           {(() => {
             const grossUsd = (risk.gross_usd ?? 0);
             const netUsd = (risk.net_usd ?? 0);
-            const netBetaUsd = (risk.net_beta_pct ?? 0) / 100 * (risk.denom_notional ?? 100_000);
             if (exposureView === "gross") {
               // Strategy view: net & net-beta as % of gross
               const netPct = risk.net_pct_gross ?? (grossUsd > 0 ? (netUsd / grossUsd) * 100 : 0);
