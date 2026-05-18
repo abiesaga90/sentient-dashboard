@@ -201,6 +201,14 @@ export function LeverageCalibrationTab() {
 
   const ddStopPct = data.dd_stop_pct; // e.g. 0.095
   const ddStopPctDisplay = ddStopPct * 100;
+  const nDays = data.stats.n_days ?? 0;
+  const isRealReturnsMode = useLiveReturns;
+  // Aux charts that depend on token-level / cross-sectional data only
+  // populate in 1/N spread mode. In real-returns mode, hide them rather
+  // than rendering empty containers.
+  const hasAuxData = !isRealReturnsMode;
+  // 95%-worst 30d DD needs ~60+ daily bars to have a meaningful 5th pctl.
+  const dd95Meaningful = nDays >= 60;
 
   return (
     <div className="p-4 space-y-4">
@@ -226,11 +234,19 @@ export function LeverageCalibrationTab() {
           }
           valueColor="text-[#d06643]"
         />
-        <KpiCard
-          label={`95%-worst 30d DD (${windowLabel(windowKey, now)})`}
-          value={fmtPct(data.stats.dd_95_unlev)}
-          sub="5th pctl, trim-aware"
-        />
+        {dd95Meaningful ? (
+          <KpiCard
+            label={`95%-worst 30d DD (${windowLabel(windowKey, now)})`}
+            value={fmtPct(data.stats.dd_95_unlev)}
+            sub="5th pctl, trim-aware"
+          />
+        ) : (
+          <KpiCard
+            label="95%-worst 30d DD"
+            value="—"
+            sub={`need ≥60 daily bars (have ${nDays})`}
+          />
+        )}
         <KpiCard
           label="Max L w/o stop-out"
           value={`${(data.stats.max_safe_lev ?? 0).toFixed(1)}x`}
@@ -315,7 +331,12 @@ export function LeverageCalibrationTab() {
       </Card>
 
       {/* Chart 1: Equity curve with leverage overlays */}
-      <ChartContainer title="Equity Curve by Gross Leverage (1.0× = unlevered, 2.0× = baseline)" height={320}>
+      <ChartContainer
+        title={`Equity Curve by L_actual Cap — ${windowLabel(windowKey, now)}${
+          isRealReturnsMode ? " · real portfolio returns re-leveraged under the schedule" : " · 1/N spread proxy"
+        }`}
+        height={320}
+      >
         <LineChart data={data.series}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
           <XAxis
@@ -411,8 +432,9 @@ export function LeverageCalibrationTab() {
         </AreaChart>
       </ChartContainer>
 
-      {/* Row: DD histogram + Rolling vol */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Row: DD histogram (1/N mode only) + Rolling vol */}
+      <div className={`grid grid-cols-1 ${hasAuxData ? "lg:grid-cols-2" : ""} gap-4`}>
+        {hasAuxData && (
         <ChartContainer title="30d Max-DD Distribution (unlevered)" height={280}>
           <ComposedChart data={data.dd_histogram}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
@@ -465,6 +487,7 @@ export function LeverageCalibrationTab() {
             />
           </ComposedChart>
         </ChartContainer>
+        )}
 
         <ChartContainer title="Rolling EWMA Vol (annualized)" height={280}>
           <LineChart data={data.series}>
@@ -566,7 +589,8 @@ export function LeverageCalibrationTab() {
         </div>
       </Card>
 
-      {/* Chart 6: Stress replay */}
+      {/* Chart 6: Stress replay (1/N spread mode only) */}
+      {hasAuxData && data.stress_scenarios && data.stress_scenarios.length > 0 && (
       <ChartContainer title="Stress Replay — Worst 30d Windows at Each Leverage" height={340}>
         <BarChart data={buildStressChartData(data.stress_scenarios)}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
@@ -603,8 +627,10 @@ export function LeverageCalibrationTab() {
           ))}
         </BarChart>
       </ChartContainer>
+      )}
 
-      {/* Chart 7: Variance contribution */}
+      {/* Chart 7: Variance contribution (1/N spread mode only) */}
+      {hasAuxData && data.variance_contribution && data.variance_contribution.length > 0 && (
       <ChartContainer title="Per-Token Contribution to Spread Variance" height={Math.max(260, (data.variance_contribution?.length ?? 0) * 18)}>
         <BarChart
           data={data.variance_contribution.slice(0, 40)}
@@ -640,6 +666,7 @@ export function LeverageCalibrationTab() {
           </Bar>
         </BarChart>
       </ChartContainer>
+      )}
 
       {/* Frontier table */}
       <Card>
