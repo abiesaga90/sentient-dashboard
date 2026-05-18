@@ -60,6 +60,9 @@ interface FrontierPoint {
   stopped_out?: boolean;
   stop_date?: string | null;
   gate_locked_pct?: number;
+  vol_cap_active_pct?: number;
+  vol_cap_floor_pct?: number;
+  vol_cap_mean_mult?: number;
 }
 
 interface StressScenario {
@@ -120,6 +123,12 @@ interface LevCalibResponse {
     gate_locked_pct_at_cap?: number;
     sortino_gate_enabled?: boolean;
     sortino_gate_threshold?: number;
+    vol_budget_enabled?: boolean;
+    vol_budget_target_daily?: number;
+    vol_budget_floor?: number;
+    vol_cap_active_pct_at_cap?: number;
+    vol_cap_floor_pct_at_cap?: number;
+    vol_cap_mean_mult_at_cap?: number;
   };
   dd_histogram: DdHistBin[];
   leverage_frontier: FrontierPoint[];
@@ -163,15 +172,16 @@ export function LeverageCalibrationTab() {
   const { client, engine } = useEngine();
   const [windowKey, setWindowKey] = useState<WindowKey>("30d_real");
   const [sortinoGate, setSortinoGate] = useState<boolean>(true);
+  const [volBudgetCap, setVolBudgetCap] = useState<boolean>(true);
   const now = useMemo(() => new Date(), []);
   const lookbackDays = windowToLookbackDays(windowKey, now);
   const liveOnly = windowKey === "live_only";
   const useLiveReturns = windowKey === "30d_real";
   const { data, isLoading, error } = useQuery<LevCalibResponse>({
-    queryKey: ["leverage-calibration", engine.id, lookbackDays, liveOnly, sortinoGate, useLiveReturns],
+    queryKey: ["leverage-calibration", engine.id, lookbackDays, liveOnly, sortinoGate, useLiveReturns, volBudgetCap],
     queryFn: () =>
       client.get(
-        `/api/leverage-calibration?lookback_days=${lookbackDays}&live_only=${liveOnly ? 1 : 0}&sortino_gate=${sortinoGate ? 1 : 0}&use_live_returns=${useLiveReturns ? 1 : 0}`,
+        `/api/leverage-calibration?lookback_days=${lookbackDays}&live_only=${liveOnly ? 1 : 0}&sortino_gate=${sortinoGate ? 1 : 0}&use_live_returns=${useLiveReturns ? 1 : 0}&vol_budget_cap=${volBudgetCap ? 1 : 0}`,
       ),
     refetchInterval: 300_000,
     staleTime: 120_000,
@@ -303,6 +313,21 @@ export function LeverageCalibrationTab() {
                 }
               >
                 Sortino gate: {sortinoGate ? "on" : "off"}
+              </button>
+              <button
+                onClick={() => setVolBudgetCap((v) => !v)}
+                className={`text-[11px] px-2 py-1 rounded border transition-colors ${
+                  volBudgetCap
+                    ? "border-[#0b688c] text-[#0b688c]"
+                    : "border-[var(--border)] text-gray-500"
+                }`}
+                title={
+                  volBudgetCap
+                    ? `Vol-budget cap ACTIVE: downward-only multiplier on gross when realized σ exceeds target (closed-form, P(stop)≤5%/yr). Floor ×${data.stats.vol_budget_floor ?? 0.5}.`
+                    : "Vol-budget cap DISABLED: no vol-based gross reduction in sim."
+                }
+              >
+                Vol-budget cap: {volBudgetCap ? "on" : "off"}
               </button>
               <Badge variant="default">
                 {data.stats.n_days ?? 0} days{data.n_longs ? ` · ${data.n_longs}L / ${data.n_shorts}S` : ""}
@@ -686,6 +711,7 @@ export function LeverageCalibrationTab() {
                 <th className="px-3 py-1.5 text-right text-gray-500">95%-worst 30d DD</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="Realized vol / √12">Fwd 1σ/mo</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="% of bars where the Sortino gate locked overgear (forced scale ≤ 1.0 in the overgear region)">Gate lock</th>
+                <th className="px-3 py-1.5 text-right text-gray-500" title="% of bars where the vol-budget cap was binding (multiplier < 1.0). Mean mult in tooltip.">Vol cap</th>
                 <th className="px-3 py-1.5 text-center text-gray-500">Stop status</th>
               </tr>
             </thead>
@@ -711,6 +737,16 @@ export function LeverageCalibrationTab() {
                     <td className="px-3 py-1.5 text-right text-gray-400">{fmtPct(f.dd_forward_1sig)}</td>
                     <td className="px-3 py-1.5 text-right text-gray-400">
                       {f.gate_locked_pct == null ? "—" : `${f.gate_locked_pct.toFixed(0)}%`}
+                    </td>
+                    <td
+                      className="px-3 py-1.5 text-right text-gray-400"
+                      title={
+                        f.vol_cap_mean_mult != null
+                          ? `mean mult ×${f.vol_cap_mean_mult.toFixed(2)}; floor hit ${(f.vol_cap_floor_pct ?? 0).toFixed(0)}%`
+                          : undefined
+                      }
+                    >
+                      {f.vol_cap_active_pct == null ? "—" : `${f.vol_cap_active_pct.toFixed(0)}%`}
                     </td>
                     <td className="px-3 py-1.5 text-center">
                       {f.stopped_out ? (
