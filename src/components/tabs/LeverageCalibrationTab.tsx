@@ -59,6 +59,7 @@ interface FrontierPoint {
   breaches_stop: boolean;
   stopped_out?: boolean;
   stop_date?: string | null;
+  gate_locked_pct?: number;
 }
 
 interface StressScenario {
@@ -91,6 +92,9 @@ interface LevCalibResponse {
   inception_live: string;
   dd_stop_pct: number;
   lookback_days?: number;
+  live_only?: boolean;
+  sortino_gate_enabled?: boolean;
+  sortino_gate_threshold?: number;
   leverage_grid?: number[];
   long_basket?: string[];
   short_basket?: string[];
@@ -112,6 +116,9 @@ interface LevCalibResponse {
     stopped_out_at_cap?: boolean;
     stop_date_at_cap?: string | null;
     implied_safe_lev_vol?: number;
+    gate_locked_pct_at_cap?: number;
+    sortino_gate_enabled?: boolean;
+    sortino_gate_threshold?: number;
   };
   dd_histogram: DdHistBin[];
   leverage_frontier: FrontierPoint[];
@@ -120,7 +127,7 @@ interface LevCalibResponse {
   notes?: string[];
 }
 
-type WindowKey = "ytd" | "live" | "90d" | "1y";
+type WindowKey = "live_only" | "ytd" | "since_live" | "90d" | "1y";
 
 const LIVE_INCEPTION = "2026-02-22";
 
@@ -135,27 +142,33 @@ function windowToLookbackDays(key: WindowKey, now: Date): number {
     const yStart = `${now.getUTCFullYear()}-01-01`;
     return daysBetween(yStart, now);
   }
-  if (key === "live") return daysBetween(LIVE_INCEPTION, now);
+  if (key === "since_live" || key === "live_only") return daysBetween(LIVE_INCEPTION, now);
   if (key === "90d") return 90;
   return 365;
 }
 
 function windowLabel(key: WindowKey, now: Date): string {
   const days = windowToLookbackDays(key, now);
+  if (key === "live_only") return `Live Only (${days}d)`;
   if (key === "ytd") return `YTD (${days}d)`;
-  if (key === "live") return `Since Live (${days}d)`;
+  if (key === "since_live") return `Since Live (${days}d)`;
   if (key === "90d") return "90d";
   return "1Y";
 }
 
 export function LeverageCalibrationTab() {
   const { client, engine } = useEngine();
-  const [windowKey, setWindowKey] = useState<WindowKey>("ytd");
+  const [windowKey, setWindowKey] = useState<WindowKey>("live_only");
+  const [sortinoGate, setSortinoGate] = useState<boolean>(true);
   const now = useMemo(() => new Date(), []);
   const lookbackDays = windowToLookbackDays(windowKey, now);
+  const liveOnly = windowKey === "live_only";
   const { data, isLoading, error } = useQuery<LevCalibResponse>({
-    queryKey: ["leverage-calibration", engine.id, lookbackDays],
-    queryFn: () => client.get(`/api/leverage-calibration?lookback_days=${lookbackDays}`),
+    queryKey: ["leverage-calibration", engine.id, lookbackDays, liveOnly, sortinoGate],
+    queryFn: () =>
+      client.get(
+        `/api/leverage-calibration?lookback_days=${lookbackDays}&live_only=${liveOnly ? 1 : 0}&sortino_gate=${sortinoGate ? 1 : 0}`,
+      ),
     refetchInterval: 300_000,
     staleTime: 120_000,
   });
@@ -235,7 +248,7 @@ export function LeverageCalibrationTab() {
             <CardTitle>Leverage Calibration</CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex rounded border border-[var(--border)] overflow-hidden text-[11px]">
-                {(["ytd", "live", "90d", "1y"] as WindowKey[]).map((k) => (
+                {(["live_only", "since_live", "ytd", "90d", "1y"] as WindowKey[]).map((k) => (
                   <button
                     key={k}
                     onClick={() => setWindowKey(k)}
@@ -244,12 +257,31 @@ export function LeverageCalibrationTab() {
                         ? "bg-[#0b688c] text-white"
                         : "text-gray-400 hover:bg-[var(--bg-card-hover)]"
                     }`}
-                    title={`lookback_days = ${windowToLookbackDays(k, now)}`}
+                    title={
+                      k === "live_only"
+                        ? `Clips to dates >= live inception (${LIVE_INCEPTION}). No survivorship bias.`
+                        : `lookback_days = ${windowToLookbackDays(k, now)}`
+                    }
                   >
                     {windowLabel(k, now)}
                   </button>
                 ))}
               </div>
+              <button
+                onClick={() => setSortinoGate((v) => !v)}
+                className={`text-[11px] px-2 py-1 rounded border transition-colors ${
+                  sortinoGate
+                    ? "border-[#0b688c] text-[#0b688c]"
+                    : "border-[var(--border)] text-gray-500"
+                }`}
+                title={
+                  sortinoGate
+                    ? "Sortino gate ACTIVE: overgear (scale>1.0) blocked when 4w Sortino < threshold."
+                    : "Sortino gate DISABLED: overgear always available."
+                }
+              >
+                Sortino gate: {sortinoGate ? "on" : "off"}
+              </button>
               <Badge variant="default">
                 {data.stats.n_days ?? 0} days · {data.n_longs}L / {data.n_shorts}S
               </Badge>
@@ -615,6 +647,7 @@ export function LeverageCalibrationTab() {
                 <th className="px-3 py-1.5 text-right text-gray-500">Hist. max DD</th>
                 <th className="px-3 py-1.5 text-right text-gray-500">95%-worst 30d DD</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="Realized vol / √12">Fwd 1σ/mo</th>
+                <th className="px-3 py-1.5 text-right text-gray-500" title="% of bars where the Sortino gate locked overgear (forced scale ≤ 1.0 in the overgear region)">Gate lock</th>
                 <th className="px-3 py-1.5 text-center text-gray-500">Stop status</th>
               </tr>
             </thead>
@@ -638,6 +671,9 @@ export function LeverageCalibrationTab() {
                     </td>
                     <td className="px-3 py-1.5 text-right text-gray-300">{fmtPct(f.dd_95)}</td>
                     <td className="px-3 py-1.5 text-right text-gray-400">{fmtPct(f.dd_forward_1sig)}</td>
+                    <td className="px-3 py-1.5 text-right text-gray-400">
+                      {f.gate_locked_pct == null ? "—" : `${f.gate_locked_pct.toFixed(0)}%`}
+                    </td>
                     <td className="px-3 py-1.5 text-center">
                       {f.stopped_out ? (
                         <span className="text-[#d06643] font-semibold" title={f.stop_date ?? undefined}>
