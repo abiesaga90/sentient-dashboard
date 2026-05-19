@@ -308,19 +308,6 @@ function CandidateTable({ items, side, emptyMsg }: {
   );
 }
 
-function SourceHealthRow({ name, h }: { name: string; h: SourceHealth }) {
-  const fresh = h.last_observation && (
-    (Date.now() - new Date(h.last_observation).getTime()) < 30 * 60 * 1000
-  );
-  const dot = h.error ? "🔴" : fresh ? "🟢" : "🟡";
-  return (
-    <span className="text-[10px] text-gray-400">
-      {dot} {name}: <span className="text-gray-200">{h.rows_last_24h}/24h</span>
-      {h.error && <span className="text-red-400 ml-1">({h.error.slice(0, 40)})</span>}
-    </span>
-  );
-}
-
 export function PDSchemeTrackerTab() {
   const { client, engine } = useEngine();
 
@@ -526,19 +513,7 @@ export function PDSchemeTrackerTab() {
         )}
       </Card>
 
-      {/* Source-feed health */}
-      <Card>
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <CardTitle>
-            <span className="text-gray-400 text-sm">Source feed health</span>
-          </CardTitle>
-          <div className="flex items-center gap-4 flex-wrap">
-            <SourceHealthRow name="Binance Alpha (CMS)" h={source_health.binance_alpha} />
-            <SourceHealthRow name="Bitget (API)" h={source_health.bitget} />
-            <SourceHealthRow name="X feed" h={source_health.x_feed} />
-          </div>
-        </div>
-      </Card>
+      {/* Source-feed health moved to the API Health tab. */}
 
       {/* Canonical cohort playbook reference */}
       <PlaybookReference />

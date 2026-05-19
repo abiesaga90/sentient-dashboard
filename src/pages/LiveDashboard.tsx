@@ -26,6 +26,7 @@ import { OptimizerTab } from "../components/tabs/OptimizerTab";
 import { SizingShadowTab } from "../components/tabs/SizingShadowTab";
 import { LeverageCalibrationTab } from "../components/tabs/LeverageCalibrationTab";
 import { PDSchemeTrackerTab } from "../components/tabs/PDSchemeTrackerTab";
+import { ApiHealthTab } from "../components/tabs/ApiHealthTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -136,6 +137,8 @@ function TabContent({
       return <ScalingCapacityTab />;
     case "pd-tracker":
       return <PDSchemeTrackerTab />;
+    case "api-health":
+      return <ApiHealthTab />;
     default:
       return (
         <div className="p-4">

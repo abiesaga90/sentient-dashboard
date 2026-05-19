@@ -21,6 +21,7 @@ import {
   SlidersHorizontal,
   TrendingDown,
   AlertTriangle,
+  Plug,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -46,6 +47,7 @@ export const DASHBOARD_TABS = [
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
   { id: "scaling", label: "Scaling & Capacity", icon: <Scale size={14} /> },
   { id: "next-rebalance", label: "Rotation", icon: <Clock size={14} /> },
+  { id: "api-health", label: "API Health", icon: <Plug size={14} /> },
 ] as const;
 
 interface TabBarProps {
