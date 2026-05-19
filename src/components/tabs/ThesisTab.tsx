@@ -79,12 +79,20 @@ interface ThesisResponse {
   };
   period_stats?: PeriodStat[];
   rolling_sharpe_30d?: RollingSharpePoint[];
+  spread_table_ex_scams?: SpreadRow[];
+  levered_spread_table_ex_scams?: SpreadRow[];
+  period_stats_ex_scams?: PeriodStat[];
+  rolling_sharpe_30d_ex_scams?: RollingSharpePoint[];
+  ex_scam_symbols?: string[];
+  short_count_ex_scams?: number;
+  working_count_ex_scams?: number;
 }
 
 const PERIODS = ["1d", "7d", "14d", "30d", "60d", "90d", "YTD", "1Y"] as const;
 
 export function ThesisTab() {
   const [levered, setLevered] = React.useState(false);
+  const [exScams, setExScams] = React.useState(false);
   const { client, engine } = useEngine();
   const { data, isLoading } = useQuery<ThesisResponse>({
     queryKey: ["thesis", engine.id],
@@ -103,11 +111,31 @@ export function ThesisTab() {
 
   if (!data) return null;
 
-  const activeTable = levered && data.levered_spread_table ? data.levered_spread_table : data.spread_table;
+  const hasExScams = (data.spread_table_ex_scams?.length ?? 0) > 0;
+  const useExScams = exScams && hasExScams;
+
+  const baseTable = useExScams && data.spread_table_ex_scams
+    ? data.spread_table_ex_scams
+    : data.spread_table;
+  const baseLeveredTable = useExScams && data.levered_spread_table_ex_scams
+    ? data.levered_spread_table_ex_scams
+    : data.levered_spread_table;
+  const activePeriodStats = useExScams && data.period_stats_ex_scams
+    ? data.period_stats_ex_scams
+    : (data.period_stats ?? []);
+  const activeRollingSharpe = useExScams && data.rolling_sharpe_30d_ex_scams
+    ? data.rolling_sharpe_30d_ex_scams
+    : (data.rolling_sharpe_30d ?? []);
+  const activeWorkingCount = useExScams && data.working_count_ex_scams != null
+    ? data.working_count_ex_scams
+    : data.working_count;
+  const activeTotalPeriods = baseTable.length;
+
+  const activeTable = levered && baseLeveredTable ? baseLeveredTable : baseTable;
 
   // Merge per-period stats into each row so error bars + stats columns align
   const statsByPeriod = new Map<string, PeriodStat>(
-    (data.period_stats ?? []).map((s) => [s.period, s]),
+    activePeriodStats.map((s) => [s.period, s]),
   );
   const leverageMult = levered && data.leverage ? data.leverage : 1;
   const chartData = activeTable.map((r) => {
@@ -121,8 +149,9 @@ export function ThesisTab() {
     };
   });
 
-  const significantCount = (data.period_stats ?? []).filter((s) => s.significant).length;
-  const totalStatPeriods = (data.period_stats ?? []).filter((s) => s.t_stat != null).length;
+  const significantCount = activePeriodStats.filter((s) => s.significant).length;
+  const totalStatPeriods = activePeriodStats.filter((s) => s.t_stat != null).length;
+  const strippedLabels = (data.ex_scam_symbols ?? []).map((s) => s.replace("USDT", "")).join(", ");
 
   return (
     <div className="p-4 space-y-4">
@@ -145,10 +174,23 @@ export function ThesisTab() {
                   {levered ? `Levered (${data.leverage}x)` : "Unlevered"}
                 </button>
               )}
+              {hasExScams && (
+                <button
+                  onClick={() => setExScams(!exScams)}
+                  title={strippedLabels ? `Stripping: ${strippedLabels}` : undefined}
+                  className={`text-[10px] px-2 py-0.5 rounded border transition-colors ${
+                    exScams
+                      ? "bg-amber-500/20 border-amber-500/50 text-amber-400"
+                      : "bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500"
+                  }`}
+                >
+                  {exScams ? `Ex-Scams (–${data.ex_scam_symbols?.length ?? 0})` : "Include All Shorts"}
+                </button>
+              )}
             </div>
             <div className="flex gap-2">
-              <Badge variant={data.working_count >= data.total_periods / 2 ? "success" : "warning"}>
-                {data.working_count}/{data.total_periods} positive
+              <Badge variant={activeWorkingCount >= activeTotalPeriods / 2 ? "success" : "warning"}>
+                {activeWorkingCount}/{activeTotalPeriods} positive
               </Badge>
               {totalStatPeriods > 0 && (
                 <Badge variant={significantCount > 0 ? "success" : "default"}>
@@ -163,11 +205,16 @@ export function ThesisTab() {
           noise-adjusted reads. |t|≥2 means the outperformance is statistically distinguishable
           from zero at ~95% confidence.
           {levered && <span className="text-blue-400 ml-1">Levered ({data.leverage}x).</span>}
+          {useExScams && (
+            <span className="text-amber-400 ml-1">
+              Excluding {strippedLabels || "scam pumps"} from shorts.
+            </span>
+          )}
         </p>
       </Card>
 
       {/* Spread Chart — with 95% CI error bars on spread */}
-      <ChartContainer title={`Long vs Short Returns by Period${levered ? ` (${data.leverage}x)` : ""} — 95% CI on Spread`} height={280}>
+      <ChartContainer title={`Long vs Short Returns by Period${levered ? ` (${data.leverage}x)` : ""}${useExScams ? " — Ex-Scams" : ""} — 95% CI on Spread`} height={280}>
         <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
           <XAxis
@@ -274,9 +321,9 @@ export function ThesisTab() {
       </Card>
 
       {/* Rolling 30d Spread Sharpe */}
-      {data.rolling_sharpe_30d && data.rolling_sharpe_30d.length > 0 && (
-        <ChartContainer title="Rolling 30d Spread Sharpe — Regime Detector" height={240}>
-          <LineChart data={data.rolling_sharpe_30d}>
+      {activeRollingSharpe.length > 0 && (
+        <ChartContainer title={`Rolling 30d Spread Sharpe — Regime Detector${useExScams ? " (Ex-Scams)" : ""}`} height={240}>
+          <LineChart data={activeRollingSharpe}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
             <XAxis
               dataKey="date"
