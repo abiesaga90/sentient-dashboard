@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useRiskPosture } from "../../hooks/useDashboardQuery";
 
 type Band = "green" | "amber" | "red";
@@ -70,10 +71,26 @@ export function RiskPostureBanner() {
   // (no further de-risk) is kept visible in the sub-line.
   const psBand = pStopBand(data.p_stop_30d_pct_elastic);
   const ps = BAND_COLORS[psBand];
-  const pstopSub = [
-    data.p_stop_7d_pct_elastic != null ? `7d: ${fmtPstop(data.p_stop_7d_pct_elastic)}` : null,
-    data.p_stop_30d_pct != null ? `no-derisk: ${fmtPstop(data.p_stop_30d_pct)}` : null,
-  ].filter(Boolean).join(" · ") || undefined;
+  // Headline shows both 30d bookends: elastic (de-risk aware) as the primary
+  // figure, no-derisk (conservative) alongside it, each coloured by its own
+  // band so a benign elastic number can't mask a hot conservative one.
+  const ndBand = pStopBand(data.p_stop_30d_pct);
+  const nd = BAND_COLORS[ndBand];
+  const pstopValue = (
+    <span className="flex items-baseline gap-1">
+      <span className={ps.text}>{fmtPstop(data.p_stop_30d_pct_elastic)}</span>
+      {data.p_stop_30d_pct != null && (
+        <span className="text-[11px] font-normal text-gray-500">
+          /{" "}
+          <span className={nd.text}>{fmtPstop(data.p_stop_30d_pct)}</span>
+        </span>
+      )}
+    </span>
+  );
+  const pstopSub =
+    data.p_stop_7d_pct_elastic != null
+      ? `elastic / no-derisk · 7d ${fmtPstop(data.p_stop_7d_pct_elastic)}`
+      : "elastic / no-derisk";
   const vbBand = volBudgetBand(data.vol_budget_ratio);
   const vb = BAND_COLORS[vbBand];
   const regimeCol = REGIME_COLOR[data.vol_regime ?? "UNKNOWN"];
@@ -94,9 +111,8 @@ export function RiskPostureBanner() {
 
       <Metric
         label="P(stop) 30d"
-        value={fmtPstop(data.p_stop_30d_pct_elastic)}
+        value={pstopValue}
         sub={pstopSub}
-        valueClass={ps.text}
         dot={ps.dot}
       />
 
@@ -152,8 +168,8 @@ function Metric({
   regime,
 }: {
   label: string;
-  value: string;
-  sub?: string;
+  value: ReactNode;
+  sub?: ReactNode;
   valueClass?: string;
   dot?: string;
   regime?: string | null;
