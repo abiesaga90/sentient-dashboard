@@ -23,6 +23,7 @@ import { AdlMonitor } from "../overview/AdlMonitor";
 import { UniMMRDetail } from "../shared/UniMMRDetail";
 import { DispersionChart } from "../shared/DispersionChart";
 import { PStopHistoryChart } from "../shared/PStopHistoryChart";
+import { PStopBookendsPanel } from "../shared/PStopBookendsPanel";
 import { formatUSD, formatPct, pnlColor } from "../../lib/utils";
 import type { AdlData, HedgeQualityResponse, PerShortHedge } from "../../types/api";
 
@@ -491,6 +492,9 @@ export function RiskStressTab() {
 
       {/* ── Dispersion & Vol Budget (regime + realized vs target spread vol) ── */}
       <DispersionChart days={365} />
+
+      {/* ── P(stop) bookends (elastic / bootstrap / conservative + σ-fan) ── */}
+      <PStopBookendsPanel />
 
       {/* ── P(stop) trend (7d / 30d MC over time) ── */}
       <PStopHistoryChart />

@@ -354,6 +354,21 @@ export interface RiskPostureResponse {
   p_stop_7d_pct_elastic: number | null;
   p_stop_30d_pct_elastic: number | null;
   p_stop_365d_pct_elastic: number | null;
+  // Bootstrap bookend: non-parametric, conservative engine assumption,
+  // historical block-resampled innovations (captures fat tails / skew).
+  p_stop_7d_pct_bootstrap: number | null;
+  p_stop_30d_pct_bootstrap: number | null;
+  p_stop_365d_pct_bootstrap: number | null;
+  // σ-fan: conservative P(stop) at the 5th / 95th percentile of rolling-30d
+  // realized vol — the regime-uncertainty band around the point estimate.
+  p_stop_7d_pct_low_vol: number | null;
+  p_stop_30d_pct_low_vol: number | null;
+  p_stop_365d_pct_low_vol: number | null;
+  p_stop_7d_pct_high_vol: number | null;
+  p_stop_30d_pct_high_vol: number | null;
+  p_stop_365d_pct_high_vol: number | null;
+  sigma_low_pct: number | null;
+  sigma_high_pct: number | null;
   dd_current_pct: number;
   dd_stop_pct: number;
   dd_budget_used_pct: number;
