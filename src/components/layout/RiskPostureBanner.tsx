@@ -56,8 +56,15 @@ export function RiskPostureBanner() {
 
   const dd = BAND_COLORS[data.dd_band];
   const gr = BAND_COLORS[data.gross_band];
-  const psBand = pStopBand(data.p_stop_30d_pct);
+  // Headline = elastic bookend: de-risk-aware, models the engine de-levering
+  // as DD deepens (risk.compute_dd_scale). The conservative bookend
+  // (no further de-risk) is kept visible in the sub-line.
+  const psBand = pStopBand(data.p_stop_30d_pct_elastic);
   const ps = BAND_COLORS[psBand];
+  const pstopSub = [
+    data.p_stop_7d_pct_elastic != null ? `7d: ${data.p_stop_7d_pct_elastic.toFixed(1)}%` : null,
+    data.p_stop_30d_pct != null ? `no-derisk: ${data.p_stop_30d_pct.toFixed(1)}%` : null,
+  ].filter(Boolean).join(" · ") || undefined;
   const vbBand = volBudgetBand(data.vol_budget_ratio);
   const vb = BAND_COLORS[vbBand];
   const regimeCol = REGIME_COLOR[data.vol_regime ?? "UNKNOWN"];
@@ -78,8 +85,8 @@ export function RiskPostureBanner() {
 
       <Metric
         label="P(stop) 30d"
-        value={data.p_stop_30d_pct != null ? `${data.p_stop_30d_pct.toFixed(1)}%` : "—"}
-        sub={data.p_stop_7d_pct != null ? `7d: ${data.p_stop_7d_pct.toFixed(1)}%` : undefined}
+        value={data.p_stop_30d_pct_elastic != null ? `${data.p_stop_30d_pct_elastic.toFixed(1)}%` : "—"}
+        sub={pstopSub}
         valueClass={ps.text}
         dot={ps.dot}
       />

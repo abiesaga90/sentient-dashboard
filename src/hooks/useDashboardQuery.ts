@@ -345,9 +345,15 @@ export interface RiskPostureResponse {
   sigma_daily_pct: number | null;
   sigma_annual_pct: number | null;
   vol_regime: string | null;
+  // Conservative bookend: engine holds current gross, no further de-risk.
   p_stop_7d_pct: number | null;
   p_stop_30d_pct: number | null;
   p_stop_365d_pct: number | null;
+  // Elastic bookend: engine de-levers continuously per risk.compute_dd_scale.
+  // This is the realistic, de-risk-aware number used for the headline tile.
+  p_stop_7d_pct_elastic: number | null;
+  p_stop_30d_pct_elastic: number | null;
+  p_stop_365d_pct_elastic: number | null;
   dd_current_pct: number;
   dd_stop_pct: number;
   dd_budget_used_pct: number;
