@@ -16,9 +16,13 @@ import { useEngine } from "../../hooks/useEngine";
 
 interface PStopPoint {
   timestamp: string;
+  // Conservative bookend (engine holds gross, no further de-risk).
   p_stop_7d_pct: number | null;
   p_stop_30d_pct: number | null;
   p_stop_365d_pct: number | null;
+  // Elastic bookend (engine de-levers continuously) — the de-risk-aware line.
+  p_stop_7d_pct_elastic: number | null;
+  p_stop_30d_pct_elastic: number | null;
   sigma_daily_pct: number | null;
   vol_budget_ratio: number | null;
   gross_pct: number | null;
@@ -77,10 +81,20 @@ export function PStopHistoryChart() {
     const raw = data?.series ?? [];
     return raw.map((p) => ({
       label: formatLabel(p.timestamp, period),
-      p_stop_7d: p.p_stop_7d_pct,
-      p_stop_30d: p.p_stop_30d_pct,
+      // Elastic (de-risk aware) — the primary lines.
+      p_stop_7d: p.p_stop_7d_pct_elastic,
+      p_stop_30d: p.p_stop_30d_pct_elastic,
+      // Conservative (no de-risk) 30d — faint reference bookend.
+      p_stop_30d_nd: p.p_stop_30d_pct,
     }));
   }, [data, period]);
+
+  // Older rows (pre-2026-05-20) have no elastic columns. Detect so the
+  // empty-state copy can explain a backfill is needed rather than "no data".
+  const hasElastic = useMemo(
+    () => (data?.series ?? []).some((p) => p.p_stop_30d_pct_elastic != null),
+    [data]
+  );
 
   const action = (
     <div className="flex items-center gap-3">
@@ -118,9 +132,12 @@ export function PStopHistoryChart() {
         <p>
           <strong className="text-gray-300">What you&rsquo;re looking at.</strong>{" "}
           Monte-Carlo probability of hitting the DD stop within the next 7 or
-          30 days, given current gross, realized spread vol, drift, and elastic
-          gross trim. Computed from the same MC the vol budget targets at
-          5%/yr.
+          30 days. The two solid lines are the <strong className="text-gray-300">
+          elastic</strong> bookend — they model the engine de-levering
+          continuously as DD deepens, the same de-risk-aware number the Risk
+          Posture banner headlines. The faint dashed line is the{" "}
+          <strong className="text-gray-300">conservative</strong> 30d bookend
+          (engine never de-risks further) — the pessimistic upper bound.
         </p>
         <p>
           <strong className="text-gray-300">How to read it.</strong>{" "}
@@ -144,6 +161,12 @@ export function PStopHistoryChart() {
         <div className="text-sm text-gray-500 p-4">
           No history yet for this window. P(stop) values are recorded as the
           dashboard polls; check back after a few minutes.
+        </div>
+      ) : !hasElastic ? (
+        <div className="text-sm text-gray-500 p-4">
+          History for this window predates the elastic-bookend rollout
+          (2026-05-20). New points appear as the dashboard polls; run{" "}
+          <code>POST /api/admin/backfill-pstop</code> to recompute older rows.
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={260}>
@@ -181,6 +204,17 @@ export function PStopHistoryChart() {
             />
             <ReferenceLine y={5} stroke="#f59e0b" strokeDasharray="2 4" label={{ value: "5% amber", position: "right", fill: "#f59e0b", fontSize: 9 }} />
             <ReferenceLine y={15} stroke="#ef4444" strokeDasharray="2 4" label={{ value: "15% red", position: "right", fill: "#ef4444", fontSize: 9 }} />
+            <Line
+              type="monotone"
+              dataKey="p_stop_30d_nd"
+              name="30d no-derisk"
+              stroke="#a855f7"
+              strokeWidth={1}
+              strokeDasharray="3 3"
+              strokeOpacity={0.4}
+              dot={false}
+              connectNulls
+            />
             <Line
               type="monotone"
               dataKey="p_stop_7d"
