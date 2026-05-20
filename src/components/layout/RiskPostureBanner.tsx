@@ -22,6 +22,15 @@ function pStopBand(p: number | null): Band {
   return "green";
 }
 
+// A stop probability is never exactly zero. The reporting MC runs 2000 paths,
+// so it cannot resolve below ~0.05%; anything that rounds to 0.0 is a
+// resolution floor, not a true zero. Show "<0.1%" rather than a false "0.0%".
+function fmtPstop(p: number | null): string {
+  if (p == null) return "—";
+  if (p < 0.1) return "<0.1%";
+  return `${p.toFixed(1)}%`;
+}
+
 function volBudgetBand(r: number | null): Band {
   // realized_spread_vol / target_spread_vol at current gross.
   // Target = the vol at which P(stop) = 5%/yr at current gross.
@@ -62,8 +71,8 @@ export function RiskPostureBanner() {
   const psBand = pStopBand(data.p_stop_30d_pct_elastic);
   const ps = BAND_COLORS[psBand];
   const pstopSub = [
-    data.p_stop_7d_pct_elastic != null ? `7d: ${data.p_stop_7d_pct_elastic.toFixed(1)}%` : null,
-    data.p_stop_30d_pct != null ? `no-derisk: ${data.p_stop_30d_pct.toFixed(1)}%` : null,
+    data.p_stop_7d_pct_elastic != null ? `7d: ${fmtPstop(data.p_stop_7d_pct_elastic)}` : null,
+    data.p_stop_30d_pct != null ? `no-derisk: ${fmtPstop(data.p_stop_30d_pct)}` : null,
   ].filter(Boolean).join(" · ") || undefined;
   const vbBand = volBudgetBand(data.vol_budget_ratio);
   const vb = BAND_COLORS[vbBand];
@@ -85,7 +94,7 @@ export function RiskPostureBanner() {
 
       <Metric
         label="P(stop) 30d"
-        value={data.p_stop_30d_pct_elastic != null ? `${data.p_stop_30d_pct_elastic.toFixed(1)}%` : "—"}
+        value={fmtPstop(data.p_stop_30d_pct_elastic)}
         sub={pstopSub}
         valueClass={ps.text}
         dot={ps.dot}

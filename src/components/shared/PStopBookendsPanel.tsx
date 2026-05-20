@@ -22,8 +22,13 @@ function band(p: number | null): Band {
   return "green";
 }
 
+// A stop probability is never exactly zero. The reporting MC runs 2000 paths,
+// so it cannot resolve below ~0.05%; anything rounding to 0.0 is a resolution
+// floor, not a true zero — show "<0.1%" rather than a false "0.0%".
 function fmt(p: number | null): string {
-  return p == null ? "—" : `${p.toFixed(1)}%`;
+  if (p == null) return "—";
+  if (p < 0.1) return "<0.1%";
+  return `${p.toFixed(1)}%`;
 }
 
 function Cell({ value }: { value: number | null }) {
