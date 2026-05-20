@@ -326,6 +326,38 @@ export function RiskStressTab() {
     reversal_prob?: number;
     reversal_model_used?: boolean;
     legacy_fav_ratio?: number;
+    // Concentration-aware drift engine fields
+    drift_hhi?: number;
+    drift_top3_share?: number;
+    top3_notional_share?: number;
+    notional_hhi?: number;
+    effective_beta_drift_pct?: number;
+    beta_drift_abs_pct?: number;
+    n_extended_contributors?: number;
+    concentration_trigger?: boolean;
+    concentration_reason?: string;
+  }
+  interface ConcentrationContributor {
+    symbol: string;
+    side: "LONG" | "SHORT";
+    beta_contribution_pct: number;
+    drift_pnl_usd: number;
+    pnl_pct: number;
+    rsi_daily: number | null;
+    extended: boolean;
+  }
+  interface ConcentrationBlock {
+    drift_hhi: number;
+    drift_top3_share: number;
+    notional_hhi: number;
+    top3_notional_share: number;
+    max_single_name_beta_pct: number;
+    n_extended_contributors: number;
+    top_contributors: ConcentrationContributor[];
+    effective_beta_drift_pct: number;
+    concentration_trigger: boolean;
+    concentration_reason: string;
+    enabled: boolean;
   }
   interface DriftCosts {
     holding_cost_bps: number;
@@ -418,6 +450,7 @@ export function RiskStressTab() {
     factor_attribution: FactorAttribution[];
     bands: DriftBands;
     garch: GarchForecast;
+    concentration?: ConcentrationBlock;
     n_hours_analyzed: number;
     n_daily_observations: number;
   }
@@ -906,8 +939,8 @@ export function RiskStressTab() {
                     const fName = f.factor.toLowerCase();
                     const valStr = fName.includes("carry") || fName.includes("funding") ? `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(1)} bps`
                       : fName.includes("volatility") || fName.includes("correlation") || fName.includes("velocity") || fName.includes("ewma") ? `${f.current_value.toFixed(2)}×`
-                      : fName.includes("stablecoin") ? `${f.current_value >= 0 ? "+" : ""}$${Math.abs(f.current_value).toFixed(1)}B`
-                      : fName.includes("smart money") ? `${f.current_value >= 0 ? "+" : ""}$${Math.abs(f.current_value).toFixed(0)}M`
+                      : fName.includes("stablecoin") ? `${f.current_value >= 0 ? "+" : "-"}$${Math.abs(f.current_value).toFixed(1)}B`
+                      : fName.includes("smart money") ? `${f.current_value >= 0 ? "+" : "-"}$${Math.abs(f.current_value).toFixed(0)}M`
                       : fName.includes("open interest") || fName.includes("breakout") ? `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(1)}%`
                       : `${f.current_value >= 0 ? "+" : ""}${f.current_value.toFixed(2)}%`;
                     const isSaylor = fName.includes("saylor");
@@ -1064,6 +1097,99 @@ export function RiskStressTab() {
               </div>
             </div>
           )}
+
+          {/* Drift Concentration (concentration-aware drift engine) */}
+          {driftData.concentration && driftData.concentration.enabled && (() => {
+            const c = driftData.concentration;
+            const dec = driftData.decision as DriftDecision;
+            const rawDrift = dec.beta_drift_abs_pct ?? 0;
+            const effDrift = c.effective_beta_drift_pct ?? rawDrift;
+            const escalated = effDrift > rawDrift + 0.05;
+            const hhiPct = (c.drift_hhi * 100).toFixed(0);
+            // HHI severity: >=40 trigger, >=30 "concentrated" gate, else ok
+            const hhiColor = c.drift_hhi >= 0.40 ? "text-red-400" : c.drift_hhi >= 0.30 ? "text-yellow-400" : "text-green-400";
+            const maxContrib = Math.max(
+              0.01,
+              ...c.top_contributors.map((t) => Math.abs(t.beta_contribution_pct)),
+            );
+            return (
+              <div className="mb-3">
+                <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-1 px-3">
+                  Drift Concentration
+                </div>
+                {/* Trigger banner */}
+                {c.concentration_trigger && (
+                  <div className="mx-3 mb-2 rounded border border-red-500/40 bg-red-900/20 px-2 py-1.5 text-[11px]">
+                    <span className="font-semibold text-red-400">⚠ CONCENTRATION TRIGGER</span>
+                    <span className="text-gray-300 ml-2 font-mono">{c.concentration_reason}</span>
+                  </div>
+                )}
+                {/* Metric tiles */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2 text-[11px]">
+                  <div className="bg-gray-800 rounded px-2 py-1.5">
+                    <div className="text-gray-500">Drift HHI</div>
+                    <div className={`font-mono ${hhiColor}`}>
+                      {c.drift_hhi.toFixed(2)} <span className="text-gray-600">({hhiPct}%)</span>
+                    </div>
+                  </div>
+                  <div className="bg-gray-800 rounded px-2 py-1.5">
+                    <div className="text-gray-500">Top-3 β-drift share</div>
+                    <div className="font-mono text-gray-300">{(c.drift_top3_share * 100).toFixed(0)}%</div>
+                  </div>
+                  <div className="bg-gray-800 rounded px-2 py-1.5">
+                    <div className="text-gray-500">Top-3 long notional</div>
+                    <div className={`font-mono ${c.top3_notional_share >= 0.45 ? "text-red-400" : "text-gray-300"}`}>
+                      {(c.top3_notional_share * 100).toFixed(0)}%
+                    </div>
+                  </div>
+                  <div className="bg-gray-800 rounded px-2 py-1.5">
+                    <div className="text-gray-500">Effective drift</div>
+                    <div className={`font-mono ${escalated ? "text-yellow-400" : "text-gray-300"}`}>
+                      {effDrift.toFixed(1)}%
+                      {escalated && <span className="text-gray-600"> (raw {rawDrift.toFixed(1)}%)</span>}
+                    </div>
+                  </div>
+                </div>
+                {/* Per-name beta-drift contribution bars */}
+                {c.top_contributors.length > 0 && (
+                  <div className="bg-gray-800/50 rounded mx-3 px-2 py-1.5">
+                    <div className="text-[9px] text-gray-600 uppercase tracking-wider mb-1">
+                      Top β-drift contributors {c.n_extended_contributors > 0 && (
+                        <span className="text-yellow-500">· {c.n_extended_contributors} extended</span>
+                      )}
+                    </div>
+                    {c.top_contributors.map((t) => {
+                      const w = (Math.abs(t.beta_contribution_pct) / maxContrib) * 100;
+                      const pos = t.beta_contribution_pct >= 0;
+                      return (
+                        <div key={t.symbol} className="flex items-center gap-2 py-0.5 text-[11px]">
+                          <div className="w-20 truncate font-mono text-gray-300">
+                            {t.symbol.replace("USDT", "")}
+                            {t.extended && <span className="text-yellow-500 ml-0.5" title="Technically extended">●</span>}
+                          </div>
+                          <div className="flex-1 h-2.5 bg-gray-900 rounded overflow-hidden">
+                            <div
+                              className={`h-full ${pos ? "bg-sky-500/70" : "bg-orange-500/70"}`}
+                              style={{ width: `${w}%` }}
+                            />
+                          </div>
+                          <div className="w-16 text-right font-mono text-gray-400">
+                            {pos ? "+" : ""}{t.beta_contribution_pct.toFixed(2)}pp
+                          </div>
+                          <div className={`w-14 text-right font-mono ${t.drift_pnl_usd >= 0 ? "text-green-400" : "text-red-400"}`}>
+                            {t.drift_pnl_usd >= 0 ? "+" : ""}${t.drift_pnl_usd.toFixed(0)}
+                          </div>
+                          <div className="w-12 text-right font-mono text-gray-500">
+                            {t.rsi_daily != null ? `r${t.rsi_daily.toFixed(0)}` : "—"}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Drift Statistics (v1 kept) */}
           <div className="overflow-x-auto mb-3">
