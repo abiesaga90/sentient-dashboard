@@ -57,11 +57,16 @@ export function DispersionChart({ days = 365 }: { days?: number }) {
       <div className="px-4 pb-3 text-xs text-gray-400 leading-relaxed space-y-1.5">
         <p>
           <strong className="text-gray-300">What you&rsquo;re looking at.</strong>{" "}
-          Rolling dispersion of today&rsquo;s long/short basket, projected
-          backwards over the price history. It answers two questions: how
-          tightly coupled are the two sides (correlation) and is realised
-          spread volatility big enough for the strategy to get paid at
-          current sizing (vol budget).
+          The bold <span className="text-indigo-300">realised spread vol</span>{" "}
+          line is the 30d-rolling volatility of the basket{" "}
+          <em>actually held</em> on each date, from go-live &mdash; the genuine
+          track record. The faint{" "}
+          <span className="text-gray-400">basket backcast</span> projects
+          today&rsquo;s basket over older price history for regime context
+          only (and gets unreliable where today&rsquo;s tokens didn&rsquo;t yet
+          exist). Correlation below shows how tightly coupled the two sides
+          are; vol budget shows whether spread vol is big enough to get paid
+          at current sizing.
         </p>
         <p>
           <strong className="text-gray-300">How to read it.</strong>{" "}
@@ -143,7 +148,7 @@ export function DispersionChart({ days = 365 }: { days?: number }) {
 
       {/* Chart 2: Spread vol + vol budget ratio */}
       <div className="px-4 pt-3 pb-2 text-xs text-gray-500 font-medium">
-        Spread vol (realised vs target) &amp; vol budget ratio
+        Spread vol: realised (live) vs basket backcast &amp; vol budget ratio
       </div>
       <ResponsiveContainer width="100%" height={260}>
         <ComposedChart data={series} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
@@ -209,10 +214,21 @@ export function DispersionChart({ days = 365 }: { days?: number }) {
           <Line
             yAxisId="vol"
             type="monotone"
-            dataKey="spread_vol_pct"
-            name="Realised spread vol"
+            dataKey="realised_spread_vol_pct"
+            name="Realised spread vol (live)"
             stroke="#818cf8"
-            strokeWidth={1.75}
+            strokeWidth={2.5}
+            dot={false}
+            connectNulls
+          />
+          <Line
+            yAxisId="vol"
+            type="monotone"
+            dataKey="spread_vol_pct"
+            name="Basket backcast (context)"
+            stroke="#6b7280"
+            strokeWidth={1.25}
+            strokeDasharray="4 3"
             dot={false}
             connectNulls
           />

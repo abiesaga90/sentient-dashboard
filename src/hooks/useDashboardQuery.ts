@@ -416,6 +416,7 @@ export interface DispersionHistoryPoint {
   ls_corr_30d: number | null;
   ls_corr_90d: number | null;
   spread_vol_pct: number | null;
+  realised_spread_vol_pct?: number | null;
   target_spread_vol_pct: number | null;
   vol_budget_ratio: number | null;
 }
@@ -427,6 +428,8 @@ export interface DispersionHistoryResponse {
   lookback_days?: number;
   basket?: { n_longs: number; n_shorts: number; gross_pct: number };
   target_spread_vol_pct?: number | null;
+  realised_available?: boolean;
+  live_start?: string | null;
   note?: string;
   series: DispersionHistoryPoint[];
 }
