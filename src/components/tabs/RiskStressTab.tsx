@@ -1635,14 +1635,16 @@ export function RiskStressTab() {
                   </div>
                 )}
 
-                {/* Vol budget cap */}
+                {/* Vol budget cap — informational only (not applied to live
+                    sizing since 2026-05-13). Neutral styling so it does not
+                    read as an active constraint. */}
                 {vb?.enabled && (
-                  <div className={`rounded p-2 border ${
-                    vb.ratio != null && vb.ratio < 1.0 ? "border-amber-700 bg-amber-900/20" : "border-gray-700 bg-gray-800/30"
-                  }`}>
-                    <div className="text-gray-400 mb-0.5">Vol budget cap</div>
+                  <div className="rounded p-2 border border-gray-700 bg-gray-800/30">
+                    <div className="text-gray-400 mb-0.5">
+                      Vol budget cap <span className="text-gray-600">· informational</span>
+                    </div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className={vb.ratio != null && vb.ratio < 1.0 ? "text-amber-300" : "text-gray-200"}>
+                      <span className="text-gray-200">
                         {vb.ratio != null ? `×${vb.ratio.toFixed(2)}` : "—"}
                       </span>
                       <span className="text-gray-500">
@@ -1651,7 +1653,7 @@ export function RiskStressTab() {
                           : ""}
                       </span>
                     </div>
-                    <div className="text-gray-600 mt-0.5">Downward-only · floor ×{(vb.floor_ratio ?? 0.5).toFixed(2)}</div>
+                    <div className="text-gray-600 mt-0.5">Not applied to live sizing · floor ×{(vb.floor_ratio ?? 0.5).toFixed(2)}</div>
                   </div>
                 )}
               </div>
