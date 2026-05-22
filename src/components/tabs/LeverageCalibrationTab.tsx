@@ -120,6 +120,11 @@ interface LevCalibResponse {
     stopped_out_at_cap?: boolean;
     stop_date_at_cap?: string | null;
     implied_safe_lev_vol?: number;
+    since_structure_change?: {
+      anchor_date: string;
+      n_days: number;
+      max_dd_at_cap: number;
+    } | null;
     gate_locked_pct_at_cap?: number;
     sortino_gate_enabled?: boolean;
     sortino_gate_threshold?: number;
@@ -223,7 +228,7 @@ export function LeverageCalibrationTab() {
   return (
     <div className="p-4 space-y-4">
       {/* Headline KPIs (all trim-aware: realized from path sim with hard stop) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
         <KpiCard
           label="Ann. vol at 4× (realized)"
           value={fmtPct(data.stats.ann_vol_unlev)}
@@ -241,6 +246,20 @@ export function LeverageCalibrationTab() {
             data.stats.stopped_out_at_cap
               ? `stopped ${data.stats.stop_date_at_cap ?? ""}`
               : `ulcer ${fmtPct(data.stats.ulcer_unlev)}`
+          }
+          valueColor="text-[#d06643]"
+        />
+        <KpiCard
+          label="Max DD since structure"
+          value={
+            data.stats.since_structure_change
+              ? fmtPct(data.stats.since_structure_change.max_dd_at_cap)
+              : "—"
+          }
+          sub={
+            data.stats.since_structure_change
+              ? `since ${data.stats.since_structure_change.anchor_date} · ${data.stats.since_structure_change.n_days} bars`
+              : "current basket/sizing era only"
           }
           valueColor="text-[#d06643]"
         />
@@ -708,7 +727,7 @@ export function LeverageCalibrationTab() {
                 <th className="px-3 py-1.5 text-right text-gray-500" title="Realized from trim-aware sim">Ann. vol</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="Realized from trim-aware sim">Sharpe</th>
                 <th className="px-3 py-1.5 text-right text-gray-500">Hist. max DD</th>
-                <th className="px-3 py-1.5 text-right text-gray-500">95%-worst 30d DD</th>
+                <th className="px-3 py-1.5 text-right text-gray-500" title="5th-percentile rolling 30d DD; needs ≥60 daily bars to be statistically meaningful">95%-worst 30d DD</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="Realized vol / √12">Fwd 1σ/mo</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="% of bars where the Sortino gate locked overgear (forced scale ≤ 1.0 in the overgear region)">Gate lock</th>
                 <th className="px-3 py-1.5 text-right text-gray-500" title="% of bars where the vol-budget cap was binding (multiplier < 1.0). Mean mult in tooltip.">Vol cap</th>
@@ -733,7 +752,9 @@ export function LeverageCalibrationTab() {
                     <td className={`px-3 py-1.5 text-right ${f.max_dd < -ddStopPct ? "text-[#d06643] font-semibold" : "text-gray-300"}`}>
                       {fmtPct(f.max_dd)}
                     </td>
-                    <td className="px-3 py-1.5 text-right text-gray-300">{fmtPct(f.dd_95)}</td>
+                    <td className="px-3 py-1.5 text-right text-gray-300" title={dd95Meaningful ? undefined : `needs ≥60 daily bars (have ${nDays})`}>
+                      {dd95Meaningful ? fmtPct(f.dd_95) : "—"}
+                    </td>
                     <td className="px-3 py-1.5 text-right text-gray-400">{fmtPct(f.dd_forward_1sig)}</td>
                     <td className="px-3 py-1.5 text-right text-gray-400">
                       {f.gate_locked_pct == null ? "—" : `${f.gate_locked_pct.toFixed(0)}%`}
