@@ -5,6 +5,7 @@ interface SpreadData {
   spread_pct: number | null;
   long_pct: number | null;
   short_pct: number | null;
+  costs_pct?: number | null;
   alpha_pct?: number | null;
   beta_drag_pct?: number | null;
   btc_return_pct?: number | null;
@@ -118,6 +119,7 @@ export function SpreadTable({
         spread_pct: scaleNum(v.spread_pct),
         long_pct: scaleNum(v.long_pct),
         short_pct: scaleNum(v.short_pct),
+        costs_pct: scaleNum(v.costs_pct),
         alpha_pct: scaleNum(v.alpha_pct),
         beta_drag_pct: scaleNum(v.beta_drag_pct),
         btc_return_pct: v.btc_return_pct,
@@ -224,6 +226,10 @@ export function SpreadTable({
                 <SpreadRow label="Spread" field="spread_pct" horizons={displayHorizons} periods={displayPeriods} bold />
                 <SpreadRow label="Longs" field="long_pct" horizons={displayHorizons} periods={displayPeriods} />
                 <SpreadRow label="Shorts" field="short_pct" horizons={displayHorizons} periods={displayPeriods} />
+                {/* Costs only populates on the "Actual" column (fees, funding,
+                    slippage, snapshot noise) so Longs + Shorts + Costs ties to
+                    the NAV-based Spread. Price-window columns render "—". */}
+                <SpreadRow label="Costs" field="costs_pct" horizons={displayHorizons} periods={displayPeriods} />
               </>
             )}
           </tbody>
