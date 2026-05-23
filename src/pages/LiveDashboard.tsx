@@ -27,6 +27,7 @@ import { SizingShadowTab } from "../components/tabs/SizingShadowTab";
 import { LeverageCalibrationTab } from "../components/tabs/LeverageCalibrationTab";
 import { PDSchemeTrackerTab } from "../components/tabs/PDSchemeTrackerTab";
 import { ApiHealthTab } from "../components/tabs/ApiHealthTab";
+import { TokenizedAssetsTab } from "../components/tabs/tokenized-assets/TokenizedAssetsTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -137,6 +138,8 @@ function TabContent({
       return <ScalingCapacityTab />;
     case "pd-tracker":
       return <PDSchemeTrackerTab />;
+    case "tokenized-assets":
+      return <TokenizedAssetsTab />;
     case "api-health":
       return <ApiHealthTab />;
     default:

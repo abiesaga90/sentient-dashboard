@@ -22,6 +22,7 @@ import {
   TrendingDown,
   AlertTriangle,
   Plug,
+  CandlestickChart,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -40,6 +41,7 @@ export const DASHBOARD_TABS = [
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },
   { id: "pd-tracker", label: "P&D Tracker", icon: <AlertTriangle size={14} /> },
   { id: "fundamentals", label: "Fundamentals", icon: <BookOpen size={14} /> },
+  { id: "tokenized-assets", label: "Tokenized Assets", icon: <CandlestickChart size={14} /> },
   { id: "performance", label: "Performance", icon: <TrendingUp size={14} /> },
   { id: "attribution", label: "Attribution", icon: <BarChart3 size={14} /> },
   { id: "pairs", label: "Hedging", icon: <Link2 size={14} /> },
