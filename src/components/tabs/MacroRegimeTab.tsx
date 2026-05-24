@@ -13,6 +13,29 @@ import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { ChartContainer } from "../shared/ChartContainer";
 
+interface GeopolMarketLeg {
+  source: string;       // "polymarket" | "kalshi"
+  event_slug: string;
+  market_slug: string;
+  label: string;
+  side: string;         // "YES" | "INV"
+  end_date: string;
+  prob_yes: number;
+  peace_prob: number;
+  volume_24h_usd: number;
+  liquidity_usd: number;
+  used: boolean;
+  skip_reason: string;
+}
+
+interface GeopolDetails {
+  mean_peace_prob: number;
+  n_used: number;
+  n_total: number;
+  baseline: number;
+  breakdown: GeopolMarketLeg[];
+}
+
 interface Indicator {
   key: string;
   label: string;
@@ -22,6 +45,33 @@ interface Indicator {
   description: string;
   score: number | null;
   raw_value: number | string | null;
+  details?: GeopolDetails;  // only present on geopol_deescalation
+}
+
+interface MacroICEntry {
+  ic_value: number | null;
+  hit_rate: number | null;
+  n_observations: number | null;
+  lookback_days: number | null;
+  classification: string;
+}
+
+interface MacroICIndicator {
+  key: string;
+  label: string;
+  category: string;
+  weight: number;
+  type: string;
+  ic: Record<string, MacroICEntry>;  // key like "nav_sortino_30d"
+}
+
+interface MacroICResponse {
+  indicators: MacroICIndicator[];
+  last_computed: string | null;
+  horizons: number[];
+  dependents: string[];
+  primary_dependent: string;
+  primary_horizon: number;
 }
 
 interface ChartPoint {
@@ -94,6 +144,14 @@ export function MacroRegimeTab() {
     queryFn: () => client.get("/api/risk"),
     refetchInterval: 120_000,
     staleTime: 60_000,
+  });
+  // Macro IC: predictive-power of each indicator vs Sortino/Sharpe/returns.
+  // Slow-moving signal (daily compute); poll every 5 min.
+  const { data: macroIC } = useQuery<MacroICResponse>({
+    queryKey: ["macro-ic", engine.id],
+    queryFn: () => client.get("/api/macro-ic"),
+    refetchInterval: 300_000,
+    staleTime: 180_000,
   });
 
   if (isLoading) {
@@ -323,10 +381,18 @@ export function MacroRegimeTab() {
         </Card>
       )}
 
-      {/* Indicator Table */}
+      {/* Indicator Table — with IC column (predictive power vs NAV-Sortino-30d) */}
       <Card>
         <CardHeader>
-          <CardTitle>Indicators ({data.indicators?.length || 0})</CardTitle>
+          <CardTitle>
+            Indicators ({data.indicators?.length || 0})
+            {macroIC?.last_computed && (
+              <span className="ml-3 text-xs font-normal text-gray-500">
+                IC vs {macroIC.primary_dependent}_{macroIC.primary_horizon}d ·
+                computed {new Date(macroIC.last_computed).toLocaleString()}
+              </span>
+            )}
+          </CardTitle>
         </CardHeader>
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -337,30 +403,129 @@ export function MacroRegimeTab() {
                 <th className="px-3 py-2 text-right text-gray-500">Raw</th>
                 <th className="px-3 py-2 text-right text-gray-500">Score</th>
                 <th className="px-3 py-2 text-right text-gray-500">Weight</th>
+                <th className="px-3 py-2 text-right text-gray-500" title="Information Coefficient (Spearman rank corr) vs NAV-Sortino-30d. n shows aligned (score, forward-window) pairs.">
+                  IC (Sortino 30d)
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {(data.indicators || []).map((ind) => (
-                <tr key={ind.key} className="hover:bg-[var(--bg-card-hover)]">
-                  <td className="px-3 py-2 text-gray-200">{ind.label}</td>
-                  <td className="px-3 py-2 text-gray-500">{ind.category}</td>
-                  <td className="px-3 py-2 text-right font-mono text-gray-300">
-                    {ind.raw_value != null ? String(ind.raw_value) : "—"}
-                  </td>
-                  <td className={`px-3 py-2 text-right font-mono ${
-                    ind.score != null
-                      ? ind.score >= 60 ? "text-green-400" : ind.score <= 40 ? "text-red-400" : "text-yellow-400"
-                      : "text-gray-600"
-                  }`}>
-                    {ind.score != null ? ind.score.toFixed(1) : "—"}
-                  </td>
-                  <td className="px-3 py-2 text-right text-gray-500">{ind.weight}</td>
-                </tr>
-              ))}
+              {(data.indicators || []).map((ind) => {
+                const icEntry = macroIC?.indicators
+                  .find(i => i.key === ind.key)
+                  ?.ic[`${macroIC.primary_dependent}_${macroIC.primary_horizon}d`];
+                const icVal = icEntry?.ic_value;
+                const icN = icEntry?.n_observations ?? 0;
+                const cls = icEntry?.classification ?? "insufficient_data";
+                const icColor =
+                  cls === "strong" ? "text-green-400"
+                  : cls === "weak" ? "text-red-400"
+                  : cls === "neutral" ? "text-yellow-400"
+                  : "text-gray-600";
+                return (
+                  <tr key={ind.key} className="hover:bg-[var(--bg-card-hover)]">
+                    <td className="px-3 py-2 text-gray-200">{ind.label}</td>
+                    <td className="px-3 py-2 text-gray-500">{ind.category}</td>
+                    <td className="px-3 py-2 text-right font-mono text-gray-300">
+                      {ind.raw_value != null ? String(ind.raw_value) : "—"}
+                    </td>
+                    <td className={`px-3 py-2 text-right font-mono ${
+                      ind.score != null
+                        ? ind.score >= 60 ? "text-green-400" : ind.score <= 40 ? "text-red-400" : "text-yellow-400"
+                        : "text-gray-600"
+                    }`}>
+                      {ind.score != null ? ind.score.toFixed(1) : "—"}
+                    </td>
+                    <td className="px-3 py-2 text-right text-gray-500">{ind.weight}</td>
+                    <td className={`px-3 py-2 text-right font-mono ${icColor}`} title={`classification=${cls}, n=${icN}, hit_rate=${icEntry?.hit_rate?.toFixed(2) ?? "—"}`}>
+                      {icVal != null
+                        ? `${icVal >= 0 ? "+" : ""}${icVal.toFixed(3)} (n=${icN})`
+                        : <span className="text-gray-600">N/A (n={icN})</span>}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </Card>
+
+      {/* Geopol De-Escalation Breakdown — only when the geopol indicator exposes details */}
+      {(() => {
+        const geopol = (data.indicators || []).find(i => i.key === "geopol_deescalation");
+        if (!geopol || !geopol.details || !geopol.details.breakdown?.length) return null;
+        const d = geopol.details;
+        const usedCount = d.breakdown.filter(b => b.used).length;
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Geopol De-Escalation · 7-Market Basket
+                <span className="ml-3 text-xs font-normal text-gray-500">
+                  mean peace prob {(d.mean_peace_prob * 100).toFixed(1)}% →
+                  score {geopol.score?.toFixed(1) ?? "—"} ·
+                  weight {geopol.weight} · {usedCount}/{d.n_total} legs active ·
+                  baseline {(d.baseline * 100).toFixed(0)}%
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead className="border-b border-[var(--border)]">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-gray-500">Source</th>
+                    <th className="px-3 py-2 text-left text-gray-500">Market</th>
+                    <th className="px-3 py-2 text-center text-gray-500">Side</th>
+                    <th className="px-3 py-2 text-right text-gray-500">YES</th>
+                    <th className="px-3 py-2 text-right text-gray-500">Peace</th>
+                    <th className="px-3 py-2 text-right text-gray-500">Vol / OI 24h</th>
+                    <th className="px-3 py-2 text-left text-gray-500">End</th>
+                    <th className="px-3 py-2 text-left text-gray-500">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {d.breakdown
+                    .slice()
+                    .sort((a, b) => b.volume_24h_usd - a.volume_24h_usd)
+                    .map(leg => {
+                      const peaceColor = leg.peace_prob >= 0.7 ? "text-green-400"
+                        : leg.peace_prob <= 0.3 ? "text-red-400"
+                        : "text-yellow-400";
+                      return (
+                        <tr key={`${leg.source}:${leg.market_slug || leg.event_slug}`}
+                            className={`hover:bg-[var(--bg-card-hover)] ${leg.used ? "" : "opacity-50"}`}>
+                          <td className="px-3 py-2">
+                            <Badge variant={leg.source === "kalshi" ? "info" : "default"}>
+                              {leg.source}
+                            </Badge>
+                          </td>
+                          <td className="px-3 py-2 text-gray-200 max-w-md truncate" title={leg.label}>
+                            {leg.label}
+                          </td>
+                          <td className="px-3 py-2 text-center font-mono text-gray-400">
+                            {leg.side}
+                          </td>
+                          <td className="px-3 py-2 text-right font-mono text-gray-300">
+                            {(leg.prob_yes * 100).toFixed(1)}%
+                          </td>
+                          <td className={`px-3 py-2 text-right font-mono ${peaceColor}`}>
+                            {(leg.peace_prob * 100).toFixed(1)}%
+                          </td>
+                          <td className="px-3 py-2 text-right font-mono text-gray-300">
+                            ${leg.volume_24h_usd.toLocaleString()}
+                          </td>
+                          <td className="px-3 py-2 text-gray-500">{leg.end_date || "—"}</td>
+                          <td className="px-3 py-2 text-gray-500">
+                            {leg.used ? "active" : <span title={leg.skip_reason}>skip</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* Chart */}
       {chartData.length > 0 && (
