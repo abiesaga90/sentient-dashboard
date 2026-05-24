@@ -29,6 +29,7 @@ import { LeverageCalibrationTab } from "../components/tabs/LeverageCalibrationTa
 import { PDSchemeTrackerTab } from "../components/tabs/PDSchemeTrackerTab";
 import { ApiHealthTab } from "../components/tabs/ApiHealthTab";
 import { TokenizedAssetsTab } from "../components/tabs/tokenized-assets/TokenizedAssetsTab";
+import { TokenizedPositionsTab } from "../components/tabs/TokenizedPositionsTab";
 import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
@@ -143,6 +144,8 @@ function TabContent({
       return <PDSchemeTrackerTab />;
     case "tokenized-assets":
       return <TokenizedAssetsTab />;
+    case "tokenized-positions":
+      return <TokenizedPositionsTab />;
     case "api-health":
       return <ApiHealthTab />;
     default:

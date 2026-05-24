@@ -836,3 +836,81 @@ export interface DailyPnlHistoryResponse {
   };
   note?: string;
 }
+
+// ─── Tokenized Positions (permanent index/ETF pairs sleeve, 2026-05-24) ──
+
+export interface TokenizedPairTargetBlock {
+  long_notional: number;
+  short_notional: number;
+  pair_gross: number;
+  h_star: number;
+  pair_weight: number;
+  natural_share_pct: number;
+  cap_binding: boolean;
+  cap_pct_of_notional: number;
+  expected_carry_apr_2x: number;
+  pair_residual_vol_daily_pct: number;
+}
+
+export interface TokenizedPairActualBlock {
+  long_notional: number;
+  short_notional: number;
+  long_qty: number | null;
+  short_qty: number | null;
+  long_entry_time: string | null;
+  short_entry_time: string | null;
+  days_held: number;
+  long_pnl_usd: number;
+  short_pnl_usd: number;
+  spread_pnl_usd: number;
+  long_funding_accrued_usd: number;
+  short_funding_accrued_usd: number;
+  total_funding_accrued_usd: number;
+}
+
+export interface TokenizedPairCarryBlock {
+  now_apr_2x: number | null;
+  rolling_mean_apr_2x: number | null;
+  threshold_apr_2x: number;
+  n_snapshots: number;
+  window_days: number;
+  decision_reason: string;
+  should_close: boolean;
+  distance_to_threshold_pct_pts: number | null;
+}
+
+export interface TokenizedPairRow {
+  id: string;
+  long_symbol: string;
+  short_symbol: string;
+  status: "dry_run" | "active" | "ready" | "exit_fired" | "cold";
+  exit_carry_threshold_apr_2x: number;
+  target: TokenizedPairTargetBlock | null;
+  actual: TokenizedPairActualBlock | null;
+  carry: TokenizedPairCarryBlock;
+  carry_series_30d: { ts: number; carry_apr_2x: number }[];
+}
+
+export interface TokenizedPositionsResponse {
+  updated_at: string;
+  enabled: boolean;
+  dry_run: boolean | null;
+  config?: {
+    carry_eval_window_days: number;
+    max_gross_pct_of_notional: number;
+    notional_capital: number;
+  };
+  health: {
+    n_configured: number;
+    n_active: number;
+    n_pending_close: number;
+    total_gross_target: number;
+    total_gross_actual: number;
+    total_gross_target_pct_of_notional?: number;
+    weighted_avg_carry_apr_2x?: number | null;
+    total_unrealized_pnl_usd?: number;
+    total_funding_accrued_usd?: number;
+    oldest_position_days_held?: number | null;
+  };
+  pairs: TokenizedPairRow[];
+}

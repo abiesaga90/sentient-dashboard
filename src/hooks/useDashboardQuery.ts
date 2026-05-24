@@ -474,3 +474,17 @@ export function useDailyPnlHistory(days: number = 30) {
     staleTime: 120_000,
   });
 }
+
+// ─── Tokenized Positions (permanent sleeve, 2026-05-24) ──────────────
+
+import type { TokenizedPositionsResponse } from "../types/api";
+
+export function useTokenizedPositions(seriesDays: number = 30) {
+  const { client, engine } = useEngine();
+  return useQuery<TokenizedPositionsResponse>({
+    queryKey: ["tokenized-positions", engine.id, seriesDays],
+    queryFn: () => client.get("/api/tokenized-positions", { series_days: seriesDays }),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+}
