@@ -29,6 +29,21 @@ export interface Fundamentals {
   ev_to_ebitda?: number;
   eps_ttm?: number;
   beta?: number;
+  // Quality / growth / margin fields (D1 — extracted from AV OVERVIEW)
+  profit_margin?: number;
+  operating_margin_ttm?: number;
+  roa_ttm?: number;
+  roe_ttm?: number;
+  revenue_ttm?: number;
+  gross_profit_ttm?: number;
+  gross_margin_ttm?: number;
+  eps_diluted_ttm?: number;
+  eps_growth_yoy?: number;
+  revenue_growth_yoy?: number;
+  eps_estimate_cy?: number;
+  eps_estimate_ny?: number;
+  revenue_estimate_cy?: number;
+  revenue_estimate_ny?: number;
   "52w_high"?: number;
   "52w_low"?: number;
   dividend_yield?: number;
@@ -124,6 +139,16 @@ export interface PairMetrics {
   spread_mean_logprice?: number | null;
   spread_std_logprice?: number | null;
   signal_zone?: "enter" | "near_enter" | "neutral" | "near_avoid" | "avoid" | null;
+  // Fundamental Quality Differential (Workstream D, alpha layer)
+  quality_score?: number | null;
+  quality_score_coverage?: number;
+  revenue_growth_diff_pp?: number | null;
+  eps_growth_diff_pp?: number | null;
+  operating_margin_diff_pp?: number | null;
+  gross_margin_diff_pp?: number | null;
+  roe_diff_pp?: number | null;
+  eps_estimate_growth_diff_pp?: number | null;
+  valuation_premium_pp?: number | null;
   correlation_weekday: number | null;
   correlation_ewma: number | null;
   correlation_spearman: number | null;
@@ -176,6 +201,9 @@ export interface PairIdea {
   metrics: PairMetrics;
   score: number;
   rationale: string;
+  // Daily spread return series (basket-builder mode). Aligned with the
+  // top-level portfolio_returns in PairsPayload. Roughly 130-500 daily obs.
+  spread_returns?: number[];
   saa?: {
     long_ticker?: string;
     long_value_usd?: number;
@@ -192,6 +220,10 @@ export interface PairIdea {
 export interface PortfolioContext {
   portfolio_vol_daily_pct?: number | null;
   portfolio_returns_sample_size?: number;
+  // Live-portfolio daily returns (aligned with each pair's spread_returns).
+  // Used by basket-builder mode to recompute marginal vol against
+  // simulated portfolio = live + staged pairs at user-set weights.
+  portfolio_returns?: number[] | null;
 }
 
 export interface PairsPayload extends PortfolioContext {

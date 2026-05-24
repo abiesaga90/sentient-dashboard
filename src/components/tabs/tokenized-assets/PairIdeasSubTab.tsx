@@ -183,24 +183,47 @@ const signalZoneBadge: Record<string, string> = {
   avoid: "border-red-600 bg-red-950/70 text-red-200 font-bold",
 };
 
+// Reframed for a 3-6mo holding-period book (Workstream D6). Less timing-trader,
+// more entry-quality. Only the |z|>2 extremes get a visual edge.
 const signalZoneLabel: Record<string, string> = {
-  enter: "ENTER",
-  near_enter: "Near entry",
+  enter: "Entry attractive",
+  near_enter: "Building entry",
   neutral: "Neutral",
-  near_avoid: "Near exit",
-  avoid: "AVOID",
+  near_avoid: "Stretched",
+  avoid: "Entry unattractive",
 };
 
-// Left-border accent on the entire card so it pops at a glance
+// Thin left-edge only at the extremes (|z| > 2). Building zones get nothing.
 const cardBorderByZone: Record<string, string> = {
-  enter: "border-l-4 border-l-emerald-500",
-  near_enter: "border-l-2 border-l-emerald-700",
+  enter: "border-l-2 border-l-emerald-600",
+  near_enter: "",
   neutral: "",
-  near_avoid: "border-l-2 border-l-amber-700",
-  avoid: "border-l-4 border-l-red-500",
+  near_avoid: "",
+  avoid: "border-l-2 border-l-red-600",
 };
 
-function PairRow({ p }: { p: PairIdea }) {
+// Quality Δ chip (Workstream D4) — the headline alpha-layer indicator.
+//   |Q| ≥ 1.0     strong signal (long is clearly better / worse)
+//   0.3 ≤ |Q| < 1 edge
+//   |Q| < 0.3     quality matched
+function qualityChipClass(q: number | null | undefined): string {
+  if (q == null) return "border-gray-700 bg-gray-900/40 text-gray-400";
+  if (q >= 1.0) return "border-emerald-500 bg-emerald-950/70 text-emerald-200 font-bold";
+  if (q >= 0.3) return "border-emerald-700 bg-emerald-950/40 text-emerald-300";
+  if (q > -0.3) return "border-gray-700 bg-gray-900/40 text-gray-400";
+  if (q >= -1.0) return "border-amber-700 bg-amber-950/40 text-amber-300";
+  return "border-red-500 bg-red-950/70 text-red-200 font-bold";
+}
+function qualityChipLabel(q: number | null | undefined): string {
+  if (q == null) return "Quality ?";
+  if (q >= 1.0) return "Quality ++";
+  if (q >= 0.3) return "Quality +";
+  if (q > -0.3) return "Quality ≈";
+  if (q >= -1.0) return "Quality −";
+  return "Quality −−";
+}
+
+function PairRow({ p, portfolioVol }: { p: PairIdea; portfolioVol?: number | null }) {
   const m = p.metrics;
   const sm = p.sector_match ?? "cross_sector";
   const matchTooltip =
@@ -268,6 +291,37 @@ function PairRow({ p }: { p: PairIdea }) {
               )}
             </span>
           )}
+          {m.quality_score != null && (
+            <span
+              title={
+                `Fundamental quality differential (L − S).\n\n` +
+                `Composite = weighted normalized diffs on:\n` +
+                `  Revenue growth YoY:  ${m.revenue_growth_diff_pp?.toFixed(1) ?? "—"}pp  (w +20%)\n` +
+                `  EPS growth YoY:      ${m.eps_growth_diff_pp?.toFixed(1) ?? "—"}pp  (w +20%)\n` +
+                `  Operating margin:    ${m.operating_margin_diff_pp?.toFixed(1) ?? "—"}pp  (w +20%)\n` +
+                `  ROE TTM:             ${m.roe_diff_pp?.toFixed(1) ?? "—"}pp  (w +15%)\n` +
+                `  Forward EPS growth:  ${m.eps_estimate_growth_diff_pp?.toFixed(1) ?? "—"}pp  (w +15%)\n` +
+                `  Valuation premium:   ${m.valuation_premium_pp?.toFixed(1) ?? "—"}pp  (w −10% — cheap is good)\n\n` +
+                `Composite Q = ${m.quality_score.toFixed(2)}  ∈ [-2, +2]\n` +
+                `Coverage: ${m.quality_score_coverage ?? 0}/6 factors populated.\n\n` +
+                (m.quality_score >= 1
+                  ? "Long is materially better-quality than short."
+                  : m.quality_score >= 0.3
+                  ? "Long has a quality edge."
+                  : m.quality_score > -0.3
+                  ? "Quality matched — pair is carry + RV, not a quality trade."
+                  : m.quality_score >= -1
+                  ? "Short is higher-quality. Directional risk on the long leg."
+                  : "Short business is materially better. Re-examine thesis.")
+              }
+              className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${qualityChipClass(m.quality_score)}`}
+            >
+              {qualityChipLabel(m.quality_score)}
+              <span className="ml-1 font-mono opacity-90">
+                {m.quality_score >= 0 ? "+" : ""}{m.quality_score.toFixed(2)}
+              </span>
+            </span>
+          )}
           {zone && (
             <span
               title={
@@ -276,8 +330,9 @@ function PairRow({ p }: { p: PairIdea }) {
                 `z = ${m.spread_zscore_today?.toFixed(2) ?? "—"}\n` +
                 `μ = ${m.spread_mean_logprice?.toFixed(4) ?? "—"}\n` +
                 `σ = ${m.spread_std_logprice?.toFixed(4) ?? "—"}\n\n` +
-                `ENTER:  z ≤ -2  (spread depressed, reversion is our PnL direction)\n` +
-                `AVOID:  z ≥ +2  (spread elevated, reversion would hurt us)`
+                `For a 3-6mo holding-period book: z is an entry-quality signal,\n` +
+                `not a tactical timing trigger. Extreme z (|z|>2) means the\n` +
+                `spread is at a multi-year extreme — favorable starting basis.`
               }
               className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${signalZoneBadge[zone]}`}
             >
@@ -341,13 +396,21 @@ function PairRow({ p }: { p: PairIdea }) {
           </div>
           <div className="text-[10px] text-gray-600">1x: {fmtPct(m.carry_apr_pct_1x, 1)}</div>
         </div>
-        <div title={`@2x lev: ${m.spread_vol_daily_pct_2x?.toFixed(2) ?? "—"}%/d · ${m.spread_vol_ann_pct_2x?.toFixed(1) ?? "—"}%/y`}>
+        <div title={`@2x lev: ${m.spread_vol_daily_pct_2x?.toFixed(2) ?? "—"}%/d · ${m.spread_vol_ann_pct_2x?.toFixed(1) ?? "—"}%/y\n\nvs-book ratio = pair daily vol / live portfolio daily vol. Higher = pair would dominate book vol at full notional; lower = quiet addition.`}>
           <div className="text-[10px] text-gray-500">Spread vol (1x)</div>
           <div className="font-mono">
             {m.spread_vol_daily_pct_1x != null ? `${m.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
           </div>
           <div className="text-[10px] text-gray-600">
             {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(0)}%/y` : "—"}
+            {portfolioVol != null && portfolioVol > 0 && m.spread_vol_daily_pct_1x != null && (
+              <>
+                {" · "}
+                <span className="text-gray-500">
+                  {(m.spread_vol_daily_pct_1x / portfolioVol).toFixed(1)}× book
+                </span>
+              </>
+            )}
           </div>
         </div>
         <div
@@ -421,7 +484,7 @@ function PairRow({ p }: { p: PairIdea }) {
   );
 }
 
-type SortKey = "sharpe" | "carry" | "zscore" | "marginal_vol";
+type SortKey = "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book";
 
 export function PairIdeasSubTab({ pairs }: Props) {
   const [minSharpe, setMinSharpe] = useState(0.15);
@@ -448,6 +511,8 @@ export function PairIdeasSubTab({ pairs }: Props) {
     return s >= minSharpe;
   };
 
+  const portfolioVol = pairs?.portfolio_vol_daily_pct ?? null;
+
   // Sort key extractors
   const sortVal = (p: PairIdea): number => {
     const m = p.metrics;
@@ -459,6 +524,20 @@ export function PairIdeasSubTab({ pairs }: Props) {
     if (sortBy === "marginal_vol") {
       // More negative marginal_vol = better diversifier, so sort ascending
       return -(m.marginal_vol_daily_pct ?? 1e9);
+    }
+    if (sortBy === "quality") return m.quality_score ?? -1e9;
+    if (sortBy === "quality_x_carry") {
+      // Composite alpha+carry score: signed quality × Sharpe.
+      // Both positive ⇒ strong; one negative ⇒ neutralizing.
+      const q = m.quality_score ?? 0;
+      const s = m.sharpe ?? 0;
+      return q * s;
+    }
+    if (sortBy === "vol_vs_book") {
+      // Lower pair-vol/book-vol = calmest addition, sort ascending
+      if (portfolioVol == null || portfolioVol <= 0) return -1e9;
+      const pv = m.spread_vol_daily_pct_1x;
+      return pv != null ? -(pv / portfolioVol) : -1e9;
     }
     return m.sharpe ?? -1e9;
   };
@@ -560,10 +639,13 @@ export function PairIdeasSubTab({ pairs }: Props) {
             onChange={(e) => setSortBy(e.target.value as SortKey)}
             className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-gray-200"
           >
-            <option value="sharpe">Sharpe</option>
+            <option value="quality_x_carry">Quality × Carry (alpha + carry)</option>
+            <option value="quality">Quality Δ (alpha layer)</option>
+            <option value="sharpe">Sharpe (1:1)</option>
             <option value="carry">Carry APR</option>
-            <option value="zscore">|z-score| (entry signal)</option>
             <option value="marginal_vol">Marginal vol (diversifiers first)</option>
+            <option value="vol_vs_book">Vol vs book (calmest first)</option>
+            <option value="zscore">z-score (entry quality)</option>
           </select>
         </div>
         <div className="text-gray-500">
@@ -593,7 +675,7 @@ export function PairIdeasSubTab({ pairs }: Props) {
           </CardHeader>
           <div className="divide-y divide-[var(--border)] -mx-2">
             {saaShown.map((p, i) => (
-              <PairRow key={`saa-${i}-${p.long_symbol}-${p.short_symbol}`} p={p} />
+              <PairRow key={`saa-${i}-${p.long_symbol}-${p.short_symbol}`} p={p} portfolioVol={portfolioVol} />
             ))}
             {saaShown.length === 0 && (
               <div className="text-[11px] text-gray-500 italic px-3 py-4 text-center">
@@ -620,7 +702,7 @@ export function PairIdeasSubTab({ pairs }: Props) {
         </CardHeader>
         <div className="-mx-2">
           {genericShown.map((p, i) => (
-            <PairRow key={`gen-${i}-${p.long_symbol}-${p.short_symbol}`} p={p} />
+            <PairRow key={`gen-${i}-${p.long_symbol}-${p.short_symbol}`} p={p} portfolioVol={portfolioVol} />
           ))}
           {genericShown.length === 0 && (
             <div className="text-[11px] text-gray-500 italic px-3 py-4 text-center">
