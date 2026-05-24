@@ -163,6 +163,15 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
             <Badge variant={statusBadgeVariant(pair.status)}>{statusLabel(pair.status)}</Badge>
           </div>
           <div className="text-xs text-gray-500 font-mono">pair_id: {pair.id}</div>
+          {pair.underlying && (
+            <div className="text-xs text-gray-400 mt-0.5 max-w-xl">
+              <span className="text-blue-400">Long</span> {pair.underlying.long.label ?? longLabel}
+              {pair.underlying.long.subsector ? ` (${pair.underlying.long.subsector})` : ""}
+              {" · "}
+              <span className="text-orange-400">Short</span> {pair.underlying.short.label ?? shortLabel}
+              {pair.underlying.short.subsector ? ` (${pair.underlying.short.subsector})` : ""}
+            </div>
+          )}
         </div>
         {a && (
           <div className="text-xs text-gray-500 text-right">

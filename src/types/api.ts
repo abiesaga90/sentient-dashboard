@@ -909,12 +909,27 @@ export interface TokenizedPairCarryBlock {
   distance_to_threshold_pct_pts: number | null;
 }
 
+export interface TokenizedPairUnderlyingLeg {
+  label: string | null;
+  asset_class: string | null;
+  sector: string | null;
+  subsector: string | null;
+  yahoo_ticker: string | null;
+}
+
+export interface TokenizedPairUnderlying {
+  long: TokenizedPairUnderlyingLeg;
+  short: TokenizedPairUnderlyingLeg;
+  thesis: string | null;
+}
+
 export interface TokenizedPairRow {
   id: string;
   long_symbol: string;
   short_symbol: string;
   status: "dry_run" | "active" | "ready" | "exit_fired" | "cold";
   exit_carry_threshold_apr_2x: number;
+  underlying?: TokenizedPairUnderlying;
   target: TokenizedPairTargetBlock | null;
   actual: TokenizedPairActualBlock | null;
   carry: TokenizedPairCarryBlock;
