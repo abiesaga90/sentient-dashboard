@@ -157,12 +157,6 @@ const sectorMatchLabel: Record<string, string> = {
 //   "diversifier" = adding this pair REDUCES total portfolio vol (gold)
 //   "neutral"     = negligible effect (gray)
 //   "additive"    = adding this pair INCREASES total portfolio vol (red)
-const marginalVolColor: Record<string, string> = {
-  diversifier: "text-emerald-400",
-  neutral: "text-gray-400",
-  additive: "text-red-400",
-};
-
 const marginalVolBadge: Record<string, string> = {
   diversifier: "border-emerald-700 bg-emerald-950/50 text-emerald-300",
   neutral: "border-gray-700 bg-gray-900/50 text-gray-400",
