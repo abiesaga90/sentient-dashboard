@@ -169,6 +169,37 @@ const marginalVolLabel: Record<string, string> = {
   additive: "Additive",
 };
 
+// Z-score timing signal: when to enter the trade.
+//   "enter"        z <= -2   spread depressed, mean-reversion in our favor
+//   "near_enter"   -2 < z <= -1
+//   "neutral"      |z| < 1   close to mean, no signal
+//   "near_avoid"   1 <= z < 2
+//   "avoid"        z >= 2    spread elevated, mean-reversion would hurt us
+const signalZoneBadge: Record<string, string> = {
+  enter: "border-emerald-600 bg-emerald-950/70 text-emerald-200 font-bold",
+  near_enter: "border-emerald-800 bg-emerald-950/40 text-emerald-300",
+  neutral: "border-gray-700 bg-gray-900/40 text-gray-400",
+  near_avoid: "border-amber-800 bg-amber-950/40 text-amber-300",
+  avoid: "border-red-600 bg-red-950/70 text-red-200 font-bold",
+};
+
+const signalZoneLabel: Record<string, string> = {
+  enter: "ENTER",
+  near_enter: "Near entry",
+  neutral: "Neutral",
+  near_avoid: "Near exit",
+  avoid: "AVOID",
+};
+
+// Left-border accent on the entire card so it pops at a glance
+const cardBorderByZone: Record<string, string> = {
+  enter: "border-l-4 border-l-emerald-500",
+  near_enter: "border-l-2 border-l-emerald-700",
+  neutral: "",
+  near_avoid: "border-l-2 border-l-amber-700",
+  avoid: "border-l-4 border-l-red-500",
+};
+
 function PairRow({ p }: { p: PairIdea }) {
   const m = p.metrics;
   const sm = p.sector_match ?? "cross_sector";
@@ -179,9 +210,11 @@ function PairRow({ p }: { p: PairIdea }) {
   const mvc = m.marginal_vol_classification;
   const mvDaily = m.marginal_vol_daily_pct;
   const corrPort = m.corr_to_portfolio;
+  const zone = m.signal_zone ?? null;
+  const zonePill = zone ? cardBorderByZone[zone] : "";
 
   return (
-    <div className="border-b border-[var(--border)] last:border-b-0 py-3 px-2">
+    <div className={`border-b border-[var(--border)] last:border-b-0 py-3 px-2 ${zonePill}`}>
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           <span
@@ -231,6 +264,27 @@ function PairRow({ p }: { p: PairIdea }) {
               {m.half_life_days != null && (
                 <span className="ml-1 opacity-70 font-mono">
                   HL {m.half_life_days.toFixed(0)}d
+                </span>
+              )}
+            </span>
+          )}
+          {zone && (
+            <span
+              title={
+                `Spread z-score = (current spread − sample mean) / sample std\n` +
+                `on the β-hedged log-price spread over the 2y window.\n\n` +
+                `z = ${m.spread_zscore_today?.toFixed(2) ?? "—"}\n` +
+                `μ = ${m.spread_mean_logprice?.toFixed(4) ?? "—"}\n` +
+                `σ = ${m.spread_std_logprice?.toFixed(4) ?? "—"}\n\n` +
+                `ENTER:  z ≤ -2  (spread depressed, reversion is our PnL direction)\n` +
+                `AVOID:  z ≥ +2  (spread elevated, reversion would hurt us)`
+              }
+              className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${signalZoneBadge[zone]}`}
+            >
+              {signalZoneLabel[zone]}
+              {m.spread_zscore_today != null && (
+                <span className="ml-1 font-mono opacity-90">
+                  z {m.spread_zscore_today >= 0 ? "+" : ""}{m.spread_zscore_today.toFixed(1)}
                 </span>
               )}
             </span>
@@ -367,9 +421,13 @@ function PairRow({ p }: { p: PairIdea }) {
   );
 }
 
+type SortKey = "sharpe" | "carry" | "zscore" | "marginal_vol";
+
 export function PairIdeasSubTab({ pairs }: Props) {
   const [minSharpe, setMinSharpe] = useState(0.15);
   const [showInverse, setShowInverse] = useState(false);
+  const [sortBy, setSortBy] = useState<SortKey>("sharpe");
+  const [onlyCointegrating, setOnlyCointegrating] = useState(false);
 
   const saa = pairs?.saa_anchored ?? [];
   const generic = pairs?.generic ?? [];
@@ -384,13 +442,31 @@ export function PairIdeasSubTab({ pairs }: Props) {
   // Null Sharpe falls through — usually means too-short history; keep visible.
   const passes = (p: PairIdea) => {
     const s = p.metrics.sharpe;
+    if (onlyCointegrating && p.metrics.is_cointegrating !== true) return false;
     if (s == null) return true;
     if (showInverse) return Math.abs(s) >= minSharpe;
     return s >= minSharpe;
   };
 
-  const saaShown = saa.filter(passes);
-  const genericShown = generic.filter(passes);
+  // Sort key extractors
+  const sortVal = (p: PairIdea): number => {
+    const m = p.metrics;
+    if (sortBy === "carry") return m.carry_apr_pct_1x ?? -1e9;
+    if (sortBy === "zscore") {
+      // Lower (more negative) z = better entry, so sort ascending by z
+      return -(m.spread_zscore_today ?? 1e9);
+    }
+    if (sortBy === "marginal_vol") {
+      // More negative marginal_vol = better diversifier, so sort ascending
+      return -(m.marginal_vol_daily_pct ?? 1e9);
+    }
+    return m.sharpe ?? -1e9;
+  };
+
+  const sortDesc = (a: PairIdea, b: PairIdea) => sortVal(b) - sortVal(a);
+
+  const saaShown = saa.filter(passes).slice().sort(sortDesc);
+  const genericShown = generic.filter(passes).slice().sort(sortDesc);
   const saaHidden = saa.length - saaShown.length;
   const genericHidden = generic.length - genericShown.length;
 
@@ -448,7 +524,7 @@ export function PairIdeasSubTab({ pairs }: Props) {
       )}
 
       <div className="flex items-center justify-between flex-wrap gap-3 text-[11px] text-gray-400 px-1 py-2 border-y border-[var(--border)]">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <span className="text-gray-500">Min Sharpe:</span>
           <input
             type="range"
@@ -467,13 +543,33 @@ export function PairIdeasSubTab({ pairs }: Props) {
               onChange={(e) => setShowInverse(e.target.checked)}
               className="accent-emerald-500"
             />
-            <span>also show inverse (negative Sharpe)</span>
+            <span>show inverse</span>
           </label>
+          <label className="flex items-center gap-1.5 cursor-pointer text-gray-500 hover:text-gray-300">
+            <input
+              type="checkbox"
+              checked={onlyCointegrating}
+              onChange={(e) => setOnlyCointegrating(e.target.checked)}
+              className="accent-emerald-500"
+            />
+            <span>cointegrating only</span>
+          </label>
+          <span className="text-gray-500 ml-2">Sort:</span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortKey)}
+            className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-gray-200"
+          >
+            <option value="sharpe">Sharpe</option>
+            <option value="carry">Carry APR</option>
+            <option value="zscore">|z-score| (entry signal)</option>
+            <option value="marginal_vol">Marginal vol (diversifiers first)</option>
+          </select>
         </div>
         <div className="text-gray-500">
-          Showing {saaShown.length + genericShown.length} of {saa.length + generic.length} pairs
+          {saaShown.length + genericShown.length} of {saa.length + generic.length}
           {saaHidden + genericHidden > 0 && (
-            <span className="text-gray-600"> · {saaHidden + genericHidden} hidden by filter</span>
+            <span className="text-gray-600"> · {saaHidden + genericHidden} hidden</span>
           )}
         </div>
       </div>
