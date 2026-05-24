@@ -11,6 +11,7 @@ import {
   Line,
   Legend,
   ReferenceLine,
+  ResponsiveContainer,
 } from "recharts";
 import {
   useDailyPnlPerSymbol,
@@ -19,7 +20,6 @@ import {
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { Badge } from "../ui/Badge";
 import { KpiCard } from "../shared/KpiCard";
-import { ChartContainer } from "../shared/ChartContainer";
 import { formatUSD, formatPct, cn } from "../../lib/utils";
 import type { DailyPnlPerSymbolRow } from "../../types/api";
 
@@ -159,7 +159,7 @@ export function DailyPnlTab() {
             className="rounded border border-gray-700 bg-gray-900 px-2 py-1 text-sm text-gray-200"
           />
         </div>
-        <Badge variant={isToday ? "default" : "secondary"}>
+        <Badge variant={isToday ? "default" : "info"}>
           {isToday ? "today (live)" : `${data.source}`}
         </Badge>
         {data.note && (
@@ -222,7 +222,7 @@ export function DailyPnlTab() {
       {engineNet != null && carryShapeDelta != null && Math.abs(carryShapeDelta) > 1 && (
         <Card className="p-3 bg-gray-900/40 border-amber-800/50">
           <div className="flex items-start gap-3 text-xs">
-            <Badge variant="secondary">truth vs shape</Badge>
+            <Badge variant="warning">truth vs shape</Badge>
             <div className="text-gray-300">
               Headline <span className="text-emerald-400">{fmtSigned(engineNet)}</span> is the engine NAV delta (truth).
               Carry-shape day_pnl is <span className={pnlClass(t.day_pnl)}>{fmtSigned(t.day_pnl)}</span>
@@ -241,7 +241,7 @@ export function DailyPnlTab() {
             Per-symbol contribution ({contributionData.length}/{s.n_positions})
           </CardTitle>
         </CardHeader>
-        <ChartContainer height={Math.max(300, contributionData.length * 14)}>
+        <ResponsiveContainer width="100%" height={Math.max(300, contributionData.length * 14)}>
           <BarChart
             layout="vertical"
             data={contributionData}
@@ -266,10 +266,11 @@ export function DailyPnlTab() {
                 borderRadius: 6,
                 fontSize: 12,
               }}
-              formatter={(value: number, _name: string, props: { payload?: { pct_move?: number; side?: string; notional?: number } }) => {
-                const p = props.payload ?? {};
+              formatter={(value, _name, props) => {
+                const v = Number(value ?? 0);
+                const p = (props as { payload?: { pct_move?: number; side?: string; notional?: number } }).payload ?? {};
                 return [
-                  `${fmtSigned(value)}  (${p.pct_move?.toFixed(2)}% · ${p.side} · $${formatUSD(p.notional, 0)} notional)`,
+                  `${fmtSigned(v)}  (${p.pct_move?.toFixed(2)}% · ${p.side} · $${formatUSD(p.notional, 0)} notional)`,
                   "day_pnl",
                 ];
               }}
@@ -284,7 +285,7 @@ export function DailyPnlTab() {
               ))}
             </Bar>
           </BarChart>
-        </ChartContainer>
+        </ResponsiveContainer>
       </Card>
 
       {/* Per-symbol table */}
@@ -360,7 +361,7 @@ export function DailyPnlTab() {
                   </td>
                   <td className="px-3 py-1.5">
                     <Badge
-                      variant={r.side === "LONG" ? "default" : "secondary"}
+                      variant={r.side === "LONG" ? "default" : "info"}
                     >
                       {r.side}
                     </Badge>
@@ -475,7 +476,7 @@ export function DailyPnlTab() {
             <div className="p-3 text-xs text-gray-500">
               Headline net P&L = engine NAV delta (truth) when available, else carry-shape. Long/Short bars are carry-based directional shapes.
             </div>
-            <ChartContainer height={260}>
+            <ResponsiveContainer width="100%" height={260}>
               <BarChart data={histQ.data.daily} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis
@@ -494,16 +495,16 @@ export function DailyPnlTab() {
                     borderRadius: 6,
                     fontSize: 11,
                   }}
-                  formatter={(value: number) => `${fmtSigned(value)}`}
+                  formatter={(value) => `${fmtSigned(Number(value ?? 0))}`}
                 />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <ReferenceLine y={0} stroke="#64748b" />
                 <Bar dataKey="long_pnl" name="Long" stackId="basket" fill={LONG_COLOR} />
                 <Bar dataKey="short_pnl" name="Short" stackId="basket" fill={SHORT_COLOR} />
               </BarChart>
-            </ChartContainer>
+            </ResponsiveContainer>
 
-            <ChartContainer height={240}>
+            <ResponsiveContainer width="100%" height={240}>
               <LineChart data={histQ.data.daily} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis
@@ -522,7 +523,7 @@ export function DailyPnlTab() {
                     borderRadius: 6,
                     fontSize: 11,
                   }}
-                  formatter={(value: number) => `${fmtSigned(value)}`}
+                  formatter={(value) => `${fmtSigned(Number(value ?? 0))}`}
                 />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <ReferenceLine y={0} stroke="#64748b" />
@@ -551,7 +552,7 @@ export function DailyPnlTab() {
                   strokeWidth={2}
                 />
               </LineChart>
-            </ChartContainer>
+            </ResponsiveContainer>
 
             <div className="p-3 text-xs text-gray-400 flex flex-wrap gap-x-6 gap-y-1">
               <span>
