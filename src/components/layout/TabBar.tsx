@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   Plug,
   CandlestickChart,
+  CalendarDays,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -44,6 +45,7 @@ export const DASHBOARD_TABS = [
   { id: "tokenized-assets", label: "Tokenized Assets", icon: <CandlestickChart size={14} /> },
   { id: "performance", label: "Performance", icon: <TrendingUp size={14} /> },
   { id: "attribution", label: "Attribution", icon: <BarChart3 size={14} /> },
+  { id: "daily-pnl", label: "Daily P&L", icon: <CalendarDays size={14} /> },
   { id: "pairs", label: "Hedging", icon: <Link2 size={14} /> },
   { id: "market-context", label: "Market Context", icon: <Globe size={14} /> },
   { id: "execution", label: "Execution", icon: <Gauge size={14} /> },
