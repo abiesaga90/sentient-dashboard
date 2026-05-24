@@ -201,6 +201,45 @@ export function QualityCompareCard({ p, long_row, short_row }: Props) {
               </tr>
             </>
           )}
+
+          {/* Multi-13F crowdedness (F1) */}
+          {(long_row?.multi_13f || short_row?.multi_13f) && (
+            <>
+              <tr>
+                <td colSpan={4} className="pt-2 pb-0.5 text-[10px] text-gray-500 uppercase tracking-wide">
+                  Multi-13F crowdedness (12 funds)
+                </td>
+              </tr>
+              <tr className="border-t border-slate-800/50" title="Number of tracked funds holding this name LONG-dominant (vs holders with puts as net stance). High count = hedge-fund-hotel = exit liquidity risk when we are long.">
+                <td className="py-1 pl-1 text-gray-400">Funds holding long</td>
+                <td className={`py-1 px-2 text-right ${long_row?.multi_13f?.hedge_fund_hotel ? "text-amber-300" : "text-gray-300"}`}>
+                  {long_row?.multi_13f
+                    ? `${long_row.multi_13f.n_funds_long}/${long_row.multi_13f.n_funds_tracked} (${long_row.multi_13f.crowdedness_long_pct.toFixed(0)}%)`
+                    : "—"}
+                </td>
+                <td className={`py-1 px-2 text-right ${short_row?.multi_13f?.hedge_fund_hotel ? "text-emerald-300" : "text-gray-300"}`} title="Short leg held long by many funds = squeeze risk on our short">
+                  {short_row?.multi_13f
+                    ? `${short_row.multi_13f.n_funds_long}/${short_row.multi_13f.n_funds_tracked} (${short_row.multi_13f.crowdedness_long_pct.toFixed(0)}%)`
+                    : "—"}
+                </td>
+                <td className="py-1 pr-1 text-right text-gray-500">—</td>
+              </tr>
+              <tr className="border-t border-slate-800/50" title="Number of tracked funds holding puts as net stance (= other PMs are bearish via options).">
+                <td className="py-1 pl-1 text-gray-400">Funds with puts</td>
+                <td className={`py-1 px-2 text-right ${long_row?.multi_13f && long_row.multi_13f.n_funds_put > 0 ? "text-red-300" : "text-gray-300"}`} title="Our long leg with funds-bearish-via-puts = directional concern">
+                  {long_row?.multi_13f
+                    ? `${long_row.multi_13f.n_funds_put}/${long_row.multi_13f.n_funds_tracked} (${long_row.multi_13f.crowdedness_put_pct.toFixed(0)}%)`
+                    : "—"}
+                </td>
+                <td className={`py-1 px-2 text-right ${short_row?.multi_13f?.squeeze_risk ? "text-amber-300" : "text-gray-300"}`} title="Our short leg with crowded put positioning = aligned with consensus but lots of cover-to-close demand">
+                  {short_row?.multi_13f
+                    ? `${short_row.multi_13f.n_funds_put}/${short_row.multi_13f.n_funds_tracked} (${short_row.multi_13f.crowdedness_put_pct.toFixed(0)}%)`
+                    : "—"}
+                </td>
+                <td className="py-1 pr-1 text-right text-gray-500">—</td>
+              </tr>
+            </>
+          )}
         </tbody>
       </table>
 
