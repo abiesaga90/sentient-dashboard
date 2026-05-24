@@ -20,6 +20,7 @@ import { DataTable, type Column } from "../shared/DataTable";
 import { KpiCard } from "../shared/KpiCard";
 import { ChartContainer } from "../shared/ChartContainer";
 import { AdlMonitor } from "../overview/AdlMonitor";
+import { SpreadTrajectoryPanel } from "../overview/SpreadTrajectoryPanel";
 import { UniMMRDetail } from "../shared/UniMMRDetail";
 import { DispersionChart } from "../shared/DispersionChart";
 import { PStopHistoryChart } from "../shared/PStopHistoryChart";
@@ -525,6 +526,9 @@ export function RiskStressTab() {
 
       {/* ── Dispersion & Vol Budget (regime + realized vs target spread vol) ── */}
       <DispersionChart days={365} />
+
+      {/* ── L/S Spread Trajectory (level + regime tag, Phase 1 display-only) ── */}
+      <SpreadTrajectoryPanel />
 
       {/* ── P(stop) bookends (elastic / bootstrap / conservative + σ-fan) ── */}
       <PStopBookendsPanel />
