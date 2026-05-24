@@ -49,6 +49,115 @@ function corrColor(v: number | null): string {
   return "text-gray-300";
 }
 
+// Trade-type classification — the headline distinction between mean-reversion
+// alpha and pure funding carry. Driven by two thresholds:
+//   • idio_corr  (correlation after SPY beta is stripped — how much the short
+//                 actually hedges the long)
+//   • c/σ        (daily carry / daily spread vol — how much funding income
+//                 offsets a 1σ adverse spread move on a 1-day horizon)
+type TradeType = "rv" | "rv_carry" | "carry" | "hybrid";
+
+interface TradeTypeInfo {
+  kind: TradeType;
+  label: string;
+  short_label: string;
+  badge_class: string;
+  c_over_sigma: number | null;     // unitless ratio, daily-carry / daily-vol
+  t_star_days: number | null;       // (σ/c)² — days for carry to cover a 1σ adverse move
+  idio_corr: number | null;
+  is_cointegrating: boolean;
+}
+
+// Trading days/yr — funding APR is annualized on a weekday basis (Mon-Fri UTC)
+// to match how spread vol is computed.
+const TRADING_DAYS_PER_YEAR = 252;
+
+function classifyTradeType(m: {
+  correlation_residual_spy?: number | null;
+  correlation_weekday?: number | null;
+  is_cointegrating?: boolean;
+  carry_apr_pct_1x?: number | null;
+  spread_vol_daily_pct_1x?: number | null;
+}): TradeTypeInfo {
+  const idio = m.correlation_residual_spy ?? m.correlation_weekday ?? null;
+  const carryApr = m.carry_apr_pct_1x;
+  const volDaily = m.spread_vol_daily_pct_1x;
+  const coint = m.is_cointegrating === true;
+
+  const dailyCarry =
+    carryApr != null ? carryApr / TRADING_DAYS_PER_YEAR : null;
+  const cOverSigma =
+    dailyCarry != null && volDaily != null && volDaily > 0
+      ? dailyCarry / volDaily
+      : null;
+  const tStar =
+    dailyCarry != null && volDaily != null && dailyCarry > 0
+      ? Math.pow(volDaily / dailyCarry, 2)
+      : null;
+
+  let kind: TradeType = "hybrid";
+  if (idio != null && idio >= 0.5 && coint) {
+    kind = cOverSigma != null && cOverSigma >= 0.05 ? "rv_carry" : "rv";
+  } else if (
+    idio != null &&
+    idio < 0.3 &&
+    carryApr != null &&
+    carryApr >= 30
+  ) {
+    kind = "carry";
+  }
+
+  const label =
+    kind === "rv"
+      ? "RV (mean reversion)"
+      : kind === "rv_carry"
+      ? "RV + Carry"
+      : kind === "carry"
+      ? "Carry harvest"
+      : "Hybrid";
+  const short_label =
+    kind === "rv"
+      ? "RV"
+      : kind === "rv_carry"
+      ? "RV + Carry"
+      : kind === "carry"
+      ? "Carry"
+      : "Hybrid";
+
+  const badge_class =
+    kind === "rv"
+      ? "border-emerald-500 bg-emerald-950/70 text-emerald-200 font-bold"
+      : kind === "rv_carry"
+      ? "border-cyan-400 bg-cyan-950/70 text-cyan-100 font-bold"
+      : kind === "carry"
+      ? "border-amber-600 bg-amber-950/40 text-amber-300"
+      : "border-gray-700 bg-gray-900/40 text-gray-400";
+
+  return {
+    kind,
+    label,
+    short_label,
+    badge_class,
+    c_over_sigma: cOverSigma,
+    t_star_days: tStar,
+    idio_corr: idio,
+    is_cointegrating: coint,
+  };
+}
+
+// Correlation-adjusted Sharpe — implements user preference for high-corr pairs
+// (saved as feedback_pairs_prefer_high_corr). Maps idio_corr through a weight
+// curve: ≤0.2 ⇒ 0, 0.5 ⇒ 1.0, ≥0.65 ⇒ 1.5 (capped). Negative corr ⇒ 0.
+function rvQualityScore(
+  sharpe: number | null,
+  idio_corr: number | null
+): number | null {
+  if (sharpe == null || idio_corr == null) return null;
+  const raw = (idio_corr - 0.2) / 0.3; // 0.2→0, 0.5→1.0, 0.65→1.5
+  const w = Math.max(0, Math.min(1.5, raw));
+  return sharpe * w;
+}
+
 const BASKET_LABELS: Record<string, string> = {
   saa_faithful: "SAA-faithful",
   carry_optimized: "Carry-optimized",
@@ -278,33 +387,69 @@ function PairRow({
               {marginalVolLabel[mvc]} {mvDaily != null ? (mvDaily >= 0 ? "+" : "") + mvDaily.toFixed(3) + "%/d" : ""}
             </span>
           )}
-          {m.is_cointegrating !== undefined && (
-            <span
-              title={
-                `Cointegration screen:\n` +
-                `ADF p-value:  ${m.adf_pvalue?.toFixed(3) ?? "—"}   (< 0.05 = stationary spread)\n` +
-                `EG p-value:   ${m.cointegration_pvalue?.toFixed(3) ?? "—"}  (Engle-Granger two-step)\n` +
-                `Half-life:    ${m.half_life_days?.toFixed(1) ?? "—"} days  (< 60 required)\n` +
-                `Hurst:        ${m.hurst_exponent?.toFixed(2) ?? "—"}     (< 0.55 required)\n\n` +
-                (m.is_cointegrating
-                  ? "PASS — spread mean-reverts within a tradeable horizon."
-                  : "FAIL — pair does NOT cointegrate. Carry-only trade with wider stops needed.")
-              }
-              className={
-                `inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ` +
-                (m.is_cointegrating
-                  ? "border-emerald-700 bg-emerald-950/50 text-emerald-300"
-                  : "border-amber-700 bg-amber-950/30 text-amber-300/70")
-              }
-            >
-              {m.is_cointegrating ? "Cointegrates" : "Carry-only"}
-              {m.half_life_days != null && (
-                <span className="ml-1 opacity-70 font-mono">
-                  HL {m.half_life_days.toFixed(0)}d
-                </span>
-              )}
-            </span>
-          )}
+          {(() => {
+            const tt = classifyTradeType(m);
+            const cOverSigmaPct =
+              tt.c_over_sigma != null ? (tt.c_over_sigma * 100).toFixed(1) : "—";
+            const tStarStr =
+              tt.t_star_days != null && isFinite(tt.t_star_days)
+                ? tt.t_star_days >= 1000
+                  ? `${(tt.t_star_days / 365).toFixed(1)}yr`
+                  : `${tt.t_star_days.toFixed(0)}d`
+                : "—";
+            const tooltip =
+              `Trade type: ${tt.label}\n\n` +
+              `Hedge effectiveness\n` +
+              `  idiosyncratic corr  = ${tt.idio_corr?.toFixed(2) ?? "—"}` +
+              `  (≥ 0.5 = hedge works; < 0.3 = short barely offsets long)\n` +
+              `  cointegrates        = ${tt.is_cointegrating ? "yes" : "no"}\n\n` +
+              `Carry vs price-loss math (1x leverage)\n` +
+              `  daily carry         = ${
+                m.carry_apr_pct_1x != null
+                  ? (m.carry_apr_pct_1x / TRADING_DAYS_PER_YEAR).toFixed(3) + "%"
+                  : "—"
+              }   (${m.carry_apr_pct_1x?.toFixed(1) ?? "—"}% APR / 252 weekday)\n` +
+              `  daily spread vol    = ${m.spread_vol_daily_pct_1x?.toFixed(2) ?? "—"}%\n` +
+              `  c/σ (carry / 1σ)    = ${cOverSigmaPct}%   ` +
+              `(fraction of a daily 1σ adverse move that carry offsets)\n` +
+              `  break-even T*       = ${tStarStr}   ` +
+              `((σ/c)² days for carry to cover a 1σ adverse spread drift)\n\n` +
+              `Cointegration screen\n` +
+              `  ADF p-value         = ${m.adf_pvalue?.toFixed(3) ?? "—"}   (< 0.05 = stationary)\n` +
+              `  EG p-value          = ${m.cointegration_pvalue?.toFixed(3) ?? "—"}\n` +
+              `  half-life           = ${m.half_life_days?.toFixed(1) ?? "—"} days\n` +
+              `  Hurst               = ${m.hurst_exponent?.toFixed(2) ?? "—"}     (< 0.55 required)\n\n` +
+              (tt.kind === "rv_carry"
+                ? "Best of both: real hedge + carry boost. Mean reversion is the primary alpha source, carry is a tailwind."
+                : tt.kind === "rv"
+                ? "Pure mean-reversion play. Carry is small relative to spread vol — alpha comes from the spread reverting."
+                : tt.kind === "carry"
+                ? "Funding-carry trade, NOT a hedge. Low correlation means the short does not offset the long's market exposure. Treat the spread as a random walk paid a coupon — hold to T* or longer."
+                : "Partial hedge / modest carry. Neither alpha source dominates.");
+            return (
+              <span
+                title={tooltip}
+                className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${tt.badge_class}`}
+              >
+                {tt.short_label}
+                {tt.c_over_sigma != null && (
+                  <span className="ml-1 opacity-80 font-mono">
+                    c/σ {cOverSigmaPct}%
+                  </span>
+                )}
+                {tt.is_cointegrating && m.half_life_days != null && (
+                  <span className="ml-1 opacity-70 font-mono">
+                    · HL {m.half_life_days.toFixed(0)}d
+                  </span>
+                )}
+                {!tt.is_cointegrating && tt.t_star_days != null && isFinite(tt.t_star_days) && (
+                  <span className="ml-1 opacity-70 font-mono">
+                    · T* {tStarStr}
+                  </span>
+                )}
+              </span>
+            );
+          })()}
           {m.quality_score != null && (
             <span
               title={
@@ -511,12 +656,13 @@ function PairRow({
   );
 }
 
-type SortKey = "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book" | "sharpe_liq";
+type SortKey = "rv_quality" | "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book" | "sharpe_liq" | "c_over_sigma";
 
 export function PairIdeasSubTab({ pairs, rows }: Props) {
   const [minSharpe, setMinSharpe] = useState(0.15);
+  const [minCorr, setMinCorr] = useState(0.30);
   const [showInverse, setShowInverse] = useState(false);
-  const [sortBy, setSortBy] = useState<SortKey>("sharpe");
+  const [sortBy, setSortBy] = useState<SortKey>("rv_quality");
   const [onlyCointegrating, setOnlyCointegrating] = useState(false);
 
   const saa = pairs?.saa_anchored ?? [];
@@ -528,11 +674,16 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
     .map((k) => baskets[k])
     .filter((b): b is BasketMetrics => !!b);
 
-  // Filter: keep pairs whose Sharpe (in either direction if showInverse) clears the threshold.
+  // Filter: keep pairs whose Sharpe (in either direction if showInverse) clears the threshold,
+  // AND whose idiosyncratic correlation clears the min-corr threshold (user preference for
+  // high-corr pairs — see feedback_pairs_prefer_high_corr).
   // Null Sharpe falls through — usually means too-short history; keep visible.
   const passes = (p: PairIdea) => {
-    const s = p.metrics.sharpe;
-    if (onlyCointegrating && p.metrics.is_cointegrating !== true) return false;
+    const m = p.metrics;
+    if (onlyCointegrating && m.is_cointegrating !== true) return false;
+    const idio = m.correlation_residual_spy ?? m.correlation_weekday;
+    if (minCorr > 0 && idio != null && idio < minCorr) return false;
+    const s = m.sharpe;
     if (s == null) return true;
     if (showInverse) return Math.abs(s) >= minSharpe;
     return s >= minSharpe;
@@ -550,6 +701,19 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
   // Sort key extractors
   const sortVal = (p: PairIdea): number => {
     const m = p.metrics;
+    if (sortBy === "rv_quality") {
+      // Correlation-adjusted Sharpe — penalises low-corr pairs.
+      // See rvQualityScore() above. Default sort.
+      const idio = m.correlation_residual_spy ?? m.correlation_weekday;
+      return rvQualityScore(m.sharpe, idio) ?? -1e9;
+    }
+    if (sortBy === "c_over_sigma") {
+      // Carry / spread vol — pure carry-harvest ranking
+      const c = m.carry_apr_pct_1x;
+      const s = m.spread_vol_daily_pct_1x;
+      if (c == null || s == null || s <= 0) return -1e9;
+      return (c / TRADING_DAYS_PER_YEAR) / s;
+    }
     if (sortBy === "carry") return m.carry_apr_pct_1x ?? -1e9;
     if (sortBy === "zscore") {
       // Lower (more negative) z = better entry, so sort ascending by z
@@ -653,6 +817,24 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
             className="w-32 accent-emerald-500"
           />
           <span className="font-mono text-gray-200 w-10">{minSharpe.toFixed(2)}</span>
+          <span
+            className="text-gray-500 ml-2"
+            title="Filter out pairs whose legs don't actually hedge each other. Idiosyncratic corr is Pearson on returns after SPY beta is stripped. < 0.3 = carry-only trade dressed as a pair."
+          >
+            Min idio corr:
+          </span>
+          <input
+            type="range"
+            min="0"
+            max="0.9"
+            step="0.05"
+            value={minCorr}
+            onChange={(e) => setMinCorr(parseFloat(e.target.value))}
+            className="w-28 accent-cyan-500"
+          />
+          <span className={`font-mono w-10 ${corrColor(minCorr)}`}>
+            {minCorr.toFixed(2)}
+          </span>
           <label className="flex items-center gap-1.5 cursor-pointer text-gray-500 hover:text-gray-300">
             <input
               type="checkbox"
@@ -677,10 +859,12 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
             onChange={(e) => setSortBy(e.target.value as SortKey)}
             className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-gray-200"
           >
+            <option value="rv_quality">RV quality (corr-adjusted Sharpe) ★</option>
+            <option value="c_over_sigma">Carry / vol (carry harvest)</option>
             <option value="quality_x_carry">Quality × Carry (alpha + carry)</option>
             <option value="quality">Quality Δ (alpha layer)</option>
             <option value="sharpe_liq">Sharpe (liquidity-adjusted)</option>
-            <option value="sharpe">Sharpe (1:1)</option>
+            <option value="sharpe">Sharpe (1:1, raw)</option>
             <option value="carry">Carry APR</option>
             <option value="marginal_vol">Marginal vol (diversifiers first)</option>
             <option value="vol_vs_book">Vol vs book (calmest first)</option>
@@ -772,9 +956,33 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
           <span className="text-gray-400">Risk layer:</span> 1:1 dollar-neutral primary; β-Sharpe
           shown alongside with the OLS hedge ratio h*. Marginal-vol-vs-live-portfolio classification
           (Diversifier / Neutral / Additive) is the headline PM metric for portfolio construction.
-          Cointegration screen (ADF / EG / half-life / Hurst on the β-hedged log-price spread) tags
-          each pair as Cointegrates or Carry-only. Idiosyncratic correlation = Pearson on returns
-          after SPY beta is stripped (raw / EWMA / Spearman on hover).
+          Cointegration screen (ADF / EG / half-life / Hurst on the β-hedged log-price spread)
+          feeds the trade-type badge. Idiosyncratic correlation = Pearson on returns after SPY beta
+          is stripped (raw / EWMA / Spearman on hover).
+        </div>
+        <div>
+          <span className="text-gray-400">Trade-type badge:</span> distinguishes alpha sources so
+          z-score timing / cointegration math aren't applied to pairs that don't mean-revert.
+          {" "}
+          <span className="text-emerald-300">RV</span> = idio corr ≥ 0.5 AND cointegrates (pure
+          mean-reversion).{" "}
+          <span className="text-cyan-200">RV + Carry</span> = RV plus c/σ ≥ 0.05 (best-of-both
+          — real hedge with funding boost).{" "}
+          <span className="text-amber-300">Carry</span> = idio corr &lt; 0.3 AND carry APR ≥ 30%
+          (funding harvest, NOT a hedge — short barely offsets long).{" "}
+          <span className="text-gray-400">Hybrid</span> = everything else.
+          {" "}
+          c/σ = daily carry / daily spread vol (what fraction of a daily 1σ adverse spread move the
+          carry offsets). T* = (σ/c)² days, the horizon at which cumulative carry covers a 1σ
+          random-walk drift — useful for carry-only trades to anchor minimum holding period.
+        </div>
+        <div>
+          <span className="text-gray-400">Default sort = RV quality (corr-adjusted Sharpe):</span>
+          {" "}
+          weights raw Sharpe by max(0, min(1.5, (idio_corr − 0.2)/0.3)). Corr 0.5 → weight 1.0,
+          corr ≥ 0.65 → weight 1.5 (cap), corr ≤ 0.2 → weight 0. Reflects the policy bias toward
+          pairs whose short leg actually hedges the long leg, even at the cost of giving up some
+          headline carry-driven Sharpe.
         </div>
         <div>
           <span className="text-gray-400">Alpha layer:</span> Quality Δ composite ∈ [-2, +2] from
