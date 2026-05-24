@@ -22,7 +22,11 @@ interface Row {
 
 const ROWS: Row[] = [
   { label: "Market cap", key: "market_cap_usd", format: "money", favor: "neutral", group: "Identity" },
-  { label: "Beta", key: "beta", format: "ratio", favor: "neutral" },
+  { label: "Beta (AV, 5y monthly)", key: "beta", format: "ratio", favor: "neutral" },
+  { label: "β vs SPY (our 2y daily)", key: "beta_vs_spy", format: "ratio", favor: "neutral" },
+  { label: "R² vs SPY", key: "r2_vs_spy", format: "ratio", favor: "neutral" },
+  { label: "β vs crypto long basket", key: "beta_vs_long_basket", format: "ratio", favor: "neutral" },
+  { label: "R² vs basket", key: "r2_vs_long_basket", format: "ratio", favor: "neutral" },
 
   { label: "Revenue (TTM)", key: "revenue_ttm", format: "money", favor: "neutral", group: "Top line" },
   { label: "Revenue growth YoY", key: "revenue_growth_yoy", format: "growth_pct", favor: "higher_L" },
