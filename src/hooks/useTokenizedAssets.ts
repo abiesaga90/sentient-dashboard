@@ -96,11 +96,23 @@ export interface TokenizedRow {
   saa_position?: SaaPosition;
 }
 
+export type MarginalVolClassification = "diversifier" | "neutral" | "additive";
+
 export interface PairMetrics {
   spread_vol_daily_pct_1x: number | null;
   spread_vol_daily_pct_2x: number | null;
   spread_vol_ann_pct_1x: number | null;
   spread_vol_ann_pct_2x: number | null;
+  // Beta-hedged variant (Workstream C1): position 1 unit L / h* units S
+  spread_vol_daily_pct_beta_neutral?: number | null;
+  spread_vol_ann_pct_beta_neutral?: number | null;
+  beta_hedge_ratio?: number | null;
+  carry_apr_pct_beta_neutral?: number | null;
+  sharpe_beta_neutral?: number | null;
+  // Marginal portfolio vol impact (the PM-view, primary metric)
+  marginal_vol_daily_pct?: number | null;
+  marginal_vol_classification?: MarginalVolClassification | null;
+  corr_to_portfolio?: number | null;
   correlation_weekday: number | null;
   correlation_ewma: number | null;
   correlation_spearman: number | null;
@@ -166,7 +178,12 @@ export interface PairIdea {
   };
 }
 
-export interface PairsPayload {
+export interface PortfolioContext {
+  portfolio_vol_daily_pct?: number | null;
+  portfolio_returns_sample_size?: number;
+}
+
+export interface PairsPayload extends PortfolioContext {
   updated_at?: string;
   n_klines_pulled?: number;
   metrics_note?: string;

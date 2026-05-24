@@ -153,6 +153,28 @@ const sectorMatchLabel: Record<string, string> = {
   cross_sector: "Cross sector",
 };
 
+// Marginal vol impact: the single most important PM metric.
+//   "diversifier" = adding this pair REDUCES total portfolio vol (gold)
+//   "neutral"     = negligible effect (gray)
+//   "additive"    = adding this pair INCREASES total portfolio vol (red)
+const marginalVolColor: Record<string, string> = {
+  diversifier: "text-emerald-400",
+  neutral: "text-gray-400",
+  additive: "text-red-400",
+};
+
+const marginalVolBadge: Record<string, string> = {
+  diversifier: "border-emerald-700 bg-emerald-950/50 text-emerald-300",
+  neutral: "border-gray-700 bg-gray-900/50 text-gray-400",
+  additive: "border-red-700 bg-red-950/50 text-red-300",
+};
+
+const marginalVolLabel: Record<string, string> = {
+  diversifier: "Diversifier",
+  neutral: "Neutral",
+  additive: "Additive",
+};
+
 function PairRow({ p }: { p: PairIdea }) {
   const m = p.metrics;
   const sm = p.sector_match ?? "cross_sector";
@@ -160,6 +182,10 @@ function PairRow({ p }: { p: PairIdea }) {
     p.long_sector && p.short_sector
       ? `L: ${p.long_sector} / ${p.long_subsector ?? "—"}  ·  S: ${p.short_sector} / ${p.short_subsector ?? "—"}`
       : undefined;
+  const mvc = m.marginal_vol_classification;
+  const mvDaily = m.marginal_vol_daily_pct;
+  const corrPort = m.corr_to_portfolio;
+
   return (
     <div className="border-b border-[var(--border)] last:border-b-0 py-3 px-2">
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -175,6 +201,19 @@ function PairRow({ p }: { p: PairIdea }) {
           >
             {sectorMatchLabel[sm]}
           </span>
+          {mvc && (
+            <span
+              title={
+                `Marginal portfolio vol impact when this pair is added at small notional.\n` +
+                `Computed as cov(pair_spread, portfolio_returns) / σ_portfolio.\n` +
+                `Negative ⇒ diversifier (reduces total portfolio vol).\n` +
+                `Positive ⇒ additive (increases total portfolio vol).`
+              }
+              className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ${marginalVolBadge[mvc]}`}
+            >
+              {marginalVolLabel[mvc]} {mvDaily != null ? (mvDaily >= 0 ? "+" : "") + mvDaily.toFixed(3) + "%/d" : ""}
+            </span>
+          )}
           <span className="text-sm font-medium">
             <span className="text-emerald-400">L</span>{" "}
             <span className="font-mono text-gray-100">
@@ -189,13 +228,33 @@ function PairRow({ p }: { p: PairIdea }) {
             <span className="text-gray-500">({p.short_label})</span>
           </span>
         </div>
-        <div className={`text-xs font-mono ${sharpeColor(m.sharpe)}`}>
-          Sharpe {fmtNum(m.sharpe, 2)}
+        <div className="flex items-center gap-3 text-xs font-mono">
+          <span className={sharpeColor(m.sharpe)}>
+            Sharpe {fmtNum(m.sharpe, 2)}
+          </span>
+          {m.sharpe_beta_neutral != null && (
+            <span
+              className={`${sharpeColor(m.sharpe_beta_neutral)} text-[11px]`}
+              title="β-hedged Sharpe: position L 1 unit / S h* units (OLS hedge ratio). Net market beta = 0."
+            >
+              β-Sharpe {m.sharpe_beta_neutral.toFixed(2)}
+            </span>
+          )}
         </div>
       </div>
       {p.long_subsector && p.short_subsector && (
-        <div className="text-[10px] text-gray-500 mt-1 font-mono">
-          {p.long_subsector} ↔ {p.short_subsector}
+        <div className="text-[10px] text-gray-500 mt-1 font-mono flex items-center gap-3">
+          <span>{p.long_subsector} ↔ {p.short_subsector}</span>
+          {corrPort != null && (
+            <span className="text-gray-600">
+              · corr-to-portfolio {corrPort >= 0 ? "+" : ""}{corrPort.toFixed(2)}
+            </span>
+          )}
+          {m.beta_hedge_ratio != null && (
+            <span className="text-gray-600">
+              · h* {m.beta_hedge_ratio.toFixed(2)} (β-hedge ratio)
+            </span>
+          )}
         </div>
       )}
 
@@ -337,6 +396,24 @@ export function PairIdeasSubTab({ pairs }: Props) {
         Citadel / Point 72 / Cubist run the same statistical methodology but trade equity markets — they
         structurally cannot harvest crypto perp funding. The carry term is alpha they cannot replicate.
       </div>
+
+      {(pairs.portfolio_vol_daily_pct != null) && (
+        <div className="text-[11px] text-gray-300 bg-slate-900/50 border border-slate-700/50 rounded-md px-3 py-2">
+          <span className="font-semibold text-gray-200">PM-view headline metric:</span>{" "}
+          <span className="text-gray-400">
+            each pair shows its <span className="text-emerald-300">marginal vol impact</span> when added
+            to the live Nickel book. This is the singular most important quantity for portfolio construction —
+            covariance with the existing book, not standalone pair vol, determines whether a position
+            increases or reduces total portfolio risk.
+          </span>
+          <span className="block mt-1 text-gray-500 font-mono">
+            Live portfolio σ:{" "}
+            <span className="text-gray-200">{pairs.portfolio_vol_daily_pct.toFixed(3)}%/d</span>
+            {" · "}
+            {pairs.portfolio_returns_sample_size ?? 0} daily samples.
+          </span>
+        </div>
+      )}
 
       {basketList.length > 0 && (
         <div>
