@@ -70,6 +70,8 @@ export interface TokenizedRow {
   symbol: string;
   label: string;
   asset_class: AssetClass;
+  sector?: string | null;
+  subsector?: string | null;
   crypto_adjacent: boolean;
   crypto_native: boolean;
   binance: BinanceLive;
@@ -110,11 +112,18 @@ export interface BasketMetrics {
   sharpe: number | null;
 }
 
+export type SectorMatch = "same_subsector" | "same_sector" | "cross_sector";
+
 export interface PairIdea {
   long_symbol: string;
   long_label: string;
+  long_sector?: string | null;
+  long_subsector?: string | null;
   short_symbol: string;
   short_label: string;
+  short_sector?: string | null;
+  short_subsector?: string | null;
+  sector_match?: SectorMatch;
   asset_class: AssetClass | "cross";
   category: "saa_anchored" | "stock" | "etf" | "metal" | "commodity" | "cross";
   metrics: PairMetrics;

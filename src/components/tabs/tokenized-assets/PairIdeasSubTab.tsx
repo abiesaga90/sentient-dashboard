@@ -143,8 +143,25 @@ function BasketCard({ b }: { b: BasketMetrics }) {
   );
 }
 
+const sectorMatchColor: Record<string, string> = {
+  same_subsector: "border-emerald-700 bg-emerald-950/50 text-emerald-300",
+  same_sector: "border-amber-700 bg-amber-950/50 text-amber-300",
+  cross_sector: "border-gray-700 bg-gray-900/50 text-gray-400",
+};
+
+const sectorMatchLabel: Record<string, string> = {
+  same_subsector: "Same subsector",
+  same_sector: "Same sector",
+  cross_sector: "Cross sector",
+};
+
 function PairRow({ p }: { p: PairIdea }) {
   const m = p.metrics;
+  const sm = p.sector_match ?? "cross_sector";
+  const matchTooltip =
+    p.long_sector && p.short_sector
+      ? `L: ${p.long_sector} / ${p.long_subsector ?? "—"}  ·  S: ${p.short_sector} / ${p.short_subsector ?? "—"}`
+      : undefined;
   return (
     <div className="border-b border-[var(--border)] last:border-b-0 py-3 px-2">
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -153,6 +170,12 @@ function PairRow({ p }: { p: PairIdea }) {
             className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] uppercase font-medium ${categoryColor[p.category] ?? categoryColor.stock}`}
           >
             {p.category.replace("_", " ")}
+          </span>
+          <span
+            title={matchTooltip}
+            className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-medium ${sectorMatchColor[sm]}`}
+          >
+            {sectorMatchLabel[sm]}
           </span>
           <span className="text-sm font-medium">
             <span className="text-emerald-400">L</span>{" "}
@@ -172,6 +195,11 @@ function PairRow({ p }: { p: PairIdea }) {
           Sharpe {fmtNum(m.sharpe, 2)}
         </div>
       </div>
+      {p.long_subsector && p.short_subsector && (
+        <div className="text-[10px] text-gray-500 mt-1 font-mono">
+          {p.long_subsector} ↔ {p.short_subsector}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mt-2 text-xs">
         <div>
