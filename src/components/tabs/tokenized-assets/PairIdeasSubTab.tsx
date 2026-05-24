@@ -3,14 +3,17 @@ import type {
   PairIdea,
   PairsPayload,
   BasketMetrics,
+  TokenizedRow,
 } from "../../../hooks/useTokenizedAssets";
 import { Card, CardHeader, CardTitle } from "../../ui/Card";
 import { Badge } from "../../ui/Badge";
 import { fmtUsd, fmtPct, fmtNum } from "./format";
 import { SaaRiskPanel } from "./SaaRiskPanel";
+import { QualityCompareCard } from "./QualityCompareCard";
 
 interface Props {
   pairs?: PairsPayload;
+  rows?: TokenizedRow[];
 }
 
 const categoryColor: Record<string, string> = {
@@ -223,7 +226,18 @@ function qualityChipLabel(q: number | null | undefined): string {
   return "Quality −−";
 }
 
-function PairRow({ p, portfolioVol }: { p: PairIdea; portfolioVol?: number | null }) {
+function PairRow({
+  p,
+  portfolioVol,
+  longRow,
+  shortRow,
+}: {
+  p: PairIdea;
+  portfolioVol?: number | null;
+  longRow?: TokenizedRow;
+  shortRow?: TokenizedRow;
+}) {
+  const [expanded, setExpanded] = useState(false);
   const m = p.metrics;
   const sm = p.sector_match ?? "cross_sector";
   const matchTooltip =
@@ -480,13 +494,26 @@ function PairRow({ p, portfolioVol }: { p: PairIdea; portfolioVol?: number | nul
           )}
         </div>
       )}
+
+      <div className="mt-2">
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="text-[10px] text-gray-500 hover:text-gray-300 underline-offset-2 hover:underline"
+        >
+          {expanded ? "▾ Hide L vs S fundamentals" : "▸ Show L vs S fundamentals (Quality Δ breakdown)"}
+        </button>
+      </div>
+      {expanded && (
+        <QualityCompareCard p={p} long_row={longRow} short_row={shortRow} />
+      )}
     </div>
   );
 }
 
 type SortKey = "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book";
 
-export function PairIdeasSubTab({ pairs }: Props) {
+export function PairIdeasSubTab({ pairs, rows }: Props) {
   const [minSharpe, setMinSharpe] = useState(0.15);
   const [showInverse, setShowInverse] = useState(false);
   const [sortBy, setSortBy] = useState<SortKey>("sharpe");
@@ -512,6 +539,13 @@ export function PairIdeasSubTab({ pairs }: Props) {
   };
 
   const portfolioVol = pairs?.portfolio_vol_daily_pct ?? null;
+
+  // Build a symbol-keyed lookup so PairRow can access full row fundamentals
+  // for the expandable Quality Compare card.
+  const rowsBySym: Record<string, TokenizedRow> = {};
+  for (const r of rows ?? []) {
+    rowsBySym[r.symbol] = r;
+  }
 
   // Sort key extractors
   const sortVal = (p: PairIdea): number => {
@@ -675,7 +709,13 @@ export function PairIdeasSubTab({ pairs }: Props) {
           </CardHeader>
           <div className="divide-y divide-[var(--border)] -mx-2">
             {saaShown.map((p, i) => (
-              <PairRow key={`saa-${i}-${p.long_symbol}-${p.short_symbol}`} p={p} portfolioVol={portfolioVol} />
+              <PairRow
+                key={`saa-${i}-${p.long_symbol}-${p.short_symbol}`}
+                p={p}
+                portfolioVol={portfolioVol}
+                longRow={rowsBySym[p.long_symbol]}
+                shortRow={rowsBySym[p.short_symbol]}
+              />
             ))}
             {saaShown.length === 0 && (
               <div className="text-[11px] text-gray-500 italic px-3 py-4 text-center">
@@ -702,7 +742,13 @@ export function PairIdeasSubTab({ pairs }: Props) {
         </CardHeader>
         <div className="-mx-2">
           {genericShown.map((p, i) => (
-            <PairRow key={`gen-${i}-${p.long_symbol}-${p.short_symbol}`} p={p} portfolioVol={portfolioVol} />
+            <PairRow
+              key={`gen-${i}-${p.long_symbol}-${p.short_symbol}`}
+              p={p}
+              portfolioVol={portfolioVol}
+              longRow={rowsBySym[p.long_symbol]}
+              shortRow={rowsBySym[p.short_symbol]}
+            />
           ))}
           {genericShown.length === 0 && (
             <div className="text-[11px] text-gray-500 italic px-3 py-4 text-center">

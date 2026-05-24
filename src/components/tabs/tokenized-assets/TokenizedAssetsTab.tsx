@@ -184,7 +184,7 @@ export function TokenizedAssetsTab() {
 
       {/* Active sub-tab content */}
       {active === "pairs" ? (
-        <PairIdeasSubTab pairs={data?.pairs} />
+        <PairIdeasSubTab pairs={data?.pairs} rows={data?.rows} />
       ) : (
         <Card className="p-2">
           {isLoading ? (

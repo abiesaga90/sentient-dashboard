@@ -149,6 +149,12 @@ export interface PairMetrics {
   roe_diff_pp?: number | null;
   eps_estimate_growth_diff_pp?: number | null;
   valuation_premium_pp?: number | null;
+  // Catalyst horizon (D7)
+  days_to_earnings_long?: number | null;
+  days_to_earnings_short?: number | null;
+  next_earnings_long?: string | null;
+  next_earnings_short?: string | null;
+  earnings_imminent?: boolean;
   correlation_weekday: number | null;
   correlation_ewma: number | null;
   correlation_spearman: number | null;
