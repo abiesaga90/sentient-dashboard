@@ -850,6 +850,10 @@ export interface TokenizedPairTargetBlock {
   cap_pct_of_notional: number;
   expected_carry_apr_2x: number;
   pair_residual_vol_daily_pct: number;
+  long_received_funding_apr_pct: number | null;
+  short_received_funding_apr_pct: number | null;
+  long_expected_funding_per_settle_usd: number | null;
+  short_expected_funding_per_settle_usd: number | null;
 }
 
 export interface TokenizedPairActualBlock {
@@ -865,6 +869,10 @@ export interface TokenizedPairActualBlock {
   short_entry_time: string | null;
   long_pnl_pct: number | null;
   short_pnl_pct: number | null;
+  long_vol_24h_usd: number | null;
+  short_vol_24h_usd: number | null;
+  long_open_interest_usd: number | null;
+  short_open_interest_usd: number | null;
   days_held: number;
   long_pnl_usd: number;
   short_pnl_usd: number;
@@ -873,6 +881,21 @@ export interface TokenizedPairActualBlock {
   short_funding_accrued_usd: number;
   total_funding_accrued_usd: number;
   total_pnl_with_funding_usd: number;
+}
+
+export interface TokenizedPairFundingProjection {
+  long_received_funding_apr_pct: number | null;
+  short_received_funding_apr_pct: number | null;
+  long_expected_funding_per_settle_usd: number | null;
+  short_expected_funding_per_settle_usd: number | null;
+}
+
+export interface TokenizedFundingInfo {
+  next_settle_utc: string;
+  hours_to_next_settle: number;
+  is_weekend: boolean;
+  settles_per_year: number;
+  weekday_only_note: string;
 }
 
 export interface TokenizedPairCarryBlock {
@@ -907,6 +930,7 @@ export interface TokenizedPositionsResponse {
     max_gross_pct_of_notional: number;
     notional_capital: number;
   };
+  funding_info?: TokenizedFundingInfo;
   health: {
     n_configured: number;
     n_active: number;

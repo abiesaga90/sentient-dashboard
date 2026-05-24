@@ -61,8 +61,18 @@ function statusLabel(status: TokenizedPairRow["status"]): string {
   }
 }
 
+function fmtBigUSD(v: number | null | undefined): string {
+  if (v == null) return "—";
+  const abs = Math.abs(v);
+  if (abs >= 1e9) return `${formatUSD(v / 1e9, 2)}B`;
+  if (abs >= 1e6) return `${formatUSD(v / 1e6, 1)}M`;
+  if (abs >= 1e3) return `${formatUSD(v / 1e3, 1)}K`;
+  return formatUSD(v, 0);
+}
+
 function LegRow({
   side, symbol, qty, entry, mark, notional, target_notional, pnl, pnl_pct, funding,
+  fundingApr, fundingPerSettle, vol24h, openInterest,
 }: {
   side: "LONG" | "SHORT";
   symbol: string;
@@ -74,6 +84,10 @@ function LegRow({
   pnl: number | null;
   pnl_pct: number | null;
   funding: number | null;
+  fundingApr: number | null;
+  fundingPerSettle: number | null;
+  vol24h: number | null;
+  openInterest: number | null;
 }) {
   const sideColor = side === "LONG" ? "text-blue-400" : "text-orange-400";
   const driftPct = (notional != null && target_notional != null && target_notional > 0)
@@ -101,9 +115,17 @@ function LegRow({
       <td className={cn("px-2 py-2 text-right tabular-nums text-xs", pnlClass(pnl_pct))}>
         {fmtPct(pnl_pct)}
       </td>
-      <td className={cn("px-2 py-2 text-right tabular-nums text-sm font-semibold", pnlClass(funding))}>
+      <td className={cn("px-2 py-2 text-right tabular-nums text-sm", pnlClass(funding))}>
         {fmtPnL(funding)}
       </td>
+      <td className={cn("px-2 py-2 text-right tabular-nums text-xs", pnlClass(fundingApr))}>
+        {fmtAPR(fundingApr)}
+      </td>
+      <td className={cn("px-2 py-2 text-right tabular-nums text-xs", pnlClass(fundingPerSettle))}>
+        {fmtPnL(fundingPerSettle, 3)}
+      </td>
+      <td className="px-2 py-2 text-right tabular-nums text-xs text-gray-400">{fmtBigUSD(vol24h)}</td>
+      <td className="px-2 py-2 text-right tabular-nums text-xs text-gray-400">{fmtBigUSD(openInterest)}</td>
     </tr>
   );
 }
@@ -205,9 +227,13 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 <th className="px-2 py-2 text-right">Notional</th>
                 <th className="px-2 py-2 text-right">Target</th>
                 <th className="px-2 py-2 text-right">Drift</th>
-                <th className="px-2 py-2 text-right">Unrealized P&L</th>
+                <th className="px-2 py-2 text-right">P&L $</th>
                 <th className="px-2 py-2 text-right">P&L %</th>
-                <th className="px-2 py-2 text-right">Funding</th>
+                <th className="px-2 py-2 text-right">Funding $</th>
+                <th className="px-2 py-2 text-right">Funding APR</th>
+                <th className="px-2 py-2 text-right">Per settle</th>
+                <th className="px-2 py-2 text-right">24h Vol</th>
+                <th className="px-2 py-2 text-right">OI</th>
               </tr>
             </thead>
             <tbody>
@@ -216,12 +242,18 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 qty={a.long_qty} entry={a.long_entry_price} mark={a.long_mark_price}
                 notional={a.long_notional} target_notional={t?.long_notional ?? null}
                 pnl={a.long_pnl_usd} pnl_pct={a.long_pnl_pct} funding={a.long_funding_accrued_usd}
+                fundingApr={t?.long_received_funding_apr_pct ?? null}
+                fundingPerSettle={t?.long_expected_funding_per_settle_usd ?? null}
+                vol24h={a.long_vol_24h_usd} openInterest={a.long_open_interest_usd}
               />
               <LegRow
                 side="SHORT" symbol={pair.short_symbol}
                 qty={a.short_qty} entry={a.short_entry_price} mark={a.short_mark_price}
                 notional={a.short_notional} target_notional={t?.short_notional ?? null}
                 pnl={a.short_pnl_usd} pnl_pct={a.short_pnl_pct} funding={a.short_funding_accrued_usd}
+                fundingApr={t?.short_received_funding_apr_pct ?? null}
+                fundingPerSettle={t?.short_expected_funding_per_settle_usd ?? null}
+                vol24h={a.short_vol_24h_usd} openInterest={a.short_open_interest_usd}
               />
               <tr className="border-t border-gray-800 bg-gray-900/30 font-semibold">
                 <td colSpan={5} className="px-2 py-2 text-right text-xs text-gray-500 uppercase">Pair total</td>
@@ -239,12 +271,13 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 <td className={cn("px-2 py-2 text-right tabular-nums", pnlClass(a.total_funding_accrued_usd))}>
                   {fmtPnL(a.total_funding_accrued_usd)}
                 </td>
+                <td colSpan={4} className="px-2 py-2"></td>
               </tr>
               <tr className="bg-gray-900/30">
                 <td colSpan={8} className="px-2 py-2 text-right text-xs text-gray-500 uppercase">
                   Total return (spread P&L + funding)
                 </td>
-                <td colSpan={3} className={cn("px-2 py-2 text-right tabular-nums text-base font-semibold", pnlClass(a.total_pnl_with_funding_usd))}>
+                <td colSpan={7} className={cn("px-2 py-2 text-right tabular-nums text-base font-semibold", pnlClass(a.total_pnl_with_funding_usd))}>
                   {fmtPnL(a.total_pnl_with_funding_usd)}
                 </td>
               </tr>
@@ -361,6 +394,42 @@ export function TokenizedPositionsTab() {
         </div>
         <Badge variant={data.dry_run ? "warning" : "success"}>{dryRunBadge}</Badge>
       </div>
+
+      {/* Funding schedule banner */}
+      {data.funding_info && (
+        <Card className="p-3 bg-gray-900/40 border-gray-800">
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="text-xs uppercase tracking-wide text-gray-500">Funding</div>
+            <div>
+              <span className="text-gray-500">Cycle:</span>{" "}
+              <span className="text-gray-200">8h (00 / 08 / 16 UTC)</span>
+            </div>
+            <div>
+              <span className="text-gray-500">Accrual:</span>{" "}
+              <span className="text-amber-300">weekdays only</span>{" "}
+              <span className="text-gray-500">(~{data.funding_info.settles_per_year} settles/yr)</span>
+            </div>
+            <div>
+              <span className="text-gray-500">Next settle:</span>{" "}
+              <span className="text-gray-200 tabular-nums">
+                {new Date(data.funding_info.next_settle_utc).toLocaleString(undefined, {
+                  weekday: "short", month: "short", day: "numeric",
+                  hour: "2-digit", minute: "2-digit", timeZone: "UTC", timeZoneName: "short",
+                })}
+              </span>{" "}
+              <span className="text-gray-500">
+                (in {data.funding_info.hours_to_next_settle.toFixed(1)}h)
+              </span>
+              {data.funding_info.is_weekend && (
+                <span className="ml-2 text-xs text-amber-400">[weekend skip in effect]</span>
+              )}
+            </div>
+          </div>
+          <div className="text-xs text-gray-500 mt-1 italic">
+            {data.funding_info.weekday_only_note}
+          </div>
+        </Card>
+      )}
 
       {/* Health header */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
