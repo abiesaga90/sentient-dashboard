@@ -144,6 +144,142 @@ export interface MultiThirteenF {
   squeeze_risk: boolean;
 }
 
+export interface AiCapabilityOverlay {
+  // 0-100 capability score for AI compute / hyperscaler / semis cluster
+  ai_capability_score?: number | null;
+  // Capex sensitivity sleeve weight (negative for INTC, etc.)
+  capex_beta?: number | null;
+  // For hyperscalers: which lab "their" partner is
+  aligned_lab?: string | null;
+  aligned_lab_share?: number | null;
+  lab_bonus_pp?: number | null;
+  components?: {
+    capex_momentum_score?: number | null;
+    lab_leadership_shares?: Record<string, number>;
+  };
+}
+
+export interface TariffOverlay {
+  // 0-100 tariff-adjusted sentiment for tariff-exposed tickers
+  tariff_score?: number | null;
+  // Per-ticker sleeve weight: negative for China-exposed, positive for
+  // domestic-moat (INTC, USAR), zero if no exposure
+  tariff_beta?: number | null;
+  // Sectors flagged hot in the Kalshi sectoral multi-outcome (≥50% YES)
+  hot_sectors?: string[];
+  components?: {
+    tariff_intensity_score?: number | null;
+    china_decoupling_score?: number | null;
+    beta?: number | null;
+    decoupling_bonus_pp?: number | null;
+  };
+}
+
+export interface SpacexIpoOverlay {
+  // Implied SpaceX private valuation from Polymarket cap-above ladder (USD)
+  spacex_implied_valuation_usd?: number | null;
+  // Current SPCX perp mark (Binance fapi premiumIndex)
+  spcx_perp_mark_usd?: number | null;
+  // Empirical share count: valuation / mark
+  spcx_implied_shares_outstanding?: number | null;
+  // 7d EWMA anchor for the implied share count (becomes available after warmup)
+  prior_implied_shares_anchor?: number | null;
+  // Score 0-100 — >50 = perp cheap vs PM, <50 = perp rich vs PM (relative to anchor)
+  spcx_pm_valuation_score?: number | null;
+  // Positive = perp trading at a premium to PM-implied, negative = at a discount
+  spcx_perp_premium_pct?: number | null;
+}
+
+export interface PredictionMarketOverlay {
+  // Composite crypto-equity sentiment (COIN / CRCL / HOOD / MSTR)
+  crypto_sentiment?: number | null;
+  // For MSTR: explicit pp penalty to the base equity score from treasury risk
+  treasury_risk_pp_penalty?: number | null;
+  // For PAXG / XAUT (gold tokens)
+  gold_relative_sentiment?: number | null;
+  // Per-component breakdown for tooltip / debugging on the dashboard
+  components?: Record<string, number | null>;
+  // AI capability basket overlay — populated for ~17 AI/semis/hyperscaler tickers
+  ai_capability?: AiCapabilityOverlay;
+  // Tariff intensity basket overlay — populated for ~15 tariff-exposed tickers
+  tariff?: TariffOverlay;
+  // SpaceX IPO basket overlay — populated for SPCXUSDT only
+  spacex_ipo?: SpacexIpoOverlay;
+}
+
+export interface SpacexIpoBasketSummary {
+  updated_at: string | null;
+  indicators: {
+    spacex_implied_valuation_usd?: number | null;
+    spacex_implied_valuation_centroid_t?: number | null;
+    spacex_ipo_centroid_years?: number | null;
+    spacex_ipo_prob_by_year_end?: number | null;
+    spcx_perp_mark_usd?: number | null;
+    spcx_implied_shares_outstanding?: number | null;
+    spcx_perp_premium_pct?: number | null;
+  };
+}
+
+export interface AiCapabilityBasketSummary {
+  updated_at: string | null;
+  indicators: {
+    capex_momentum_score?: number | null;
+    frontier_event_slug?: string | null;
+    lab_leadership_shares?: Record<string, number>;
+    leadership_concentration?: number | null;
+    openai_ipo_prob_by_year_end?: number | null;
+    openai_ipo_centroid_years?: number | null;
+    anthropic_val_centroid_usd?: number | null;
+    openai_val_centroid_usd?: number | null;
+    agi_by_2027_prob?: number | null;
+    claude_5_release_prob_by_year_end?: number | null;
+    claude_5_release_centroid_years?: number | null;
+    avgo_q2_ai_revenue_centroid_usd?: number | null;
+    kalshi_agi_path_longest_date?: string | null;
+    kalshi_agi_path_longest_prob?: number | null;
+    kalshi_openai_ipo_first_prob?: number | null;
+    kalshi_anthropic_ipo_first_prob?: number | null;
+  };
+}
+
+export interface TariffIntensityBasketSummary {
+  updated_at: string | null;
+  indicators: {
+    tariff_revenue_centroid_usd?: number | null;
+    tariff_revenue_score?: number | null;
+    effective_tariff_rate_centroid_pct?: number | null;
+    effective_tariff_rate_score?: number | null;
+    china_imports_centroid_usd?: number | null;
+    sector_tariff_shares?: Record<string, number>;
+    iran_imports_breach_prob?: number | null;
+    scotus_tariff_hear_prob?: number | null;
+    tariff_intensity_score?: number | null;
+    china_decoupling_score?: number | null;
+  };
+}
+
+export interface CryptoPriceBasketSummary {
+  updated_at: string | null;
+  indicators: {
+    btc_year_end_centroid?: number | null;
+    btc_year_end_implied_return_pct?: number | null;
+    btc_year_end_score?: number | null;
+    eth_year_end_centroid?: number | null;
+    eth_year_end_implied_return_pct?: number | null;
+    eth_year_end_score?: number | null;
+    btc_dip_below_50k_prob?: number | null;
+    btc_dip_risk_score?: number | null;
+    btc_outperforms_gold_prob?: number | null;
+    mstr_sells_btc_market_slug?: string | null;
+    mstr_sells_btc_end_date?: string | null;
+    mstr_sells_btc_prob?: number | null;
+  };
+  spot: {
+    BTCUSDT?: number | null;
+    ETHUSDT?: number | null;
+  };
+}
+
 export interface TokenizedRow {
   symbol: string;
   label: string;
@@ -156,6 +292,7 @@ export interface TokenizedRow {
   fundamentals: Fundamentals;
   saa_position?: SaaPosition;
   multi_13f?: MultiThirteenF;
+  prediction_market_overlay?: PredictionMarketOverlay;
 }
 
 export type MarginalVolClassification = "diversifier" | "neutral" | "additive";
@@ -221,6 +358,21 @@ export interface PairMetrics {
   analyst_upside_long_pct?: number | null;
   analyst_upside_short_pct?: number | null;
   analyst_upside_gap_pct?: number | null;
+  // PM-thesis edge — L − S deltas across each basket. Populated by
+  // tokenized_pairs.enrich_pairs_with_pm_edge after overlays merge.
+  pm_thesis_edge?: PmThesisEdge;
+}
+
+export interface PmThesisEdge {
+  ai_capability_edge_pp?: number;
+  tariff_edge_pp?: number;
+  crypto_edge_pp?: number;
+  gold_relative_edge_pp?: number;
+  spacex_edge_pp?: number;
+  // List of edges with |edge_pp| >= 5, sorted by magnitude desc
+  thesis_aligned_edges: Array<{ label: string; edge_pp: number }>;
+  max_edge_magnitude_pp: number;
+  dominant_basket: string | null;
 }
 
 export interface BasketMetrics {
@@ -341,6 +493,10 @@ export interface TokenizedSnapshot {
   universe_size: number;
   saa_summary: SaaSummary;
   pairs?: PairsPayload;
+  crypto_price_basket?: CryptoPriceBasketSummary;
+  ai_capability_basket?: AiCapabilityBasketSummary;
+  tariff_intensity_basket?: TariffIntensityBasketSummary;
+  spacex_ipo_basket?: SpacexIpoBasketSummary;
 }
 
 export function useTokenizedAssets(asset_class?: AssetClass) {

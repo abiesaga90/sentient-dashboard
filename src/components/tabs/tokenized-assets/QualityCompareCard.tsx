@@ -293,6 +293,152 @@ export function QualityCompareCard({ p, long_row, short_row }: Props) {
               </tr>
             </>
           )}
+
+          {/* Prediction-market consensus (crypto BTC/ETH basket, Polymarket + Kalshi).
+              Only renders for tickers where the backend attached an overlay
+              (COIN / CRCL / MSTR / HOOD / PAXG / XAUT). */}
+          {(long_row?.prediction_market_overlay || short_row?.prediction_market_overlay) && (
+            <>
+              <tr>
+                <td colSpan={4} className="pt-2 pb-0.5 text-[10px] text-gray-500 uppercase tracking-wide">
+                  Prediction-market consensus
+                </td>
+              </tr>
+              <tr className="border-t border-slate-800/50" title="Composite 0-100 score from prediction-market basket: BTC implied year-end return (Kalshi KXBTCY ladder, 60% weight), BTC dip risk P(<$50k) (30%), ETH implied YE (10%). For MSTR, the score also subtracts a penalty proportional to P(MSTR sells any BTC by year-end) on Polymarket. For PAXG/XAUT, the score is gold-relative (inverts BTC direction + uses Kalshi KXBTCVSGOLD-26).">
+                <td className="py-1 pl-1 text-gray-400">PM sentiment (0-100)</td>
+                {(["long", "short"] as const).map((side) => {
+                  const row = side === "long" ? long_row : short_row;
+                  const ov = row?.prediction_market_overlay;
+                  const v = ov?.crypto_sentiment ?? ov?.gold_relative_sentiment ?? null;
+                  const isCrypto = ov?.crypto_sentiment != null;
+                  const longCol = side === "long"
+                    ? (v != null && v >= 60 ? "text-emerald-300" : v != null && v <= 40 ? "text-red-300" : "text-gray-300")
+                    : (v != null && v <= 40 ? "text-emerald-300" : v != null && v >= 60 ? "text-amber-300" : "text-gray-300");
+                  return (
+                    <td key={side} className={`py-1 px-2 text-right ${longCol}`}>
+                      {v != null ? `${v.toFixed(1)}${isCrypto ? "" : " (gold)"}` : "—"}
+                    </td>
+                  );
+                })}
+                <td className="py-1 pr-1 text-right text-gray-300">
+                  {(() => {
+                    const lv = long_row?.prediction_market_overlay?.crypto_sentiment
+                      ?? long_row?.prediction_market_overlay?.gold_relative_sentiment;
+                    const sv = short_row?.prediction_market_overlay?.crypto_sentiment
+                      ?? short_row?.prediction_market_overlay?.gold_relative_sentiment;
+                    if (lv == null || sv == null) return "—";
+                    const d = lv - sv;
+                    return `${d >= 0 ? "+" : ""}${d.toFixed(1)}`;
+                  })()}
+                </td>
+              </tr>
+              {(long_row?.prediction_market_overlay?.treasury_risk_pp_penalty != null
+                || short_row?.prediction_market_overlay?.treasury_risk_pp_penalty != null) && (
+                <tr className="border-t border-slate-800/50" title="MSTR-specific penalty (in score points) from Polymarket P(MSTR sells any BTC by year-end). 0 = treasury credibility intact; -25 = market expects forced selling.">
+                  <td className="py-1 pl-1 text-gray-400">MSTR treasury risk</td>
+                  <td className={`py-1 px-2 text-right ${long_row?.prediction_market_overlay?.treasury_risk_pp_penalty != null && long_row.prediction_market_overlay.treasury_risk_pp_penalty > 10 ? "text-red-300" : "text-gray-300"}`}>
+                    {long_row?.prediction_market_overlay?.treasury_risk_pp_penalty != null
+                      ? `-${long_row.prediction_market_overlay.treasury_risk_pp_penalty.toFixed(1)}pp`
+                      : "—"}
+                  </td>
+                  <td className={`py-1 px-2 text-right ${short_row?.prediction_market_overlay?.treasury_risk_pp_penalty != null && short_row.prediction_market_overlay.treasury_risk_pp_penalty > 10 ? "text-emerald-300" : "text-gray-300"}`}>
+                    {short_row?.prediction_market_overlay?.treasury_risk_pp_penalty != null
+                      ? `-${short_row.prediction_market_overlay.treasury_risk_pp_penalty.toFixed(1)}pp`
+                      : "—"}
+                  </td>
+                  <td className="py-1 pr-1 text-right text-gray-500">—</td>
+                </tr>
+              )}
+              {/* AI capability overlay — populated for NVDA / AMD / AVGO / CRWV / LITE /
+                  MU / SNDK / DRAM / MRVL / TSM / INTC / SOXL / QQQ / MSFT / GOOGL /
+                  AMZN / META / ORCL. Score = 50 + capex_beta × (capex_score − 50) + lab_bonus. */}
+              {(long_row?.prediction_market_overlay?.ai_capability
+                || short_row?.prediction_market_overlay?.ai_capability) && (
+                <>
+                  <tr className="border-t border-slate-800/50" title="AI capability score (0-100). Composite of OpenAI/Anthropic year-end valuations (Polymarket), OpenAI IPO probability, AGI-by-2027, Claude 5 release, AVGO Q2 AI revenue. Scaled by per-ticker capex sleeve weight (-0.7 for INTC, 1.0 for NVDA/CRWV/AVGO, etc.), plus partner-lab bonus for hyperscalers (e.g. AMZN gets +pp when Anthropic leads frontier).">
+                    <td className="py-1 pl-1 text-gray-400">AI capability score</td>
+                    {(["long", "short"] as const).map((side) => {
+                      const row = side === "long" ? long_row : short_row;
+                      const v = row?.prediction_market_overlay?.ai_capability?.ai_capability_score ?? null;
+                      const colorCls = side === "long"
+                        ? (v != null && v >= 60 ? "text-emerald-300" : v != null && v <= 40 ? "text-red-300" : "text-gray-300")
+                        : (v != null && v <= 40 ? "text-emerald-300" : v != null && v >= 60 ? "text-amber-300" : "text-gray-300");
+                      return (
+                        <td key={side} className={`py-1 px-2 text-right ${colorCls}`}>
+                          {v != null ? v.toFixed(1) : "—"}
+                        </td>
+                      );
+                    })}
+                    <td className="py-1 pr-1 text-right text-gray-300">
+                      {(() => {
+                        const lv = long_row?.prediction_market_overlay?.ai_capability?.ai_capability_score;
+                        const sv = short_row?.prediction_market_overlay?.ai_capability?.ai_capability_score;
+                        if (lv == null || sv == null) return "—";
+                        const d = lv - sv;
+                        return `${d >= 0 ? "+" : ""}${d.toFixed(1)}`;
+                      })()}
+                    </td>
+                  </tr>
+                  {/* Lab bonus row — only renders when at least one leg has hyperscaler partnership */}
+                  {(long_row?.prediction_market_overlay?.ai_capability?.aligned_lab
+                    || short_row?.prediction_market_overlay?.ai_capability?.aligned_lab) && (
+                    <tr className="border-t border-slate-800/50" title="Hyperscaler partner-leadership bonus. The aligned lab is each ticker's frontier-model partner (MSFT→OpenAI, AMZN→Anthropic, GOOGL→Google, META→Meta). Bonus = (partner_share − 0.5) × 24pp; positive when their model leads frontier benchmarks.">
+                      <td className="py-1 pl-1 text-gray-400">Lab partner / bonus</td>
+                      {(["long", "short"] as const).map((side) => {
+                        const ai = (side === "long" ? long_row : short_row)?.prediction_market_overlay?.ai_capability;
+                        if (!ai?.aligned_lab) {
+                          return <td key={side} className="py-1 px-2 text-right text-gray-500">—</td>;
+                        }
+                        const share = ai.aligned_lab_share ?? 0;
+                        const bonus = ai.lab_bonus_pp ?? 0;
+                        const colorCls = bonus > 3 ? "text-emerald-300" : bonus < -3 ? "text-red-300" : "text-gray-300";
+                        return (
+                          <td key={side} className={`py-1 px-2 text-right ${colorCls}`}>
+                            {ai.aligned_lab} {(share * 100).toFixed(0)}% ({bonus >= 0 ? "+" : ""}{bonus.toFixed(1)}pp)
+                          </td>
+                        );
+                      })}
+                      <td className="py-1 pr-1 text-right text-gray-500">—</td>
+                    </tr>
+                  )}
+                </>
+              )}
+              {/* Tariff overlay — populated for BABA / AAPL / TSM / TSLA / AVGO /
+                  QCOM / NVDA / AMD / MU / SNDK / MRVL / INTC / USAR / HD / COPPER.
+                  Score = 50 + tariff_beta × (tariff_intensity − 50) + decoupling_bonus
+                  (positive-beta domestic-moat names only). */}
+              {(long_row?.prediction_market_overlay?.tariff
+                || short_row?.prediction_market_overlay?.tariff) && (
+                <tr className="border-t border-slate-800/50" title="Tariff-adjusted sentiment (0-100). Composite of Kalshi tariff revenue + effective rate ladders + China imports CDF. Per-ticker sleeve weights: BABA/AAPL/TSM/QCOM/HD strongly negative (China-exposure); INTC/USAR positive (US-domestic tailwind). Positive-beta names get extra decoupling bonus when China imports collapse.">
+                  <td className="py-1 pl-1 text-gray-400">Tariff score</td>
+                  {(["long", "short"] as const).map((side) => {
+                    const row = side === "long" ? long_row : short_row;
+                    const t = row?.prediction_market_overlay?.tariff;
+                    const v = t?.tariff_score ?? null;
+                    const beta = t?.tariff_beta ?? null;
+                    const colorCls = side === "long"
+                      ? (v != null && v >= 60 ? "text-emerald-300" : v != null && v <= 40 ? "text-red-300" : "text-gray-300")
+                      : (v != null && v <= 40 ? "text-emerald-300" : v != null && v >= 60 ? "text-amber-300" : "text-gray-300");
+                    return (
+                      <td key={side} className={`py-1 px-2 text-right ${colorCls}`}>
+                        {v != null ? `${v.toFixed(1)}` : "—"}
+                        {beta != null && <span className="text-[9px] opacity-60 ml-1">(β {beta >= 0 ? "+" : ""}{beta.toFixed(1)})</span>}
+                      </td>
+                    );
+                  })}
+                  <td className="py-1 pr-1 text-right text-gray-300">
+                    {(() => {
+                      const lv = long_row?.prediction_market_overlay?.tariff?.tariff_score;
+                      const sv = short_row?.prediction_market_overlay?.tariff?.tariff_score;
+                      if (lv == null || sv == null) return "—";
+                      const d = lv - sv;
+                      return `${d >= 0 ? "+" : ""}${d.toFixed(1)}`;
+                    })()}
+                  </td>
+                </tr>
+              )}
+            </>
+          )}
         </tbody>
       </table>
 
