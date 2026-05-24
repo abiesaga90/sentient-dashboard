@@ -747,3 +747,92 @@ export interface ExecutionQualityResponse {
   };
   recent_reports: ExecutionReport[];
 }
+
+// ─────────────────────────────────────────────────────────────────────
+// Daily PnL & Positions View (Phase 2, 2026-05-24)
+// ─────────────────────────────────────────────────────────────────────
+
+export interface DailyPnlPerSymbolRow {
+  symbol: string;
+  side: "LONG" | "SHORT";
+  qty: number;
+  notional: number;
+  open_px: number | null;
+  close_px: number | null;
+  pct_move: number;
+  carry_pnl: number;
+  realized_pnl: number;
+  funding_pnl: number;
+  fees: number;
+  /** day_pnl = carry + funding + fees. Realized is shown for transparency
+   *  but excluded from day_pnl to avoid the rebalance double-count. */
+  day_pnl: number;
+}
+
+export interface DailyPnlPerSymbolTotals {
+  carry: number;
+  realized: number;
+  funding: number;
+  fees: number;
+  day_pnl: number;
+  long_basket: number;
+  short_basket: number;
+  /** Engine NAV delta = NAV(date) - NAV(date-1). Source of truth. */
+  engine_net_pnl: number | null;
+  engine_nav: number | null;
+  engine_nav_prev: number | null;
+}
+
+export interface DailyPnlPerSymbolResponse {
+  date: string;
+  is_today: boolean;
+  /** "live_cache" (today) or "snapshot" (past dates) */
+  source: string;
+  rows: DailyPnlPerSymbolRow[];
+  totals: DailyPnlPerSymbolTotals;
+  stats: {
+    n_positions: number;
+    n_priced: number;
+    n_winners: number;
+    n_losers: number;
+    hit_rate_pct: number;
+  };
+  note?: string;
+  error?: string;
+}
+
+export interface DailyPnlHistoryDay {
+  date: string;
+  long_pnl: number;
+  short_pnl: number;
+  carry: number;
+  realized: number;
+  funding: number;
+  fees: number;
+  /** Engine NAV delta when available, else net_pnl_carry. */
+  net_pnl: number;
+  net_pnl_carry: number;
+  net_pnl_engine: number | null;
+  nav: number | null;
+  n_positions: number;
+  cum_long: number;
+  cum_short: number;
+  cum_net: number;
+  cum_net_carry: number;
+  cum_net_engine: number;
+}
+
+export interface DailyPnlHistoryResponse {
+  days: number;
+  n_symbols: number;
+  n_priced: number;
+  daily: DailyPnlHistoryDay[];
+  cumulative: {
+    long_carry: number;
+    short_carry: number;
+    net_carry: number;
+    net_engine: number;
+    net: number;
+  };
+  note?: string;
+}

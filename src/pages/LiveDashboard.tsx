@@ -14,6 +14,7 @@ import { LongSelectionTab } from "../components/tabs/LongSelectionTab";
 import { FundamentalsTab } from "../components/tabs/FundamentalsTab";
 import { PerformanceTab } from "../components/tabs/PerformanceTab";
 import { AttributionTab } from "../components/tabs/AttributionTab";
+import { DailyPnlTab } from "../components/tabs/DailyPnlTab";
 import { ThesisTab } from "../components/tabs/ThesisTab";
 import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
@@ -122,6 +123,8 @@ function TabContent({
       return <PerformanceTab />;
     case "attribution":
       return <AttributionTab />;
+    case "daily-pnl":
+      return <DailyPnlTab />;
     case "thesis":
       return <ThesisTab />;
     case "pairs":

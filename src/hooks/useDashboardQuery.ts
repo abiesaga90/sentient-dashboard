@@ -443,3 +443,34 @@ export function useDispersionHistory(days: number = 365) {
     staleTime: 300_000,
   });
 }
+
+// ─── Daily PnL & Positions View (Phase 2, 2026-05-24) ─────────────────
+
+import type {
+  DailyPnlPerSymbolResponse,
+  DailyPnlHistoryResponse,
+} from "../types/api";
+
+/** Per-symbol day-PnL breakdown for `date` (default today UTC). */
+export function useDailyPnlPerSymbol(date?: string) {
+  const { client, engine } = useEngine();
+  return useQuery<DailyPnlPerSymbolResponse>({
+    queryKey: ["daily-pnl-per-symbol", engine.id, date ?? "today"],
+    queryFn: () =>
+      client.get("/api/daily-pnl/per-symbol", date ? { date } : {}),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+}
+
+/** Daily aggregate over the last N UTC days. Headline net_pnl uses
+ *  engine NAV delta as the source of truth. */
+export function useDailyPnlHistory(days: number = 30) {
+  const { client, engine } = useEngine();
+  return useQuery<DailyPnlHistoryResponse>({
+    queryKey: ["daily-pnl-history", engine.id, days],
+    queryFn: () => client.get("/api/daily-pnl/history", { days }),
+    refetchInterval: 300_000,
+    staleTime: 120_000,
+  });
+}
