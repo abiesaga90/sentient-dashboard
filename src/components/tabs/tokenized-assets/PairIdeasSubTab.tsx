@@ -511,7 +511,7 @@ function PairRow({
   );
 }
 
-type SortKey = "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book";
+type SortKey = "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book" | "sharpe_liq";
 
 export function PairIdeasSubTab({ pairs, rows }: Props) {
   const [minSharpe, setMinSharpe] = useState(0.15);
@@ -572,6 +572,10 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
       if (portfolioVol == null || portfolioVol <= 0) return -1e9;
       const pv = m.spread_vol_daily_pct_1x;
       return pv != null ? -(pv / portfolioVol) : -1e9;
+    }
+    if (sortBy === "sharpe_liq") {
+      // Liquidity-adjusted Sharpe — penalizes thin pairs even when Sharpe is high
+      return m.sharpe_liq_adjusted ?? -1e9;
     }
     return m.sharpe ?? -1e9;
   };
@@ -675,6 +679,7 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
           >
             <option value="quality_x_carry">Quality × Carry (alpha + carry)</option>
             <option value="quality">Quality Δ (alpha layer)</option>
+            <option value="sharpe_liq">Sharpe (liquidity-adjusted)</option>
             <option value="sharpe">Sharpe (1:1)</option>
             <option value="carry">Carry APR</option>
             <option value="marginal_vol">Marginal vol (diversifiers first)</option>

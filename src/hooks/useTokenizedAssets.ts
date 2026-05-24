@@ -203,6 +203,10 @@ export interface PairMetrics {
   carry_apr_pct_1x: number | null;
   carry_apr_pct_2x: number | null;
   sharpe: number | null;
+  // Liquidity-adjusted Sharpe (Workstream F4)
+  deployable_notional_usd?: number | null;
+  liquidity_weight?: number | null;
+  sharpe_liq_adjusted?: number | null;
   valuation_gap_pct: number | null;
   valuation_gap_basis?: "forward_pe" | "price_to_sales" | "premium_to_spot" | null;
   analyst_upside_long_pct?: number | null;
