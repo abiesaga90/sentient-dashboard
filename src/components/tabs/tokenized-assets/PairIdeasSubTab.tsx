@@ -208,6 +208,33 @@ function PairRow({ p }: { p: PairIdea }) {
               {marginalVolLabel[mvc]} {mvDaily != null ? (mvDaily >= 0 ? "+" : "") + mvDaily.toFixed(3) + "%/d" : ""}
             </span>
           )}
+          {m.is_cointegrating !== undefined && (
+            <span
+              title={
+                `Cointegration screen:\n` +
+                `ADF p-value:  ${m.adf_pvalue?.toFixed(3) ?? "—"}   (< 0.05 = stationary spread)\n` +
+                `EG p-value:   ${m.cointegration_pvalue?.toFixed(3) ?? "—"}  (Engle-Granger two-step)\n` +
+                `Half-life:    ${m.half_life_days?.toFixed(1) ?? "—"} days  (< 60 required)\n` +
+                `Hurst:        ${m.hurst_exponent?.toFixed(2) ?? "—"}     (< 0.55 required)\n\n` +
+                (m.is_cointegrating
+                  ? "PASS — spread mean-reverts within a tradeable horizon."
+                  : "FAIL — pair does NOT cointegrate. Carry-only trade with wider stops needed.")
+              }
+              className={
+                `inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-semibold ` +
+                (m.is_cointegrating
+                  ? "border-emerald-700 bg-emerald-950/50 text-emerald-300"
+                  : "border-amber-700 bg-amber-950/30 text-amber-300/70")
+              }
+            >
+              {m.is_cointegrating ? "Cointegrates" : "Carry-only"}
+              {m.half_life_days != null && (
+                <span className="ml-1 opacity-70 font-mono">
+                  HL {m.half_life_days.toFixed(0)}d
+                </span>
+              )}
+            </span>
+          )}
           <span className="text-sm font-medium">
             <span className="text-emerald-400">L</span>{" "}
             <span className="font-mono text-gray-100">
