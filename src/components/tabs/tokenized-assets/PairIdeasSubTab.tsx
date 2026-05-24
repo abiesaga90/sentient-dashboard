@@ -587,8 +587,8 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
     return (
       <div className="p-6 text-center text-xs text-gray-500">
         Pair engine has no data yet. Refresh runs every 24h and fetches full Binance funding
-        history + 180d klines per contract. Newly-listed contracts (≤15 weekday returns)
-        are excluded from spread vol but kept in funding aggregates.
+        history + 2y daily underlying returns per contract. Newly-listed contracts (≤15 weekday
+        returns) are excluded from spread vol but kept in funding aggregates.
       </div>
     );
   }
@@ -760,11 +760,27 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
 
       <div className="text-[10px] text-gray-600 italic px-2 space-y-1">
         <div>
-          Research-only. 1:1 dollar-neutral; not beta-hedged (coming in workstream C1). 2x leverage
-          values shown in tooltips on the spread vol cells. Funding uses full available per-contract
-          history, weekday-only (Mon–Fri UTC). Spread vol from underlying stock daily log returns
-          (yfinance, NYSE close-to-close, 6-month sample). Idiosync. corr = Pearson on residuals
-          after SPY beta is stripped (raw / EWMA / Spearman shown on hover).
+          <span className="text-gray-500 font-semibold not-italic">Methodology summary.</span>{" "}
+          Research-only. Each pair card shows three layers:
+        </div>
+        <div>
+          <span className="text-gray-400">Risk layer:</span> 1:1 dollar-neutral primary; β-Sharpe
+          shown alongside with the OLS hedge ratio h*. Marginal-vol-vs-live-portfolio classification
+          (Diversifier / Neutral / Additive) is the headline PM metric for portfolio construction.
+          Cointegration screen (ADF / EG / half-life / Hurst on the β-hedged log-price spread) tags
+          each pair as Cointegrates or Carry-only. Idiosyncratic correlation = Pearson on returns
+          after SPY beta is stripped (raw / EWMA / Spearman on hover).
+        </div>
+        <div>
+          <span className="text-gray-400">Alpha layer:</span> Quality Δ composite ∈ [-2, +2] from
+          (revenue + EPS growth) × 40% + operating margin × 20% + ROE × 15% + forward EPS growth ×
+          15% − valuation premium × 10%. Sourced from Alpha Vantage OVERVIEW (24h refresh).
+          Click "Show L vs S fundamentals" on any pair for the full side-by-side comparison table.
+        </div>
+        <div>
+          <span className="text-gray-400">Carry edge:</span> Funding uses full per-contract history,
+          weekday-only (Mon–Fri UTC). Spread vol from 2y yfinance underlying daily log returns
+          (NYSE close-to-close). 2x leverage values in tooltips. Sharpe is leverage-invariant.
         </div>
       </div>
     </div>
