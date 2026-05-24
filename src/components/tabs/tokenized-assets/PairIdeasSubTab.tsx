@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type {
   PairIdea,
   PairsPayload,
@@ -84,16 +85,12 @@ function BasketCard({ b }: { b: BasketMetrics }) {
             1x: {fmtPct(b.carry_apr_pct_1x, 1)}
           </div>
         </div>
-        <div>
-          <div className="text-[10px] text-gray-500">Spread vol @ 2x</div>
+        <div title={`@2x lev: ${b.spread_vol_daily_pct_2x?.toFixed(2) ?? "—"}%/d · ${b.spread_vol_ann_pct_2x?.toFixed(0) ?? "—"}%/y`}>
+          <div className="text-[10px] text-gray-500">Spread vol (1x)</div>
           <div className="font-mono text-base text-gray-200">
-            {b.spread_vol_daily_pct_2x != null ? `${b.spread_vol_daily_pct_2x.toFixed(2)}%/d` : "—"}
+            {b.spread_vol_daily_pct_1x != null ? `${b.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
           </div>
           <div className="text-[10px] text-gray-600">
-            {b.spread_vol_ann_pct_2x != null ? `${b.spread_vol_ann_pct_2x.toFixed(0)}%/y` : "—"}
-            {" · 1x "}
-            {b.spread_vol_daily_pct_1x != null ? `${b.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
-            {" / "}
             {b.spread_vol_ann_pct_1x != null ? `${b.spread_vol_ann_pct_1x.toFixed(0)}%/y` : "—"}
             {" · cov "}{Math.round((b.vol_coverage ?? 0) * 100)}%
           </div>
@@ -209,40 +206,29 @@ function PairRow({ p }: { p: PairIdea }) {
           </div>
           <div className="text-[10px] text-gray-600">1x: {fmtPct(m.carry_apr_pct_1x, 1)}</div>
         </div>
-        <div>
-          <div className="text-[10px] text-gray-500">Spread vol @ 2x</div>
+        <div title={`@2x lev: ${m.spread_vol_daily_pct_2x?.toFixed(2) ?? "—"}%/d · ${m.spread_vol_ann_pct_2x?.toFixed(1) ?? "—"}%/y`}>
+          <div className="text-[10px] text-gray-500">Spread vol (1x)</div>
           <div className="font-mono">
-            {m.spread_vol_daily_pct_2x != null ? `${m.spread_vol_daily_pct_2x.toFixed(2)}%/d` : "—"}
+            {m.spread_vol_daily_pct_1x != null ? `${m.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
           </div>
           <div className="text-[10px] text-gray-600">
-            {m.spread_vol_ann_pct_2x != null ? `${m.spread_vol_ann_pct_2x.toFixed(1)}%/y` : "—"}
-            {" · 1x "}
-            {m.spread_vol_daily_pct_1x != null ? `${m.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
-            {" / "}
-            {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(1)}%/y` : "—"}
+            {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(0)}%/y` : "—"}
           </div>
         </div>
-        <div title="Raw 6m daily Pearson · EWMA 60d half-life · Spearman rank · Residual vs SPY beta">
-          <div className="text-[10px] text-gray-500">Correlation (raw / EWMA / rank / resid SPY)</div>
-          <div className="font-mono text-[11px] text-gray-200">
-            <span className={corrColor(m.correlation_weekday)}>
-              {m.correlation_weekday != null ? m.correlation_weekday.toFixed(2) : "—"}
-            </span>
-            {" / "}
-            <span className={corrColor(m.correlation_ewma)}>
-              {m.correlation_ewma != null ? m.correlation_ewma.toFixed(2) : "—"}
-            </span>
-            {" / "}
-            <span className={corrColor(m.correlation_spearman)}>
-              {m.correlation_spearman != null ? m.correlation_spearman.toFixed(2) : "—"}
-            </span>
-            {" / "}
-            <span className={corrColor(m.correlation_residual_spy)}>
-              {m.correlation_residual_spy != null ? m.correlation_residual_spy.toFixed(2) : "—"}
-            </span>
+        <div
+          title={
+            `Raw 6m Pearson: ${m.correlation_weekday?.toFixed(2) ?? "—"}\n` +
+            `EWMA 60d half-life:    ${m.correlation_ewma?.toFixed(2) ?? "—"}\n` +
+            `Spearman (rank):       ${m.correlation_spearman?.toFixed(2) ?? "—"}\n` +
+            `Residual vs SPY beta:  ${m.correlation_residual_spy?.toFixed(2) ?? "—"}`
+          }
+        >
+          <div className="text-[10px] text-gray-500">Idiosync. corr</div>
+          <div className={`font-mono ${corrColor(m.correlation_residual_spy ?? m.correlation_weekday)}`}>
+            {(m.correlation_residual_spy ?? m.correlation_weekday)?.toFixed(2) ?? "—"}
           </div>
           <div className="text-[10px] text-gray-600">
-            resid SPY = idiosyncratic
+            raw {m.correlation_weekday?.toFixed(2) ?? "—"}
           </div>
         </div>
         <div>
@@ -276,10 +262,8 @@ function PairRow({ p }: { p: PairIdea }) {
         </div>
       </div>
 
-      <div className="mt-2 text-[11px] text-gray-400 leading-snug">{p.rationale}</div>
-
-      {p.saa && (
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-amber-200/80">
+      {p.saa && (p.saa.long_ticker || p.saa.short_validation?.ticker) && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] text-amber-200/80">
           <Badge variant="warning" className="text-[10px]">SAA</Badge>
           {p.saa.long_ticker && (
             <a
@@ -288,14 +272,12 @@ function PairRow({ p }: { p: PairIdea }) {
               rel="noreferrer noopener"
               className="underline-offset-2 hover:underline"
             >
-              {p.saa.long_ticker} long {fmtUsd(p.saa.long_value_usd)} (
-              {p.saa.long_pct_aum?.toFixed(1)}% AUM)
+              L {p.saa.long_ticker} {fmtUsd(p.saa.long_value_usd)} ({p.saa.long_pct_aum?.toFixed(1)}% AUM)
             </a>
           )}
           {p.saa.short_validation?.ticker && (
             <span className="text-red-300/80">
-              · SAA puts on {p.saa.short_validation.ticker}{" "}
-              {fmtUsd(p.saa.short_validation.value_usd)}
+              {" ↔ "}S puts {p.saa.short_validation.ticker} {fmtUsd(p.saa.short_validation.value_usd)}
             </span>
           )}
         </div>
@@ -305,6 +287,9 @@ function PairRow({ p }: { p: PairIdea }) {
 }
 
 export function PairIdeasSubTab({ pairs }: Props) {
+  const [minSharpe, setMinSharpe] = useState(0.15);
+  const [showInverse, setShowInverse] = useState(false);
+
   const saa = pairs?.saa_anchored ?? [];
   const generic = pairs?.generic ?? [];
   const baskets = pairs?.baskets ?? {};
@@ -314,10 +299,24 @@ export function PairIdeasSubTab({ pairs }: Props) {
     .map((k) => baskets[k])
     .filter((b): b is BasketMetrics => !!b);
 
+  // Filter: keep pairs whose Sharpe (in either direction if showInverse) clears the threshold.
+  // Null Sharpe falls through — usually means too-short history; keep visible.
+  const passes = (p: PairIdea) => {
+    const s = p.metrics.sharpe;
+    if (s == null) return true;
+    if (showInverse) return Math.abs(s) >= minSharpe;
+    return s >= minSharpe;
+  };
+
+  const saaShown = saa.filter(passes);
+  const genericShown = generic.filter(passes);
+  const saaHidden = saa.length - saaShown.length;
+  const genericHidden = generic.length - genericShown.length;
+
   if (!pairs || (saa.length === 0 && generic.length === 0 && basketList.length === 0)) {
     return (
       <div className="p-6 text-center text-xs text-gray-500">
-        Pair engine has no data yet. Refresh runs every 6h and fetches full Binance funding
+        Pair engine has no data yet. Refresh runs every 24h and fetches full Binance funding
         history + 180d klines per contract. Newly-listed contracts (≤15 weekday returns)
         are excluded from spread vol but kept in funding aggregates.
       </div>
@@ -332,6 +331,12 @@ export function PairIdeasSubTab({ pairs }: Props) {
         </div>
       )}
 
+      <div className="text-[11px] text-emerald-300/80 bg-emerald-950/30 border border-emerald-900/40 rounded-md px-3 py-2">
+        <span className="font-semibold">Edge note:</span> our pair Sharpe = mean-reversion alpha + funding carry.
+        Citadel / Point 72 / Cubist run the same statistical methodology but trade equity markets — they
+        structurally cannot harvest crypto perp funding. The carry term is alpha they cannot replicate.
+      </div>
+
       {basketList.length > 0 && (
         <div>
           <div className="text-xs font-semibold text-gray-300 mb-2 px-1">Baskets</div>
@@ -343,20 +348,61 @@ export function PairIdeasSubTab({ pairs }: Props) {
         </div>
       )}
 
+      <div className="flex items-center justify-between flex-wrap gap-3 text-[11px] text-gray-400 px-1 py-2 border-y border-[var(--border)]">
+        <div className="flex items-center gap-3">
+          <span className="text-gray-500">Min Sharpe:</span>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={minSharpe}
+            onChange={(e) => setMinSharpe(parseFloat(e.target.value))}
+            className="w-32 accent-emerald-500"
+          />
+          <span className="font-mono text-gray-200 w-10">{minSharpe.toFixed(2)}</span>
+          <label className="flex items-center gap-1.5 cursor-pointer text-gray-500 hover:text-gray-300">
+            <input
+              type="checkbox"
+              checked={showInverse}
+              onChange={(e) => setShowInverse(e.target.checked)}
+              className="accent-emerald-500"
+            />
+            <span>also show inverse (negative Sharpe)</span>
+          </label>
+        </div>
+        <div className="text-gray-500">
+          Showing {saaShown.length + genericShown.length} of {saa.length + generic.length} pairs
+          {saaHidden + genericHidden > 0 && (
+            <span className="text-gray-600"> · {saaHidden + genericHidden} hidden by filter</span>
+          )}
+        </div>
+      </div>
+
       {saa.length > 0 && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <CardTitle>SAA-anchored pair ideas</CardTitle>
+              <CardTitle>
+                SAA-anchored pair ideas{" "}
+                <span className="text-[11px] font-normal text-gray-500">
+                  ({saaShown.length}{saaHidden > 0 ? ` of ${saa.length}` : ""})
+                </span>
+              </CardTitle>
               <span className="text-[10px] text-gray-500">
                 long Aschenbrenner conviction, hedge with a correlated short
               </span>
             </div>
           </CardHeader>
           <div className="divide-y divide-[var(--border)] -mx-2">
-            {saa.map((p, i) => (
+            {saaShown.map((p, i) => (
               <PairRow key={`saa-${i}-${p.long_symbol}-${p.short_symbol}`} p={p} />
             ))}
+            {saaShown.length === 0 && (
+              <div className="text-[11px] text-gray-500 italic px-3 py-4 text-center">
+                No SAA pairs clear the Sharpe filter. Lower the threshold to see more.
+              </div>
+            )}
           </div>
         </Card>
       )}
@@ -364,32 +410,36 @@ export function PairIdeasSubTab({ pairs }: Props) {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <CardTitle>Top L/S RV ideas across the universe</CardTitle>
+            <CardTitle>
+              Top L/S RV ideas across the universe{" "}
+              <span className="text-[11px] font-normal text-gray-500">
+                ({genericShown.length}{genericHidden > 0 ? ` of ${generic.length}` : ""})
+              </span>
+            </CardTitle>
             <span className="text-[10px] text-gray-500">
               sector-grouped, ranked by Sharpe (weekday spread vol vs full-history weekday funding carry)
             </span>
           </div>
         </CardHeader>
         <div className="-mx-2">
-          {generic.map((p, i) => (
+          {genericShown.map((p, i) => (
             <PairRow key={`gen-${i}-${p.long_symbol}-${p.short_symbol}`} p={p} />
           ))}
+          {genericShown.length === 0 && (
+            <div className="text-[11px] text-gray-500 italic px-3 py-4 text-center">
+              No generic pairs clear the Sharpe filter.
+            </div>
+          )}
         </div>
       </Card>
 
       <div className="text-[10px] text-gray-600 italic px-2 space-y-1">
         <div>
-          Research-only. 1:1 dollar-neutral; not beta-hedged. Funding uses full available
-          per-contract history, weekday-only (Mon–Fri UTC). Spread vol is computed from
-          underlying stock daily log returns (yfinance, NYSE close-to-close, 6-month sample);
-          shown as both daily (%/d) and annualized (%/y = daily × √252). Perp 1d klines are
-          used only for the handful of contracts with no yfinance mapping (CBRS, DRAM, SPCX).
-        </div>
-        <div>
-          Carry assumes the current funding regime persists. Many of these contracts launched
-          in 2026, so historical funding samples are short. The pair Sharpe drops the symbol
-          from vol estimation if fewer than 15 weekday returns are available; that's flagged
-          in basket "vol cov" coverage %.
+          Research-only. 1:1 dollar-neutral; not beta-hedged (coming in workstream C1). 2x leverage
+          values shown in tooltips on the spread vol cells. Funding uses full available per-contract
+          history, weekday-only (Mon–Fri UTC). Spread vol from underlying stock daily log returns
+          (yfinance, NYSE close-to-close, 6-month sample). Idiosync. corr = Pearson on residuals
+          after SPY beta is stripped (raw / EWMA / Spearman shown on hover).
         </div>
       </div>
     </div>
