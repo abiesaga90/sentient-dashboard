@@ -24,6 +24,9 @@ export interface Fundamentals {
   market_cap_usd?: number;
   trailing_pe?: number;
   forward_pe?: number;
+  price_to_sales?: number;
+  ev_to_revenue?: number;
+  ev_to_ebitda?: number;
   eps_ttm?: number;
   beta?: number;
   "52w_high"?: number;
@@ -31,6 +34,20 @@ export interface Fundamentals {
   dividend_yield?: number;
   analyst_rating?: string;
   next_earnings?: string;
+  // Finnhub analyst overlay
+  analyst_target_mean?: number;
+  analyst_target_high?: number;
+  analyst_target_low?: number;
+  analyst_target_median?: number;
+  analyst_target_last_updated?: string;
+  analyst_recommend?: {
+    period?: string;
+    strong_buy?: number;
+    buy?: number;
+    hold?: number;
+    sell?: number;
+    strong_sell?: number;
+  };
   // ETF
   total_assets_usd?: number;
   expense_ratio?: number;
@@ -70,6 +87,8 @@ export interface TokenizedRow {
   symbol: string;
   label: string;
   asset_class: AssetClass;
+  sector?: string | null;
+  subsector?: string | null;
   crypto_adjacent: boolean;
   crypto_native: boolean;
   binance: BinanceLive;
@@ -83,6 +102,9 @@ export interface PairMetrics {
   spread_vol_ann_pct_1x: number | null;
   spread_vol_ann_pct_2x: number | null;
   correlation_weekday: number | null;
+  correlation_ewma: number | null;
+  correlation_spearman: number | null;
+  correlation_residual_spy: number | null;
   drift_30d_pct: number | null;
   funding_long_apr_pct: number | null;
   funding_short_apr_pct: number | null;
@@ -90,6 +112,10 @@ export interface PairMetrics {
   carry_apr_pct_2x: number | null;
   sharpe: number | null;
   valuation_gap_pct: number | null;
+  valuation_gap_basis?: "forward_pe" | "price_to_sales" | "premium_to_spot" | null;
+  analyst_upside_long_pct?: number | null;
+  analyst_upside_short_pct?: number | null;
+  analyst_upside_gap_pct?: number | null;
 }
 
 export interface BasketMetrics {
@@ -110,11 +136,18 @@ export interface BasketMetrics {
   sharpe: number | null;
 }
 
+export type SectorMatch = "same_subsector" | "same_sector" | "cross_sector";
+
 export interface PairIdea {
   long_symbol: string;
   long_label: string;
+  long_sector?: string | null;
+  long_subsector?: string | null;
   short_symbol: string;
   short_label: string;
+  short_sector?: string | null;
+  short_subsector?: string | null;
+  sector_match?: SectorMatch;
   asset_class: AssetClass | "cross";
   category: "saa_anchored" | "stock" | "etf" | "metal" | "commodity" | "cross";
   metrics: PairMetrics;
