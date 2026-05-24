@@ -113,6 +113,28 @@ export interface SaaSummary {
   n_unmapped_cusips?: number;
 }
 
+// Multi-13F crowdedness (Workstream F1)
+export interface FundHolder {
+  label: string;
+  category: string;
+  pct_aum: number;
+}
+
+export interface MultiThirteenF {
+  n_funds_long: number;
+  n_funds_put: number;
+  n_funds_total_holders: number;
+  n_funds_tracked: number;
+  crowdedness_long_pct: number;
+  crowdedness_put_pct: number;
+  avg_pct_aum_long: number | null;
+  avg_pct_aum_put: number | null;
+  holders_long: FundHolder[];
+  holders_put: FundHolder[];
+  hedge_fund_hotel: boolean;
+  squeeze_risk: boolean;
+}
+
 export interface TokenizedRow {
   symbol: string;
   label: string;
@@ -124,6 +146,7 @@ export interface TokenizedRow {
   binance: BinanceLive;
   fundamentals: Fundamentals;
   saa_position?: SaaPosition;
+  multi_13f?: MultiThirteenF;
 }
 
 export type MarginalVolClassification = "diversifier" | "neutral" | "additive";
