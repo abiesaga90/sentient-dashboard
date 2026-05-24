@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { usePortfolioConstruction } from "../../hooks/useDashboardQuery";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
+import { Badge } from "../ui/Badge";
 import type { Column } from "../shared/DataTable";
 import { formatUSD, formatPct } from "../../lib/utils";
 
@@ -185,6 +186,93 @@ function SectorBreakdown({ tokens }: { tokens: { va_profile?: string; sector?: s
 }
 
 // ── Budget Waterfall ──
+
+function TokenizedOverlayBanner({ overlay }: { overlay: any }) {
+  const dryRun = !!overlay.dry_run;
+  const cryptoRemaining = (overlay.gross_target_usd ?? 0) > 0
+    ? `Crypto gross remaining: $${Math.round((100 - (overlay.pct_of_notional ?? 0)) * 1000) / 100}k of $100k target`
+    : "";
+  return (
+    <Card className="p-3">
+      <>
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <div className="text-xs uppercase tracking-wide text-amber-300">Tokenized sleeve (overlay)</div>
+          <div className="text-sm text-gray-200 tabular-nums">
+            ${overlay.gross_target_usd.toLocaleString(undefined, { maximumFractionDigits: 0 })} of gross
+          </div>
+          <div className="text-xs text-gray-400">
+            ({(overlay.pct_of_notional ?? 0).toFixed(2)}% of notional, beta-neutral by h*)
+          </div>
+          {dryRun && (
+            <Badge variant="warning" className="ml-1">DRY-RUN (not carved from crypto budget)</Badge>
+          )}
+          <a
+            className="ml-auto text-xs text-blue-400 hover:underline"
+            href="#"
+            onClick={(e) => { e.preventDefault(); }}
+          >
+            see Tokenized Positions tab →
+          </a>
+        </div>
+        <div className="text-xs text-gray-500 mt-1">
+          Separately sized via residual-vol on pair-internal spread; carved out of the long/short
+          budget below when live so Long + Short + Tokenized = gross cap. Crypto sizing waterfall
+          excludes the overlay legs. {!dryRun && cryptoRemaining}
+        </div>
+        {overlay.pairs && overlay.pairs.length > 0 && (
+          <div className="mt-2 overflow-x-auto">
+            <table className="text-xs w-full">
+              <thead className="text-gray-500 text-[10px] uppercase">
+                <tr>
+                  <th className="text-left pr-3">Pair</th>
+                  <th className="text-right pr-3">Gross (target)</th>
+                  <th className="text-right pr-3">Gross (actual)</th>
+                  <th className="text-right pr-3">h*</th>
+                  <th className="text-right pr-3">Marginal vol</th>
+                  <th className="text-right pr-3">Corr to portfolio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {overlay.pairs.map((p: any) => (
+                  <tr key={p.id} className="border-t border-gray-800">
+                    <td className="py-1 pr-3 font-mono text-gray-200">
+                      L {p.long_symbol.replace(/USDT$/, "")} / S {p.short_symbol.replace(/USDT$/, "")}
+                    </td>
+                    <td className="py-1 pr-3 text-right tabular-nums text-gray-200">
+                      ${p.gross_target.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </td>
+                    <td className="py-1 pr-3 text-right tabular-nums text-gray-200">
+                      ${p.gross_actual.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </td>
+                    <td className="py-1 pr-3 text-right tabular-nums text-gray-400">{p.h_star?.toFixed(3) ?? "—"}</td>
+                    <td className="py-1 pr-3 text-right tabular-nums">
+                      <span className={
+                        p.marginal_vol_classification === "diversifier" ? "text-emerald-400" :
+                        p.marginal_vol_classification === "additive" ? "text-rose-400" : "text-gray-400"
+                      }>
+                        {p.marginal_vol_classification ?? "—"}
+                      </span>
+                      {p.marginal_vol_daily_pct != null && (
+                        <span className="text-gray-500 ml-1">
+                          ({p.marginal_vol_daily_pct >= 0 ? "+" : ""}{p.marginal_vol_daily_pct.toFixed(3)}%/d)
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-1 pr-3 text-right tabular-nums text-gray-400">
+                      {p.corr_to_portfolio != null
+                        ? (p.corr_to_portfolio >= 0 ? "+" : "") + p.corr_to_portfolio.toFixed(2)
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </>
+    </Card>
+  );
+}
 
 function BudgetWaterfall({ budget }: { budget: any }) {
   const sizingBase = budget.notional_capital || budget.nav;
@@ -947,6 +1035,11 @@ export function PortfolioConstructionTab() {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Tokenized overlay callout (only when sleeve has live allocation) */}
+      {data.tokenized_overlay && data.tokenized_overlay.enabled && data.tokenized_overlay.gross_target_usd > 0 && (
+        <TokenizedOverlayBanner overlay={data.tokenized_overlay} />
+      )}
+
       {/* Budget + Constraints side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
