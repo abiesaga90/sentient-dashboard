@@ -10,6 +10,12 @@ import { Badge } from "../../ui/Badge";
 import { fmtUsd, fmtPct, fmtNum } from "./format";
 import { SaaRiskPanel } from "./SaaRiskPanel";
 import { QualityCompareCard } from "./QualityCompareCard";
+import {
+  DirectionAgreementPanel,
+  computeAgreement,
+  agreementChipClass,
+  agreementChipLabel,
+} from "./DirectionAgreementPanel";
 
 interface Props {
   pairs?: PairsPayload;
@@ -359,6 +365,8 @@ function PairRow({
   const zone = m.signal_zone ?? null;
   const zonePill = zone ? cardBorderByZone[zone] : "";
 
+  const agreement = computeAgreement(p, longRow, shortRow);
+
   return (
     <div className={`border-b border-[var(--border)] last:border-b-0 py-3 px-2 ${zonePill}`}>
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -479,6 +487,24 @@ function PairRow({
               <span className="ml-1 font-mono opacity-90">
                 {m.quality_score >= 0 ? "+" : ""}{m.quality_score.toFixed(2)}
               </span>
+            </span>
+          )}
+          {agreement.decided_count > 0 && (
+            <span
+              title={
+                `External validators (fundamentals + analyst street view) on the 4 leg-direction cells.\n\n` +
+                `Fundamentals · L ${agreement.cells.fund_long === "yes" ? "✓" : agreement.cells.fund_long === "no" ? "✗" : "—"}  ${agreement.fund_long_detail}\n` +
+                `Fundamentals · S ${agreement.cells.fund_short === "yes" ? "✓" : agreement.cells.fund_short === "no" ? "✗" : "—"}  ${agreement.fund_short_detail}\n` +
+                `Analysts · L     ${agreement.cells.analyst_long === "yes" ? "✓" : agreement.cells.analyst_long === "no" ? "✗" : "—"}  ${agreement.analyst_long_detail}\n` +
+                `Analysts · S     ${agreement.cells.analyst_short === "yes" ? "✓" : agreement.cells.analyst_short === "no" ? "✗" : "—"}  ${agreement.analyst_short_detail}\n\n` +
+                `Score = agree − disagree = ${agreement.net_score} (over ${agreement.decided_count} decided cell${agreement.decided_count === 1 ? "" : "s"}).`
+              }
+              className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${agreementChipClass(agreement.net_score, agreement.decided_count)}`}
+            >
+              {agreementChipLabel(agreement.agree_count, agreement.decided_count)}
+              {agreement.disagree_count > 0 && (
+                <span className="ml-1 opacity-80 font-mono">· {agreement.disagree_count}✗</span>
+              )}
             </span>
           )}
           {zone && (
@@ -619,6 +645,10 @@ function PairRow({
         </div>
       </div>
 
+      {agreement.decided_count > 0 && (
+        <DirectionAgreementPanel p={p} longRow={longRow} shortRow={shortRow} />
+      )}
+
       {p.saa && (p.saa.long_ticker || p.saa.short_validation?.ticker) && (
         <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10px] text-amber-200/80">
           <Badge variant="warning" className="text-[10px]">SAA</Badge>
@@ -656,7 +686,7 @@ function PairRow({
   );
 }
 
-type SortKey = "rv_quality" | "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book" | "sharpe_liq" | "c_over_sigma";
+type SortKey = "rv_quality" | "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book" | "sharpe_liq" | "c_over_sigma" | "agreement";
 
 export function PairIdeasSubTab({ pairs, rows }: Props) {
   const [minSharpe, setMinSharpe] = useState(0.15);
@@ -664,6 +694,7 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
   const [showInverse, setShowInverse] = useState(false);
   const [sortBy, setSortBy] = useState<SortKey>("rv_quality");
   const [onlyCointegrating, setOnlyCointegrating] = useState(false);
+  const [hideDisagreements, setHideDisagreements] = useState(false);
 
   const saa = pairs?.saa_anchored ?? [];
   const generic = pairs?.generic ?? [];
@@ -674,29 +705,36 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
     .map((k) => baskets[k])
     .filter((b): b is BasketMetrics => !!b);
 
+  const portfolioVol = pairs?.portfolio_vol_daily_pct ?? null;
+
+  // Build a symbol-keyed lookup so PairRow can access full row fundamentals
+  // for the expandable Quality Compare card AND so the agreement filter/sort
+  // can compute external-validator verdicts per pair.
+  const rowsBySym: Record<string, TokenizedRow> = {};
+  for (const r of rows ?? []) {
+    rowsBySym[r.symbol] = r;
+  }
+
   // Filter: keep pairs whose Sharpe (in either direction if showInverse) clears the threshold,
   // AND whose idiosyncratic correlation clears the min-corr threshold (user preference for
   // high-corr pairs — see feedback_pairs_prefer_high_corr).
   // Null Sharpe falls through — usually means too-short history; keep visible.
+  // hideDisagreements drops pairs where >=1 external validator (Fund/Analyst × L/S) is "no";
+  // pairs with no validator data populated stay visible.
   const passes = (p: PairIdea) => {
     const m = p.metrics;
     if (onlyCointegrating && m.is_cointegrating !== true) return false;
     const idio = m.correlation_residual_spy ?? m.correlation_weekday;
     if (minCorr > 0 && idio != null && idio < minCorr) return false;
+    if (hideDisagreements) {
+      const a = computeAgreement(p, rowsBySym[p.long_symbol], rowsBySym[p.short_symbol]);
+      if (a.disagree_count > 0) return false;
+    }
     const s = m.sharpe;
     if (s == null) return true;
     if (showInverse) return Math.abs(s) >= minSharpe;
     return s >= minSharpe;
   };
-
-  const portfolioVol = pairs?.portfolio_vol_daily_pct ?? null;
-
-  // Build a symbol-keyed lookup so PairRow can access full row fundamentals
-  // for the expandable Quality Compare card.
-  const rowsBySym: Record<string, TokenizedRow> = {};
-  for (const r of rows ?? []) {
-    rowsBySym[r.symbol] = r;
-  }
 
   // Sort key extractors
   const sortVal = (p: PairIdea): number => {
@@ -740,6 +778,16 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
     if (sortBy === "sharpe_liq") {
       // Liquidity-adjusted Sharpe — penalizes thin pairs even when Sharpe is high
       return m.sharpe_liq_adjusted ?? -1e9;
+    }
+    if (sortBy === "agreement") {
+      // External-validator agreement: net_score (∈ [-4, +4]) is the primary key,
+      // corr-adjusted Sharpe is the tie-breaker so two equally-confirmed pairs
+      // still rank by trade quality. Pairs with no validator data fall to the
+      // bottom of the tied band rather than getting penalised.
+      const a = computeAgreement(p, rowsBySym[p.long_symbol], rowsBySym[p.short_symbol]);
+      const idio = m.correlation_residual_spy ?? m.correlation_weekday;
+      const tieBreak = (rvQualityScore(m.sharpe, idio) ?? 0) / 100; // small relative weight
+      return a.net_score + tieBreak;
     }
     return m.sharpe ?? -1e9;
   };
@@ -853,6 +901,18 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
             />
             <span>cointegrating only</span>
           </label>
+          <label
+            className="flex items-center gap-1.5 cursor-pointer text-gray-500 hover:text-gray-300"
+            title="Drop any pair where fundamentals or analysts contradict the trade direction on either leg. Pairs with no validator data populated stay visible."
+          >
+            <input
+              type="checkbox"
+              checked={hideDisagreements}
+              onChange={(e) => setHideDisagreements(e.target.checked)}
+              className="accent-emerald-500"
+            />
+            <span>hide Fund/Analyst disagreements</span>
+          </label>
           <span className="text-gray-500 ml-2">Sort:</span>
           <select
             value={sortBy}
@@ -860,6 +920,7 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
             className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-gray-200"
           >
             <option value="rv_quality">RV quality (corr-adjusted Sharpe) ★</option>
+            <option value="agreement">Most agreement (Fund + Analyst)</option>
             <option value="c_over_sigma">Carry / vol (carry harvest)</option>
             <option value="quality_x_carry">Quality × Carry (alpha + carry)</option>
             <option value="quality">Quality Δ (alpha layer)</option>
