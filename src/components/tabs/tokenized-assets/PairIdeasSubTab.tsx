@@ -222,10 +222,27 @@ function PairRow({ p }: { p: PairIdea }) {
             {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(1)}%/y` : "—"}
           </div>
         </div>
-        <div>
-          <div className="text-[10px] text-gray-500">Weekday corr</div>
-          <div className={`font-mono ${corrColor(m.correlation_weekday)}`}>
-            {m.correlation_weekday != null ? m.correlation_weekday.toFixed(2) : "—"}
+        <div title="Raw 6m daily Pearson · EWMA 60d half-life · Spearman rank · Residual vs SPY beta">
+          <div className="text-[10px] text-gray-500">Correlation (raw / EWMA / rank / resid SPY)</div>
+          <div className="font-mono text-[11px] text-gray-200">
+            <span className={corrColor(m.correlation_weekday)}>
+              {m.correlation_weekday != null ? m.correlation_weekday.toFixed(2) : "—"}
+            </span>
+            {" / "}
+            <span className={corrColor(m.correlation_ewma)}>
+              {m.correlation_ewma != null ? m.correlation_ewma.toFixed(2) : "—"}
+            </span>
+            {" / "}
+            <span className={corrColor(m.correlation_spearman)}>
+              {m.correlation_spearman != null ? m.correlation_spearman.toFixed(2) : "—"}
+            </span>
+            {" / "}
+            <span className={corrColor(m.correlation_residual_spy)}>
+              {m.correlation_residual_spy != null ? m.correlation_residual_spy.toFixed(2) : "—"}
+            </span>
+          </div>
+          <div className="text-[10px] text-gray-600">
+            resid SPY = idiosyncratic
           </div>
         </div>
         <div>
@@ -237,14 +254,24 @@ function PairRow({ p }: { p: PairIdea }) {
             S: {fmtPct(m.funding_short_apr_pct, 1)}
           </div>
         </div>
-        <div>
-          <div className="text-[10px] text-gray-500">30d drift</div>
-          <div className="font-mono text-gray-300">{fmtPct(m.drift_30d_pct, 1)}</div>
-        </div>
-        <div>
-          <div className="text-[10px] text-gray-500">Val. gap</div>
+        <div title={m.valuation_gap_basis ? `Basis: ${m.valuation_gap_basis}` : undefined}>
+          <div className="text-[10px] text-gray-500">
+            Val. gap {m.valuation_gap_basis === "price_to_sales" ? "(P/S)" : m.valuation_gap_basis === "premium_to_spot" ? "(prem)" : "(P/E)"}
+          </div>
           <div className="font-mono text-gray-300">
             {m.valuation_gap_pct != null ? fmtPct(m.valuation_gap_pct, 1) : "—"}
+          </div>
+          <div className="text-[10px] text-gray-600">30d drift {fmtPct(m.drift_30d_pct, 1)}</div>
+        </div>
+        <div title="Analyst price-target upside (Finnhub mean target / current mark)">
+          <div className="text-[10px] text-gray-500">Analyst upside L − S</div>
+          <div className={`font-mono ${m.analyst_upside_gap_pct != null && m.analyst_upside_gap_pct > 0 ? "text-emerald-300" : m.analyst_upside_gap_pct != null && m.analyst_upside_gap_pct < 0 ? "text-red-300" : "text-gray-500"}`}>
+            {m.analyst_upside_gap_pct != null ? fmtPct(m.analyst_upside_gap_pct, 1) : "—"}
+          </div>
+          <div className="text-[10px] text-gray-600">
+            L {m.analyst_upside_long_pct != null ? `${m.analyst_upside_long_pct.toFixed(0)}%` : "—"}
+            {" / S "}
+            {m.analyst_upside_short_pct != null ? `${m.analyst_upside_short_pct.toFixed(0)}%` : "—"}
           </div>
         </div>
       </div>
