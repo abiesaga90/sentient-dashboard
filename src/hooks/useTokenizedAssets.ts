@@ -29,6 +29,21 @@ export interface Fundamentals {
   ev_to_ebitda?: number;
   eps_ttm?: number;
   beta?: number;
+  // Per-stock betas (Workstream G2) — our OLS estimates over the 2y window
+  beta_vs_spy?: number;            // Traditional market β vs SPY daily returns
+  alpha_vs_spy?: number;
+  r2_vs_spy?: number;              // % of stock variance explained by SPY
+  beta_sample_size_spy?: number;
+  beta_vs_long_basket?: number;    // Pan-portfolio β vs the live crypto long basket
+  alpha_vs_long_basket?: number;
+  r2_vs_long_basket?: number;
+  beta_sample_size_basket?: number;
+  // Per-stock absolute Quality Score (Workstream G1)
+  quality_score_absolute?: number | null;
+  quality_factor_coverage?: number;
+  quality_factor_contributions?: Record<string, number>;
+  quality_rank?: number;
+  quality_rank_total?: number;
   // Quality / growth / margin fields (D1 — extracted from AV OVERVIEW)
   profit_margin?: number;
   operating_margin_ttm?: number;
