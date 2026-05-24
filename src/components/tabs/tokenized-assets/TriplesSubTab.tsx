@@ -1,6 +1,8 @@
+import { useState } from "react";
 import type { TripleIdea, PairsPayload } from "../../../hooks/useTokenizedAssets";
 import { Card, CardHeader, CardTitle } from "../../ui/Card";
 import { fmtPct, fmtNum } from "./format";
+import { BasketBuilderPanel } from "./BasketBuilderPanel";
 
 interface Props {
   pairs?: PairsPayload;
@@ -29,7 +31,7 @@ function qualityChip(q: number): string {
   return "border-red-500 bg-red-950/70 text-red-200 font-bold";
 }
 
-function TripleCard({ t, idx }: { t: TripleIdea; idx: number }) {
+function TripleCard({ t, idx, staged, onToggle }: { t: TripleIdea; idx: number; staged: boolean; onToggle: () => void }) {
   const m = t.metrics;
   const L = t.long_symbol.replace("USDT", "");
   const S1 = t.short_symbols[0].replace("USDT", "");
@@ -40,9 +42,17 @@ function TripleCard({ t, idx }: { t: TripleIdea; idx: number }) {
   const total_short = w_S1 + w_S2;
 
   return (
-    <div className="border-b border-[var(--border)] last:border-b-0 py-3 px-2">
+    <div className={`border-b border-[var(--border)] last:border-b-0 py-3 px-2 ${staged ? "bg-blue-950/20 border-l-2 border-l-blue-500" : ""}`}>
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
+          <label className="cursor-pointer flex items-center" title={staged ? "Click to unstage" : "Click to stage in basket builder"}>
+            <input
+              type="checkbox"
+              checked={staged}
+              onChange={onToggle}
+              className="accent-blue-500"
+            />
+          </label>
           <span className="inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] font-bold border-blue-700 bg-blue-950/40 text-blue-300">
             #{idx + 1}
           </span>
@@ -136,6 +146,15 @@ function TripleCard({ t, idx }: { t: TripleIdea; idx: number }) {
 
 export function TriplesSubTab({ pairs }: Props) {
   const triples = pairs?.triples ?? [];
+  const [staged, setStaged] = useState<Set<number>>(new Set());
+
+  const toggle = (i: number) => {
+    setStaged((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+  };
 
   if (triples.length === 0) {
     return (
@@ -156,8 +175,18 @@ export function TriplesSubTab({ pairs }: Props) {
         low-quality shorts are sized so the triple is{" "}
         <span className="text-emerald-300">internally β-neutral vs SPY</span> by
         construction. Ranked by composite of quality differential × net carry × intra-short
-        diversification × pan-portfolio β impact.
+        diversification × pan-portfolio β impact.{" "}
+        <span className="text-gray-400">
+          Stage triples (☐) to build a basket — aggregate metrics appear above.
+        </span>
       </div>
+
+      <BasketBuilderPanel
+        triples={triples}
+        stagedIndices={staged}
+        onClear={() => setStaged(new Set())}
+        portfolioVolDailyPct={pairs?.portfolio_vol_daily_pct}
+      />
 
       <Card>
         <CardHeader>
@@ -166,6 +195,9 @@ export function TriplesSubTab({ pairs }: Props) {
               1L : 2S triple recommendations{" "}
               <span className="text-[11px] font-normal text-gray-500">
                 ({triples.length})
+                {staged.size > 0 && (
+                  <span className="text-blue-300 ml-2">· {staged.size} staged</span>
+                )}
               </span>
             </CardTitle>
             <span className="text-[10px] text-gray-500">
@@ -175,7 +207,13 @@ export function TriplesSubTab({ pairs }: Props) {
         </CardHeader>
         <div className="-mx-2">
           {triples.map((t, i) => (
-            <TripleCard key={`triple-${i}-${t.long_symbol}-${t.short_symbols[0]}-${t.short_symbols[1]}`} t={t} idx={i} />
+            <TripleCard
+              key={`triple-${i}-${t.long_symbol}-${t.short_symbols[0]}-${t.short_symbols[1]}`}
+              t={t}
+              idx={i}
+              staged={staged.has(i)}
+              onToggle={() => toggle(i)}
+            />
           ))}
         </div>
       </Card>
