@@ -78,6 +78,8 @@ export interface TokenizedRow {
 }
 
 export interface PairMetrics {
+  spread_vol_daily_pct_1x: number | null;
+  spread_vol_daily_pct_2x: number | null;
   spread_vol_ann_pct_1x: number | null;
   spread_vol_ann_pct_2x: number | null;
   correlation_weekday: number | null;
@@ -100,6 +102,8 @@ export interface BasketMetrics {
   short_coverage: number;
   carry_apr_pct_1x: number | null;
   carry_apr_pct_2x: number | null;
+  spread_vol_daily_pct_1x: number | null;
+  spread_vol_daily_pct_2x: number | null;
   spread_vol_ann_pct_1x: number | null;
   spread_vol_ann_pct_2x: number | null;
   vol_coverage: number;

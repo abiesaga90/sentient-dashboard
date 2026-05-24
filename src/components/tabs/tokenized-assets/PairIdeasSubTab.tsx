@@ -85,12 +85,16 @@ function BasketCard({ b }: { b: BasketMetrics }) {
           </div>
         </div>
         <div>
-          <div className="text-[10px] text-gray-500">Spread vol (ann) @ 2x</div>
+          <div className="text-[10px] text-gray-500">Spread vol @ 2x</div>
           <div className="font-mono text-base text-gray-200">
-            {b.spread_vol_ann_pct_2x != null ? `${b.spread_vol_ann_pct_2x.toFixed(0)}%` : "—"}
+            {b.spread_vol_daily_pct_2x != null ? `${b.spread_vol_daily_pct_2x.toFixed(2)}%/d` : "—"}
           </div>
           <div className="text-[10px] text-gray-600">
-            1x: {b.spread_vol_ann_pct_1x != null ? `${b.spread_vol_ann_pct_1x.toFixed(0)}%` : "—"}
+            {b.spread_vol_ann_pct_2x != null ? `${b.spread_vol_ann_pct_2x.toFixed(0)}%/y` : "—"}
+            {" · 1x "}
+            {b.spread_vol_daily_pct_1x != null ? `${b.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
+            {" / "}
+            {b.spread_vol_ann_pct_1x != null ? `${b.spread_vol_ann_pct_1x.toFixed(0)}%/y` : "—"}
             {" · cov "}{Math.round((b.vol_coverage ?? 0) * 100)}%
           </div>
         </div>
@@ -180,10 +184,14 @@ function PairRow({ p }: { p: PairIdea }) {
         <div>
           <div className="text-[10px] text-gray-500">Spread vol @ 2x</div>
           <div className="font-mono">
-            {m.spread_vol_ann_pct_2x != null ? `${m.spread_vol_ann_pct_2x.toFixed(1)}%` : "—"}
+            {m.spread_vol_daily_pct_2x != null ? `${m.spread_vol_daily_pct_2x.toFixed(2)}%/d` : "—"}
           </div>
           <div className="text-[10px] text-gray-600">
-            1x: {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(1)}%` : "—"}
+            {m.spread_vol_ann_pct_2x != null ? `${m.spread_vol_ann_pct_2x.toFixed(1)}%/y` : "—"}
+            {" · 1x "}
+            {m.spread_vol_daily_pct_1x != null ? `${m.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
+            {" / "}
+            {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(1)}%/y` : "—"}
           </div>
         </div>
         <div>
@@ -317,8 +325,10 @@ export function PairIdeasSubTab({ pairs }: Props) {
       <div className="text-[10px] text-gray-600 italic px-2 space-y-1">
         <div>
           Research-only. 1:1 dollar-neutral; not beta-hedged. Funding uses full available
-          per-contract history, weekday-only (Mon–Fri UTC). Spread vol is computed on
-          weekday log returns (Tue–Fri candles) annualized × √208.
+          per-contract history, weekday-only (Mon–Fri UTC). Spread vol is computed from
+          underlying stock daily log returns (yfinance, NYSE close-to-close, 6-month sample);
+          shown as both daily (%/d) and annualized (%/y = daily × √252). Perp 1d klines are
+          used only for the handful of contracts with no yfinance mapping (CBRS, DRAM, SPCX).
         </div>
         <div>
           Carry assumes the current funding regime persists. Many of these contracts launched
