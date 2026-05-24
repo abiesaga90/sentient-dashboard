@@ -119,6 +119,11 @@ export interface PairMetrics {
   half_life_days?: number | null;
   hurst_exponent?: number | null;
   is_cointegrating?: boolean;
+  // Z-score timing signal (Workstream C3)
+  spread_zscore_today?: number | null;
+  spread_mean_logprice?: number | null;
+  spread_std_logprice?: number | null;
+  signal_zone?: "enter" | "near_enter" | "neutral" | "near_avoid" | "avoid" | null;
   correlation_weekday: number | null;
   correlation_ewma: number | null;
   correlation_spearman: number | null;
