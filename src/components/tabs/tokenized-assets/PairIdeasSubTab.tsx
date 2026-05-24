@@ -7,6 +7,7 @@ import type {
 import { Card, CardHeader, CardTitle } from "../../ui/Card";
 import { Badge } from "../../ui/Badge";
 import { fmtUsd, fmtPct, fmtNum } from "./format";
+import { SaaRiskPanel } from "./SaaRiskPanel";
 
 interface Props {
   pairs?: PairsPayload;
@@ -378,6 +379,8 @@ export function PairIdeasSubTab({ pairs }: Props) {
           )}
         </div>
       </div>
+
+      {saa.length > 0 && <SaaRiskPanel />}
 
       {saa.length > 0 && (
         <Card>
