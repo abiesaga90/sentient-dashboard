@@ -113,6 +113,12 @@ export interface PairMetrics {
   marginal_vol_daily_pct?: number | null;
   marginal_vol_classification?: MarginalVolClassification | null;
   corr_to_portfolio?: number | null;
+  // Cointegration / mean-reversion diagnostics (Workstream C2)
+  adf_pvalue?: number | null;
+  cointegration_pvalue?: number | null;
+  half_life_days?: number | null;
+  hurst_exponent?: number | null;
+  is_cointegrating?: boolean;
   correlation_weekday: number | null;
   correlation_ewma: number | null;
   correlation_spearman: number | null;
