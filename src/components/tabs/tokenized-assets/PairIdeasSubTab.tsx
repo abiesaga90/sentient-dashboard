@@ -507,6 +507,46 @@ function PairRow({
               )}
             </span>
           )}
+          {m.pm_thesis_edge && m.pm_thesis_edge.max_edge_magnitude_pp >= 5 && (() => {
+            const e = m.pm_thesis_edge;
+            const dominant = e.dominant_basket ?? "";
+            // Shorter human label per basket
+            const niceLabel: Record<string, string> = {
+              ai_capability_edge_pp: "AI capex",
+              tariff_edge_pp: "Tariff",
+              crypto_edge_pp: "Crypto",
+              gold_relative_edge_pp: "Gold-rel.",
+              spacex_edge_pp: "SpaceX",
+            };
+            const label = niceLabel[dominant] ?? dominant.replace("_edge_pp", "");
+            const magnitude = e.max_edge_magnitude_pp;
+            // Sign: which leg wins this thesis. Look up the underlying edge value.
+            const edgeVal = (e as unknown as Record<string, number>)[dominant] ?? 0;
+            const cls =
+              magnitude >= 15
+                ? "border-violet-500 bg-violet-950/70 text-violet-200 font-bold"
+                : magnitude >= 10
+                ? "border-violet-700 bg-violet-950/50 text-violet-300"
+                : "border-violet-800 bg-violet-950/30 text-violet-300/80";
+            const tooltip =
+              `Prediction-market thesis edge (L − S overlay scores).\n` +
+              `Dominant: ${label}  ·  ${edgeVal >= 0 ? "+" : ""}${edgeVal.toFixed(1)}pp\n\n` +
+              (e.thesis_aligned_edges ?? [])
+                .map((row) => `  ${niceLabel[row.label] ?? row.label}: ${row.edge_pp >= 0 ? "+" : ""}${row.edge_pp.toFixed(1)}pp`)
+                .join("\n") +
+              `\n\nPositive edge = PM thesis favours the LONG leg.\n` +
+              `Negative = thesis favours the SHORT (i.e. would weaken our trade direction).\n` +
+              `Composite is per-basket: AI capex / Tariff intensity / Crypto sentiment / SpaceX premium.`;
+            return (
+              <span
+                title={tooltip}
+                className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${cls}`}
+              >
+                PM {label} {edgeVal >= 0 ? "+" : ""}
+                {edgeVal.toFixed(1)}pp
+              </span>
+            );
+          })()}
           {zone && (
             <span
               title={
@@ -686,7 +726,7 @@ function PairRow({
   );
 }
 
-type SortKey = "rv_quality" | "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book" | "sharpe_liq" | "c_over_sigma" | "agreement";
+type SortKey = "rv_quality" | "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book" | "sharpe_liq" | "c_over_sigma" | "agreement" | "pm_thesis_alignment";
 
 export function PairIdeasSubTab({ pairs, rows }: Props) {
   const [minSharpe, setMinSharpe] = useState(0.15);
@@ -788,6 +828,16 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
       const idio = m.correlation_residual_spy ?? m.correlation_weekday;
       const tieBreak = (rvQualityScore(m.sharpe, idio) ?? 0) / 100; // small relative weight
       return a.net_score + tieBreak;
+    }
+    if (sortBy === "pm_thesis_alignment") {
+      // Prediction-market thesis edge × corr-adjusted Sharpe. Pairs where
+      // PM markets create directional alpha AND the legs actually hedge each
+      // other rank top. Pairs with no PM-edge data fall to bottom but don't
+      // get penalised below pairs with explicit zero edge.
+      const edge = m.pm_thesis_edge?.max_edge_magnitude_pp ?? 0;
+      const idio = m.correlation_residual_spy ?? m.correlation_weekday;
+      const rv = rvQualityScore(m.sharpe, idio) ?? 0;
+      return edge * Math.max(0.1, rv);  // floor on rv so a strong PM-edge still ranks
     }
     return m.sharpe ?? -1e9;
   };
@@ -920,6 +970,7 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
             className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-gray-200"
           >
             <option value="rv_quality">RV quality (corr-adjusted Sharpe) ★</option>
+            <option value="pm_thesis_alignment">PM-thesis edge × RV quality</option>
             <option value="agreement">Most agreement (Fund + Analyst)</option>
             <option value="c_over_sigma">Carry / vol (carry harvest)</option>
             <option value="quality_x_carry">Quality × Carry (alpha + carry)</option>

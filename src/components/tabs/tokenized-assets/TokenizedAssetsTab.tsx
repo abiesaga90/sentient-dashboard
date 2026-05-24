@@ -10,6 +10,7 @@ import { CommoditiesSubTab } from "./CommoditiesSubTab";
 import { PairIdeasSubTab } from "./PairIdeasSubTab";
 import { TriplesSubTab } from "./TriplesSubTab";
 import { BacktestSubTab } from "./BacktestSubTab";
+import { MacroPanel } from "./MacroPanel";
 import { fmtUsd, fmtPct } from "./format";
 
 type SubTabId = AssetClass | "pairs" | "triples" | "backtest";
@@ -162,6 +163,14 @@ export function TokenizedAssetsTab() {
           </div>
         </Card>
       )}
+
+      {/* Prediction-market macro panel */}
+      <MacroPanel
+        cryptoBasket={data?.crypto_price_basket}
+        aiBasket={data?.ai_capability_basket}
+        tariffBasket={data?.tariff_intensity_basket}
+        spacexBasket={data?.spacex_ipo_basket}
+      />
 
       {/* Sub-tab nav */}
       <div className="flex gap-1 border-b border-[var(--border)]">
