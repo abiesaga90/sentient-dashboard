@@ -240,6 +240,59 @@ export function QualityCompareCard({ p, long_row, short_row }: Props) {
               </tr>
             </>
           )}
+
+          {/* News sentiment (F3) */}
+          {(L.sentiment_company_news_score != null || S.sentiment_company_news_score != null) && (
+            <>
+              <tr>
+                <td colSpan={4} className="pt-2 pb-0.5 text-[10px] text-gray-500 uppercase tracking-wide">
+                  News sentiment (last 7d)
+                </td>
+              </tr>
+              <tr className="border-t border-slate-800/50" title="Finnhub company news score [0, 1]. 0.5 = neutral, >0.6 bullish, <0.4 bearish. Long leg with low score = directional concern; short leg with high score = squeeze risk.">
+                <td className="py-1 pl-1 text-gray-400">News score (0-1)</td>
+                <td className={`py-1 px-2 text-right ${L.sentiment_company_news_score != null && L.sentiment_company_news_score < 0.4 ? "text-red-300" : L.sentiment_company_news_score != null && L.sentiment_company_news_score > 0.6 ? "text-emerald-300" : "text-gray-300"}`}>
+                  {L.sentiment_company_news_score != null ? L.sentiment_company_news_score.toFixed(2) : "—"}
+                </td>
+                <td className={`py-1 px-2 text-right ${S.sentiment_company_news_score != null && S.sentiment_company_news_score > 0.6 ? "text-amber-300" : S.sentiment_company_news_score != null && S.sentiment_company_news_score < 0.4 ? "text-emerald-300" : "text-gray-300"}`}>
+                  {S.sentiment_company_news_score != null ? S.sentiment_company_news_score.toFixed(2) : "—"}
+                </td>
+                <td className="py-1 pr-1 text-right text-gray-300">
+                  {L.sentiment_company_news_score != null && S.sentiment_company_news_score != null
+                    ? `${(L.sentiment_company_news_score - S.sentiment_company_news_score >= 0 ? "+" : "")}${(L.sentiment_company_news_score - S.sentiment_company_news_score).toFixed(2)}`
+                    : "—"}
+                </td>
+              </tr>
+              <tr className="border-t border-slate-800/50" title="Number of news articles in the last 7 days. Sustained high buzz can indicate a developing catalyst, sentiment shift, or thesis-relevant news flow.">
+                <td className="py-1 pl-1 text-gray-400">News buzz (week / avg)</td>
+                <td className={`py-1 px-2 text-right ${L.sentiment_buzz_ratio != null && L.sentiment_buzz_ratio > 1.5 ? "text-amber-300" : "text-gray-300"}`}>
+                  {L.sentiment_buzz_articles_week != null
+                    ? `${L.sentiment_buzz_articles_week}${L.sentiment_buzz_weekly_avg ? ` / ${L.sentiment_buzz_weekly_avg.toFixed(0)}` : ""}${L.sentiment_buzz_ratio ? ` (${L.sentiment_buzz_ratio.toFixed(1)}×)` : ""}`
+                    : "—"}
+                </td>
+                <td className={`py-1 px-2 text-right ${S.sentiment_buzz_ratio != null && S.sentiment_buzz_ratio > 1.5 ? "text-amber-300" : "text-gray-300"}`}>
+                  {S.sentiment_buzz_articles_week != null
+                    ? `${S.sentiment_buzz_articles_week}${S.sentiment_buzz_weekly_avg ? ` / ${S.sentiment_buzz_weekly_avg.toFixed(0)}` : ""}${S.sentiment_buzz_ratio ? ` (${S.sentiment_buzz_ratio.toFixed(1)}×)` : ""}`
+                    : "—"}
+                </td>
+                <td className="py-1 pr-1 text-right text-gray-500">—</td>
+              </tr>
+              <tr className="border-t border-slate-800/50" title="Company news score minus the sector average. Positive = stock is being talked about more bullishly than its sector peers right now.">
+                <td className="py-1 pl-1 text-gray-400">Score vs sector</td>
+                <td className={`py-1 px-2 text-right ${L.sentiment_score_vs_sector != null && L.sentiment_score_vs_sector > 0.05 ? "text-emerald-300" : L.sentiment_score_vs_sector != null && L.sentiment_score_vs_sector < -0.05 ? "text-red-300" : "text-gray-300"}`}>
+                  {L.sentiment_score_vs_sector != null
+                    ? `${L.sentiment_score_vs_sector >= 0 ? "+" : ""}${L.sentiment_score_vs_sector.toFixed(2)}`
+                    : "—"}
+                </td>
+                <td className={`py-1 px-2 text-right ${S.sentiment_score_vs_sector != null && S.sentiment_score_vs_sector < -0.05 ? "text-emerald-300" : S.sentiment_score_vs_sector != null && S.sentiment_score_vs_sector > 0.05 ? "text-amber-300" : "text-gray-300"}`}>
+                  {S.sentiment_score_vs_sector != null
+                    ? `${S.sentiment_score_vs_sector >= 0 ? "+" : ""}${S.sentiment_score_vs_sector.toFixed(2)}`
+                    : "—"}
+                </td>
+                <td className="py-1 pr-1 text-right text-gray-500">—</td>
+              </tr>
+            </>
+          )}
         </tbody>
       </table>
 
@@ -247,7 +300,7 @@ export function QualityCompareCard({ p, long_row, short_row }: Props) {
         Emerald = the long leg has the better number on that metric (or it favors the trade direction).
         Amber = the short leg has the better number — directional concern on the long thesis.
         Valuation multiples (P/E, P/S, EV/*) favor LOWER for the long leg.
-        Fundamentals are TTM unless labeled otherwise. Source: Alpha Vantage OVERVIEW endpoint.
+        Fundamentals are TTM (AV OVERVIEW). News sentiment is Finnhub /news-sentiment (last 7d).
       </div>
     </div>
   );

@@ -64,6 +64,15 @@ export interface Fundamentals {
   dividend_yield?: number;
   analyst_rating?: string;
   next_earnings?: string;
+  // Finnhub news-sentiment (Workstream F3) — catalyst-awareness layer
+  sentiment_company_news_score?: number;     // [0, 1], 0.5 = neutral
+  sentiment_sector_avg_news_score?: number;
+  sentiment_score_vs_sector?: number;        // company − sector_avg
+  sentiment_buzz_articles_week?: number;
+  sentiment_buzz_weekly_avg?: number;
+  sentiment_buzz_ratio?: number;             // week / avg, >1.5 = heightened attention
+  sentiment_bullish_pct?: number;
+  sentiment_bearish_pct?: number;
   // Finnhub analyst overlay
   analyst_target_mean?: number;
   analyst_target_high?: number;
