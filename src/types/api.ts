@@ -857,8 +857,14 @@ export interface TokenizedPairActualBlock {
   short_notional: number;
   long_qty: number | null;
   short_qty: number | null;
+  long_entry_price: number | null;
+  long_mark_price: number | null;
+  short_entry_price: number | null;
+  short_mark_price: number | null;
   long_entry_time: string | null;
   short_entry_time: string | null;
+  long_pnl_pct: number | null;
+  short_pnl_pct: number | null;
   days_held: number;
   long_pnl_usd: number;
   short_pnl_usd: number;
@@ -866,6 +872,7 @@ export interface TokenizedPairActualBlock {
   long_funding_accrued_usd: number;
   short_funding_accrued_usd: number;
   total_funding_accrued_usd: number;
+  total_pnl_with_funding_usd: number;
 }
 
 export interface TokenizedPairCarryBlock {

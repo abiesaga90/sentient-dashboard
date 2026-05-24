@@ -6,10 +6,21 @@ import { formatUSD, cn } from "../../lib/utils";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine } from "recharts";
 import type { TokenizedPairRow } from "../../types/api";
 
-function fmtPnL(v: number | null | undefined): string {
+// formatUSD already prepends "$" and handles negative sign — these wrappers
+// just add a "+" for positives so colour-coded P&Ls look right.
+function fmtPnL(v: number | null | undefined, decimals = 2): string {
   if (v == null) return "—";
-  const sign = v >= 0 ? "+" : "−";
-  return `${sign}$${formatUSD(Math.abs(v), 2)}`;
+  const sign = v > 0 ? "+" : "";
+  return `${sign}${formatUSD(v, decimals)}`;
+}
+function fmtUSD(v: number | null | undefined, decimals = 0): string {
+  if (v == null) return "—";
+  return formatUSD(v, decimals);
+}
+function fmtPrice(v: number | null | undefined): string {
+  if (v == null) return "—";
+  const decimals = v < 1 ? 4 : v < 100 ? 3 : 2;
+  return formatUSD(v, decimals);
 }
 function pnlClass(v: number | null | undefined): string {
   if (v == null) return "text-gray-400";
@@ -20,6 +31,11 @@ function pnlClass(v: number | null | undefined): string {
 function fmtAPR(v: number | null | undefined, decimals = 2): string {
   if (v == null) return "—";
   const sign = v >= 0 ? "+" : "";
+  return `${sign}${v.toFixed(decimals)}%`;
+}
+function fmtPct(v: number | null | undefined, decimals = 2): string {
+  if (v == null) return "—";
+  const sign = v > 0 ? "+" : "";
   return `${sign}${v.toFixed(decimals)}%`;
 }
 
@@ -45,6 +61,53 @@ function statusLabel(status: TokenizedPairRow["status"]): string {
   }
 }
 
+function LegRow({
+  side, symbol, qty, entry, mark, notional, target_notional, pnl, pnl_pct, funding,
+}: {
+  side: "LONG" | "SHORT";
+  symbol: string;
+  qty: number | null;
+  entry: number | null;
+  mark: number | null;
+  notional: number | null;
+  target_notional: number | null;
+  pnl: number | null;
+  pnl_pct: number | null;
+  funding: number | null;
+}) {
+  const sideColor = side === "LONG" ? "text-blue-400" : "text-orange-400";
+  const driftPct = (notional != null && target_notional != null && target_notional > 0)
+    ? (notional - target_notional) / target_notional * 100
+    : null;
+  return (
+    <tr className="border-b border-gray-900 hover:bg-gray-900/40">
+      <td className="px-2 py-2">
+        <span className={cn("font-mono text-sm font-semibold", sideColor)}>{side}</span>
+      </td>
+      <td className="px-2 py-2 font-mono text-sm text-gray-200">{symbol.replace(/USDT$/, "")}</td>
+      <td className="px-2 py-2 text-right tabular-nums text-sm text-gray-300">
+        {qty == null ? "—" : qty.toFixed(4)}
+      </td>
+      <td className="px-2 py-2 text-right tabular-nums text-sm text-gray-300">{fmtPrice(entry)}</td>
+      <td className="px-2 py-2 text-right tabular-nums text-sm text-gray-300">{fmtPrice(mark)}</td>
+      <td className="px-2 py-2 text-right tabular-nums text-sm text-gray-100">{fmtUSD(notional)}</td>
+      <td className="px-2 py-2 text-right tabular-nums text-xs text-gray-500">{fmtUSD(target_notional)}</td>
+      <td className={cn("px-2 py-2 text-right tabular-nums text-xs", driftPct != null && Math.abs(driftPct) > 5 ? "text-amber-400" : "text-gray-500")}>
+        {driftPct == null ? "—" : (driftPct >= 0 ? "+" : "") + driftPct.toFixed(1) + "%"}
+      </td>
+      <td className={cn("px-2 py-2 text-right tabular-nums text-sm font-semibold", pnlClass(pnl))}>
+        {fmtPnL(pnl)}
+      </td>
+      <td className={cn("px-2 py-2 text-right tabular-nums text-xs", pnlClass(pnl_pct))}>
+        {fmtPct(pnl_pct)}
+      </td>
+      <td className={cn("px-2 py-2 text-right tabular-nums text-sm font-semibold", pnlClass(funding))}>
+        {fmtPnL(funding)}
+      </td>
+    </tr>
+  );
+}
+
 function PairCard({ pair }: { pair: TokenizedPairRow }) {
   const t = pair.target;
   const a = pair.actual;
@@ -60,9 +123,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
 
   const carryTrend = (() => {
     if (seriesData.length < 2) return null;
-    const first = seriesData[0].carry;
-    const last = seriesData[seriesData.length - 1].carry;
-    return last - first;
+    return seriesData[seriesData.length - 1].carry - seriesData[0].carry;
   })();
 
   const distancePct = c.distance_to_threshold_pct_pts;
@@ -76,33 +137,25 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <div className="text-lg font-semibold text-gray-100">
-              L {longLabel}  /  S {shortLabel}
-            </div>
-            <Badge variant={statusBadgeVariant(pair.status)}>
-              {statusLabel(pair.status)}
-            </Badge>
+            <div className="text-lg font-semibold text-gray-100">L {longLabel} / S {shortLabel}</div>
+            <Badge variant={statusBadgeVariant(pair.status)}>{statusLabel(pair.status)}</Badge>
           </div>
-          <div className="text-xs text-gray-500 font-mono">
-            pair_id: {pair.id}
-          </div>
+          <div className="text-xs text-gray-500 font-mono">pair_id: {pair.id}</div>
         </div>
         {a && (
           <div className="text-xs text-gray-500 text-right">
-            <div>held for <span className="text-gray-300 tabular-nums">{a.days_held.toFixed(1)}d</span></div>
-            {a.long_entry_time && (
-              <div>since {a.long_entry_time.slice(0, 10)}</div>
-            )}
+            <div>held for <span className="text-gray-300 tabular-nums">{a.days_held.toFixed(2)}d</span></div>
+            {a.long_entry_time && <div>since {a.long_entry_time.slice(0, 10)}</div>}
           </div>
         )}
       </div>
 
-      {/* Sizing block */}
+      {/* Sizing / construction */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="space-y-0.5">
           <div className="text-xs text-gray-500">Pair gross (target)</div>
           <div className="text-base font-semibold text-gray-100 tabular-nums">
-            ${t ? formatUSD(t.pair_gross, 0) : "—"}
+            {t ? fmtUSD(t.pair_gross) : "—"}
           </div>
           {t && (
             <div className="text-xs text-gray-500">
@@ -112,46 +165,105 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
           )}
         </div>
         <div className="space-y-0.5">
-          <div className="text-xs text-gray-500">Long {longLabel}</div>
-          <div className="text-base text-blue-400 tabular-nums">
-            ${t ? formatUSD(t.long_notional, 0) : "—"}
+          <div className="text-xs text-gray-500">Pair gross (actual)</div>
+          <div className="text-base font-semibold text-gray-100 tabular-nums">
+            {a ? fmtUSD(a.long_notional + a.short_notional) : "—"}
           </div>
-          {a && (
-            <div className="text-xs text-gray-500 tabular-nums">
-              actual ${formatUSD(a.long_notional, 0)}
-            </div>
-          )}
-        </div>
-        <div className="space-y-0.5">
-          <div className="text-xs text-gray-500">Short {shortLabel}</div>
-          <div className="text-base text-orange-400 tabular-nums">
-            ${t ? formatUSD(t.short_notional, 0) : "—"}
-          </div>
-          {a && (
-            <div className="text-xs text-gray-500 tabular-nums">
-              actual ${formatUSD(a.short_notional, 0)}
+          {a && t && (
+            <div className="text-xs text-gray-500">
+              {((a.long_notional + a.short_notional) / t.pair_gross * 100).toFixed(0)}% of target
             </div>
           )}
         </div>
         <div className="space-y-0.5">
           <div className="text-xs text-gray-500">h* (beta-neutral)</div>
-          <div className="text-base text-gray-100 tabular-nums">
-            {t ? t.h_star.toFixed(3) : "—"}
-          </div>
+          <div className="text-base text-gray-100 tabular-nums">{t ? t.h_star.toFixed(3) : "—"}</div>
           {t && (
-            <div className="text-xs text-gray-500">
-              σ pair {t.pair_residual_vol_daily_pct.toFixed(2)}%/d
-            </div>
+            <div className="text-xs text-gray-500">σ pair {t.pair_residual_vol_daily_pct.toFixed(2)}%/d</div>
           )}
         </div>
+        <div className="space-y-0.5">
+          <div className="text-xs text-gray-500">Expected carry APR</div>
+          <div className={cn("text-base font-semibold tabular-nums", t && t.expected_carry_apr_2x >= 0 ? "text-emerald-400" : "text-rose-400")}>
+            {t ? fmtAPR(t.expected_carry_apr_2x) : "—"}
+          </div>
+          <div className="text-xs text-gray-500">2x leverage</div>
+        </div>
       </div>
+
+      {/* Per-leg table — entry, mark, qty, notional, drift, P&L, funding */}
+      {a ? (
+        <div className="overflow-x-auto rounded border border-gray-800">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-900/60 text-gray-500 text-xs uppercase">
+              <tr>
+                <th className="px-2 py-2 text-left">Side</th>
+                <th className="px-2 py-2 text-left">Symbol</th>
+                <th className="px-2 py-2 text-right">Qty</th>
+                <th className="px-2 py-2 text-right">Entry</th>
+                <th className="px-2 py-2 text-right">Mark</th>
+                <th className="px-2 py-2 text-right">Notional</th>
+                <th className="px-2 py-2 text-right">Target</th>
+                <th className="px-2 py-2 text-right">Drift</th>
+                <th className="px-2 py-2 text-right">Unrealized P&L</th>
+                <th className="px-2 py-2 text-right">P&L %</th>
+                <th className="px-2 py-2 text-right">Funding</th>
+              </tr>
+            </thead>
+            <tbody>
+              <LegRow
+                side="LONG" symbol={pair.long_symbol}
+                qty={a.long_qty} entry={a.long_entry_price} mark={a.long_mark_price}
+                notional={a.long_notional} target_notional={t?.long_notional ?? null}
+                pnl={a.long_pnl_usd} pnl_pct={a.long_pnl_pct} funding={a.long_funding_accrued_usd}
+              />
+              <LegRow
+                side="SHORT" symbol={pair.short_symbol}
+                qty={a.short_qty} entry={a.short_entry_price} mark={a.short_mark_price}
+                notional={a.short_notional} target_notional={t?.short_notional ?? null}
+                pnl={a.short_pnl_usd} pnl_pct={a.short_pnl_pct} funding={a.short_funding_accrued_usd}
+              />
+              <tr className="border-t border-gray-800 bg-gray-900/30 font-semibold">
+                <td colSpan={5} className="px-2 py-2 text-right text-xs text-gray-500 uppercase">Pair total</td>
+                <td className="px-2 py-2 text-right tabular-nums text-gray-100">
+                  {fmtUSD(a.long_notional + a.short_notional)}
+                </td>
+                <td className="px-2 py-2 text-right tabular-nums text-xs text-gray-500">
+                  {t ? fmtUSD(t.pair_gross) : "—"}
+                </td>
+                <td className="px-2 py-2"></td>
+                <td className={cn("px-2 py-2 text-right tabular-nums", pnlClass(a.spread_pnl_usd))}>
+                  {fmtPnL(a.spread_pnl_usd)}
+                </td>
+                <td className="px-2 py-2"></td>
+                <td className={cn("px-2 py-2 text-right tabular-nums", pnlClass(a.total_funding_accrued_usd))}>
+                  {fmtPnL(a.total_funding_accrued_usd)}
+                </td>
+              </tr>
+              <tr className="bg-gray-900/30">
+                <td colSpan={8} className="px-2 py-2 text-right text-xs text-gray-500 uppercase">
+                  Total return (spread P&L + funding)
+                </td>
+                <td colSpan={3} className={cn("px-2 py-2 text-right tabular-nums text-base font-semibold", pnlClass(a.total_pnl_with_funding_usd))}>
+                  {fmtPnL(a.total_pnl_with_funding_usd)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="text-sm text-gray-500 italic">
+          No active positions yet.{" "}
+          {pair.status === "dry_run"
+            ? "Dry-run logs the targets above; live trades begin when TOKENIZED_DRY_RUN env var is set to false."
+            : "Targets above will fire on the next rebalance."}
+        </div>
+      )}
 
       {/* Carry status */}
       <div className="rounded border border-gray-800 bg-gray-900/40 p-3 space-y-2">
         <div className="flex items-baseline justify-between gap-3 flex-wrap">
-          <div className="text-sm font-semibold text-gray-200">
-            Carry status (exit gate)
-          </div>
+          <div className="text-sm font-semibold text-gray-200">Carry status (exit gate)</div>
           <div className="text-xs text-gray-500">
             {c.window_days}d rolling · {c.n_snapshots} snapshots · decision: <span className="text-gray-300">{c.decision_reason}</span>
           </div>
@@ -164,16 +276,14 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
             </div>
           </div>
           <div>
-            <div className="text-xs text-gray-500">7d rolling mean</div>
+            <div className="text-xs text-gray-500">{c.window_days}d rolling mean</div>
             <div className={cn("font-semibold tabular-nums", c.rolling_mean_apr_2x != null && c.rolling_mean_apr_2x >= c.threshold_apr_2x ? "text-emerald-400" : "text-rose-400")}>
               {fmtAPR(c.rolling_mean_apr_2x)}
             </div>
           </div>
           <div>
             <div className="text-xs text-gray-500">Exit threshold</div>
-            <div className="font-semibold text-gray-300 tabular-nums">
-              {fmtAPR(c.threshold_apr_2x)}
-            </div>
+            <div className="font-semibold text-gray-300 tabular-nums">{fmtAPR(c.threshold_apr_2x)}</div>
           </div>
           <div>
             <div className="text-xs text-gray-500">Distance to threshold</div>
@@ -208,46 +318,6 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
           </div>
         )}
       </div>
-
-      {/* P&L + funding accrued (the realized carry) */}
-      {a ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-          <div>
-            <div className="text-xs text-gray-500">Long P&L</div>
-            <div className={cn("font-semibold tabular-nums", pnlClass(a.long_pnl_usd))}>
-              {fmtPnL(a.long_pnl_usd)}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-500">Short P&L</div>
-            <div className={cn("font-semibold tabular-nums", pnlClass(a.short_pnl_usd))}>
-              {fmtPnL(a.short_pnl_usd)}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-500">Spread P&L (long + short)</div>
-            <div className={cn("text-base font-semibold tabular-nums", pnlClass(a.spread_pnl_usd))}>
-              {fmtPnL(a.spread_pnl_usd)}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-500">Funding accrued (realized carry)</div>
-            <div className={cn("text-base font-semibold tabular-nums", pnlClass(a.total_funding_accrued_usd))}>
-              {fmtPnL(a.total_funding_accrued_usd)}
-            </div>
-            <div className="text-xs text-gray-500">
-              L {fmtPnL(a.long_funding_accrued_usd)}  ·  S {fmtPnL(a.short_funding_accrued_usd)}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="text-sm text-gray-500 italic">
-          No active positions yet.{" "}
-          {pair.status === "dry_run"
-            ? "Dry-run logs the targets above; live trades begin when TOKENIZED_DRY_RUN env var is set to false."
-            : "Targets above will fire on the next rebalance."}
-        </div>
-      )}
     </Card>
   );
 }
@@ -285,7 +355,8 @@ export function TokenizedPositionsTab() {
           <div className="text-xs text-gray-500">
             Permanent index/ETF pairs on Binance USDT-M. Sized at residual-vol with
             no alpha tilt, beta-neutral via h*, included in resize rebalances,
-            excluded from rotation. Closed only when {h.n_configured > 0 ? data.config?.carry_eval_window_days ?? 7 : 7}d rolling carry falls below per-pair threshold.
+            excluded from rotation. Closed only when {data.config?.carry_eval_window_days ?? 7}d
+            rolling carry falls below per-pair threshold.
           </div>
         </div>
         <Badge variant={data.dry_run ? "warning" : "success"}>{dryRunBadge}</Badge>
@@ -300,13 +371,10 @@ export function TokenizedPositionsTab() {
         />
         <KpiCard
           label="Gross (target)"
-          value={`$${formatUSD(h.total_gross_target, 0)}`}
+          value={fmtUSD(h.total_gross_target)}
           sub={h.total_gross_target_pct_of_notional != null ? `${h.total_gross_target_pct_of_notional.toFixed(2)}% of notional` : undefined}
         />
-        <KpiCard
-          label="Gross (actual)"
-          value={`$${formatUSD(h.total_gross_actual, 0)}`}
-        />
+        <KpiCard label="Gross (actual)" value={fmtUSD(h.total_gross_actual)} />
         <KpiCard
           label="Weighted carry APR"
           value={fmtAPR(h.weighted_avg_carry_apr_2x)}
@@ -322,7 +390,7 @@ export function TokenizedPositionsTab() {
           label="Funding accrued"
           value={fmtPnL(h.total_funding_accrued_usd)}
           valueColor={pnlClass(h.total_funding_accrued_usd)}
-          sub={h.oldest_position_days_held != null ? `oldest pos ${h.oldest_position_days_held.toFixed(1)}d held` : "no positions yet"}
+          sub={h.oldest_position_days_held != null ? `oldest pos ${h.oldest_position_days_held.toFixed(2)}d held` : "no positions yet"}
         />
       </div>
 
@@ -333,16 +401,14 @@ export function TokenizedPositionsTab() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {data.pairs.map((p) => (
-            <PairCard key={p.id} pair={p} />
-          ))}
+          {data.pairs.map((p) => <PairCard key={p.id} pair={p} />)}
         </div>
       )}
 
       <div className="text-xs text-gray-500 italic">
         Updated {new Date(data.updated_at).toLocaleTimeString()} · refreshes every 60s ·
-        carry snapshots persisted every {data.config?.carry_eval_window_days ? "~5 min" : "5 min"} ·
-        exit gate needs ≥24 snapshots (~2h) before it can fire.
+        carry snapshots persisted every ~5 min · exit gate needs ≥
+        {data.config?.carry_eval_window_days != null ? Math.max(24, 0) : 24} snapshots before it can fire.
       </div>
     </div>
   );
