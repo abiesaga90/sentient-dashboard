@@ -192,7 +192,12 @@ export function TokenizedAssetsTab() {
 
       {/* Active sub-tab content */}
       {active === "triples" ? (
-        <TriplesSubTab pairs={data?.pairs} />
+        <TriplesSubTab
+          pairs={data?.pairs}
+          cryptoBasket={data?.crypto_price_basket}
+          aiBasket={data?.ai_capability_basket}
+          tariffBasket={data?.tariff_intensity_basket}
+        />
       ) : active === "pairs" ? (
         <PairIdeasSubTab pairs={data?.pairs} rows={data?.rows} />
       ) : active === "backtest" ? (
