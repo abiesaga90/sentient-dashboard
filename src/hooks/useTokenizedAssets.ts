@@ -247,7 +247,41 @@ export interface PortfolioContext {
   portfolio_returns?: number[] | null;
 }
 
+// 1L:2S triple (Workstream G3)
+export interface TripleMetrics {
+  quality_long: number;
+  quality_short_1: number;
+  quality_short_2: number;
+  quality_shorts_avg: number;
+  quality_diff: number;
+  beta_L_spy: number;
+  beta_S1_spy: number;
+  beta_S2_spy: number;
+  net_beta_spy: number;
+  beta_L_basket: number | null;
+  beta_S1_basket: number | null;
+  beta_S2_basket: number | null;
+  net_beta_basket: number | null;
+  funding_long_apr_pct: number;
+  funding_short_1_apr_pct: number;
+  funding_short_2_apr_pct: number;
+  net_funding_carry_apr_pct: number;
+  intra_short_correlation: number | null;
+  spread_vol_daily_pct: number | null;
+  sharpe: number | null;
+}
+
+export interface TripleIdea {
+  long_symbol: string;
+  short_symbols: [string, string];
+  weights: Record<string, number>;
+  metrics: TripleMetrics;
+  score: number;
+  rationale: string;
+}
+
 export interface PairsPayload extends PortfolioContext {
+  triples?: TripleIdea[];
   updated_at?: string;
   n_klines_pulled?: number;
   metrics_note?: string;
