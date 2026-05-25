@@ -396,6 +396,18 @@ export interface PairMetrics {
   conviction_direction?: 1 | -1 | null;
   conviction_score?: number | null;
   carry_conviction_aligned?: boolean | null;
+  // Pillar 6: Smart-money 4-filer 13F overlap directional score.
+  // Positive = funds AGREE with displayed direction (long L + put S).
+  // Negative = funds DISAGREE — they're long the SHORT leg or put the LONG leg.
+  // reverse_recommended fires when score < -0.5.
+  smart_money_score?: number | null;
+  smart_money_pro_count?: number | null;
+  smart_money_con_count?: number | null;
+  smart_money_pro_funds?: string[] | null;
+  smart_money_con_funds?: string[] | null;
+  smart_money_long_overlap?: MultiFilerOverlap | null;
+  smart_money_short_overlap?: MultiFilerOverlap | null;
+  smart_money_reverse_recommended?: boolean | null;
   // Catalyst horizon (D7)
   days_to_earnings_long?: number | null;
   days_to_earnings_short?: number | null;

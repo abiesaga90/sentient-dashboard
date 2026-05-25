@@ -23,6 +23,7 @@ export interface AgreementCells {
   analyst_long: Verdict;     // Pillar 4 — Analyst Sentiment Residual
   analyst_short: Verdict;
   carry: Verdict;            // Pillar 5 — Carry/Positioning (one cell, pair-level)
+  smart_money: Verdict;      // Pillar 6 — Smart-Money 4-filer overlap (pair-level)
 }
 
 export interface AgreementResult {
@@ -40,6 +41,7 @@ export interface AgreementResult {
   analyst_long_detail: string;
   analyst_short_detail: string;
   carry_detail: string;
+  smart_money_detail: string;
 }
 
 const POS_THRESHOLD_PCT = 5;
@@ -124,6 +126,14 @@ function carryVerdict(carryApr: number | null | undefined): Verdict {
   return "na";
 }
 
+function smartMoneyVerdict(score: number | null | undefined): Verdict {
+  // Pair-level: ±2 scale. >+0.25 backs displayed direction; <-0.25 contradicts.
+  if (score == null) return "na";
+  if (score > 0.25) return "yes";
+  if (score < -0.25) return "no";
+  return "na";
+}
+
 function fundDetail(
   h: { healthy: number; populated: number } | null,
   f: Fundamentals | undefined
@@ -195,6 +205,9 @@ export function computeAgreement(
   // Pillar 5 — Carry direction
   const carryApr = m.carry_apr_pct_1x;
 
+  // Pillar 6 — Smart-money 4-filer agreement
+  const smScore = m.smart_money_score;
+
   const cells: AgreementCells = {
     fund_long: verdictFromHealth(lH, "long"),
     fund_short: verdictFromHealth(sH, "short"),
@@ -213,6 +226,7 @@ export function computeAgreement(
         ? analystVerdict(aS, "short")
         : analystVerdict(aS, "short"),
     carry: carryVerdict(carryApr),
+    smart_money: smartMoneyVerdict(smScore),
   };
 
   const all: Verdict[] = Object.values(cells);
@@ -240,16 +254,28 @@ export function computeAgreement(
             ? ` · funding-z spread ${m.funding_crowding_spread_z >= 0 ? "+" : ""}${m.funding_crowding_spread_z.toFixed(2)}`
             : "")
         : "—",
+    smart_money_detail: (() => {
+      if (smScore == null) return "—";
+      const pro = m.smart_money_pro_count ?? 0;
+      const con = m.smart_money_con_count ?? 0;
+      const proFunds = (m.smart_money_pro_funds ?? []).join(", ");
+      const conFunds = (m.smart_money_con_funds ?? []).join(", ");
+      const sign = smScore >= 0 ? "+" : "";
+      return `score ${sign}${smScore.toFixed(2)} · pro ${pro}` +
+        (proFunds ? ` (${proFunds})` : "") +
+        ` · con ${con}` +
+        (conFunds ? ` (${conFunds})` : "");
+    })(),
   };
 }
 
-// Lightweight summary chip class — thresholds scaled for 9-cell voter
-// (5 pillars × 2 legs minus 1 because carry is pair-level → 9 cells).
+// Lightweight summary chip class — thresholds scaled for 10-cell voter
+// (4 fundamental pillars × 2 legs + carry pair-level + smart-money pair-level = 10).
 export function agreementChipClass(net: number, decided: number): string {
   if (decided === 0) return "border-gray-700 bg-gray-900/40 text-gray-400";
-  if (net >= 5) return "border-emerald-500 bg-emerald-950/70 text-emerald-200 font-bold";
+  if (net >= 6) return "border-emerald-500 bg-emerald-950/70 text-emerald-200 font-bold";
   if (net >= 2) return "border-emerald-700 bg-emerald-950/40 text-emerald-300";
-  if (net <= -5) return "border-red-500 bg-red-950/70 text-red-200 font-bold";
+  if (net <= -6) return "border-red-500 bg-red-950/70 text-red-200 font-bold";
   if (net <= -2) return "border-amber-700 bg-amber-950/40 text-amber-300";
   return "border-gray-700 bg-gray-900/40 text-gray-400";
 }
@@ -338,17 +364,20 @@ export function DirectionAgreementPanel({ p, longRow, shortRow }: PanelProps) {
           <span
             className="ml-2 text-[10px] text-gray-600"
             title={
-              "Five orthogonal pillars vote on whether the displayed direction is supported.\n\n" +
+              "Six orthogonal pillars vote on whether the displayed direction is supported.\n\n" +
               "1. Earnings Quality (TTM, stripped of valuation)\n" +
               "2. Earnings Momentum (rating revisions + forward EPS growth)\n" +
               "3. Forward Valuation (sector-relative Fwd P/E + PEG + EV/EBITDA)\n" +
               "4. Analyst Sentiment Residual (price-target gap minus valuation-explained component)\n" +
-              "5. Carry direction (funding_short − funding_long)\n\n" +
-              "Pillars 1-4 vote per leg (2 cells each); Pillar 5 is pair-level (1 cell). " +
-              "5/5 pillar agreement = genuine confluence, not collinear noise."
+              "5. Carry direction (funding_short − funding_long)\n" +
+              "6. Smart-Money 4-filer overlap (SAA + Atreides + Tiger + Coatue)\n\n" +
+              "Pillars 1-4 vote per leg (2 cells each); Pillars 5-6 are pair-level (1 cell each). " +
+              "Smart-money carries extra weight in the composite — when score < -0.5, " +
+              "a ⇄ REVERSE flag fires to surface that institutional consensus contradicts " +
+              "the displayed direction."
             }
           >
-            (5-pillar orthogonal voter)
+            (6-pillar orthogonal voter)
           </span>
         </div>
         <span
@@ -444,6 +473,23 @@ export function DirectionAgreementPanel({ p, longRow, shortRow }: PanelProps) {
             <td className="py-1" colSpan={2}>
               <VerdictMark v={carryCell} />{" "}
               <span className="text-gray-500">{a.carry_detail}</span>
+            </td>
+          </tr>
+          <tr className="border-t border-slate-800/50">
+            <td className="py-1 pl-1 text-gray-400" title="Pair-level: 4-filer 13F overlap directional score. +2 = all 4 funds align with the displayed direction. -2 = all 4 contradict. Reverse-recommended fires below -0.5.">
+              Smart-Money
+              <span className="ml-1 text-[9px] text-gray-600 not-italic">
+                SAA + Atreides + Tiger + Coatue
+              </span>
+            </td>
+            <td className="py-1" colSpan={2}>
+              <VerdictMark v={a.cells.smart_money} />{" "}
+              <span className="text-gray-500">{a.smart_money_detail}</span>
+              {p.metrics.smart_money_reverse_recommended && (
+                <span className="ml-2 inline-flex items-center px-1.5 py-0.5 rounded border border-amber-500 bg-amber-950/70 text-amber-200 text-[9px] font-bold">
+                  ⇄ REVERSE
+                </span>
+              )}
             </td>
           </tr>
         </tbody>

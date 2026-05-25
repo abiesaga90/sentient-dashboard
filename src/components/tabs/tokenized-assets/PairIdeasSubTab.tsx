@@ -312,6 +312,13 @@ function TopPickHero({
   } else if (fvg != null && fvg > 0.5) {
     reasons.push(`Forward Valuation favours (gap +${fvg.toFixed(2)})`);
   }
+  if (m.smart_money_reverse_recommended) {
+    const pro = m.smart_money_pro_count ?? 0;
+    const con = m.smart_money_con_count ?? 0;
+    reasons.push(`⇄ Smart-money says REVERSE (pro ${pro} / con ${con})`);
+  } else if (m.smart_money_score != null && m.smart_money_score > 0.5) {
+    reasons.push(`smart-money confirms (${m.smart_money_pro_count ?? 0}/4)`);
+  }
   if (ccb.state === "conflict") {
     reasons.push("carry-conviction conflict — see Sharpe split");
   }
@@ -344,6 +351,23 @@ function TopPickHero({
                 C{m.carry_direction != null ? (m.carry_direction > 0 ? "↑" : "↓") : "?"}
                 {" "}V{m.conviction_direction != null ? (m.conviction_direction > 0 ? "↑" : "↓") : "?"}
               </span>
+            </span>
+          )}
+          {m.smart_money_reverse_recommended && (
+            <span
+              title={
+                `⇄ Smart-money REVERSE recommended.\n\n` +
+                `Score: ${m.smart_money_score?.toFixed(2) ?? "—"}\n` +
+                `Funds pro displayed direction: ${m.smart_money_pro_count ?? 0}` +
+                ((m.smart_money_pro_funds ?? []).length > 0 ? ` (${(m.smart_money_pro_funds ?? []).join(", ")})` : "") + "\n" +
+                `Funds against (would prefer inverse): ${m.smart_money_con_count ?? 0}` +
+                ((m.smart_money_con_funds ?? []).length > 0 ? ` (${(m.smart_money_con_funds ?? []).join(", ")})` : "") +
+                `\n\nThe 4-filer 13F overlay (SAA + Atreides + Tiger Global + Coatue) ` +
+                `disagrees with the displayed direction. Consider trading the inverse pair.`
+              }
+              className="inline-flex items-center px-2 py-0.5 rounded-md border border-amber-400 bg-amber-950/70 text-amber-100 text-[10px] font-bold"
+            >
+              ⇄ Smart-money says REVERSE
             </span>
           )}
         </div>
@@ -709,6 +733,23 @@ function PairRow({
               </span>
             );
           })()}
+          {m.smart_money_reverse_recommended && (
+            <span
+              title={
+                `⇄ Smart-money REVERSE recommended.\n\n` +
+                `Score: ${m.smart_money_score?.toFixed(2) ?? "—"}\n` +
+                `Funds pro displayed direction: ${m.smart_money_pro_count ?? 0}` +
+                ((m.smart_money_pro_funds ?? []).length > 0 ? ` (${(m.smart_money_pro_funds ?? []).join(", ")})` : "") + "\n" +
+                `Funds against (would prefer inverse): ${m.smart_money_con_count ?? 0}` +
+                ((m.smart_money_con_funds ?? []).length > 0 ? ` (${(m.smart_money_con_funds ?? []).join(", ")})` : "") +
+                `\n\nThe 4-filer 13F overlay disagrees with the displayed direction. ` +
+                `Consider trading the inverse pair.`
+              }
+              className="inline-flex items-center px-2 py-0.5 rounded-md border border-amber-400 bg-amber-950/70 text-amber-100 text-[10px] font-bold"
+            >
+              ⇄ Smart-money says REVERSE
+            </span>
+          )}
           {(() => {
             // Smart-money 4-filer overlap chip. Fires when EITHER:
             //   - long leg has ≥2 funds long (alignment with the trade direction), OR
@@ -1113,19 +1154,25 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
   const sortVal = (p: PairIdea): number => {
     const m = p.metrics;
     if (sortBy === "five_pillar") {
-      // Citadel-style 5-pillar composite. Equal-weight prior 1/5 each on
-      // quality_score, momentum_gap, forward_val_gap, analyst residual/10,
-      // and carry_sharpe. Higher = stronger confluence in the displayed
-      // direction. Missing pillars contribute 0 — pairs with more populated
-      // pillars naturally rank higher.
-      const q = m.quality_score ?? 0;
-      const mg = m.momentum_gap ?? 0;
-      const fvg = m.forward_val_gap ?? 0;
-      const ar = (m.analyst_sentiment_residual ?? 0) / 10;
-      const cs = m.carry_sharpe ?? 0;
-      // Scale carry_sharpe up to match the [-2, +2] range of the other pillars
-      const csScaled = Math.max(-2, Math.min(2, cs * 2));
-      return q * 0.2 + mg * 0.2 + fvg * 0.2 + ar * 0.2 + csScaled * 0.2;
+      // Citadel-style 6-pillar composite. Smart-money carries 25% weight;
+      // the other 5 pillars split 75% equally at 15% each. All pillar terms
+      // clamped to ±2 so weights mean what they say. Smart-money pillar:
+      //   - score ±2 reflects directional agreement of 4 funds with the
+      //     displayed pair direction
+      //   - reverse_recommended adds an explicit -0.5 penalty so a strong
+      //     institutional contradiction can overwhelm a high-quant pair
+      const clamp = (v: number) => Math.max(-2, Math.min(2, v));
+      const q = clamp(m.quality_score ?? 0);
+      const mg = clamp(m.momentum_gap ?? 0);
+      const fvg = clamp(m.forward_val_gap ?? 0);
+      const ar = clamp((m.analyst_sentiment_residual ?? 0) / 10);
+      const cs = clamp((m.carry_sharpe ?? 0) * 2);
+      const sm = clamp(m.smart_money_score ?? 0);
+      const reversePenalty = m.smart_money_reverse_recommended ? -0.5 : 0;
+      return (
+        q * 0.15 + mg * 0.15 + fvg * 0.15 + ar * 0.15 + cs * 0.15
+        + sm * 0.25 + reversePenalty
+      );
     }
     if (sortBy === "forward_val_gap") {
       // Cheap-long first
@@ -1233,7 +1280,7 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
     .sort((a, b) => sortVal(b) - sortVal(a));
   const topPick = combinedTop[0] ?? null;
   const sortLabelMap: Record<string, string> = {
-    five_pillar: "5-pillar composite",
+    five_pillar: "6-pillar composite",
     forward_val_gap: "Forward Val gap",
     momentum_gap: "Momentum gap",
     confluence: "Confluence",
@@ -1415,7 +1462,7 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
             onChange={(e) => setSortBy(e.target.value as SortKey)}
             className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-gray-200"
           >
-            <option value="five_pillar">5-pillar composite ★</option>
+            <option value="five_pillar">6-pillar composite ★</option>
             <option value="forward_val_gap">Forward Val gap (cheap-long ranked)</option>
             <option value="momentum_gap">Momentum gap</option>
             <option value="confluence">Confluence (5/5 pillar agreement)</option>
