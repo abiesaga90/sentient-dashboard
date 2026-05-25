@@ -817,146 +817,87 @@ function PairRow({
               )}
             </span>
           )}
-          <span className="text-sm font-medium">
+          <span className="text-base font-semibold">
             <span className="text-emerald-400">L</span>{" "}
-            <span className="font-mono text-gray-100">
+            <span className="font-mono text-gray-50">
               {p.long_symbol.replace("USDT", "")}
             </span>{" "}
-            <span className="text-gray-500">({p.long_label})</span>{" "}
+            <span className="text-gray-500 text-sm">({p.long_label})</span>{" "}
             <span className="text-gray-600">vs</span>{" "}
             <span className="text-red-400">S</span>{" "}
-            <span className="font-mono text-gray-100">
+            <span className="font-mono text-gray-50">
               {p.short_symbol.replace("USDT", "")}
             </span>{" "}
-            <span className="text-gray-500">({p.short_label})</span>
+            <span className="text-gray-500 text-sm">({p.short_label})</span>
           </span>
-        </div>
-        <div className="flex items-center gap-3 text-xs font-mono">
-          <span className={sharpeColor(m.sharpe)}>
-            Sharpe {fmtNum(m.sharpe, 2)}
-          </span>
-          {(m.carry_sharpe != null || m.spread_sharpe != null) && (() => {
-            const cs = m.carry_sharpe ?? null;
-            const ss = m.spread_sharpe ?? null;
-            // Highlight conflict in red when the two have opposite signs
-            const conflict =
-              cs != null && ss != null && cs !== 0 && ss !== 0 && Math.sign(cs) !== Math.sign(ss);
-            const cls = conflict
-              ? "text-red-300"
-              : "text-gray-500";
-            return (
-              <span
-                className={`text-[10px] ${cls}`}
-                title={
-                  `Sharpe split (Citadel decomposition):\n` +
-                  `  carry-Sharpe  = ${cs?.toFixed(2) ?? "—"} (funding APR / spread vol — sign of displayed direction)\n` +
-                  `  spread-Sharpe = ${ss?.toFixed(2) ?? "—"} (mean-reversion alpha at zero funding, from z/HL × √252)\n\n` +
-                  (conflict
-                    ? "⚠ Carry and mean-reversion alphas point in OPPOSITE directions. " +
-                      "Carry wants you to hold the displayed direction; spread wants the inverse."
-                    : "Both alpha sources point in the same direction (or one is null).")
-                }
-              >
-                (c {cs != null ? `${cs >= 0 ? "+" : ""}${cs.toFixed(2)}` : "—"}
-                {" + s "}
-                {ss != null ? `${ss >= 0 ? "+" : ""}${ss.toFixed(2)}` : "—"})
-              </span>
-            );
-          })()}
-          {m.sharpe_beta_neutral != null && (
-            <span
-              className={`${sharpeColor(m.sharpe_beta_neutral)} text-[11px]`}
-              title="β-hedged Sharpe: position L 1 unit / S h* units (OLS hedge ratio). Net market beta = 0."
-            >
-              β-Sharpe {m.sharpe_beta_neutral.toFixed(2)}
-            </span>
-          )}
         </div>
       </div>
-      {p.long_subsector && p.short_subsector && (
-        <div className="text-[10px] text-gray-500 mt-1 font-mono flex items-center gap-3">
-          <span>{p.long_subsector} ↔ {p.short_subsector}</span>
+      {(p.long_subsector || p.short_subsector || m.beta_hedge_ratio != null || corrPort != null || m.sharpe_beta_neutral != null) && (
+        <div className="text-[11px] text-gray-500 mt-1 font-mono flex items-center gap-3 flex-wrap">
+          {p.long_subsector && p.short_subsector && (
+            <span>{p.long_subsector} ↔ {p.short_subsector}</span>
+          )}
+          {m.beta_hedge_ratio != null && (
+            <span className="text-gray-600">· h* {m.beta_hedge_ratio.toFixed(2)} (β-hedge)</span>
+          )}
           {corrPort != null && (
             <span className="text-gray-600">
               · corr-to-portfolio {corrPort >= 0 ? "+" : ""}{corrPort.toFixed(2)}
             </span>
           )}
-          {m.beta_hedge_ratio != null && (
-            <span className="text-gray-600">
-              · h* {m.beta_hedge_ratio.toFixed(2)} (β-hedge ratio)
+          {m.sharpe_beta_neutral != null && (
+            <span
+              className={`${sharpeColor(m.sharpe_beta_neutral)}`}
+              title="β-hedged Sharpe: position L 1 unit / S h* units (OLS hedge ratio). Net market beta = 0."
+            >
+              · β-Sharpe {m.sharpe_beta_neutral.toFixed(2)}
             </span>
           )}
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-8 gap-2 mt-2 text-xs">
+      {/* Hero-style 5-column metric grid. Aligned with the TopPick hero card
+          so every pair row has the same visual hierarchy. The denser
+          analytics (Idio corr / Val gap P/E / Analyst upside / Momentum)
+          live in the expandable Direction Agreement panel below. */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2">
         <div>
-          <div className="text-[10px] text-gray-500">Carry @ 2x lev</div>
-          <div className={`font-mono ${carryColor(m.carry_apr_pct_2x)}`}>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Sharpe</div>
+          <div className={`font-mono text-xl ${sharpeColor(m.sharpe)}`}>
+            {fmtNum(m.sharpe, 2)}
+          </div>
+          {(m.carry_sharpe != null || m.spread_sharpe != null) && (() => {
+            const cs = m.carry_sharpe ?? null;
+            const ss = m.spread_sharpe ?? null;
+            const conflict =
+              cs != null && ss != null && cs !== 0 && ss !== 0 && Math.sign(cs) !== Math.sign(ss);
+            const cls = conflict ? "text-red-300" : "text-gray-600";
+            return (
+              <div
+                className={`text-[10px] font-mono ${cls}`}
+                title={
+                  `Sharpe split (Citadel decomposition):\n` +
+                  `  carry-Sharpe  = ${cs?.toFixed(2) ?? "—"} (funding APR / spread vol — sign of displayed direction)\n` +
+                  `  spread-Sharpe = ${ss?.toFixed(2) ?? "—"} (mean-reversion alpha at zero funding, from z/HL × √252)\n\n` +
+                  (conflict
+                    ? "⚠ Carry and mean-reversion alphas point in OPPOSITE directions."
+                    : "Both alpha sources point in the same direction (or one is null).")
+                }
+              >
+                c {cs != null ? `${cs >= 0 ? "+" : ""}${cs.toFixed(2)}` : "—"}
+                {" + s "}
+                {ss != null ? `${ss >= 0 ? "+" : ""}${ss.toFixed(2)}` : "—"}
+              </div>
+            );
+          })()}
+        </div>
+        <div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Carry @ 2x</div>
+          <div className={`font-mono text-xl ${carryColor(m.carry_apr_pct_2x)}`}>
             {fmtPct(m.carry_apr_pct_2x, 1)}
           </div>
-          <div className="text-[10px] text-gray-600">1x: {fmtPct(m.carry_apr_pct_1x, 1)}</div>
-        </div>
-        <div title={`@2x lev: ${m.spread_vol_daily_pct_2x?.toFixed(2) ?? "—"}%/d · ${m.spread_vol_ann_pct_2x?.toFixed(1) ?? "—"}%/y\n\nvs-book ratio = pair daily vol / live portfolio daily vol. Higher = pair would dominate book vol at full notional; lower = quiet addition.`}>
-          <div className="text-[10px] text-gray-500">Spread vol (1x)</div>
-          <div className="font-mono">
-            {m.spread_vol_daily_pct_1x != null ? `${m.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
-          </div>
-          <div className="text-[10px] text-gray-600">
-            {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(0)}%/y` : "—"}
-            {portfolioVol != null && portfolioVol > 0 && m.spread_vol_daily_pct_1x != null && (
-              <>
-                {" · "}
-                <span className="text-gray-500">
-                  {(m.spread_vol_daily_pct_1x / portfolioVol).toFixed(1)}× book
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-        <div
-          title={
-            `Raw 6m Pearson: ${m.correlation_weekday?.toFixed(2) ?? "—"}\n` +
-            `EWMA 60d half-life:    ${m.correlation_ewma?.toFixed(2) ?? "—"}\n` +
-            `Spearman (rank):       ${m.correlation_spearman?.toFixed(2) ?? "—"}\n` +
-            `Residual vs SPY beta:  ${m.correlation_residual_spy?.toFixed(2) ?? "—"}`
-          }
-        >
-          <div className="text-[10px] text-gray-500">Idiosync. corr</div>
-          <div className={`font-mono ${corrColor(m.correlation_residual_spy ?? m.correlation_weekday)}`}>
-            {(m.correlation_residual_spy ?? m.correlation_weekday)?.toFixed(2) ?? "—"}
-          </div>
-          <div className="text-[10px] text-gray-600">
-            raw {m.correlation_weekday?.toFixed(2) ?? "—"}
-          </div>
-        </div>
-        <div>
-          <div className="text-[10px] text-gray-500">Funding L / S</div>
-          <div className="font-mono text-[10px] text-red-300">
-            L: {fmtPct(m.funding_long_apr_pct, 1)}
-          </div>
-          <div className="font-mono text-[10px] text-emerald-300">
-            S: {fmtPct(m.funding_short_apr_pct, 1)}
-          </div>
-        </div>
-        <div title={m.valuation_gap_basis ? `Basis: ${m.valuation_gap_basis}` : undefined}>
-          <div className="text-[10px] text-gray-500">
-            Val. gap {m.valuation_gap_basis === "price_to_sales" ? "(P/S)" : m.valuation_gap_basis === "premium_to_spot" ? "(prem)" : "(P/E)"}
-          </div>
-          <div className="font-mono text-gray-300">
-            {m.valuation_gap_pct != null ? fmtPct(m.valuation_gap_pct, 1) : "—"}
-          </div>
-          <div className="text-[10px] text-gray-600">30d drift {fmtPct(m.drift_30d_pct, 1)}</div>
-        </div>
-        <div title="Analyst price-target upside (Finnhub mean target / current mark)">
-          <div className="text-[10px] text-gray-500">Analyst upside L − S</div>
-          <div className={`font-mono ${m.analyst_upside_gap_pct != null && m.analyst_upside_gap_pct > 0 ? "text-emerald-300" : m.analyst_upside_gap_pct != null && m.analyst_upside_gap_pct < 0 ? "text-red-300" : "text-gray-500"}`}>
-            {m.analyst_upside_gap_pct != null ? fmtPct(m.analyst_upside_gap_pct, 1) : "—"}
-          </div>
-          <div className="text-[10px] text-gray-600">
-            {m.analyst_sentiment_residual != null
-              ? `residual ${m.analyst_sentiment_residual >= 0 ? "+" : ""}${m.analyst_sentiment_residual.toFixed(1)}%`
-              : `L ${m.analyst_upside_long_pct != null ? `${m.analyst_upside_long_pct.toFixed(0)}%` : "—"} / S ${m.analyst_upside_short_pct != null ? `${m.analyst_upside_short_pct.toFixed(0)}%` : "—"}`}
+          <div className="text-[10px] text-gray-600 font-mono">
+            1x {fmtPct(m.carry_apr_pct_1x, 1)}
           </div>
         </div>
         <div
@@ -965,58 +906,90 @@ function PairRow({
             const sc = m.forward_val_short_components ?? null;
             const lFpe = lc && typeof lc["forward_pe"] === "number" ? (lc["forward_pe"] as number).toFixed(1) : "—";
             const sFpe = sc && typeof sc["forward_pe"] === "number" ? (sc["forward_pe"] as number).toFixed(1) : "—";
-            const lPeg = lc && typeof lc["peg_ratio"] === "number" ? (lc["peg_ratio"] as number).toFixed(2) : "—";
-            const sPeg = sc && typeof sc["peg_ratio"] === "number" ? (sc["peg_ratio"] as number).toFixed(2) : "—";
-            const lEv = lc && typeof lc["ev_to_ebitda"] === "number" ? (lc["ev_to_ebitda"] as number).toFixed(1) : "—";
-            const sEv = sc && typeof sc["ev_to_ebitda"] === "number" ? (sc["ev_to_ebitda"] as number).toFixed(1) : "—";
             return (
               `Forward Valuation Gap (Pillar 3) = score(L) − score(S).\n` +
               `Positive ⇒ long is CHEAPER than short on forward earnings.\n\n` +
-              `                Long          Short\n` +
-              `  Fwd P/E       ${lFpe.padStart(6)}        ${sFpe}\n` +
-              `  PEG           ${lPeg.padStart(6)}        ${sPeg}\n` +
-              `  EV/EBITDA     ${lEv.padStart(6)}        ${sEv}\n` +
-              `  Score         ${m.forward_val_long_score?.toFixed(2) ?? "—"}          ${m.forward_val_short_score?.toFixed(2) ?? "—"}\n\n` +
-              `Major positioning driver — sector-relative z-scores on Fwd P/E (50%) + PEG (30%) + EV/EBITDA (20%).`
+              `  L Fwd P/E: ${lFpe}   S Fwd P/E: ${sFpe}\n` +
+              `  L score:   ${m.forward_val_long_score?.toFixed(2) ?? "—"}   S score: ${m.forward_val_short_score?.toFixed(2) ?? "—"}`
             );
           })()}
         >
-          <div className="text-[10px] text-gray-500">Fwd Val gap (L − S)</div>
-          <div className={`font-mono ${m.forward_val_gap != null && m.forward_val_gap > 0.15 ? "text-emerald-300" : m.forward_val_gap != null && m.forward_val_gap < -0.15 ? "text-red-300" : "text-gray-400"}`}>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Fwd Val gap</div>
+          <div className={`font-mono text-xl ${m.forward_val_gap != null && m.forward_val_gap > 0.15 ? "text-emerald-300" : m.forward_val_gap != null && m.forward_val_gap < -0.15 ? "text-red-300" : "text-gray-400"}`}>
             {m.forward_val_gap != null ? `${m.forward_val_gap >= 0 ? "+" : ""}${m.forward_val_gap.toFixed(2)}` : "—"}
           </div>
-          <div className="text-[10px] text-gray-600">
+          <div className="text-[10px] text-gray-600 font-mono">
             {m.forward_val_long_score != null && m.forward_val_short_score != null
               ? `L ${m.forward_val_long_score.toFixed(1)} / S ${m.forward_val_short_score.toFixed(1)}`
               : "Pillar 3"}
           </div>
         </div>
-        <div
-          title={(() => {
-            const lc = m.momentum_long_components ?? null;
-            const sc = m.momentum_short_components ?? null;
-            const lRate = lc && typeof lc["rating_skew_raw"] === "number" ? (lc["rating_skew_raw"] as number).toFixed(2) : "—";
-            const sRate = sc && typeof sc["rating_skew_raw"] === "number" ? (sc["rating_skew_raw"] as number).toFixed(2) : "—";
-            const lG = lc && typeof lc["forward_eps_growth_pct"] === "number" ? `${(lc["forward_eps_growth_pct"] as number).toFixed(0)}%` : "—";
-            const sG = sc && typeof sc["forward_eps_growth_pct"] === "number" ? `${(sc["forward_eps_growth_pct"] as number).toFixed(0)}%` : "—";
-            return (
-              `Earnings Momentum Gap (Pillar 2) = score(L) − score(S).\n` +
-              `Positive ⇒ long has stronger forward-earnings momentum.\n\n` +
-              `                Long          Short\n` +
-              `  Rating skew   ${lRate.padStart(6)}        ${sRate}\n` +
-              `  Fwd EPS g     ${lG.padStart(6)}        ${sG}\n` +
-              `  Score         ${m.momentum_long_score?.toFixed(2) ?? "—"}          ${m.momentum_short_score?.toFixed(2) ?? "—"}\n\n` +
-              `Sector-relative z-scores on rating skew (60%) + forward EPS growth (40%).`
-            );
-          })()}
-        >
-          <div className="text-[10px] text-gray-500">Momentum gap</div>
-          <div className={`font-mono ${m.momentum_gap != null && m.momentum_gap > 0.15 ? "text-emerald-300" : m.momentum_gap != null && m.momentum_gap < -0.15 ? "text-red-300" : "text-gray-400"}`}>
-            {m.momentum_gap != null ? `${m.momentum_gap >= 0 ? "+" : ""}${m.momentum_gap.toFixed(2)}` : "—"}
+        <div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Funding L / S</div>
+          <div className="font-mono text-xs text-red-300">
+            L: {fmtPct(m.funding_long_apr_pct, 1)}
           </div>
-          <div className="text-[10px] text-gray-600">Pillar 2</div>
+          <div className="font-mono text-xs text-emerald-300">
+            S: {fmtPct(m.funding_short_apr_pct, 1)}
+          </div>
+          {m.funding_crowding_spread_z != null && (
+            <div className="text-[10px] text-gray-600 font-mono mt-0.5">
+              z spread {m.funding_crowding_spread_z >= 0 ? "+" : ""}{m.funding_crowding_spread_z.toFixed(2)}
+            </div>
+          )}
+        </div>
+        <div
+          title={`@2x lev: ${m.spread_vol_daily_pct_2x?.toFixed(2) ?? "—"}%/d · ${m.spread_vol_ann_pct_2x?.toFixed(1) ?? "—"}%/y\n\nvs-book ratio = pair daily vol / live portfolio daily vol.`}
+        >
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Spread vol</div>
+          <div className="font-mono text-xl text-gray-200">
+            {m.spread_vol_daily_pct_1x != null ? `${m.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
+          </div>
+          <div className="text-[10px] text-gray-600 font-mono">
+            {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(0)}%/y` : "—"}
+            {zone && (
+              <span className="ml-1 text-gray-500">· {signalZoneLabel[zone]}</span>
+            )}
+            {portfolioVol != null && portfolioVol > 0 && m.spread_vol_daily_pct_1x != null && (
+              <span className="ml-1 text-gray-500">
+                · {(m.spread_vol_daily_pct_1x / portfolioVol).toFixed(1)}× book
+              </span>
+            )}
+          </div>
         </div>
       </div>
+
+      {(() => {
+        // Compose the same "Why:" line as the TopPickHero so every pair card
+        // surfaces the headline reason at a glance. Pulls from the same
+        // pillar fields the hero uses.
+        const reasons: string[] = [];
+        if (m.carry_apr_pct_2x != null && m.carry_apr_pct_2x > 0) {
+          reasons.push(`carry +${m.carry_apr_pct_2x.toFixed(0)}% APR @ 2x`);
+        } else if (m.carry_apr_pct_2x != null) {
+          reasons.push(`carry ${m.carry_apr_pct_2x.toFixed(0)}% APR @ 2x`);
+        }
+        if (agreement.decided_count > 0) {
+          reasons.push(`${agreement.agree_count}/${agreement.decided_count} pillars agree`);
+        }
+        const fvg = m.forward_val_gap;
+        if (fvg != null && fvg < -0.5) {
+          reasons.push(`Forward Valuation dissents (gap ${fvg.toFixed(2)})`);
+        } else if (fvg != null && fvg > 0.5) {
+          reasons.push(`Forward Valuation favours (gap +${fvg.toFixed(2)})`);
+        }
+        if (m.carry_direction != null && m.conviction_direction != null
+            && m.carry_direction !== m.conviction_direction) {
+          reasons.push("carry-conviction conflict");
+        }
+        if (reasons.length === 0) return null;
+        return (
+          <div className="mt-2 text-[11px] text-gray-400 leading-snug">
+            <span className="text-gray-500 font-semibold">Why: </span>
+            {reasons.join(" · ")}.
+          </div>
+        );
+      })()}
 
       {agreement.decided_count > 0 && (
         <DirectionAgreementPanel p={p} longRow={longRow} shortRow={shortRow} />
