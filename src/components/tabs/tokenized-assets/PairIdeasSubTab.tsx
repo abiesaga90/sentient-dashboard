@@ -170,6 +170,7 @@ const BASKET_LABELS: Record<string, string> = {
   carry_optimized: "Carry-optimized",
   reverse_tilted: "Reverse-tilted (CRWV-heavy)",
   valuation_tilted: "Valuation-tilted (Fwd earnings)",
+  dual_validated: "Dual-Validated (4-filer smart-money overlap)",
 };
 
 const BASKET_DESCRIPTIONS: Record<string, string> = {
@@ -181,6 +182,8 @@ const BASKET_DESCRIPTIONS: Record<string, string> = {
     "70% CRWV / 30% SNDK long (overweights the cheaper-to-carry leg); shorts same as carry-optimized",
   valuation_tilted:
     "Long 3 cheapest-on-forward-earnings SAA names · short 5 most-expensive in universe with funding ≥ 8%. Major-driver expression of Pillar 3 (Forward Valuation).",
+  dual_validated:
+    "Longs where ≥3 of 4 tracked funds (SAA · Atreides · Tiger Global · Coatue) hold long · shorts where ≥2 of 4 hold puts AND funding ≥ 8%. Strongest cross-fund agreement basket — independent smart-money convergence.",
 };
 
 function BasketCard({ b }: { b: BasketMetrics }) {
@@ -706,6 +709,52 @@ function PairRow({
               </span>
             );
           })()}
+          {(() => {
+            // Smart-money 4-filer overlap chip. Fires when EITHER:
+            //   - long leg has ≥2 funds long (alignment with the trade direction), OR
+            //   - short leg has ≥2 funds put (alignment with the short direction)
+            // Strongest signal: BOTH conditions met simultaneously.
+            const longOv = longRow?.multi_filer_overlap;
+            const shortOv = shortRow?.multi_filer_overlap;
+            const longCount = longOv?.n_funds_long ?? 0;
+            const shortPutCount = shortOv?.n_funds_put ?? 0;
+            if (longCount < 2 && shortPutCount < 2) return null;
+            const longSide = longCount >= 3 ? "DUAL" : longCount >= 2 ? "2/4" : null;
+            const shortSide = shortPutCount >= 2 ? "DUAL" : shortPutCount >= 1 ? "1/4" : null;
+            const both = longCount >= 2 && shortPutCount >= 2;
+            const cls = both
+              ? "border-violet-400 bg-violet-950/70 text-violet-100 font-bold"
+              : "border-violet-700 bg-violet-950/40 text-violet-300";
+            const tooltip =
+              `Smart-money 4-filer overlap (SAA · Atreides · Tiger Global · Coatue).\n\n` +
+              `Long leg ${p.long_symbol.replace("USDT", "")}:\n` +
+              `  Funds long: ${longOv?.n_funds_long ?? 0} of 4` +
+              ((longOv?.funds_long?.length ?? 0) > 0 ? ` (${(longOv?.funds_long ?? []).join(", ")})` : "") + "\n" +
+              `  Funds put : ${longOv?.n_funds_put ?? 0} of 4` +
+              ((longOv?.funds_put?.length ?? 0) > 0 ? ` (${(longOv?.funds_put ?? []).join(", ")})` : "") + "\n\n" +
+              `Short leg ${p.short_symbol.replace("USDT", "")}:\n` +
+              `  Funds long: ${shortOv?.n_funds_long ?? 0} of 4` +
+              ((shortOv?.funds_long?.length ?? 0) > 0 ? ` (${(shortOv?.funds_long ?? []).join(", ")})` : "") + "\n" +
+              `  Funds put : ${shortOv?.n_funds_put ?? 0} of 4` +
+              ((shortOv?.funds_put?.length ?? 0) > 0 ? ` (${(shortOv?.funds_put ?? []).join(", ")})` : "") + "\n\n" +
+              (both
+                ? "BOTH legs are validated by ≥2 independent smart-money filers. Strongest agreement signal."
+                : longCount >= 2
+                  ? "Long leg validated. Short leg lacks fund consensus."
+                  : "Short leg validated. Long leg lacks fund consensus.");
+            return (
+              <span
+                title={tooltip}
+                className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${cls}`}
+              >
+                ✦ {both ? "Smart-money" : "Partial"}
+                <span className="ml-1 font-mono opacity-90">
+                  L{longSide ? `·${longSide}` : ""}{" "}
+                  S{shortSide ? `·${shortSide}` : ""}
+                </span>
+              </span>
+            );
+          })()}
           {m.pm_thesis_edge && m.pm_thesis_edge.max_edge_magnitude_pp >= 5 && (() => {
             const e = m.pm_thesis_edge;
             const dominant = e.dominant_basket ?? "";
@@ -1044,7 +1093,7 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
   const generic = pairs?.generic ?? [];
   const baskets = pairs?.baskets ?? {};
   const basketList = (
-    ["valuation_tilted", "saa_faithful", "carry_optimized", "reverse_tilted"] as const
+    ["dual_validated", "valuation_tilted", "saa_faithful", "carry_optimized", "reverse_tilted"] as const
   )
     .map((k) => baskets[k])
     .filter((b): b is BasketMetrics => !!b);

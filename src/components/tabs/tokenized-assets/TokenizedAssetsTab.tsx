@@ -164,6 +164,116 @@ export function TokenizedAssetsTab() {
         </Card>
       )}
 
+      {/* Smart-money 4-filer overlap panel */}
+      {data?.filers_summary && data.filers_summary.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle>Smart-money 4-filer overlap · agreement signal</CardTitle>
+              <Badge variant="info" className="text-[10px]">SAA · Atreides · Tiger Global · Coatue</Badge>
+            </div>
+          </CardHeader>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+            {data.filers_summary.map((f) => (
+              <div
+                key={f.label}
+                className="border border-violet-900/50 bg-violet-950/30 rounded-md px-2 py-1.5"
+              >
+                <div className="text-[11px] text-violet-200 font-semibold">{f.label}</div>
+                <div className="text-[10px] text-gray-400">{f.filer ?? "—"}</div>
+                <div className="text-[10px] text-gray-500 mt-0.5 font-mono">
+                  {f.period ?? "—"} · {f.n_positions ?? 0} positions
+                </div>
+                {f.total_value_usd != null && (
+                  <div className="text-[10px] text-gray-500 font-mono">
+                    AUM {fmtUsd(f.total_value_usd)}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {(() => {
+            const rows = data?.rows ?? [];
+            const dualLongs = rows
+              .filter((r) => r.multi_filer_overlap?.dual_validated_long)
+              .map((r) => ({
+                sym: r.symbol.replace("USDT", ""),
+                n: r.multi_filer_overlap?.n_funds_long ?? 0,
+                funds: r.multi_filer_overlap?.funds_long ?? [],
+              }))
+              .sort((a, b) => b.n - a.n);
+            const dualShorts = rows
+              .filter((r) => r.multi_filer_overlap?.dual_validated_short)
+              .map((r) => ({
+                sym: r.symbol.replace("USDT", ""),
+                n: r.multi_filer_overlap?.n_funds_put ?? 0,
+                funds: r.multi_filer_overlap?.funds_put ?? [],
+              }))
+              .sort((a, b) => b.n - a.n);
+            if (dualLongs.length === 0 && dualShorts.length === 0) {
+              return (
+                <div className="text-[10px] text-gray-500 italic">
+                  No tickers in our universe currently meet the dual-validation threshold (≥3 of 4 long or ≥2 of 4 put). Refresh runs every 24h.
+                </div>
+              );
+            }
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <div className="text-[10px] text-emerald-400 font-semibold uppercase mb-1">
+                    Dual-validated LONGS ({dualLongs.length})
+                  </div>
+                  <div className="text-[10px] text-gray-500 mb-1.5">
+                    ≥3 of 4 funds independently long
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {dualLongs.map((d) => (
+                      <span
+                        key={d.sym}
+                        title={`${d.n}/4 funds long: ${d.funds.join(", ")}`}
+                        className="inline-flex items-center px-2 py-0.5 rounded-md border border-emerald-700 bg-emerald-950/50 text-emerald-200 text-[11px] font-mono"
+                      >
+                        {d.sym}
+                        <span className="ml-1 text-[9px] opacity-70">{d.n}/4</span>
+                      </span>
+                    ))}
+                    {dualLongs.length === 0 && (
+                      <span className="text-[10px] text-gray-600 italic">none currently</span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-red-400 font-semibold uppercase mb-1">
+                    Dual-validated PUTS ({dualShorts.length})
+                  </div>
+                  <div className="text-[10px] text-gray-500 mb-1.5">
+                    ≥2 of 4 funds hold puts (rare; meaningful signal)
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {dualShorts.map((d) => (
+                      <span
+                        key={d.sym}
+                        title={`${d.n}/4 funds put: ${d.funds.join(", ")}`}
+                        className="inline-flex items-center px-2 py-0.5 rounded-md border border-red-700 bg-red-950/50 text-red-200 text-[11px] font-mono"
+                      >
+                        {d.sym}
+                        <span className="ml-1 text-[9px] opacity-70">{d.n}/4</span>
+                      </span>
+                    ))}
+                    {dualShorts.length === 0 && (
+                      <span className="text-[10px] text-gray-600 italic">none currently</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+          <div className="text-[10px] text-gray-500 mt-2 italic">
+            Independent smart-money convergence. Each filer reports 13F-HR quarterly with ~45-day lag. Same caveat applies: long-equity + put options only, no direct shorts visible. Use as research lens, not timing signal.
+          </div>
+        </Card>
+      )}
+
       {/* Prediction-market macro panel */}
       <MacroPanel
         cryptoBasket={data?.crypto_price_basket}

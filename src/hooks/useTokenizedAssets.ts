@@ -144,6 +144,38 @@ export interface MultiThirteenF {
   squeeze_risk: boolean;
 }
 
+// 4-filer smart-money overlap (SAA + Atreides + Tiger Global + Coatue).
+// Per-ticker agreement signal — populated on stock/ETF rows that any
+// tracked filer holds. dual_validated_long fires at ≥3 of 4 long;
+// dual_validated_short at ≥2 of 4 put (put filings are rarer).
+export interface MultiFilerOverlap {
+  ticker: string;
+  n_funds_long: number;
+  n_funds_put: number;
+  n_funds_total: number;
+  funds_long: string[];        // labels: ["SAA", "Atreides", ...]
+  funds_put: string[];
+  long_value_usd_total: number;
+  put_value_usd_total: number;
+  long_pct_aum_avg: number | null;
+  put_pct_aum_avg: number | null;
+  dual_validated_long: boolean;
+  dual_validated_short: boolean;
+}
+
+// Per-filer summary metadata (top-level filers_summary array).
+export interface FilerSummary {
+  label: string;               // "SAA", "Atreides", "Tiger Global", "Coatue"
+  filer?: string;              // full legal name
+  cik?: string;
+  period?: string;             // ISO date of filing period
+  filing_url?: string;
+  total_value_usd?: number;
+  n_positions?: number;
+  n_entries_parsed?: number;
+  n_unmapped_issuers?: number;
+}
+
 export interface AiCapabilityOverlay {
   // 0-100 capability score for AI compute / hyperscaler / semis cluster
   ai_capability_score?: number | null;
@@ -292,6 +324,7 @@ export interface TokenizedRow {
   fundamentals: Fundamentals;
   saa_position?: SaaPosition;
   multi_13f?: MultiThirteenF;
+  multi_filer_overlap?: MultiFilerOverlap;
   prediction_market_overlay?: PredictionMarketOverlay;
 }
 
@@ -511,6 +544,7 @@ export interface PairsPayload extends PortfolioContext {
     carry_optimized?: BasketMetrics;
     reverse_tilted?: BasketMetrics;
     valuation_tilted?: BasketMetrics;
+    dual_validated?: BasketMetrics;
   };
   error?: string;
 }
@@ -523,6 +557,7 @@ export interface TokenizedSnapshot {
   rows: TokenizedRow[];
   universe_size: number;
   saa_summary: SaaSummary;
+  filers_summary?: FilerSummary[];
   pairs?: PairsPayload;
   crypto_price_basket?: CryptoPriceBasketSummary;
   ai_capability_basket?: AiCapabilityBasketSummary;
