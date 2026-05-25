@@ -16,7 +16,6 @@ export function StatusBar({ dashboard, status }: StatusBarProps) {
   const rotationCountdown = nextRotation ? getCountdown(nextRotation) : null;
   const driftAction = fh?.drift_action || "HOLD";
   const driftZone = fh?.drift_zone || "green";
-  const driftUrgency = fh?.drift_urgency || "low";
 
   return (
     <div className="flex items-center gap-4 overflow-x-auto border-b border-[var(--border)] bg-[var(--bg-card)] px-4 py-2 text-xs">
@@ -42,7 +41,7 @@ export function StatusBar({ dashboard, status }: StatusBarProps) {
           </>
         )}
         {driftAction && (
-          <Badge variant={driftAction === "HOLD" ? "default" : driftUrgency === "compliance" ? "danger" : "warning"}>
+          <Badge variant={zoneVariant(driftAction, driftZone)}>
             {driftAction} {driftZone.toUpperCase()}
           </Badge>
         )}
@@ -83,6 +82,14 @@ function ComplianceDot({ ok, label }: { ok: boolean; label: string }) {
       <span className="text-gray-500">{label}</span>
     </div>
   );
+}
+
+function zoneVariant(action: string, zone: string): "default" | "success" | "warning" | "danger" {
+  if (action === "HOLD") return "default";
+  const z = zone.toLowerCase();
+  if (z === "red") return "danger";
+  if (z === "amber" || z === "yellow") return "warning";
+  return "success";
 }
 
 function getCountdown(isoString: string): string {
