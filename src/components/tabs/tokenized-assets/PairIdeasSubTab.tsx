@@ -269,6 +269,186 @@ const sectorMatchColor: Record<string, string> = {
   cross_sector: "border-gray-700 bg-gray-900/50 text-gray-400",
 };
 
+// Top-pick hero card — renders the #1 ranked pair (by current sort) at the
+// top of the tab so the operator sees the proposed trade first, without
+// scrolling past baskets/methodology/filters. Compact but visually distinct:
+// amber left-edge, larger type, decision-relevant metrics oversized, a
+// one-line "why" computed from the pair's own pillar data.
+function TopPickHero({
+  pair,
+  longRow,
+  shortRow,
+  sortLabel,
+  onScrollToFull,
+}: {
+  pair: PairIdea;
+  longRow?: TokenizedRow;
+  shortRow?: TokenizedRow;
+  sortLabel: string;
+  onScrollToFull: () => void;
+}) {
+  const m = pair.metrics;
+  const lTag = pair.long_symbol.replace("USDT", "");
+  const sTag = pair.short_symbol.replace("USDT", "");
+  const agreement = computeAgreement(pair, longRow, shortRow);
+  const ccb = carryConvictionBadge(pair);
+  const fvg = m.forward_val_gap;
+
+  // Compose a one-line "why this pair" sentence
+  const reasons: string[] = [];
+  if (m.carry_apr_pct_2x != null && m.carry_apr_pct_2x > 0) {
+    reasons.push(`carry +${m.carry_apr_pct_2x.toFixed(0)}% APR @ 2x`);
+  } else if (m.carry_apr_pct_2x != null) {
+    reasons.push(`negative carry ${m.carry_apr_pct_2x.toFixed(0)}% APR @ 2x`);
+  }
+  if (agreement.decided_count > 0) {
+    reasons.push(`${agreement.agree_count}/${agreement.decided_count} pillars agree`);
+  }
+  if (fvg != null && fvg < -0.5) {
+    reasons.push(`Forward Valuation dissents (gap ${fvg.toFixed(2)})`);
+  } else if (fvg != null && fvg > 0.5) {
+    reasons.push(`Forward Valuation favours (gap +${fvg.toFixed(2)})`);
+  }
+  if (ccb.state === "conflict") {
+    reasons.push("carry-conviction conflict — see Sharpe split");
+  }
+
+  return (
+    <div className="bg-amber-950/20 border border-amber-700/40 border-l-4 border-l-amber-500 rounded-lg p-4 shadow-sm">
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/60 text-amber-200 text-[10px] uppercase font-bold tracking-wider">
+            ★ Top Pick
+          </span>
+          <span className="text-[10px] text-amber-400/70 font-mono">
+            ranked by {sortLabel}
+          </span>
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${agreementChipClass(agreement.net_score, agreement.decided_count)}`}
+          >
+            {agreementChipLabel(agreement.agree_count, agreement.decided_count)}
+            {agreement.disagree_count > 0 && (
+              <span className="ml-1 opacity-80 font-mono">· {agreement.disagree_count}✗</span>
+            )}
+          </span>
+          {ccb.state !== "unknown" && (
+            <span
+              title={ccb.tooltip}
+              className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${ccb.badge_class}`}
+            >
+              {ccb.state === "conflict" ? "⚠ Conflict" : "✓ Aligned"}
+              <span className="ml-1 font-mono opacity-90">
+                C{m.carry_direction != null ? (m.carry_direction > 0 ? "↑" : "↓") : "?"}
+                {" "}V{m.conviction_direction != null ? (m.conviction_direction > 0 ? "↑" : "↓") : "?"}
+              </span>
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={onScrollToFull}
+          className="text-[10px] text-amber-300/70 hover:text-amber-200 underline-offset-2 hover:underline"
+        >
+          ▸ jump to full pair card
+        </button>
+      </div>
+
+      <div className="flex items-baseline gap-2 mb-1">
+        <span className="text-lg font-semibold">
+          <span className="text-emerald-400">L</span>{" "}
+          <span className="font-mono text-gray-50">{lTag}</span>{" "}
+          <span className="text-gray-500 text-sm">({pair.long_label})</span>{" "}
+          <span className="text-gray-600">vs</span>{" "}
+          <span className="text-red-400">S</span>{" "}
+          <span className="font-mono text-gray-50">{sTag}</span>{" "}
+          <span className="text-gray-500 text-sm">({pair.short_label})</span>
+        </span>
+      </div>
+
+      {(pair.long_subsector && pair.short_subsector) && (
+        <div className="text-[11px] text-gray-500 font-mono mb-3">
+          {pair.long_subsector} ↔ {pair.short_subsector}
+          {m.beta_hedge_ratio != null && (
+            <span className="ml-2 text-gray-600">· h* {m.beta_hedge_ratio.toFixed(2)}</span>
+          )}
+          {m.corr_to_portfolio != null && (
+            <span className="ml-2 text-gray-600">
+              · corr-to-portfolio {m.corr_to_portfolio >= 0 ? "+" : ""}{m.corr_to_portfolio.toFixed(2)}
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2">
+        <div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Sharpe</div>
+          <div className={`font-mono text-xl ${sharpeColor(m.sharpe)}`}>
+            {fmtNum(m.sharpe, 2)}
+          </div>
+          <div className="text-[10px] text-gray-600 font-mono">
+            c {m.carry_sharpe != null ? `${m.carry_sharpe >= 0 ? "+" : ""}${m.carry_sharpe.toFixed(2)}` : "—"}
+            {" + s "}
+            {m.spread_sharpe != null ? `${m.spread_sharpe >= 0 ? "+" : ""}${m.spread_sharpe.toFixed(2)}` : "—"}
+          </div>
+        </div>
+        <div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Carry @ 2x</div>
+          <div className={`font-mono text-xl ${carryColor(m.carry_apr_pct_2x)}`}>
+            {fmtPct(m.carry_apr_pct_2x, 1)}
+          </div>
+          <div className="text-[10px] text-gray-600 font-mono">
+            1x {fmtPct(m.carry_apr_pct_1x, 1)}
+          </div>
+        </div>
+        <div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Fwd Val gap</div>
+          <div className={`font-mono text-xl ${fvg != null && fvg > 0.15 ? "text-emerald-300" : fvg != null && fvg < -0.15 ? "text-red-300" : "text-gray-400"}`}>
+            {fvg != null ? `${fvg >= 0 ? "+" : ""}${fvg.toFixed(2)}` : "—"}
+          </div>
+          <div className="text-[10px] text-gray-600 font-mono">
+            {m.forward_val_long_score != null && m.forward_val_short_score != null
+              ? `L ${m.forward_val_long_score.toFixed(1)} / S ${m.forward_val_short_score.toFixed(1)}`
+              : "Pillar 3"}
+          </div>
+        </div>
+        <div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Funding L / S</div>
+          <div className="font-mono text-xs text-red-300">
+            L: {fmtPct(m.funding_long_apr_pct, 1)}
+          </div>
+          <div className="font-mono text-xs text-emerald-300">
+            S: {fmtPct(m.funding_short_apr_pct, 1)}
+          </div>
+          {m.funding_crowding_spread_z != null && (
+            <div className="text-[10px] text-gray-600 font-mono mt-0.5">
+              z spread {m.funding_crowding_spread_z >= 0 ? "+" : ""}{m.funding_crowding_spread_z.toFixed(2)}
+            </div>
+          )}
+        </div>
+        <div>
+          <div className="text-[10px] text-gray-500 uppercase tracking-wide">Spread vol</div>
+          <div className="font-mono text-xl text-gray-200">
+            {m.spread_vol_daily_pct_1x != null ? `${m.spread_vol_daily_pct_1x.toFixed(2)}%/d` : "—"}
+          </div>
+          <div className="text-[10px] text-gray-600 font-mono">
+            {m.spread_vol_ann_pct_1x != null ? `${m.spread_vol_ann_pct_1x.toFixed(0)}%/y` : "—"}
+            {m.signal_zone && (
+              <span className="ml-2 text-gray-500">· {signalZoneLabel[m.signal_zone]}</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {reasons.length > 0 && (
+        <div className="mt-3 text-[11px] text-amber-200/80 leading-snug">
+          <span className="text-amber-400 font-semibold">Why: </span>
+          {reasons.join(" · ")}.
+        </div>
+      )}
+    </div>
+  );
+}
+
 const sectorMatchLabel: Record<string, string> = {
   same_subsector: "Same subsector",
   same_sector: "Same sector",
@@ -372,7 +552,10 @@ function PairRow({
   const agreement = computeAgreement(p, longRow, shortRow);
 
   return (
-    <div className={`border-b border-[var(--border)] last:border-b-0 py-3 px-2 ${zonePill}`}>
+    <div
+      id={`pair-${p.long_symbol}-${p.short_symbol}`}
+      className={`border-b border-[var(--border)] last:border-b-0 py-3 px-2 ${zonePill} scroll-mt-24`}
+    >
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 flex-wrap">
           <span
@@ -1021,6 +1204,41 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
   const saaHidden = saa.length - saaShown.length;
   const genericHidden = generic.length - genericShown.length;
 
+  // Top pick = first pair after the same filter+sort applied across BOTH
+  // SAA-anchored and generic universes. SAA-anchored gets a small priority
+  // boost (matches dashboard policy bias) — if both top pairs tie, SAA wins.
+  const combinedTop: PairIdea[] = [...saaShown, ...genericShown]
+    .sort((a, b) => sortVal(b) - sortVal(a));
+  const topPick = combinedTop[0] ?? null;
+  const sortLabelMap: Record<string, string> = {
+    five_pillar: "5-pillar composite",
+    forward_val_gap: "Forward Val gap",
+    momentum_gap: "Momentum gap",
+    confluence: "Confluence",
+    carry_sharpe_only: "Carry-Sharpe",
+    spread_sharpe_only: "Spread-Sharpe",
+    rv_quality: "RV quality (corr-adj Sharpe)",
+    pm_thesis_alignment: "PM-thesis × RV quality",
+    agreement: "Most pillar agreement",
+    c_over_sigma: "Carry / vol",
+    quality_x_carry: "Quality × Carry",
+    quality: "Quality Δ",
+    sharpe_liq: "Sharpe (liq-adj)",
+    sharpe: "Sharpe (raw)",
+    carry: "Carry APR",
+    marginal_vol: "Marginal vol",
+    vol_vs_book: "Vol vs book",
+    zscore: "z-score (entry)",
+  };
+  const topPickId = topPick
+    ? `pair-${topPick.long_symbol}-${topPick.short_symbol}`
+    : null;
+  const scrollToTopPick = () => {
+    if (!topPickId) return;
+    const el = document.getElementById(topPickId);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
   if (!pairs || (saa.length === 0 && generic.length === 0 && basketList.length === 0)) {
     return (
       <div className="p-6 text-center text-xs text-gray-500">
@@ -1033,6 +1251,16 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
 
   return (
     <div className="space-y-4">
+      {topPick && (
+        <TopPickHero
+          pair={topPick}
+          longRow={rowsBySym[topPick.long_symbol]}
+          shortRow={rowsBySym[topPick.short_symbol]}
+          sortLabel={sortLabelMap[sortBy] ?? sortBy}
+          onScrollToFull={scrollToTopPick}
+        />
+      )}
+
       {pairs.metrics_note && (
         <div className="text-[10px] text-gray-500 italic px-1">
           {pairs.metrics_note} · Sharpe is leverage-invariant.
