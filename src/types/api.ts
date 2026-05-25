@@ -896,6 +896,11 @@ export interface TokenizedPairActualBlock {
   short_funding_accrued_usd: number;
   total_funding_accrued_usd: number;
   total_pnl_with_funding_usd: number;
+  // Live current funding APR per leg, position-relative sign, 756-base for
+  // tokenized (weekday-only). Distinct from the trailing-window means in
+  // long_funding_windows / short_funding_windows.
+  long_funding_rate_ann_now_pct: number | null;
+  short_funding_rate_ann_now_pct: number | null;
 }
 
 export interface TokenizedPairFundingProjection {

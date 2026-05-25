@@ -97,7 +97,7 @@ type FundingWindows = {
 
 function LegRow({
   side, symbol, qty, entry, mark, notional, target_notional, pnl, pnl_pct, funding,
-  fundingApr, fundingPerSettle, fundingWindows, vol24h, openInterest,
+  fundingApr, fundingAprNow, fundingPerSettle, fundingWindows, vol24h, openInterest,
 }: {
   side: "LONG" | "SHORT";
   symbol: string;
@@ -110,6 +110,7 @@ function LegRow({
   pnl_pct: number | null;
   funding: number | null;
   fundingApr: number | null;
+  fundingAprNow: number | null;
   fundingPerSettle: number | null;
   fundingWindows: FundingWindows;
   vol24h: number | null;
@@ -145,11 +146,24 @@ function LegRow({
         {fmtPnL(funding)}
       </td>
       <td className="px-2 py-2 text-right text-xs tabular-nums">
-        <div className={cn("font-semibold", pnlClass(fundingApr))} title="All-history weekday mean × 756 (3 settles/day × 252 weekday days). Position-relative sign.">
-          {fmtAPR(fundingApr)}
+        <div className={cn("font-semibold", pnlClass(fundingAprNow ?? fundingApr))} title="Live current funding APR — last published 8h rate × 756 (weekday-only, 3 settles/day × 252 weekday days). Position-relative sign. Falls back to all-history weekday mean for tokenized perps when Binance publishes lastFundingRate=0 between settles.">
+          {fundingAprNow != null ? (
+            <>
+              <span className="text-[9px] text-gray-500 mr-1">NOW</span>
+              {fmtAPR(fundingAprNow)}
+            </>
+          ) : (
+            fmtAPR(fundingApr)
+          )}
         </div>
         {fundingWindows && (
           <div className="text-[10px] leading-tight text-gray-500 mt-0.5 space-y-px">
+            {fundingAprNow != null && fundingApr != null && (
+              <div>
+                <span className="text-gray-600">all-time</span>{" "}
+                <span className="tabular-nums">{fmtAPR(fundingApr)}</span>
+              </div>
+            )}
             <div>
               <span className="text-gray-600">24h</span>{" "}
               <span className="tabular-nums">{fmtAPR(fundingWindows.apr_24h_756)}</span>
@@ -297,6 +311,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 notional={a.long_notional} target_notional={t?.long_notional ?? null}
                 pnl={a.long_pnl_usd} pnl_pct={a.long_pnl_pct} funding={a.long_funding_accrued_usd}
                 fundingApr={t?.long_received_funding_apr_pct ?? null}
+                fundingAprNow={a.long_funding_rate_ann_now_pct ?? null}
                 fundingPerSettle={t?.long_expected_funding_per_settle_usd ?? null}
                 fundingWindows={t?.long_funding_windows ?? null}
                 vol24h={a.long_vol_24h_usd} openInterest={a.long_open_interest_usd}
@@ -307,6 +322,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 notional={a.short_notional} target_notional={t?.short_notional ?? null}
                 pnl={a.short_pnl_usd} pnl_pct={a.short_pnl_pct} funding={a.short_funding_accrued_usd}
                 fundingApr={t?.short_received_funding_apr_pct ?? null}
+                fundingAprNow={a.short_funding_rate_ann_now_pct ?? null}
                 fundingPerSettle={t?.short_expected_funding_per_settle_usd ?? null}
                 fundingWindows={t?.short_funding_windows ?? null}
                 vol24h={a.short_vol_24h_usd} openInterest={a.short_open_interest_usd}
