@@ -70,9 +70,34 @@ function fmtBigUSD(v: number | null | undefined): string {
   return formatUSD(v, 0);
 }
 
+// 7d funding APR cell colors amber when it diverges from all-history by
+// more than ~30% relative — early warning that trailing carry is rolling
+// off (or spiking) before the exit gate fires.
+function divergedFromAllTime(
+  recent: number | null | undefined,
+  allTime: number | null | undefined,
+): boolean {
+  if (recent == null || allTime == null) return false;
+  if (Math.abs(allTime) < 1.0) return false; // tiny baselines are noisy
+  return Math.abs(recent - allTime) / Math.abs(allTime) > 0.30;
+}
+
+type FundingWindows = {
+  apr_24h_756: number | null;
+  apr_7d_756: number | null;
+  apr_all_756: number | null;
+  apr_all_1095: number | null;
+  n_weekday_24h: number | null;
+  n_weekday_7d: number | null;
+  n_weekday_all: number | null;
+  first_event_iso: string | null;
+  last_event_iso: string | null;
+  span_days: number | null;
+} | null;
+
 function LegRow({
   side, symbol, qty, entry, mark, notional, target_notional, pnl, pnl_pct, funding,
-  fundingApr, fundingPerSettle, vol24h, openInterest,
+  fundingApr, fundingPerSettle, fundingWindows, vol24h, openInterest,
 }: {
   side: "LONG" | "SHORT";
   symbol: string;
@@ -86,6 +111,7 @@ function LegRow({
   funding: number | null;
   fundingApr: number | null;
   fundingPerSettle: number | null;
+  fundingWindows: FundingWindows;
   vol24h: number | null;
   openInterest: number | null;
 }) {
@@ -118,8 +144,27 @@ function LegRow({
       <td className={cn("px-2 py-2 text-right tabular-nums text-sm", pnlClass(funding))}>
         {fmtPnL(funding)}
       </td>
-      <td className={cn("px-2 py-2 text-right tabular-nums text-xs", pnlClass(fundingApr))}>
-        {fmtAPR(fundingApr)}
+      <td className="px-2 py-2 text-right text-xs tabular-nums">
+        <div className={cn("font-semibold", pnlClass(fundingApr))} title="All-history weekday mean × 756 (3 settles/day × 252 weekday days). Position-relative sign.">
+          {fmtAPR(fundingApr)}
+        </div>
+        {fundingWindows && (
+          <div className="text-[10px] leading-tight text-gray-500 mt-0.5 space-y-px">
+            <div>
+              <span className="text-gray-600">24h</span>{" "}
+              <span className="tabular-nums">{fmtAPR(fundingWindows.apr_24h_756)}</span>
+            </div>
+            <div>
+              <span className="text-gray-600">7d</span>{" "}
+              <span className={cn("tabular-nums",
+                divergedFromAllTime(fundingWindows.apr_7d_756, fundingWindows.apr_all_756) ? "text-amber-400" : ""
+              )}>
+                {fmtAPR(fundingWindows.apr_7d_756)}
+              </span>
+            </div>
+            <div className="text-gray-600">n={fundingWindows.n_weekday_all ?? "—"}</div>
+          </div>
+        )}
       </td>
       <td className={cn("px-2 py-2 text-right tabular-nums text-xs", pnlClass(fundingPerSettle))}>
         {fmtPnL(fundingPerSettle, 3)}
@@ -253,6 +298,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 pnl={a.long_pnl_usd} pnl_pct={a.long_pnl_pct} funding={a.long_funding_accrued_usd}
                 fundingApr={t?.long_received_funding_apr_pct ?? null}
                 fundingPerSettle={t?.long_expected_funding_per_settle_usd ?? null}
+                fundingWindows={t?.long_funding_windows ?? null}
                 vol24h={a.long_vol_24h_usd} openInterest={a.long_open_interest_usd}
               />
               <LegRow
@@ -262,6 +308,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 pnl={a.short_pnl_usd} pnl_pct={a.short_pnl_pct} funding={a.short_funding_accrued_usd}
                 fundingApr={t?.short_received_funding_apr_pct ?? null}
                 fundingPerSettle={t?.short_expected_funding_per_settle_usd ?? null}
+                fundingWindows={t?.short_funding_windows ?? null}
                 vol24h={a.short_vol_24h_usd} openInterest={a.short_open_interest_usd}
               />
               <tr className="border-t border-gray-800 bg-gray-900/30 font-semibold">
@@ -292,6 +339,21 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
               </tr>
             </tbody>
           </table>
+          <div className="px-2 pt-2 pb-1 text-[10px] leading-snug text-gray-500 border-t border-gray-900 bg-gray-950/40">
+            <span className="text-gray-400 font-medium">Funding APR basis.</span>{" "}
+            Headline figure is the all-history weekday mean annualized × 756
+            (3 settles/day × 252 weekday days). Reconciles to realized cash
+            flow. Position-relative sign (long earns −funding_rate, short earns
+            +funding_rate). Sub-lines show last 24h and last 7d on the same
+            756 base; 7d turns amber when it diverges from all-time by more
+            than ~30%. {t?.long_funding_windows?.first_event_iso && (
+              <span>EWJUSDT history begins {t.long_funding_windows.first_event_iso.slice(0, 10)} (n={t.long_funding_windows.n_weekday_all ?? "—"} weekday settles).</span>
+            )}{" "}
+            The Binance API publishes APR on a × 3 × 365 = 1095 base which
+            overstates cash yield on weekday-only contracts by ~45%; we keep
+            it under <code className="text-gray-400">apr_all_1095</code> for
+            back-compat but do not use it as a headline.
+          </div>
         </div>
       ) : (
         <div className="text-sm text-gray-500 italic">

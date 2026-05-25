@@ -1306,7 +1306,11 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
         </div>
         <div>
           <span className="text-gray-400">Carry edge:</span> Funding uses full per-contract history,
-          weekday-only (Mon–Fri UTC). Spread vol from 2y yfinance underlying daily log returns
+          weekday-only (Mon–Fri UTC), annualized × 756 (3 settles/day × 252 weekday days) to
+          reconcile with realized cash flow. The Binance API publishes APR on a × 3 × 365 = 1095
+          base which overstates cash yield on weekday-only contracts by ~45%; we surface the 1095
+          number only under <code className="text-gray-400">apr_all_1095</code> for back-compat and
+          do not use it as a headline. Spread vol from 2y yfinance underlying daily log returns
           (NYSE close-to-close). 2x leverage values in tooltips. Sharpe is leverage-invariant.
         </div>
       </div>

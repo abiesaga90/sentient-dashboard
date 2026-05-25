@@ -839,6 +839,19 @@ export interface DailyPnlHistoryResponse {
 
 // ─── Tokenized Positions (permanent index/ETF pairs sleeve, 2026-05-24) ──
 
+export interface TokenizedFundingWindows {
+  apr_24h_756: number | null;
+  apr_7d_756: number | null;
+  apr_all_756: number | null;
+  apr_all_1095: number | null;
+  n_weekday_24h: number | null;
+  n_weekday_7d: number | null;
+  n_weekday_all: number | null;
+  first_event_iso: string | null;
+  last_event_iso: string | null;
+  span_days: number | null;
+}
+
 export interface TokenizedPairTargetBlock {
   long_notional: number;
   short_notional: number;
@@ -854,6 +867,8 @@ export interface TokenizedPairTargetBlock {
   short_received_funding_apr_pct: number | null;
   long_expected_funding_per_settle_usd: number | null;
   short_expected_funding_per_settle_usd: number | null;
+  long_funding_windows: TokenizedFundingWindows | null;
+  short_funding_windows: TokenizedFundingWindows | null;
 }
 
 export interface TokenizedPairActualBlock {
@@ -896,6 +911,14 @@ export interface TokenizedFundingInfo {
   is_weekend: boolean;
   settles_per_year: number;
   weekday_only_note: string;
+}
+
+export interface TokenizedFundingAprMethodology {
+  base: number;
+  base_label: string;
+  rationale: string;
+  window_definitions: Record<string, string>;
+  regime_hint: string;
 }
 
 export interface TokenizedPairCarryBlock {
@@ -946,6 +969,7 @@ export interface TokenizedPositionsResponse {
     notional_capital: number;
   };
   funding_info?: TokenizedFundingInfo;
+  funding_apr_methodology?: TokenizedFundingAprMethodology;
   health: {
     n_configured: number;
     n_active: number;
