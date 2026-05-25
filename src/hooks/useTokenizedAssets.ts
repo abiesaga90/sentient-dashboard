@@ -323,8 +323,12 @@ export interface PairMetrics {
   spread_mean_logprice?: number | null;
   spread_std_logprice?: number | null;
   signal_zone?: "enter" | "near_enter" | "neutral" | "near_avoid" | "avoid" | null;
-  // Fundamental Quality Differential (Workstream D, alpha layer)
+  // Fundamental Quality Differential (Workstream D, alpha layer).
+  // After Citadel-style pillar restructure: Pillar 1 = Earnings Quality
+  // (TTM only, stripped of valuation premium AND forward EPS growth).
+  // Those moved to Pillars 2 + 3 below for orthogonality.
   quality_score?: number | null;
+  quality_score_legacy?: number | null;        // pre-restructure 6-factor composite
   quality_score_coverage?: number;
   revenue_growth_diff_pp?: number | null;
   eps_growth_diff_pp?: number | null;
@@ -333,6 +337,32 @@ export interface PairMetrics {
   roe_diff_pp?: number | null;
   eps_estimate_growth_diff_pp?: number | null;
   valuation_premium_pp?: number | null;
+  // Pillar 2: Earnings Momentum (revisions + analyst rating trend)
+  momentum_long_score?: number | null;
+  momentum_short_score?: number | null;
+  momentum_gap?: number | null;
+  momentum_long_components?: Record<string, number | string | null> | null;
+  momentum_short_components?: Record<string, number | string | null> | null;
+  // Pillar 3: Forward Valuation (sector-relative Fwd P/E + PEG + EV/EBITDA)
+  forward_val_long_score?: number | null;
+  forward_val_short_score?: number | null;
+  forward_val_gap?: number | null;
+  forward_val_long_components?: Record<string, number | string | null> | null;
+  forward_val_short_components?: Record<string, number | string | null> | null;
+  // Pillar 4: Analyst Sentiment Residual (orthogonal to Pillar 3)
+  analyst_sentiment_residual?: number | null;
+  // Pillar 5: Carry/Positioning — funding z-scores per leg
+  funding_z_long?: number | null;
+  funding_z_short?: number | null;
+  funding_crowding_spread_z?: number | null;
+  // Sharpe split: carry = today's Sharpe; spread = mean-reversion alpha at 0 funding
+  carry_sharpe?: number | null;
+  spread_sharpe?: number | null;
+  // Carry-Conviction direction & alignment
+  carry_direction?: 1 | -1 | null;
+  conviction_direction?: 1 | -1 | null;
+  conviction_score?: number | null;
+  carry_conviction_aligned?: boolean | null;
   // Catalyst horizon (D7)
   days_to_earnings_long?: number | null;
   days_to_earnings_short?: number | null;
@@ -480,6 +510,7 @@ export interface PairsPayload extends PortfolioContext {
     saa_faithful?: BasketMetrics;
     carry_optimized?: BasketMetrics;
     reverse_tilted?: BasketMetrics;
+    valuation_tilted?: BasketMetrics;
   };
   error?: string;
 }

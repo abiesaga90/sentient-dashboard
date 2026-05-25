@@ -15,6 +15,7 @@ import {
   computeAgreement,
   agreementChipClass,
   agreementChipLabel,
+  carryConvictionBadge,
 } from "./DirectionAgreementPanel";
 
 interface Props {
@@ -168,6 +169,7 @@ const BASKET_LABELS: Record<string, string> = {
   saa_faithful: "SAA-faithful",
   carry_optimized: "Carry-optimized",
   reverse_tilted: "Reverse-tilted (CRWV-heavy)",
+  valuation_tilted: "Valuation-tilted (Fwd earnings)",
 };
 
 const BASKET_DESCRIPTIONS: Record<string, string> = {
@@ -177,6 +179,8 @@ const BASKET_DESCRIPTIONS: Record<string, string> = {
     "Same longs; shorts filtered to symbols with weekday funding ≥8% (drops INTC). Renormalized SAA weights",
   reverse_tilted:
     "70% CRWV / 30% SNDK long (overweights the cheaper-to-carry leg); shorts same as carry-optimized",
+  valuation_tilted:
+    "Long 3 cheapest-on-forward-earnings SAA names · short 5 most-expensive in universe with funding ≥ 8%. Major-driver expression of Pillar 3 (Forward Valuation).",
 };
 
 function BasketCard({ b }: { b: BasketMetrics }) {
@@ -492,12 +496,8 @@ function PairRow({
           {agreement.decided_count > 0 && (
             <span
               title={
-                `External validators (fundamentals + analyst street view) on the 4 leg-direction cells.\n\n` +
-                `Fundamentals · L ${agreement.cells.fund_long === "yes" ? "✓" : agreement.cells.fund_long === "no" ? "✗" : "—"}  ${agreement.fund_long_detail}\n` +
-                `Fundamentals · S ${agreement.cells.fund_short === "yes" ? "✓" : agreement.cells.fund_short === "no" ? "✗" : "—"}  ${agreement.fund_short_detail}\n` +
-                `Analysts · L     ${agreement.cells.analyst_long === "yes" ? "✓" : agreement.cells.analyst_long === "no" ? "✗" : "—"}  ${agreement.analyst_long_detail}\n` +
-                `Analysts · S     ${agreement.cells.analyst_short === "yes" ? "✓" : agreement.cells.analyst_short === "no" ? "✗" : "—"}  ${agreement.analyst_short_detail}\n\n` +
-                `Score = agree − disagree = ${agreement.net_score} (over ${agreement.decided_count} decided cell${agreement.decided_count === 1 ? "" : "s"}).`
+                `5-pillar orthogonal voter (Earnings Quality · Momentum · Forward Valuation · Analyst Residual · Carry).\n\n` +
+                `Score = agree − disagree = ${agreement.net_score} over ${agreement.decided_count} decided cell${agreement.decided_count === 1 ? "" : "s"}.`
               }
               className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${agreementChipClass(agreement.net_score, agreement.decided_count)}`}
             >
@@ -507,6 +507,22 @@ function PairRow({
               )}
             </span>
           )}
+          {(() => {
+            const ccb = carryConvictionBadge(p);
+            if (ccb.state === "unknown") return null;
+            return (
+              <span
+                title={ccb.tooltip}
+                className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${ccb.badge_class}`}
+              >
+                {ccb.label === "Conflict" ? "⚠ Conflict" : "✓ Aligned"}
+                <span className="ml-1 font-mono opacity-90">
+                  C{m.carry_direction != null ? (m.carry_direction > 0 ? "↑" : "↓") : "?"}
+                  {" "}V{m.conviction_direction != null ? (m.conviction_direction > 0 ? "↑" : "↓") : "?"}
+                </span>
+              </span>
+            );
+          })()}
           {m.pm_thesis_edge && m.pm_thesis_edge.max_edge_magnitude_pp >= 5 && (() => {
             const e = m.pm_thesis_edge;
             const dominant = e.dominant_basket ?? "";
@@ -587,6 +603,34 @@ function PairRow({
           <span className={sharpeColor(m.sharpe)}>
             Sharpe {fmtNum(m.sharpe, 2)}
           </span>
+          {(m.carry_sharpe != null || m.spread_sharpe != null) && (() => {
+            const cs = m.carry_sharpe ?? null;
+            const ss = m.spread_sharpe ?? null;
+            // Highlight conflict in red when the two have opposite signs
+            const conflict =
+              cs != null && ss != null && cs !== 0 && ss !== 0 && Math.sign(cs) !== Math.sign(ss);
+            const cls = conflict
+              ? "text-red-300"
+              : "text-gray-500";
+            return (
+              <span
+                className={`text-[10px] ${cls}`}
+                title={
+                  `Sharpe split (Citadel decomposition):\n` +
+                  `  carry-Sharpe  = ${cs?.toFixed(2) ?? "—"} (funding APR / spread vol — sign of displayed direction)\n` +
+                  `  spread-Sharpe = ${ss?.toFixed(2) ?? "—"} (mean-reversion alpha at zero funding, from z/HL × √252)\n\n` +
+                  (conflict
+                    ? "⚠ Carry and mean-reversion alphas point in OPPOSITE directions. " +
+                      "Carry wants you to hold the displayed direction; spread wants the inverse."
+                    : "Both alpha sources point in the same direction (or one is null).")
+                }
+              >
+                (c {cs != null ? `${cs >= 0 ? "+" : ""}${cs.toFixed(2)}` : "—"}
+                {" + s "}
+                {ss != null ? `${ss >= 0 ? "+" : ""}${ss.toFixed(2)}` : "—"})
+              </span>
+            );
+          })()}
           {m.sharpe_beta_neutral != null && (
             <span
               className={`${sharpeColor(m.sharpe_beta_neutral)} text-[11px]`}
@@ -613,7 +657,7 @@ function PairRow({
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 mt-2 text-xs">
+      <div className="grid grid-cols-2 md:grid-cols-8 gap-2 mt-2 text-xs">
         <div>
           <div className="text-[10px] text-gray-500">Carry @ 2x lev</div>
           <div className={`font-mono ${carryColor(m.carry_apr_pct_2x)}`}>
@@ -678,10 +722,67 @@ function PairRow({
             {m.analyst_upside_gap_pct != null ? fmtPct(m.analyst_upside_gap_pct, 1) : "—"}
           </div>
           <div className="text-[10px] text-gray-600">
-            L {m.analyst_upside_long_pct != null ? `${m.analyst_upside_long_pct.toFixed(0)}%` : "—"}
-            {" / S "}
-            {m.analyst_upside_short_pct != null ? `${m.analyst_upside_short_pct.toFixed(0)}%` : "—"}
+            {m.analyst_sentiment_residual != null
+              ? `residual ${m.analyst_sentiment_residual >= 0 ? "+" : ""}${m.analyst_sentiment_residual.toFixed(1)}%`
+              : `L ${m.analyst_upside_long_pct != null ? `${m.analyst_upside_long_pct.toFixed(0)}%` : "—"} / S ${m.analyst_upside_short_pct != null ? `${m.analyst_upside_short_pct.toFixed(0)}%` : "—"}`}
           </div>
+        </div>
+        <div
+          title={(() => {
+            const lc = m.forward_val_long_components ?? null;
+            const sc = m.forward_val_short_components ?? null;
+            const lFpe = lc && typeof lc["forward_pe"] === "number" ? (lc["forward_pe"] as number).toFixed(1) : "—";
+            const sFpe = sc && typeof sc["forward_pe"] === "number" ? (sc["forward_pe"] as number).toFixed(1) : "—";
+            const lPeg = lc && typeof lc["peg_ratio"] === "number" ? (lc["peg_ratio"] as number).toFixed(2) : "—";
+            const sPeg = sc && typeof sc["peg_ratio"] === "number" ? (sc["peg_ratio"] as number).toFixed(2) : "—";
+            const lEv = lc && typeof lc["ev_to_ebitda"] === "number" ? (lc["ev_to_ebitda"] as number).toFixed(1) : "—";
+            const sEv = sc && typeof sc["ev_to_ebitda"] === "number" ? (sc["ev_to_ebitda"] as number).toFixed(1) : "—";
+            return (
+              `Forward Valuation Gap (Pillar 3) = score(L) − score(S).\n` +
+              `Positive ⇒ long is CHEAPER than short on forward earnings.\n\n` +
+              `                Long          Short\n` +
+              `  Fwd P/E       ${lFpe.padStart(6)}        ${sFpe}\n` +
+              `  PEG           ${lPeg.padStart(6)}        ${sPeg}\n` +
+              `  EV/EBITDA     ${lEv.padStart(6)}        ${sEv}\n` +
+              `  Score         ${m.forward_val_long_score?.toFixed(2) ?? "—"}          ${m.forward_val_short_score?.toFixed(2) ?? "—"}\n\n` +
+              `Major positioning driver — sector-relative z-scores on Fwd P/E (50%) + PEG (30%) + EV/EBITDA (20%).`
+            );
+          })()}
+        >
+          <div className="text-[10px] text-gray-500">Fwd Val gap (L − S)</div>
+          <div className={`font-mono ${m.forward_val_gap != null && m.forward_val_gap > 0.15 ? "text-emerald-300" : m.forward_val_gap != null && m.forward_val_gap < -0.15 ? "text-red-300" : "text-gray-400"}`}>
+            {m.forward_val_gap != null ? `${m.forward_val_gap >= 0 ? "+" : ""}${m.forward_val_gap.toFixed(2)}` : "—"}
+          </div>
+          <div className="text-[10px] text-gray-600">
+            {m.forward_val_long_score != null && m.forward_val_short_score != null
+              ? `L ${m.forward_val_long_score.toFixed(1)} / S ${m.forward_val_short_score.toFixed(1)}`
+              : "Pillar 3"}
+          </div>
+        </div>
+        <div
+          title={(() => {
+            const lc = m.momentum_long_components ?? null;
+            const sc = m.momentum_short_components ?? null;
+            const lRate = lc && typeof lc["rating_skew_raw"] === "number" ? (lc["rating_skew_raw"] as number).toFixed(2) : "—";
+            const sRate = sc && typeof sc["rating_skew_raw"] === "number" ? (sc["rating_skew_raw"] as number).toFixed(2) : "—";
+            const lG = lc && typeof lc["forward_eps_growth_pct"] === "number" ? `${(lc["forward_eps_growth_pct"] as number).toFixed(0)}%` : "—";
+            const sG = sc && typeof sc["forward_eps_growth_pct"] === "number" ? `${(sc["forward_eps_growth_pct"] as number).toFixed(0)}%` : "—";
+            return (
+              `Earnings Momentum Gap (Pillar 2) = score(L) − score(S).\n` +
+              `Positive ⇒ long has stronger forward-earnings momentum.\n\n` +
+              `                Long          Short\n` +
+              `  Rating skew   ${lRate.padStart(6)}        ${sRate}\n` +
+              `  Fwd EPS g     ${lG.padStart(6)}        ${sG}\n` +
+              `  Score         ${m.momentum_long_score?.toFixed(2) ?? "—"}          ${m.momentum_short_score?.toFixed(2) ?? "—"}\n\n` +
+              `Sector-relative z-scores on rating skew (60%) + forward EPS growth (40%).`
+            );
+          })()}
+        >
+          <div className="text-[10px] text-gray-500">Momentum gap</div>
+          <div className={`font-mono ${m.momentum_gap != null && m.momentum_gap > 0.15 ? "text-emerald-300" : m.momentum_gap != null && m.momentum_gap < -0.15 ? "text-red-300" : "text-gray-400"}`}>
+            {m.momentum_gap != null ? `${m.momentum_gap >= 0 ? "+" : ""}${m.momentum_gap.toFixed(2)}` : "—"}
+          </div>
+          <div className="text-[10px] text-gray-600">Pillar 2</div>
         </div>
       </div>
 
@@ -726,21 +827,41 @@ function PairRow({
   );
 }
 
-type SortKey = "rv_quality" | "sharpe" | "carry" | "zscore" | "marginal_vol" | "quality" | "quality_x_carry" | "vol_vs_book" | "sharpe_liq" | "c_over_sigma" | "agreement" | "pm_thesis_alignment";
+type SortKey =
+  | "five_pillar"
+  | "rv_quality"
+  | "sharpe"
+  | "carry"
+  | "zscore"
+  | "marginal_vol"
+  | "quality"
+  | "quality_x_carry"
+  | "vol_vs_book"
+  | "sharpe_liq"
+  | "c_over_sigma"
+  | "agreement"
+  | "pm_thesis_alignment"
+  | "forward_val_gap"
+  | "momentum_gap"
+  | "confluence"
+  | "carry_sharpe_only"
+  | "spread_sharpe_only";
 
 export function PairIdeasSubTab({ pairs, rows }: Props) {
   const [minSharpe, setMinSharpe] = useState(0.15);
   const [minCorr, setMinCorr] = useState(0.30);
   const [showInverse, setShowInverse] = useState(false);
-  const [sortBy, setSortBy] = useState<SortKey>("rv_quality");
+  const [sortBy, setSortBy] = useState<SortKey>("five_pillar");
   const [onlyCointegrating, setOnlyCointegrating] = useState(false);
   const [hideDisagreements, setHideDisagreements] = useState(false);
+  const [onlyAligned, setOnlyAligned] = useState(false);
+  const [hideExpensiveLongs, setHideExpensiveLongs] = useState(false);
 
   const saa = pairs?.saa_anchored ?? [];
   const generic = pairs?.generic ?? [];
   const baskets = pairs?.baskets ?? {};
   const basketList = (
-    ["saa_faithful", "carry_optimized", "reverse_tilted"] as const
+    ["valuation_tilted", "saa_faithful", "carry_optimized", "reverse_tilted"] as const
   )
     .map((k) => baskets[k])
     .filter((b): b is BasketMetrics => !!b);
@@ -770,6 +891,13 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
       const a = computeAgreement(p, rowsBySym[p.long_symbol], rowsBySym[p.short_symbol]);
       if (a.disagree_count > 0) return false;
     }
+    if (onlyAligned && m.carry_conviction_aligned !== true) return false;
+    if (hideExpensiveLongs) {
+      // Drop pairs whose long leg is expensive on forward earnings
+      // (Forward Valuation Score < -0.5). Pairs with no valuation data stay.
+      const lv = m.forward_val_long_score;
+      if (lv != null && lv < -0.5) return false;
+    }
     const s = m.sharpe;
     if (s == null) return true;
     if (showInverse) return Math.abs(s) >= minSharpe;
@@ -779,6 +907,50 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
   // Sort key extractors
   const sortVal = (p: PairIdea): number => {
     const m = p.metrics;
+    if (sortBy === "five_pillar") {
+      // Citadel-style 5-pillar composite. Equal-weight prior 1/5 each on
+      // quality_score, momentum_gap, forward_val_gap, analyst residual/10,
+      // and carry_sharpe. Higher = stronger confluence in the displayed
+      // direction. Missing pillars contribute 0 — pairs with more populated
+      // pillars naturally rank higher.
+      const q = m.quality_score ?? 0;
+      const mg = m.momentum_gap ?? 0;
+      const fvg = m.forward_val_gap ?? 0;
+      const ar = (m.analyst_sentiment_residual ?? 0) / 10;
+      const cs = m.carry_sharpe ?? 0;
+      // Scale carry_sharpe up to match the [-2, +2] range of the other pillars
+      const csScaled = Math.max(-2, Math.min(2, cs * 2));
+      return q * 0.2 + mg * 0.2 + fvg * 0.2 + ar * 0.2 + csScaled * 0.2;
+    }
+    if (sortBy === "forward_val_gap") {
+      // Cheap-long first
+      return m.forward_val_gap ?? -1e9;
+    }
+    if (sortBy === "momentum_gap") {
+      return m.momentum_gap ?? -1e9;
+    }
+    if (sortBy === "confluence") {
+      // Product of pillar votes — rewards pairs where all 5 pillars agree.
+      // We approximate "vote signs" by the signs of the pillar gaps. Pairs
+      // with a missing pillar get a 0.5 multiplier on that term (mild penalty,
+      // not exclusion) so partially-covered pairs still rank.
+      const sign = (x: number | null | undefined) => (x == null ? 0.5 : Math.sign(x) || 0.5);
+      const qs = sign(m.quality_score);
+      const ms = sign(m.momentum_gap);
+      const fs = sign(m.forward_val_gap);
+      const as_ = sign(m.analyst_sentiment_residual);
+      const cs = sign(m.carry_apr_pct_1x);
+      const total = qs * ms * fs * as_ * cs;
+      // Tie-break by magnitude of fwd val gap (forward valuation dominates)
+      const mag = Math.abs(m.forward_val_gap ?? 0);
+      return total * 10 + mag;
+    }
+    if (sortBy === "carry_sharpe_only") {
+      return m.carry_sharpe ?? -1e9;
+    }
+    if (sortBy === "spread_sharpe_only") {
+      return m.spread_sharpe ?? -1e9;
+    }
     if (sortBy === "rv_quality") {
       // Correlation-adjusted Sharpe — penalises low-corr pairs.
       // See rvQualityScore() above. Default sort.
@@ -953,7 +1125,7 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
           </label>
           <label
             className="flex items-center gap-1.5 cursor-pointer text-gray-500 hover:text-gray-300"
-            title="Drop any pair where fundamentals or analysts contradict the trade direction on either leg. Pairs with no validator data populated stay visible."
+            title="Drop any pair where any of the 5 pillars contradict the trade direction. Pairs with no validator data populated stay visible."
           >
             <input
               type="checkbox"
@@ -961,7 +1133,31 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
               onChange={(e) => setHideDisagreements(e.target.checked)}
               className="accent-emerald-500"
             />
-            <span>hide Fund/Analyst disagreements</span>
+            <span>hide pillar disagreements</span>
+          </label>
+          <label
+            className="flex items-center gap-1.5 cursor-pointer text-gray-500 hover:text-gray-300"
+            title="Show only pairs where carry direction AND conviction direction (sum of fundamental pillars) point the same way. These are confluence setups."
+          >
+            <input
+              type="checkbox"
+              checked={onlyAligned}
+              onChange={(e) => setOnlyAligned(e.target.checked)}
+              className="accent-emerald-500"
+            />
+            <span>carry-conviction aligned only</span>
+          </label>
+          <label
+            className="flex items-center gap-1.5 cursor-pointer text-gray-500 hover:text-gray-300"
+            title="Drop pairs whose long leg has Forward Valuation Score < -0.5 (expensive on forward earnings)."
+          >
+            <input
+              type="checkbox"
+              checked={hideExpensiveLongs}
+              onChange={(e) => setHideExpensiveLongs(e.target.checked)}
+              className="accent-amber-500"
+            />
+            <span>hide expensive longs (Fwd Val &lt; -0.5)</span>
           </label>
           <span className="text-gray-500 ml-2">Sort:</span>
           <select
@@ -969,12 +1165,18 @@ export function PairIdeasSubTab({ pairs, rows }: Props) {
             onChange={(e) => setSortBy(e.target.value as SortKey)}
             className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-gray-200"
           >
-            <option value="rv_quality">RV quality (corr-adjusted Sharpe) ★</option>
+            <option value="five_pillar">5-pillar composite ★</option>
+            <option value="forward_val_gap">Forward Val gap (cheap-long ranked)</option>
+            <option value="momentum_gap">Momentum gap</option>
+            <option value="confluence">Confluence (5/5 pillar agreement)</option>
+            <option value="carry_sharpe_only">Carry-Sharpe only</option>
+            <option value="spread_sharpe_only">Spread-Sharpe only</option>
+            <option value="rv_quality">RV quality (corr-adjusted Sharpe)</option>
             <option value="pm_thesis_alignment">PM-thesis edge × RV quality</option>
-            <option value="agreement">Most agreement (Fund + Analyst)</option>
+            <option value="agreement">Most pillar agreement</option>
             <option value="c_over_sigma">Carry / vol (carry harvest)</option>
             <option value="quality_x_carry">Quality × Carry (alpha + carry)</option>
-            <option value="quality">Quality Δ (alpha layer)</option>
+            <option value="quality">Quality Δ (Pillar 1)</option>
             <option value="sharpe_liq">Sharpe (liquidity-adjusted)</option>
             <option value="sharpe">Sharpe (1:1, raw)</option>
             <option value="carry">Carry APR</option>
