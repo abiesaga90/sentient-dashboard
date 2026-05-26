@@ -96,7 +96,8 @@ type FundingWindows = {
 } | null;
 
 function LegRow({
-  side, symbol, qty, entry, mark, notional, target_notional, pnl, pnl_pct, funding,
+  side, symbol, qty, entry, mark, notional, target_notional, pairBeta, betaAdjNotional,
+  pnl, pnl_pct, funding,
   fundingApr, fundingAprNow, fundingPerSettle, fundingWindows, vol24h, openInterest,
 }: {
   side: "LONG" | "SHORT";
@@ -106,6 +107,8 @@ function LegRow({
   mark: number | null;
   notional: number | null;
   target_notional: number | null;
+  pairBeta: number | null;
+  betaAdjNotional: number | null;
   pnl: number | null;
   pnl_pct: number | null;
   funding: number | null;
@@ -135,6 +138,18 @@ function LegRow({
       <td className="px-2 py-2 text-right tabular-nums text-xs text-gray-500">{fmtUSD(target_notional)}</td>
       <td className={cn("px-2 py-2 text-right tabular-nums text-xs", driftPct != null && Math.abs(driftPct) > 5 ? "text-amber-400" : "text-gray-500")}>
         {driftPct == null ? "—" : (driftPct >= 0 ? "+" : "") + driftPct.toFixed(1) + "%"}
+      </td>
+      <td
+        className="px-2 py-2 text-right tabular-nums text-xs text-gray-400"
+        title="Pair-relative beta. Long leg uses h* (OLS slope of long vs short returns); short leg is the reference at 1.000. β-adjusted notional = notional × β; the long and short rows should match within ~1% when the pair is sized beta-neutral."
+      >
+        {pairBeta == null ? "—" : pairBeta.toFixed(3)}
+      </td>
+      <td
+        className="px-2 py-2 text-right tabular-nums text-sm text-gray-200"
+        title="Notional × pair-relative β. Long and short should be equal in a beta-neutral pair."
+      >
+        {fmtUSD(betaAdjNotional)}
       </td>
       <td className={cn("px-2 py-2 text-right tabular-nums text-sm font-semibold", pnlClass(pnl))}>
         {fmtPnL(pnl)}
@@ -241,7 +256,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
       </div>
 
       {/* Sizing / construction */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <div className="space-y-0.5">
           <div className="text-xs text-gray-500">Pair gross (target)</div>
           <div className="text-base font-semibold text-gray-100 tabular-nums">
@@ -279,6 +294,19 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
           </div>
           <div className="text-xs text-gray-500">2x leverage</div>
         </div>
+        <div className="space-y-0.5">
+          <div className="text-xs text-gray-500" title="Realized funding cashflow accrued by this pair since the position opened. Sum of long-leg and short-leg accruals. Settles 00/08/16 UTC weekdays only.">Funding accrued</div>
+          <div className={cn("text-base font-semibold tabular-nums", a ? pnlClass(a.total_funding_accrued_usd) : "text-gray-100")}>
+            {a ? fmtPnL(a.total_funding_accrued_usd) : "—"}
+          </div>
+          {a && (
+            <div className="text-xs text-gray-500">
+              <span title="Long leg funding accrued">L {fmtPnL(a.long_funding_accrued_usd)}</span>
+              {" · "}
+              <span title="Short leg funding accrued">S {fmtPnL(a.short_funding_accrued_usd)}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Per-leg table — entry, mark, qty, notional, drift, P&L, funding */}
@@ -295,6 +323,8 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 <th className="px-2 py-2 text-right">Notional</th>
                 <th className="px-2 py-2 text-right">Target</th>
                 <th className="px-2 py-2 text-right">Drift</th>
+                <th className="px-2 py-2 text-right" title="Pair-relative β. Long leg = h*; short leg = 1.000.">β</th>
+                <th className="px-2 py-2 text-right" title="Notional × β. Should match between legs in a beta-neutral pair.">β-adj Notional</th>
                 <th className="px-2 py-2 text-right">P&L $</th>
                 <th className="px-2 py-2 text-right">P&L %</th>
                 <th className="px-2 py-2 text-right">Funding $</th>
@@ -309,6 +339,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 side="LONG" symbol={pair.long_symbol}
                 qty={a.long_qty} entry={a.long_entry_price} mark={a.long_mark_price}
                 notional={a.long_notional} target_notional={t?.long_notional ?? null}
+                pairBeta={a.long_pair_beta} betaAdjNotional={a.long_beta_adj_notional}
                 pnl={a.long_pnl_usd} pnl_pct={a.long_pnl_pct} funding={a.long_funding_accrued_usd}
                 fundingApr={t?.long_received_funding_apr_pct ?? null}
                 fundingAprNow={a.long_funding_rate_ann_now_pct ?? null}
@@ -320,6 +351,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 side="SHORT" symbol={pair.short_symbol}
                 qty={a.short_qty} entry={a.short_entry_price} mark={a.short_mark_price}
                 notional={a.short_notional} target_notional={t?.short_notional ?? null}
+                pairBeta={a.short_pair_beta} betaAdjNotional={a.short_beta_adj_notional}
                 pnl={a.short_pnl_usd} pnl_pct={a.short_pnl_pct} funding={a.short_funding_accrued_usd}
                 fundingApr={t?.short_received_funding_apr_pct ?? null}
                 fundingAprNow={a.short_funding_rate_ann_now_pct ?? null}
@@ -336,6 +368,15 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                   {t ? fmtUSD(t.pair_gross) : "—"}
                 </td>
                 <td className="px-2 py-2"></td>
+                <td className="px-2 py-2"></td>
+                <td
+                  className="px-2 py-2 text-right tabular-nums text-xs text-gray-400"
+                  title="Sum of β-adjusted notionals. With h* sizing the long-leg and short-leg β-adj notionals should match; the total ≈ 2× either leg."
+                >
+                  {a.long_beta_adj_notional != null && a.short_beta_adj_notional != null
+                    ? fmtUSD(a.long_beta_adj_notional + a.short_beta_adj_notional)
+                    : "—"}
+                </td>
                 <td className={cn("px-2 py-2 text-right tabular-nums", pnlClass(a.spread_pnl_usd))}>
                   {fmtPnL(a.spread_pnl_usd)}
                 </td>
@@ -346,7 +387,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 <td colSpan={4} className="px-2 py-2"></td>
               </tr>
               <tr className="bg-gray-900/30">
-                <td colSpan={8} className="px-2 py-2 text-right text-xs text-gray-500 uppercase">
+                <td colSpan={10} className="px-2 py-2 text-right text-xs text-gray-500 uppercase">
                   Total return (spread P&L + funding)
                 </td>
                 <td colSpan={7} className={cn("px-2 py-2 text-right tabular-nums text-base font-semibold", pnlClass(a.total_pnl_with_funding_usd))}>
