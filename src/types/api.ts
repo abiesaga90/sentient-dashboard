@@ -874,6 +874,13 @@ export interface TokenizedPairTargetBlock {
 export interface TokenizedPairActualBlock {
   long_notional: number;
   short_notional: number;
+  // Per-leg pair-relative beta. Long leg carries h_star (OLS slope of L on S);
+  // short leg is the reference at 1.0. β-adjusted notionals should match
+  // within ~1% inside each pair when h* sizing is doing its job.
+  long_pair_beta: number | null;
+  short_pair_beta: number | null;
+  long_beta_adj_notional: number | null;
+  short_beta_adj_notional: number | null;
   long_qty: number | null;
   short_qty: number | null;
   long_entry_price: number | null;
