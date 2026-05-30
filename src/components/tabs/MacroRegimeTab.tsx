@@ -2,6 +2,7 @@ import { useState } from "react";
 import { OverviewSubTab } from "./macro-regime/OverviewSubTab";
 import { HorizonCompositesSubTab } from "./macro-regime/HorizonCompositesSubTab";
 import { ICHeatmapSubTab } from "./macro-regime/ICHeatmapSubTab";
+import { CycleSubTab } from "./macro-regime/CycleSubTab";
 import { BasketDrilldownSubTab } from "./macro-regime/BasketDrilldownSubTab";
 import { WeightAuditSubTab } from "./macro-regime/WeightAuditSubTab";
 
@@ -13,19 +14,21 @@ import { WeightAuditSubTab } from "./macro-regime/WeightAuditSubTab";
  *   Horizons          7d / 30d / 90d composites + combined shadow tilt
  *                     (Phase 1).
  *   IC Heatmap        indicator × dependent × horizon Spearman IC, color-coded.
- *   Baskets           Polymarket + Kalshi per-basket drill-down with per-leg IC
- *                     vs nav_sortino_30d (Phase 4).
+ *   Cycle             BTC cycle KPIs (MVRV / 200 WMA / Mayer / drawdown) +
+ *                     PM Market Notes + cycle zone thresholds. Absorbed from
+ *                     the retired Market Context tab.
+ *   Baskets           Polymarket + Kalshi per-basket drill-down with per-leg
+ *                     IC vs nav_sortino_30d + the Polymarket-Macro
+ *                     crypto-specific panel (Phase 4).
  *   Weights           IC-calibrated weight history + recent sign-flip / pause /
  *                     shift events (Phase 2).
- *
- * Sub-tabs are kept inside MacroRegimeTab so the existing sidebar route stays
- * intact — opening a sub-tab just swaps the body content.
  */
 
 const SUB_TABS = [
   { id: "overview", label: "Overview" },
   { id: "horizons", label: "Horizons" },
   { id: "ic", label: "IC Heatmap" },
+  { id: "cycle", label: "Cycle" },
   { id: "baskets", label: "Baskets" },
   { id: "weights", label: "Weights" },
 ] as const;
@@ -54,6 +57,7 @@ export function MacroRegimeTab() {
       {active === "overview" && <OverviewSubTab />}
       {active === "horizons" && <HorizonCompositesSubTab />}
       {active === "ic" && <ICHeatmapSubTab />}
+      {active === "cycle" && <CycleSubTab />}
       {active === "baskets" && <BasketDrilldownSubTab />}
       {active === "weights" && <WeightAuditSubTab />}
     </div>

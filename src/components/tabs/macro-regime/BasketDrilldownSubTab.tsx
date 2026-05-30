@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   LineChart,
   Line,
@@ -11,6 +12,27 @@ import { Card, CardHeader, CardTitle } from "../../ui/Card";
 import { Badge } from "../../ui/Badge";
 import { ChartContainer } from "../../shared/ChartContainer";
 import { useMacroBaskets } from "../../../hooks/useMacroRegime";
+import { useEngine } from "../../../hooks/useEngine";
+
+interface PMMacroMarket {
+  slug: string;
+  question: string;
+  yes: number | null;
+  delta_24h: number | null;
+  delta_7d: number | null;
+  volume_24h: number | null;
+  volume_total: number | null;
+  end_date: string | null;
+  ts: string | null;
+}
+
+interface PMMacroResponse {
+  markets: PMMacroMarket[];
+  count: number;
+  configured_slugs: string[];
+  refresh_minutes: number;
+  enabled: boolean;
+}
 
 /**
  * Generic per-basket drill-down. Today the four prediction-market baskets
@@ -32,7 +54,14 @@ const BASKET_LABELS: Record<string, string> = {
 };
 
 export function BasketDrilldownSubTab() {
+  const { client, engine } = useEngine();
   const { data, isLoading } = useMacroBaskets(30);
+  const { data: pmData } = useQuery<PMMacroResponse>({
+    queryKey: ["pm-macro", engine.id],
+    queryFn: () => client.get("/api/polymarket_macro"),
+    refetchInterval: 300_000,
+    staleTime: 120_000,
+  });
   const [basketKey, setBasketKey] = useState<string>("geopol");
 
   const basket = data?.[basketKey];
@@ -212,6 +241,71 @@ export function BasketDrilldownSubTab() {
             />
           </LineChart>
         </ChartContainer>
+      )}
+
+      {/* Polymarket Macro — crypto-specific markets (BTC ETF, halving, etc).
+          Migrated from MarketContextTab on 2026-05-30; observational only. */}
+      {pmData && pmData.markets.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Polymarket Macro · crypto-specific</CardTitle>
+              <div className="text-[11px] text-gray-500">
+                {pmData.count} markets · refresh {pmData.refresh_minutes}m · display only
+              </div>
+            </div>
+          </CardHeader>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-3">
+            {pmData.markets.map((m) => {
+              const yes = m.yes != null ? m.yes : 0;
+              const yesPct = (yes * 100).toFixed(yes < 0.05 || yes > 0.95 ? 2 : 1);
+              const d24 = m.delta_24h;
+              const d7 = m.delta_7d;
+              const fmtDelta = (d: number | null) => {
+                if (d == null) return "—";
+                const pp = d * 100;
+                const sign = pp >= 0 ? "+" : "";
+                return `${sign}${pp.toFixed(1)}pp`;
+              };
+              const deltaColor = (d: number | null) => {
+                if (d == null) return "text-gray-500";
+                if (Math.abs(d) < 0.01) return "text-gray-400";
+                return d > 0 ? "text-green-400" : "text-red-400";
+              };
+              return (
+                <div
+                  key={m.slug}
+                  className="rounded border border-[var(--border)] bg-[var(--bg-card)] p-3 hover:bg-[var(--bg-card-hover)] transition"
+                  title={m.slug}
+                >
+                  <div className="text-xs text-gray-300 leading-snug min-h-[2.5rem]">
+                    {m.question}
+                  </div>
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <span className="font-mono text-lg text-gray-100">{yesPct}%</span>
+                    <span className="text-[10px] text-gray-500">YES</span>
+                  </div>
+                  <div className="mt-2 flex justify-between text-[11px] font-mono">
+                    <span className={deltaColor(d24)} title="24h change in YES probability">
+                      24h {fmtDelta(d24)}
+                    </span>
+                    <span className={deltaColor(d7)} title="7d change in YES probability">
+                      7d {fmtDelta(d7)}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex justify-between text-[10px] text-gray-500">
+                    <span>vol24h ${(m.volume_24h ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                    <span>{m.end_date?.slice(0, 10) || ""}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="px-3 pb-3 text-[10px] text-gray-500">
+            Source: Polymarket Gamma API · curated macro panel · Δ in absolute YES probability points (pp).
+            Display only; not yet plumbed into composite or sizing.
+          </div>
+        </Card>
       )}
     </div>
   );

@@ -18,7 +18,6 @@ import { DailyPnlTab } from "../components/tabs/DailyPnlTab";
 import { ThesisTab } from "../components/tabs/ThesisTab";
 import { PairsTab } from "../components/tabs/PairsTab";
 import { RiskStressTab } from "../components/tabs/RiskStressTab";
-import { MarketContextTab } from "../components/tabs/MarketContextTab";
 import { PortfolioConstructionTab } from "../components/tabs/PortfolioConstructionTab";
 import { ScalingCapacityTab } from "../components/tabs/ScalingCapacityTab";
 import { RiskModelTab } from "../components/tabs/RiskModelTab";
@@ -134,8 +133,6 @@ function TabContent({
       return <RiskStressTab />;
     case "leverage-calibration":
       return <LeverageCalibrationTab />;
-    case "market-context":
-      return <MarketContextTab />;
     case "execution":
       return <ExecutionTab />;
     case "scaling":
