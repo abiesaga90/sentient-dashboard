@@ -101,19 +101,26 @@ const columns: Column<Position>[] = [
       const color =
         t > 1.10 ? "text-green-400" :
         t < 0.90 ? "text-red-400" : "text-gray-300";
+      const isTokenized = !!r.tokenized_pair_id;
       const entryTilt = r.entry_signals?.long_tilt;
       const adj = r.current_adjusted_score;
-      const tip = [
-        `Current resize tilt: ${t.toFixed(3)}`,
-        r.side === "LONG"
-          ? (entryTilt != null ? `Entry tilt: ${entryTilt.toFixed(3)}` : "Entry tilt: — (stale)")
-          : null,
-        adj != null ? `adj_score: ${adj >= 0 ? "+" : ""}${adj.toFixed(3)}` : null,
-        "weight ∝ tilt / residual_vol^0.5",
-      ].filter(Boolean).join("\n");
+      const tip = isTokenized
+        ? [
+            `pm_conviction_mult: ${t.toFixed(2)}× (pair: ${r.tokenized_pair_id})`,
+            "Applied after residual-vol share allocation, so it scales pair_gross",
+            "directly without redistributing across other tokenized pairs.",
+          ].join("\n")
+        : [
+            `Current resize tilt: ${t.toFixed(3)}`,
+            r.side === "LONG"
+              ? (entryTilt != null ? `Entry tilt: ${entryTilt.toFixed(3)}` : "Entry tilt: — (stale)")
+              : null,
+            adj != null ? `adj_score: ${adj >= 0 ? "+" : ""}${adj.toFixed(3)}` : null,
+            "weight ∝ tilt / residual_vol^0.5",
+          ].filter(Boolean).join("\n");
       return (
         <span className={`font-mono text-[11px] ${color}`} title={tip}>
-          {t.toFixed(2)}
+          {t.toFixed(2)}×
         </span>
       );
     },
