@@ -60,6 +60,10 @@ export interface Position {
   fdv_mcap_ratio?: number | null;
   current_tilt?: number | null;
   current_adjusted_score?: number | null;
+  // Tokenized positions: backend populates current_tilt from the pair's
+  // pm_conviction_mult and sets tokenized_pair_id so the dashboard can
+  // surface the operator-set conviction multiplier instead of "—".
+  tokenized_pair_id?: string | null;
   entry_signals?: {
     va_score?: number | null;
     sm_score?: number | null;
