@@ -91,6 +91,18 @@ export interface BetaAggregate {
   avg_short_beta: number | null;
   beta_ratio: number | null;
   short_basket_avg_corr: number | null;
+  // Crypto-basket vs tokenized-sleeve β decomposition. The total β-net
+  // above is whole-portfolio (crypto + tokenized); these fields break it
+  // out so the dashboard can show what each leg contributes. tokenized
+  // values use β≈1.0 approximation (tokenized perps are stocks/ETFs).
+  crypto_long_beta_notional?: number;
+  crypto_short_beta_notional?: number;
+  crypto_net_beta_usd?: number;
+  crypto_net_beta_pct_notional?: number;
+  tokenized_long_notional?: number;
+  tokenized_short_notional?: number;
+  tokenized_net_beta_usd_approx?: number;
+  tokenized_net_beta_pct_notional_approx?: number;
 }
 
 // ── Portfolio ──
