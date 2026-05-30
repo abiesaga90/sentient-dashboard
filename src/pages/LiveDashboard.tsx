@@ -23,6 +23,7 @@ import { ScalingCapacityTab } from "../components/tabs/ScalingCapacityTab";
 import { RiskModelTab } from "../components/tabs/RiskModelTab";
 import { AlphaModelTab } from "../components/tabs/AlphaModelTab";
 import { OptimizerTab } from "../components/tabs/OptimizerTab";
+import { MacroRegimeTab } from "../components/tabs/MacroRegimeTab";
 import { SizingShadowTab } from "../components/tabs/SizingShadowTab";
 import { LeverageCalibrationTab } from "../components/tabs/LeverageCalibrationTab";
 import { PDSchemeTrackerTab } from "../components/tabs/PDSchemeTrackerTab";
@@ -133,6 +134,8 @@ function TabContent({
       return <RiskStressTab />;
     case "leverage-calibration":
       return <LeverageCalibrationTab />;
+    case "macro-regime":
+      return <MacroRegimeTab />;
     case "execution":
       return <ExecutionTab />;
     case "scaling":
