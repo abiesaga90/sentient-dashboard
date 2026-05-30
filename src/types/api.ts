@@ -885,6 +885,22 @@ export interface TokenizedPairTargetBlock {
   short_expected_funding_per_settle_usd: number | null;
   long_funding_windows: TokenizedFundingWindows | null;
   short_funding_windows: TokenizedFundingWindows | null;
+  // Hedge-ratio basis. The pair-relative h* hides each leg's true market/sector
+  // beta; these expose the three candidate hedge ratios and which one is active.
+  h_star_mode?: string; // "name_on_name" | "sector_beta" | "market_beta"
+  h_star_name_on_name?: number | null;
+  h_star_sector?: number | null;
+  h_star_market?: number | null;
+  sector_etf?: string | null; // e.g. "SOXX"
+  long_beta_spy?: number | null;
+  short_beta_spy?: number | null;
+  long_beta_sector?: number | null;
+  short_beta_sector?: number | null;
+  // Joint SPY+sector regression: market loading net of sector, and vice versa.
+  long_beta_spy_joint?: number | null;
+  short_beta_spy_joint?: number | null;
+  long_beta_sector_joint?: number | null;
+  short_beta_sector_joint?: number | null;
 }
 
 export interface TokenizedPairActualBlock {
@@ -924,6 +940,14 @@ export interface TokenizedPairActualBlock {
   // long_funding_windows / short_funding_windows.
   long_funding_rate_ann_now_pct: number | null;
   short_funding_rate_ann_now_pct: number | null;
+  // Each leg's beta to SPY and to its sector ETF (2y daily underlying returns).
+  // Distinct from the pair-relative beta above — these reveal the real factor
+  // tilt the pair β column hides.
+  long_beta_spy?: number | null;
+  short_beta_spy?: number | null;
+  long_beta_sector?: number | null;
+  short_beta_sector?: number | null;
+  sector_etf?: string | null;
 }
 
 export interface TokenizedPairFundingProjection {
@@ -974,6 +998,35 @@ export interface TokenizedPairUnderlying {
   thesis: string | null;
 }
 
+// Sleeve-level factor-exposure aggregate. The pair-β basis nets to ~0 (the
+// panel's old "neutral" claim); SPY/sector betas reveal the real directional
+// tilt the sleeve carries.
+export interface TokenizedFactorOverlay {
+  enabled: boolean; // false = shadow only (current default)
+  market_instrument: string; // "SPYUSDT"
+  semis_instrument: string; // "SOXLUSDT"
+  hedge_notional_market: number; // signed; - = short the instrument
+  hedge_notional_semis: number; // signed; - = short
+  residual_before: { market: number; semis: number }; // joint-space net loading $
+  residual_after: { market: number; semis: number }; // ~0 after overlay
+  instrument_loadings: Record<string, { market: number; semis: number }>;
+  legs_measured: number;
+  legs_total: number;
+  note: string;
+}
+
+export interface TokenizedFactorExposure {
+  hedge_mode_active: string; // "name_on_name" etc
+  gross_actual_usd: number;
+  raw_net_usd: number; // Σ sign·N (dollar L-S)
+  pair_beta_net_usd: number; // ≈0 — the panel's old 'neutral' basis
+  spy_beta_net_usd: number; // TRUE market exposure
+  sector_beta_net_usd_by_etf: Record<string, number>; // e.g. {"SOXX": 3966.0}
+  spy_beta_net_pct_of_nav: number | null;
+  note: string;
+  overlay?: TokenizedFactorOverlay | null;
+}
+
 export interface TokenizedPairRow {
   id: string;
   long_symbol: string;
@@ -1010,6 +1063,7 @@ export interface TokenizedPositionsResponse {
     total_funding_accrued_usd?: number;
     oldest_position_days_held?: number | null;
   };
+  factor_exposure?: TokenizedFactorExposure;
   pairs: TokenizedPairRow[];
 }
 

@@ -96,7 +96,7 @@ type FundingWindows = {
 } | null;
 
 function LegRow({
-  side, symbol, qty, entry, mark, notional, target_notional, pairBeta, betaAdjNotional,
+  side, symbol, qty, entry, mark, notional, target_notional, pairBeta, betaSpy, betaSector, betaAdjNotional,
   pnl, pnl_pct, funding,
   fundingApr, fundingAprNow, fundingPerSettle, fundingWindows, vol24h, openInterest,
 }: {
@@ -108,6 +108,8 @@ function LegRow({
   notional: number | null;
   target_notional: number | null;
   pairBeta: number | null;
+  betaSpy: number | null;
+  betaSector: number | null;
   betaAdjNotional: number | null;
   pnl: number | null;
   pnl_pct: number | null;
@@ -144,6 +146,12 @@ function LegRow({
         title="Pair-relative beta. Long leg uses h* (OLS slope of long vs short returns); short leg is the reference at 1.000. β-adjusted notional = notional × β; the long and short rows should match within ~1% when the pair is sized beta-neutral."
       >
         {pairBeta == null ? "—" : pairBeta.toFixed(3)}
+      </td>
+      <td className="px-2 py-2 text-right tabular-nums text-xs text-gray-400">
+        {betaSpy == null ? "—" : betaSpy.toFixed(2)}
+      </td>
+      <td className="px-2 py-2 text-right tabular-nums text-xs text-gray-400">
+        {betaSector == null ? "—" : betaSector.toFixed(2)}
       </td>
       <td
         className="px-2 py-2 text-right tabular-nums text-sm text-gray-200"
@@ -286,6 +294,47 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
           {t && (
             <div className="text-xs text-gray-500">σ pair {t.pair_residual_vol_daily_pct.toFixed(2)}%/d</div>
           )}
+          {t && (() => {
+            const nn = t.h_star_name_on_name ?? null;
+            const sec = t.h_star_sector ?? null;
+            const mkt = t.h_star_market ?? null;
+            const mode = t.h_star_mode ?? "name_on_name";
+            const diverges =
+              (sec != null && nn != null && Math.abs(sec - nn) > 0.05) ||
+              (mkt != null && nn != null && Math.abs(mkt - nn) > 0.05);
+            if (!diverges) return null;
+            const secLabel = t.sector_etf ? `sector(${t.sector_etf})` : "sector";
+            const cell = (
+              label: string,
+              v: number | null,
+              active: boolean,
+            ) =>
+              v == null ? null : (
+                <span className={active ? "text-gray-200 font-semibold" : "text-gray-500"}>
+                  {label} {v.toFixed(3)}
+                </span>
+              );
+            return (
+              <div
+                className="text-[10px] leading-tight text-gray-500 mt-0.5"
+                title="Shadow hedge ratios. The active basis (bold) is what the position is sized to; name-on-name, sector-beta and market-beta diverge when the pair's factor structure does."
+              >
+                {[
+                  cell("name-on-name", nn, mode === "name_on_name"),
+                  cell(secLabel, sec, mode === "sector_beta"),
+                  cell("market", mkt, mode === "market_beta"),
+                ]
+                  .filter(Boolean)
+                  .map((el, i, arr) => (
+                    <span key={i}>
+                      {el}
+                      {i < arr.length - 1 ? <span className="text-gray-700"> · </span> : null}
+                    </span>
+                  ))}
+                <span className="text-gray-600"> (active: {mode})</span>
+              </div>
+            );
+          })()}
         </div>
         <div className="space-y-0.5">
           <div className="text-xs text-gray-500">Expected carry APR</div>
@@ -324,6 +373,8 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 <th className="px-2 py-2 text-right">Target</th>
                 <th className="px-2 py-2 text-right">Drift</th>
                 <th className="px-2 py-2 text-right" title="Pair-relative β. Long leg = h*; short leg = 1.000.">β</th>
+                <th className="px-2 py-2 text-right" title="Each leg's beta to SPY (2y daily underlying returns). The pair β column hides this — a 'β 0.35' name can be 2.0+ beta to the market.">βSPY</th>
+                <th className="px-2 py-2 text-right" title="Each leg's beta to its sector ETF (shown per pair). Higher r² than SPY for tight peer pairs.">βSect</th>
                 <th className="px-2 py-2 text-right" title="Notional × β. Should match between legs in a beta-neutral pair.">β-adj Notional</th>
                 <th className="px-2 py-2 text-right">P&L $</th>
                 <th className="px-2 py-2 text-right">P&L %</th>
@@ -339,7 +390,9 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 side="LONG" symbol={pair.long_symbol}
                 qty={a.long_qty} entry={a.long_entry_price} mark={a.long_mark_price}
                 notional={a.long_notional} target_notional={t?.long_notional ?? null}
-                pairBeta={a.long_pair_beta} betaAdjNotional={a.long_beta_adj_notional}
+                pairBeta={a.long_pair_beta}
+                betaSpy={a.long_beta_spy ?? null} betaSector={a.long_beta_sector ?? null}
+                betaAdjNotional={a.long_beta_adj_notional}
                 pnl={a.long_pnl_usd} pnl_pct={a.long_pnl_pct} funding={a.long_funding_accrued_usd}
                 fundingApr={t?.long_received_funding_apr_pct ?? null}
                 fundingAprNow={a.long_funding_rate_ann_now_pct ?? null}
@@ -351,7 +404,9 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 side="SHORT" symbol={pair.short_symbol}
                 qty={a.short_qty} entry={a.short_entry_price} mark={a.short_mark_price}
                 notional={a.short_notional} target_notional={t?.short_notional ?? null}
-                pairBeta={a.short_pair_beta} betaAdjNotional={a.short_beta_adj_notional}
+                pairBeta={a.short_pair_beta}
+                betaSpy={a.short_beta_spy ?? null} betaSector={a.short_beta_sector ?? null}
+                betaAdjNotional={a.short_beta_adj_notional}
                 pnl={a.short_pnl_usd} pnl_pct={a.short_pnl_pct} funding={a.short_funding_accrued_usd}
                 fundingApr={t?.short_received_funding_apr_pct ?? null}
                 fundingAprNow={a.short_funding_rate_ann_now_pct ?? null}
@@ -367,6 +422,8 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 <td className="px-2 py-2 text-right tabular-nums text-xs text-gray-500">
                   {t ? fmtUSD(t.pair_gross) : "—"}
                 </td>
+                <td className="px-2 py-2"></td>
+                <td className="px-2 py-2"></td>
                 <td className="px-2 py-2"></td>
                 <td className="px-2 py-2"></td>
                 <td
@@ -387,7 +444,7 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
                 <td colSpan={4} className="px-2 py-2"></td>
               </tr>
               <tr className="bg-gray-900/30">
-                <td colSpan={10} className="px-2 py-2 text-right text-xs text-gray-500 uppercase">
+                <td colSpan={12} className="px-2 py-2 text-right text-xs text-gray-500 uppercase">
                   Total return (spread P&L + funding)
                 </td>
                 <td colSpan={7} className={cn("px-2 py-2 text-right tabular-nums text-base font-semibold", pnlClass(a.total_pnl_with_funding_usd))}>
@@ -590,6 +647,91 @@ export function TokenizedPositionsTab() {
           sub={h.oldest_position_days_held != null ? `oldest pos ${h.oldest_position_days_held.toFixed(2)}d held` : "no positions yet"}
         />
       </div>
+
+      {/* Sleeve-level factor exposure — pair-β nets to ~0, SPY/sector-β show the real tilt */}
+      {data.factor_exposure && (() => {
+        const fx = data.factor_exposure;
+        const gross = fx.gross_actual_usd || 0;
+        const spyFrac = gross > 0 ? Math.abs(fx.spy_beta_net_usd) / gross : 0;
+        const spyColor =
+          spyFrac > 0.20 ? "text-rose-400" :
+          spyFrac > 0.10 ? "text-amber-400" : "text-gray-200";
+        return (
+          <Card className="p-3 bg-gray-900/40 border-gray-800">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+              <div className="text-xs uppercase tracking-wide text-gray-500">Factor exposure</div>
+              <div>
+                <span className="text-gray-500">Pair-β net:</span>{" "}
+                <span className="text-gray-500 tabular-nums">{fmtPnL(fx.pair_beta_net_usd, 0)}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">SPY-β net:</span>{" "}
+                <span className={cn("font-semibold tabular-nums", spyColor)}>{fmtPnL(fx.spy_beta_net_usd, 0)}</span>
+                {fx.spy_beta_net_pct_of_nav != null && (
+                  <span className={cn("ml-1 text-xs tabular-nums", spyColor)}>
+                    ({fmtPct(fx.spy_beta_net_pct_of_nav)} of NAV)
+                  </span>
+                )}
+              </div>
+              {Object.entries(fx.sector_beta_net_usd_by_etf).map(([etf, v]) => (
+                <div key={etf} className="rounded bg-gray-800/60 px-2 py-0.5 text-xs">
+                  <span className="text-gray-400">{etf}-β net</span>{" "}
+                  <span className="tabular-nums text-gray-200">{fmtPnL(v, 0)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="text-xs text-gray-500 mt-1 italic">
+              Pair-β says neutral; SPY/sector-β show the real tilt.
+              {fx.hedge_mode_active ? ` Hedge basis: ${fx.hedge_mode_active}.` : ""}
+              {fx.note ? ` ${fx.note}` : ""}
+            </div>
+            {fx.overlay && (() => {
+              const ov = fx.overlay!;
+              const stripUSDT = (s: string) => (s || "").replace(/USDT$/, "");
+              const hedgeWord = (n: number) => (n < 0 ? "Short" : "Long");
+              const semisLeg = `${hedgeWord(ov.hedge_notional_semis)} ${fmtUSD(Math.abs(ov.hedge_notional_semis))} ${stripUSDT(ov.semis_instrument)}`;
+              const marketLeg = `${hedgeWord(ov.hedge_notional_market)} ${fmtUSD(Math.abs(ov.hedge_notional_market))} ${stripUSDT(ov.market_instrument)}`;
+              const flatAfter =
+                ov.residual_after &&
+                Math.abs(ov.residual_after.market) < 1 &&
+                Math.abs(ov.residual_after.semis) < 1;
+              return (
+                <div className="mt-2 pt-2 border-t border-gray-800">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                    <span className="text-xs uppercase tracking-wide text-gray-500">
+                      {ov.enabled ? "Factor overlay (LIVE)" : "Factor overlay (shadow)"}
+                    </span>
+                    {ov.enabled ? (
+                      <span className="rounded bg-emerald-900/40 px-1.5 py-0.5 text-xs text-emerald-300">live</span>
+                    ) : (
+                      <span className="rounded bg-gray-800/60 px-1.5 py-0.5 text-xs text-gray-500">shadow — not placed</span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm mt-1">
+                    <div
+                      title="Joint SPY+sector regression. The univariate SPY-β net double-counts semis bleeding through SPY; the joint residual is the TRUE split — here almost all the exposure is the semis factor, not broad market."
+                    >
+                      <span className="text-gray-500">Residual (orthogonalized):</span>{" "}
+                      <span className="tabular-nums text-gray-200">
+                        market {fmtPnL(ov.residual_before.market, 0)} · semis {fmtPnL(ov.residual_before.semis, 0)}
+                      </span>
+                    </div>
+                    <div className="rounded bg-gray-800/60 px-2 py-0.5 text-xs">
+                      <span className="text-gray-400">Hedge to flatten</span>{" "}
+                      <span className="tabular-nums text-gray-200">{semisLeg} · {marketLeg}</span>
+                    </div>
+                  </div>
+                  {flatAfter && (
+                    <div className="text-xs text-gray-500 mt-1 italic">
+                      Residual after overlay ≈ $0 on both factors.
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </Card>
+        );
+      })()}
 
       {/* Per-pair cards */}
       {data.pairs.length === 0 ? (
