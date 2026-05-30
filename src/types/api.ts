@@ -996,3 +996,113 @@ export interface TokenizedPositionsResponse {
   };
   pairs: TokenizedPairRow[];
 }
+
+// ── Macro Regime: multi-horizon, IC weights, baskets (Phases 1-5, 2026-05-30) ──
+
+export interface MacroHorizonBlock {
+  horizon_days: number;
+  composite_score: number | null;
+  regime: string;
+  sources_available: number;
+  sources_total: number;
+  confidence: "high" | "low";
+  payload?: {
+    weights?: Record<string, { weight: number; source: string; conf?: string }>;
+    indicator_contributions?: Record<string, number>;
+  };
+}
+
+export interface MacroHorizonsPreview {
+  updated_at: string;
+  horizons: Record<string, {
+    composite_score: number | null;
+    regime: string;
+    confidence: "high" | "low";
+    sources_available: number;
+    sources_total: number;
+  }>;
+  combined: {
+    combined_score: number;
+    combined_tilt_pct: number;
+    horizon_contributions: Record<string, { weight: number; score: number; regime: string }>;
+    confidence: "high" | "low";
+  };
+}
+
+export interface MacroHorizonsResponse {
+  horizon_days: number[];
+  horizon_weights: Record<string, number>;
+  tilt_source: "single" | "multi";
+  confidence_floor: number;
+  latest: MacroHorizonBlock[];
+  timeseries: (MacroHorizonBlock & { timestamp: string })[];
+  preview: MacroHorizonsPreview | null;
+}
+
+export interface MacroWeightHistoryRow {
+  computed_at: string;
+  indicator_key: string;
+  horizon_days: number;
+  dependent: string;
+  prior_weight: number | null;
+  ic_value: number | null;
+  ic_n_obs: number | null;
+  effective_weight: number;
+  sign_flipped: number;     // 0|1
+  soft_paused: number;      // 0|1
+  audit_note: string | null;
+}
+
+export interface MacroWeightsResponse {
+  history: MacroWeightHistoryRow[];
+  latest_nav_sortino: Record<string, MacroWeightHistoryRow[]>;  // keyed by horizon_days
+}
+
+export interface MacroBasketLegHistory {
+  id: number;
+  timestamp: string;
+  basket_key: string;
+  source: string | null;
+  event_slug: string | null;
+  market_slug: string | null;
+  side: string | null;
+  prob_yes: number | null;
+  side_adjusted_prob: number | null;
+  volume_24h_usd: number | null;
+  liquidity_usd: number | null;
+  used: number;             // 0|1
+  skip_reason: string | null;
+}
+
+export interface MacroBasketLegIC {
+  id: number;
+  computed_at: string;
+  basket_key: string;
+  market_slug: string;
+  dependent: string;
+  horizon_days: number;
+  ic_value: number | null;
+  hit_rate: number | null;
+  n_observations: number | null;
+  lookback_days: number | null;
+}
+
+export type MacroBasketsResponse = Record<string, {
+  legs: MacroBasketLegHistory[];
+  leg_ic: MacroBasketLegIC[];
+}>;
+
+export interface MacroICRollingResponse {
+  indicator_key: string;
+  dependent: string;
+  horizon_days: number;
+  lookback_days: number;
+  ic_history: {
+    computed_at: string;
+    ic_value: number | null;
+    hit_rate: number | null;
+    n_observations: number | null;
+    lookback_days: number | null;
+  }[];
+  score_history: { date: string; score: number }[];
+}
