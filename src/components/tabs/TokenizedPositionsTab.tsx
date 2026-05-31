@@ -240,9 +240,24 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
     <Card className="flex flex-col gap-4 p-4">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="text-lg font-semibold text-gray-100">L {longLabel} / S {shortLabel}</div>
             <Badge variant={statusBadgeVariant(pair.status)}>{statusLabel(pair.status)}</Badge>
+            {pair.maturity &&
+              !["disabled", "no_data"].includes(pair.maturity.status) && (
+                <span
+                  title={MATURITY_META[pair.maturity.status]?.hint}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded border px-2 py-0.5 text-sm font-bold",
+                    MATURITY_META[pair.maturity.status]?.cls,
+                  )}
+                >
+                  {MATURITY_META[pair.maturity.status]?.label}
+                  {pair.maturity.tms != null && (
+                    <span className="font-mono text-xs opacity-75">{pair.maturity.tms.toFixed(0)}</span>
+                  )}
+                </span>
+              )}
           </div>
           <div className="text-xs text-gray-500 font-mono">pair_id: {pair.id}</div>
           {pair.underlying && (
@@ -536,7 +551,146 @@ function PairCard({ pair }: { pair: TokenizedPairRow }) {
           </div>
         )}
       </div>
+
+      {/* Trade Maturity / Exhaustion */}
+      {pair.maturity && <MaturityCard m={pair.maturity} series={pair.maturity_series} />}
     </Card>
+  );
+}
+
+const MATURITY_META: Record<string, { label: string; cls: string; hint: string }> = {
+  TAKE_PROFIT: { label: "💰 TAKE PROFIT", cls: "text-amber-300 border-amber-500/50 bg-amber-500/10", hint: "Price captured the thesis AND the thesis has decayed — the move has earned out." },
+  LET_RUN: { label: "LET RUN", cls: "text-emerald-300 border-emerald-500/50 bg-emerald-500/10", hint: "Price moved our way but the thesis is still intact — ride the winner." },
+  BUILDING: { label: "BUILDING", cls: "text-sky-300 border-sky-500/40 bg-sky-500/10", hint: "Thesis intact, move not yet realized — keep holding." },
+  RISK_EXIT: { label: "⚠️ RISK EXIT", cls: "text-rose-300 border-rose-500/50 bg-rose-500/10", hint: "Thesis spent without the price paying, or the hedge relationship broke." },
+  baseline_pending: { label: "baseline pending", cls: "text-gray-400 border-gray-700 bg-gray-800/40", hint: "Entry baseline not yet recorded — maturity available next tick." },
+  no_data: { label: "no data", cls: "text-gray-500 border-gray-700 bg-gray-800/40", hint: "Pair metrics unavailable." },
+  disabled: { label: "disabled", cls: "text-gray-500 border-gray-700 bg-gray-800/40", hint: "TOKENIZED_MATURITY_ENABLED=false." },
+};
+
+function ScoreBar({ label, value, tone }: { label: string; value: number | null; tone: "capture" | "decay" }) {
+  const pct = value == null ? 0 : Math.max(0, Math.min(100, value));
+  const hi = value != null && value >= 60;
+  const barColor = tone === "capture"
+    ? (hi ? "bg-emerald-500" : "bg-emerald-500/40")
+    : (hi ? "bg-rose-500" : "bg-rose-500/40");
+  return (
+    <div className="space-y-1">
+      <div className="flex items-baseline justify-between">
+        <span className="text-xs text-gray-500">{label}</span>
+        <span className={cn("text-sm font-semibold tabular-nums", value == null ? "text-gray-500" : hi ? (tone === "capture" ? "text-emerald-300" : "text-rose-300") : "text-gray-300")}>
+          {value == null ? "—" : `${value.toFixed(0)}/100`}
+        </span>
+      </div>
+      <div className="h-1.5 rounded bg-gray-800 overflow-hidden">
+        <div className={cn("h-full rounded", barColor)} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function MaturityCard({ m, series }: { m: NonNullable<TokenizedPairRow["maturity"]>; series?: TokenizedPairRow["maturity_series"] }) {
+  const meta = MATURITY_META[m.status] ?? MATURITY_META.no_data;
+  const fmt2 = (v: number | null, suffix = "") => (v == null ? "—" : `${v >= 0 ? "" : ""}${v.toFixed(2)}${suffix}`);
+  const arrow = (a: number | null, b: number | null) =>
+    a == null || b == null ? "—" : `${a.toFixed(2)} → ${b.toFixed(2)}`;
+  const sig = [
+    { k: "z-score (rev/overshoot)", now: m.pc_zscore, detail: arrow(m.zscore_entry, m.zscore_now) },
+    { k: "profit (vol-norm)", now: m.pc_profit, detail: m.captured_sigma == null ? "—" : `${m.captured_sigma >= 0 ? "+" : ""}${m.captured_sigma.toFixed(1)}σ` },
+    { k: "peak giveback", now: m.pc_giveback, detail: m.giveback_frac == null ? "—" : `${(m.giveback_frac * 100).toFixed(0)}% of peak` },
+    { k: "half-life clock", now: m.pc_halflife, detail: m.half_life_days == null ? "—" : `hl ${m.half_life_days.toFixed(0)}d` },
+  ];
+  const seriesData = (series ?? []).filter((p) => p.tms != null).map((p) => ({
+    iso: new Date(p.ts * 1000).toISOString().slice(5, 10),
+    tms: p.tms,
+    cap: p.price_capture,
+    dec: p.thesis_decay,
+  }));
+
+  return (
+    <div className="rounded border border-gray-800 bg-gray-900/40 p-3 space-y-3">
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="text-sm font-semibold text-gray-200">Trade maturity (exhaustion)</div>
+        <div className="text-xs text-gray-500">
+          regime <span className="text-gray-300">{m.regime}</span>
+          {m.tms != null && <> · TMS <span className="text-gray-300 tabular-nums">{m.tms.toFixed(0)}/100</span></>}
+          {" · "}<span className="text-gray-400">{m.thesis_coverage}</span>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-3 flex-wrap">
+        <div className={cn("inline-flex flex-col rounded border px-2.5 py-1.5", meta.cls)}>
+          <span className="text-sm font-bold">{meta.label}</span>
+        </div>
+        <div className="text-xs text-gray-500 max-w-md flex-1 min-w-[200px]">{meta.hint}</div>
+      </div>
+
+      {m.kill_switch && m.kill_reasons.length > 0 && (
+        <div className="text-xs text-rose-300 bg-rose-500/10 border border-rose-500/40 rounded px-2 py-1">
+          kill switch: {m.kill_reasons.join(", ")} — the hedge is no longer a hedge.
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+        <ScoreBar label="Price capture (thesis realized?)" value={m.price_capture} tone="capture" />
+        <ScoreBar label="Thesis decay (reason gone?)" value={m.thesis_decay} tone="decay" />
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+        {sig.map((s) => (
+          <div key={s.k} className="rounded bg-gray-800/40 px-2 py-1.5">
+            <div className="text-gray-500">{s.k}</div>
+            <div className="text-gray-300 tabular-nums">
+              {s.now == null ? "—" : `${s.now.toFixed(0)}/100`}
+              <span className="text-gray-600"> · {s.detail}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+        <div className="rounded bg-gray-800/40 px-2 py-1.5">
+          <div className="text-gray-500">conviction (entry→now)</div>
+          <div className="text-gray-300 tabular-nums">{arrow(m.conviction_entry, m.conviction_now)}</div>
+        </div>
+        <div className="rounded bg-gray-800/40 px-2 py-1.5">
+          <div className="text-gray-500">quality Δ (entry→now)</div>
+          <div className="text-gray-300 tabular-nums">{arrow(m.quality_entry, m.quality_now)}</div>
+        </div>
+        <div className="rounded bg-gray-800/40 px-2 py-1.5">
+          <div className="text-gray-500">val premium pp (entry→now)</div>
+          <div className="text-gray-300 tabular-nums">{arrow(m.valuation_premium_entry, m.valuation_premium_now)}</div>
+        </div>
+        <div className="rounded bg-gray-800/40 px-2 py-1.5">
+          <div className="text-gray-500">analyst gap pp · 13F</div>
+          <div className="text-gray-300 tabular-nums">
+            {arrow(m.analyst_gap_entry, m.analyst_gap_now)}
+            <span className="text-gray-600"> · {fmt2(m.smart_money_now)}</span>
+          </div>
+        </div>
+      </div>
+
+      {seriesData.length >= 2 && (
+        <div>
+          <div className="text-xs text-gray-500 mb-1">maturity trajectory (TMS / capture / decay)</div>
+          <ResponsiveContainer width="100%" height={110}>
+            <LineChart data={seriesData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+              <XAxis dataKey="iso" tick={{ fill: "#64748b", fontSize: 10 }} interval="preserveStartEnd" />
+              <YAxis domain={[0, 100]} tick={{ fill: "#64748b", fontSize: 10 }} width={28} />
+              <Tooltip
+                contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #334155", borderRadius: 6, fontSize: 11 }}
+                formatter={(v, n) => [`${Number(v ?? 0).toFixed(0)}`, String(n)]}
+                labelFormatter={(l) => `date ${l}`}
+              />
+              <ReferenceLine y={60} stroke="#f59e0b" strokeDasharray="3 3" />
+              <Line type="monotone" dataKey="tms" name="TMS" stroke="#f59e0b" strokeWidth={1.5} dot={false} />
+              <Line type="monotone" dataKey="cap" name="capture" stroke="#10b981" strokeWidth={1} dot={false} />
+              <Line type="monotone" dataKey="dec" name="decay" stroke="#f43f5e" strokeWidth={1} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -579,6 +733,27 @@ export function TokenizedPositionsTab() {
         </div>
         <Badge variant={data.dry_run ? "warning" : "success"}>{dryRunBadge}</Badge>
       </div>
+
+      {/* Trade-maturity summary banner */}
+      {((h.n_take_profit ?? 0) > 0 || (h.n_risk_exit ?? 0) > 0) && (
+        <Card className="p-3 bg-gray-900/40 border-gray-800">
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="text-xs uppercase tracking-wide text-gray-500">Maturity</div>
+            {(h.n_take_profit ?? 0) > 0 && (
+              <div className="text-amber-300">💰 {h.n_take_profit} take-profit candidate{(h.n_take_profit ?? 0) > 1 ? "s" : ""}</div>
+            )}
+            {(h.n_risk_exit ?? 0) > 0 && (
+              <div className="text-rose-300">⚠️ {h.n_risk_exit} risk-exit</div>
+            )}
+            <div className="text-xs text-gray-500">
+              auto-close{" "}
+              <span className={h.maturity_autoclose ? "text-amber-300" : "text-gray-400"}>
+                {h.maturity_autoclose ? "ON (flattens on rebalance)" : "OFF (advisory only)"}
+              </span>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Funding schedule banner */}
       {data.funding_info && (

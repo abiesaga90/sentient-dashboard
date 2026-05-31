@@ -1039,6 +1039,54 @@ export interface TokenizedFactorExposure {
   overlay?: TokenizedFactorOverlay | null;
 }
 
+// Trade Maturity / Exhaustion: has the SPREAD trade run its course? Two
+// independent 0-100 halves (price_capture + thesis_decay) collapsed to a status.
+export type TokenizedMaturityStatus =
+  | "TAKE_PROFIT"
+  | "LET_RUN"
+  | "BUILDING"
+  | "RISK_EXIT"
+  | "baseline_pending"
+  | "no_data"
+  | "disabled";
+
+export interface TokenizedPairMaturity {
+  pair_id: string;
+  status: TokenizedMaturityStatus;
+  price_capture: number | null; // 0-100: has price captured the thesis?
+  thesis_decay: number | null; // 0-100: is the fundamental reason gone? (null = stat-only/ETF)
+  tms: number | null; // 0-100 headline gauge
+  regime: "reverting" | "trending" | "unknown";
+  kill_switch: boolean;
+  kill_reasons: string[];
+  reason: string;
+  thesis_coverage: "full" | "partial" | "stat_only";
+  // price-capture component breakdown (0-100 each, null when N/A)
+  pc_zscore: number | null;
+  pc_profit: number | null;
+  pc_giveback: number | null;
+  pc_halflife: number | null;
+  // raw supporting values
+  zscore_now: number | null;
+  zscore_entry: number | null;
+  captured_sigma: number | null;
+  giveback_frac: number | null;
+  peak_unrealized_pnl: number | null;
+  unrealized_pnl: number | null;
+  days_held: number | null;
+  half_life_days: number | null;
+  conviction_now: number | null;
+  conviction_entry: number | null;
+  quality_now: number | null;
+  quality_entry: number | null;
+  valuation_premium_now: number | null;
+  valuation_premium_entry: number | null;
+  analyst_gap_now: number | null;
+  analyst_gap_entry: number | null;
+  smart_money_now: number | null;
+  entry_ts: number | null;
+}
+
 export interface TokenizedPairRow {
   id: string;
   long_symbol: string;
@@ -1050,6 +1098,13 @@ export interface TokenizedPairRow {
   actual: TokenizedPairActualBlock | null;
   carry: TokenizedPairCarryBlock;
   carry_series_30d: { ts: number; carry_apr_2x: number }[];
+  maturity?: TokenizedPairMaturity;
+  maturity_series?: {
+    ts: number;
+    price_capture: number | null;
+    thesis_decay: number | null;
+    tms: number | null;
+  }[];
 }
 
 export interface TokenizedPositionsResponse {
@@ -1067,6 +1122,9 @@ export interface TokenizedPositionsResponse {
     n_configured: number;
     n_active: number;
     n_pending_close: number;
+    n_take_profit?: number;
+    n_risk_exit?: number;
+    maturity_autoclose?: boolean;
     total_gross_target: number;
     total_gross_actual: number;
     total_gross_target_pct_of_notional?: number;
