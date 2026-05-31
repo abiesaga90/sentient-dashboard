@@ -47,7 +47,11 @@ function icToColor(ic: number | null): string {
     : `rgba(239, 68, 68, ${alpha})`;
 }
 
-export function ICHeatmapSubTab() {
+export interface ICHeatmapSubTabProps {
+  onDrillDown?: (key: string, dependent: string, horizon: 7 | 30 | 90) => void;
+}
+
+export function ICHeatmapSubTab({ onDrillDown }: ICHeatmapSubTabProps = {}) {
   const { client, engine } = useEngine();
   const { data, isLoading } = useQuery<MacroICResponse>({
     queryKey: ["macro-ic", engine.id],
@@ -154,12 +158,22 @@ export function ICHeatmapSubTab() {
                   const n = cell?.n_observations ?? 0;
                   const cls = cell?.classification ?? "insufficient_data";
                   const bg = icToColor(ic);
+                  const clickable = ic != null && onDrillDown != null;
                   return (
                     <td
                       key={h}
-                      className="px-3 py-2 text-center font-mono text-gray-100"
+                      onClick={clickable
+                        ? () => onDrillDown!(ind.key, dependent, h as 7 | 30 | 90)
+                        : undefined}
+                      className={`px-3 py-2 text-center font-mono text-gray-100 ${
+                        clickable ? "cursor-pointer hover:ring-1 hover:ring-purple-400/60" : ""
+                      }`}
                       style={{ backgroundColor: bg }}
-                      title={`classification=${cls}, n=${n}, hit_rate=${cell?.hit_rate?.toFixed(2) ?? "—"}`}
+                      title={
+                        clickable
+                          ? `Click to drill down · classification=${cls}, n=${n}, hit_rate=${cell?.hit_rate?.toFixed(2) ?? "—"}`
+                          : `classification=${cls}, n=${n}, hit_rate=${cell?.hit_rate?.toFixed(2) ?? "—"}`
+                      }
                     >
                       {ic != null
                         ? `${ic >= 0 ? "+" : ""}${ic.toFixed(3)}`
@@ -181,8 +195,10 @@ export function ICHeatmapSubTab() {
         </table>
       </div>
       <div className="px-3 py-2 text-[10px] text-gray-500 border-t border-[var(--border)]">
-        Cell color encodes IC magnitude (green positive, red negative). Click an
-        indicator label in the Overview tab to drill down into rolling IC.
+        Cell color encodes IC magnitude (green positive, red negative).{" "}
+        {onDrillDown
+          ? "Click any non-empty cell to drill into its rolling IC + score history."
+          : "Drill-down view is available on the Drilldown sub-tab."}
       </div>
     </Card>
   );

@@ -2,32 +2,32 @@ import { useState } from "react";
 import { OverviewSubTab } from "./macro-regime/OverviewSubTab";
 import { HorizonCompositesSubTab } from "./macro-regime/HorizonCompositesSubTab";
 import { ICHeatmapSubTab } from "./macro-regime/ICHeatmapSubTab";
+import { IndicatorDrilldownSubTab } from "./macro-regime/IndicatorDrilldownSubTab";
 import { CycleSubTab } from "./macro-regime/CycleSubTab";
 import { BasketDrilldownSubTab } from "./macro-regime/BasketDrilldownSubTab";
 import { WeightAuditSubTab } from "./macro-regime/WeightAuditSubTab";
 
 /**
- * Macro Regime — six-pane router (Phase 3, 2026-05-30).
+ * Macro Regime — seven-pane router.
  *
  *   Overview          single-horizon composite + 28-indicator table + Axis B
  *                     + quadrant + per-indicator confidence badge.
- *   Horizons          7d / 30d / 90d composites + combined shadow tilt
- *                     (Phase 1).
- *   IC Heatmap        indicator × dependent × horizon Spearman IC, color-coded.
- *   Cycle             BTC cycle KPIs (MVRV / 200 WMA / Mayer / drawdown) +
- *                     PM Market Notes + cycle zone thresholds. Absorbed from
- *                     the retired Market Context tab.
- *   Baskets           Polymarket + Kalshi per-basket drill-down with per-leg
- *                     IC vs nav_sortino_30d + the Polymarket-Macro
- *                     crypto-specific panel (Phase 4).
- *   Weights           IC-calibrated weight history + recent sign-flip / pause /
- *                     shift events (Phase 2).
+ *   Horizons          7d / 30d / 90d composites + combined shadow tilt.
+ *   IC Heatmap        indicator × dependent × horizon Spearman IC, click any
+ *                     cell to drill into its rolling history.
+ *   Drilldown         per-indicator rolling IC + score history + sign-stability
+ *                     + graduation checklist (added 2026-05-31).
+ *   Cycle             BTC cycle KPIs + market notes (absorbed Market Context).
+ *   Baskets           Polymarket + Kalshi per-basket drill-down + crypto-
+ *                     specific Polymarket panel.
+ *   Weights           IC-calibrated weight history + sign-flip review banner.
  */
 
 const SUB_TABS = [
   { id: "overview", label: "Overview" },
   { id: "horizons", label: "Horizons" },
   { id: "ic", label: "IC Heatmap" },
+  { id: "drilldown", label: "Drilldown" },
   { id: "cycle", label: "Cycle" },
   { id: "baskets", label: "Baskets" },
   { id: "weights", label: "Weights" },
@@ -36,6 +36,19 @@ type SubTabId = typeof SUB_TABS[number]["id"];
 
 export function MacroRegimeTab() {
   const [active, setActive] = useState<SubTabId>("overview");
+  // Click-through state from IC Heatmap → Drilldown.
+  const [drilldown, setDrilldown] = useState<{
+    key: string;
+    dependent: string;
+    horizon: 7 | 30 | 90;
+  } | null>(null);
+
+  const handleDrillDown = (
+    key: string, dependent: string, horizon: 7 | 30 | 90,
+  ) => {
+    setDrilldown({ key, dependent, horizon });
+    setActive("drilldown");
+  };
 
   return (
     <div className="p-4 space-y-3">
@@ -56,7 +69,15 @@ export function MacroRegimeTab() {
       </div>
       {active === "overview" && <OverviewSubTab />}
       {active === "horizons" && <HorizonCompositesSubTab />}
-      {active === "ic" && <ICHeatmapSubTab />}
+      {active === "ic" && <ICHeatmapSubTab onDrillDown={handleDrillDown} />}
+      {active === "drilldown" && (
+        <IndicatorDrilldownSubTab
+          initialKey={drilldown?.key}
+          initialDependent={drilldown?.dependent}
+          initialHorizon={drilldown?.horizon}
+          onClear={() => setDrilldown(null)}
+        />
+      )}
       {active === "cycle" && <CycleSubTab />}
       {active === "baskets" && <BasketDrilldownSubTab />}
       {active === "weights" && <WeightAuditSubTab />}
