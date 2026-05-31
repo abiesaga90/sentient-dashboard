@@ -65,6 +65,12 @@ export function WeightAuditSubTab() {
     return deltas.sort((a, b) => Math.abs(b.pctChange) - Math.abs(a.pctChange));
   }, [history]);
 
+  // Sign-flip review banner — surface count + brief preview so the operator
+  // doesn't have to scroll the audit table to notice when the calibrator
+  // inverted a prior's sign.
+  const signFlips = recentDeltas.filter((d) => d.kind === "sign_flip");
+  const pauses = recentDeltas.filter((d) => d.kind === "pause");
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-32 text-gray-500 text-sm">
@@ -76,6 +82,63 @@ export function WeightAuditSubTab() {
 
   return (
     <div className="space-y-4">
+      {signFlips.length > 0 && (
+        <Card className="border-amber-500/40 bg-amber-500/5">
+          <CardHeader>
+            <div className="flex items-center justify-between gap-3">
+              <CardTitle className="text-amber-300">
+                🔄 {signFlips.length} sign flip{signFlips.length === 1 ? "" : "s"} pending review
+              </CardTitle>
+              <span className="text-[10px] text-amber-300/70 uppercase tracking-wide">
+                Calibrator flipped a prior's sign — spot-check before promoting multi-horizon
+              </span>
+            </div>
+          </CardHeader>
+          <div className="px-4 pb-3 text-xs space-y-1">
+            {signFlips.slice(0, 6).map((d, i) => (
+              <div key={i} className="flex items-center justify-between gap-4">
+                <span className="text-amber-200 font-mono">{d.indicator} @ {d.horizon}d</span>
+                <span className="text-gray-400 font-mono">
+                  {d.prev.toFixed(2)} → {d.curr.toFixed(2)}
+                </span>
+                <span className="text-gray-400 font-mono">
+                  IC={d.latestRow.ic_value != null
+                    ? `${d.latestRow.ic_value >= 0 ? "+" : ""}${d.latestRow.ic_value.toFixed(3)}`
+                    : "—"} (n={d.latestRow.ic_n_obs ?? 0})
+                </span>
+              </div>
+            ))}
+            {signFlips.length > 6 && (
+              <div className="text-[10px] text-gray-500 pt-1">
+                + {signFlips.length - 6} more · see full table below.
+              </div>
+            )}
+            <div className="pt-2 text-[10px] text-amber-200/70 border-t border-amber-500/20 mt-2">
+              Review checklist: (1) does the IC sample size look credible (n ≥ 60)?
+              (2) does the IC magnitude exceed the |0.10| flip threshold by a comfortable margin?
+              (3) does the resulting weight direction make economic sense?
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {pauses.length > 0 && (
+        <Card className="border-gray-500/30 bg-gray-500/5">
+          <CardHeader>
+            <CardTitle className="text-gray-300">
+              ⏸ {pauses.length} indicator{pauses.length === 1 ? "" : "s"} soft-paused
+            </CardTitle>
+          </CardHeader>
+          <div className="px-4 pb-3 text-xs text-gray-400 font-mono">
+            {pauses.slice(0, 4).map((d, i) => (
+              <div key={i}>
+                {d.indicator} @ {d.horizon}d · IC ~ {d.latestRow.ic_value?.toFixed(3) ?? "—"} (n={d.latestRow.ic_n_obs})
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
       {/* Recent changes pane */}
       <Card>
         <CardHeader>
