@@ -262,25 +262,28 @@ export function ExposurePanel({ positions, beta, risk }: ExposurePanelProps) {
         </div>
       </div>
 
-      {/* β-net decomposition: crypto basket + tokenized sleeve = total.
-          The engine sizes the crypto basket aiming for (target_tilt − tokenized_net_β)
-          so the WHOLE portfolio β-net hits the operator's tilt target. This row
-          shows both legs separately so the operator can see what each contributes. */}
+      {/* β-net decomposition: crypto basket + tokenized sleeve (3 lenses) = coherent total.
+          Each component is scored against its NATURAL underlying reference:
+            * Crypto positions:    β vs the LONG_BASKET (engine's regression β)
+            * Tokenized positions: β_vs_SPY (per-name, from fundamentals)
+          The coherent total is the sum and represents portfolio exposure
+          to a correlated risk-off in each natural underlying. */}
       {(beta.crypto_net_beta_pct_notional != null ||
-        beta.tokenized_net_beta_pct_notional_approx != null) && (
+        beta.tokenized_net_beta_pct_notional_spy != null) && (
         <div className="mt-3 p-3 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
           <div className="text-[10px] text-gray-500 uppercase mb-2 flex items-center gap-2">
             β-net decomposition
             <span
               className="text-[9px] text-gray-600 normal-case"
-              title="Whole-portfolio β-net is the SUM of crypto basket and tokenized sleeve. Crypto basket targets are auto-adjusted so the total lands at the operator's tilt target. Tokenized sleeve uses β≈1.0 approximation."
+              title="Crypto positions scored vs long basket (engine regression β); tokenized scored vs SPY (per-name β from fundamentals). Coherent total = sum."
             >
-              (sum = total β-net)
+              (each scored vs its natural underlying)
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
             <div className="text-center p-2 bg-[var(--bg-primary)] rounded border border-[var(--border)]">
               <div className="text-[10px] text-gray-500 uppercase">Crypto basket β</div>
+              <div className="text-[9px] text-gray-600 mb-1">vs long basket</div>
               <div className="text-base font-mono font-semibold text-gray-200">
                 {beta.crypto_net_beta_pct_notional != null
                   ? `${beta.crypto_net_beta_pct_notional >= 0 ? "+" : ""}${beta.crypto_net_beta_pct_notional.toFixed(2)}%`
@@ -290,35 +293,54 @@ export function ExposurePanel({ positions, beta, risk }: ExposurePanelProps) {
                 ${beta.crypto_net_beta_usd?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "—"}
               </div>
             </div>
-            <div className="text-center p-2 bg-[var(--bg-primary)] rounded border border-[var(--border)]">
-              <div className="text-[10px] text-gray-500 uppercase">Tokenized β (approx)</div>
+            <div className="text-center p-2 bg-[var(--bg-primary)] rounded border border-[var(--border)]"
+                 title="Per-name β_vs_SPY weighted. SNDK at 4.82, NVDA 2.01, MU 1.92, AVGO 1.44. Most rigorous lens.">
+              <div className="text-[10px] text-gray-500 uppercase">Tokenized β</div>
+              <div className="text-[9px] text-gray-600 mb-1">vs SPY (per-name)</div>
               <div className="text-base font-mono font-semibold text-gray-200">
-                {beta.tokenized_net_beta_pct_notional_approx != null
-                  ? `${beta.tokenized_net_beta_pct_notional_approx >= 0 ? "+" : ""}${beta.tokenized_net_beta_pct_notional_approx.toFixed(2)}%`
+                {beta.tokenized_net_beta_pct_notional_spy != null
+                  ? `${beta.tokenized_net_beta_pct_notional_spy >= 0 ? "+" : ""}${beta.tokenized_net_beta_pct_notional_spy.toFixed(2)}%`
                   : "—"}
               </div>
               <div className="text-[10px] text-gray-500 mt-0.5">
-                ${beta.tokenized_net_beta_usd_approx?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "—"}
+                ${beta.tokenized_net_beta_usd_spy?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "—"}
               </div>
             </div>
-            <div className="text-center p-2 bg-[var(--bg-primary)] rounded border-2 border-[#0b688c]">
-              <div className="text-[10px] text-[#0b688c] uppercase font-semibold">Total portfolio β</div>
-              <div className="text-base font-mono font-semibold text-gray-100">
-                {beta.net_beta_pct_notional != null
-                  ? `${beta.net_beta_pct_notional >= 0 ? "+" : ""}${beta.net_beta_pct_notional.toFixed(2)}%`
+            <div className="text-center p-2 bg-[var(--bg-primary)] rounded border border-[var(--border)]"
+                 title="β=1 dollar-net approximation. Less rigorous than per-name β_vs_SPY but matches the engine's whole-portfolio target math.">
+              <div className="text-[10px] text-gray-500 uppercase">Tokenized β</div>
+              <div className="text-[9px] text-gray-600 mb-1">β=1 dollar-net</div>
+              <div className="text-base font-mono font-semibold text-gray-400">
+                {beta.tokenized_net_beta_pct_notional_dollar != null
+                  ? `${beta.tokenized_net_beta_pct_notional_dollar >= 0 ? "+" : ""}${beta.tokenized_net_beta_pct_notional_dollar.toFixed(2)}%`
                   : "—"}
               </div>
               <div className="text-[10px] text-gray-500 mt-0.5">
-                ${beta.net_beta_usd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                ${beta.tokenized_net_beta_usd_dollar?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "—"}
+              </div>
+            </div>
+            <div className="text-center p-2 bg-[var(--bg-primary)] rounded border-2 border-[#0b688c]"
+                 title="Coherent total = crypto-basket β + tokenized β_vs_SPY. Operator's tilt target applies to this number.">
+              <div className="text-[10px] text-[#0b688c] uppercase font-semibold">Coherent total β</div>
+              <div className="text-[9px] text-gray-500 mb-1">crypto + tokenized(spy)</div>
+              <div className="text-base font-mono font-semibold text-gray-100">
+                {beta.coherent_net_beta_pct_notional != null
+                  ? `${beta.coherent_net_beta_pct_notional >= 0 ? "+" : ""}${beta.coherent_net_beta_pct_notional.toFixed(2)}%`
+                  : "—"}
+              </div>
+              <div className="text-[10px] text-gray-500 mt-0.5">
+                ${beta.coherent_net_beta_usd?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? "—"}
               </div>
             </div>
           </div>
           <div className="mt-2 text-[10px] text-gray-600 leading-snug">
-            The operator tilt target (e.g. +6.20%) is for the WHOLE portfolio. The engine
-            sizes the crypto basket to leave headroom for the tokenized sleeve's
-            contribution — both add up to the total. Tokenized β uses dollar-net as a
-            β≈1.0 approximation (tokenized perps are stocks/ETFs with broad-market β
-            around 1).
+            The operator tilt target (e.g. +6.20%) is for the WHOLE portfolio,
+            applied to the <span className="text-[#0b688c]">coherent total</span>{" "}
+            (crypto + tokenized β_vs_SPY). Engine sizes the crypto basket to leave
+            headroom for the sleeve's β contribution. The <em>β=1 dollar-net</em>{" "}
+            lens shows the same sleeve scored simply (each leg β=1) for comparison —
+            useful when broader-market β is unstable or for stress-testing under a
+            generic "everything drops together" scenario.
           </div>
         </div>
       )}

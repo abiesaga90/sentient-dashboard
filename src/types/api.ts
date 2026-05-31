@@ -105,8 +105,20 @@ export interface BetaAggregate {
   crypto_net_beta_pct_notional?: number;
   tokenized_long_notional?: number;
   tokenized_short_notional?: number;
+  // _approx aliased to _spy (primary, rigorous) for API compat
   tokenized_net_beta_usd_approx?: number;
   tokenized_net_beta_pct_notional_approx?: number;
+  // Rigorous lens: per-name β_vs_SPY weighted
+  tokenized_net_beta_usd_spy?: number;
+  tokenized_net_beta_pct_notional_spy?: number;
+  tokenized_long_beta_notional_spy?: number;
+  tokenized_short_beta_notional_spy?: number;
+  // Stress lens: β=1 dollar-net
+  tokenized_net_beta_usd_dollar?: number;
+  tokenized_net_beta_pct_notional_dollar?: number;
+  // Coherent total: crypto-β + tokenized-β_vs_SPY (operator tilt target)
+  coherent_net_beta_usd?: number;
+  coherent_net_beta_pct_notional?: number;
 }
 
 // ── Portfolio ──
