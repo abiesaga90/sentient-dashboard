@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OverviewSubTab } from "./macro-regime/OverviewSubTab";
 import { HorizonCompositesSubTab } from "./macro-regime/HorizonCompositesSubTab";
 import { ICHeatmapSubTab } from "./macro-regime/ICHeatmapSubTab";
@@ -34,9 +34,19 @@ const SUB_TABS = [
 ] as const;
 type SubTabId = typeof SUB_TABS[number]["id"];
 
-export function MacroRegimeTab() {
+export interface MacroRegimeTabProps {
+  /** Pending Macro Regime → Drilldown payload from a cross-tab navigation
+   *  (e.g. Risk & Stress → drift factor row click). Consumed once on mount
+   *  via useEffect, then cleared. */
+  pendingDrilldown?: { key: string; dependent: string; horizon: 7 | 30 | 90 } | null;
+  clearPendingDrilldown?: () => void;
+}
+
+export function MacroRegimeTab(
+  { pendingDrilldown, clearPendingDrilldown }: MacroRegimeTabProps = {},
+) {
   const [active, setActive] = useState<SubTabId>("overview");
-  // Click-through state from IC Heatmap → Drilldown.
+  // Click-through state from IC Heatmap → Drilldown OR cross-tab incoming.
   const [drilldown, setDrilldown] = useState<{
     key: string;
     dependent: string;
@@ -49,6 +59,17 @@ export function MacroRegimeTab() {
     setDrilldown({ key, dependent, horizon });
     setActive("drilldown");
   };
+
+  // Consume any pending cross-tab drilldown (set by LiveDashboard's
+  // navigateToMacroDrilldown callback). Runs once when the payload changes
+  // and then clears so a manual sub-tab switch isn't overridden.
+  useEffect(() => {
+    if (pendingDrilldown) {
+      setDrilldown(pendingDrilldown);
+      setActive("drilldown");
+      clearPendingDrilldown?.();
+    }
+  }, [pendingDrilldown, clearPendingDrilldown]);
 
   return (
     <div className="p-4 space-y-3">

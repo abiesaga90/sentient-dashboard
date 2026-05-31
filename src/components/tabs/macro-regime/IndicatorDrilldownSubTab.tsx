@@ -34,6 +34,9 @@ const DEPENDENTS = [
   "tokenized_metal_return",
   "tokenized_commodity_return",
   "tokenized_etf_return",
+  // 2026-05-31: drift-PnL dependent. Surfaces which macro indicators
+  // predict realized 24h-forward drift PnL (bps).
+  "drift_pnl",
 ] as const;
 
 export interface IndicatorDrilldownSubTabProps {

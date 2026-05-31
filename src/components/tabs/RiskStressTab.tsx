@@ -207,7 +207,115 @@ const componentVarColumns: Column<ComponentVar>[] = [
   },
 ];
 
-export function RiskStressTab() {
+/**
+ * Macro context header — composite + regime + axis B + multi-horizon trio.
+ * Inlined into the Drift Attribution view so the operator sees the same
+ * regime context the macro tilt is using without leaving the tab.
+ */
+function MacroContextHeader() {
+  const { client, engine } = useEngine();
+  const { data } = useQuery<{
+    composite_score?: number;
+    regime?: string;
+    regime_label?: string;
+    regime_color?: string;
+    axis_b_score?: number | null;
+    quadrant_label?: string | null;
+    quadrant_color?: string | null;
+    horizons_preview?: {
+      horizons?: Record<string, {
+        composite_score?: number | null;
+        regime?: string;
+        confidence?: "high" | "low";
+      }>;
+      combined?: {
+        combined_score?: number;
+        combined_tilt_pct?: number;
+        confidence?: "high" | "low";
+      };
+    } | null;
+  }>({
+    queryKey: ["macro-regime", engine.id],
+    queryFn: () => client.get("/api/macro_regime"),
+    refetchInterval: 120_000,
+    staleTime: 60_000,
+  });
+  if (!data) return null;
+  const composite = data.composite_score;
+  const regimeColor = data.regime_color || "#6b7280";
+  const horizons = data.horizons_preview?.horizons ?? {};
+  const combined = data.horizons_preview?.combined;
+  return (
+    <div className="rounded border border-[var(--border)] bg-gray-900/40 p-3 mb-3 text-xs">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <div className="text-[10px] text-gray-500 uppercase tracking-wider">
+          Macro context (live regime snapshot)
+        </div>
+        <div className="text-[10px] text-gray-500">
+          combined shadow tilt{" "}
+          <span className="text-gray-300 font-mono">
+            {combined?.combined_tilt_pct != null
+              ? `${combined.combined_tilt_pct >= 0 ? "+" : ""}${combined.combined_tilt_pct.toFixed(2)}%`
+              : "—"}
+          </span>
+          {" · "}conf{" "}
+          <span className="text-gray-300">
+            {combined?.confidence ?? "—"}
+          </span>
+        </div>
+      </div>
+      <div className="mt-2 grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div>
+          <div className="text-[10px] text-gray-500">Composite</div>
+          <div className="font-mono text-lg" style={{ color: regimeColor }}>
+            {composite != null ? composite.toFixed(1) : "—"}
+          </div>
+          <div className="text-[10px] text-gray-500">
+            {data.regime_label || "—"}
+          </div>
+        </div>
+        <div>
+          <div className="text-[10px] text-gray-500">Axis B</div>
+          <div className="font-mono text-lg" style={{ color: data.quadrant_color || "#6b7280" }}>
+            {data.axis_b_score != null ? data.axis_b_score.toFixed(1) : "—"}
+          </div>
+          <div className="text-[10px] text-gray-500">
+            {data.quadrant_label || "—"}
+          </div>
+        </div>
+        {[7, 30, 90].map((h) => {
+          const block = horizons[String(h)];
+          return (
+            <div key={h}>
+              <div className="text-[10px] text-gray-500">{h}d</div>
+              <div className="font-mono text-lg text-gray-200">
+                {block?.composite_score != null
+                  ? block.composite_score.toFixed(1)
+                  : "—"}
+              </div>
+              <div className="text-[10px] text-gray-500">
+                {block?.regime ?? "—"}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
+export interface RiskStressTabProps {
+  /** Optional callback used to jump into the Macro Regime → Drilldown
+   *  sub-tab pre-filtered with a factor name + dependent + horizon.
+   *  Wired through LiveDashboard so the click stays inside the existing
+   *  activeTab state — no React Router routing required. */
+  onJumpToMacroDrilldown?: (
+    key: string, dependent: string, horizon: 7 | 30 | 90,
+  ) => void;
+}
+
+export function RiskStressTab({ onJumpToMacroDrilldown }: RiskStressTabProps = {}) {
   const { client, engine } = useEngine();
 
   const { data: risk, isLoading: riskLoading } = useQuery<RiskResponse>({
@@ -374,6 +482,14 @@ export function RiskStressTab() {
     current_value: number;
     loading: number;
     persistence: number;
+    // 2026-05-31: IC-calibrated persistence overlay (optional — present when
+    // the drift refit has produced at least one drift_factor_persistence_history
+    // row for this factor's name).
+    persistence_prior?: number | null;
+    ic_value?: number | null;
+    ic_n?: number | null;
+    soft_paused?: boolean;
+    sign_flipped?: boolean;
     contribution_bps: number;
     direction: "favorable" | "unfavorable" | "neutral";
     metadata?: {
@@ -414,6 +530,9 @@ export function RiskStressTab() {
     current_beta_net_pct: number;
     hard_limit_pct: number;
     hard_limit_buffer_pct: number;
+    // 2026-05-31: macro-regime contribution baked into upper/lower above.
+    // Surfaced separately so the dashboard can render an explicit label.
+    macro_delta_pp?: number;
   }
   interface GarchForecast {
     daily_vol_pct: number;
@@ -901,6 +1020,12 @@ export function RiskStressTab() {
             );
           })()}
 
+          {/* Macro context — pulls /api/macro_regime cached payload so the
+              drift attribution table reads the same composite/quadrant the
+              live tilt is using. Visible inline so the operator can see at
+              a glance whether drift behaviour is consistent with the regime. */}
+          <MacroContextHeader />
+
           {/* Cost Comparison */}
           {driftData.costs && (
             <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
@@ -930,7 +1055,19 @@ export function RiskStressTab() {
                   <tr>
                     <th className="px-3 py-1.5 text-left text-gray-500">Factor</th>
                     <th className="px-3 py-1.5 text-right text-gray-500">Current</th>
-                    <th className="px-3 py-1.5 text-right text-gray-500">Persistence</th>
+                    <th
+                      className="px-3 py-1.5 text-right text-gray-500"
+                      title="IC-calibrated effective persistence. Hover for prior, IC value, and sample size."
+                    >
+                      Persistence
+                    </th>
+                    <th
+                      className="px-3 py-1.5 text-right text-gray-500"
+                      title="Spearman IC vs drift_pnl_bps_fwd_24h. Click row to drill into rolling history."
+                    >
+                      IC
+                    </th>
+                    <th className="px-3 py-1.5 text-right text-gray-500">n</th>
                     <th className="px-3 py-1.5 text-right text-gray-500">Cost share</th>
                     <th className="px-3 py-1.5 text-right text-gray-500">Outlook</th>
                   </tr>
@@ -952,10 +1089,39 @@ export function RiskStressTab() {
                     const isExpanded = expandedFactor === f.factor;
                     return (
                       <React.Fragment key={f.factor}>
-                      <tr className={hasMeta ? "cursor-pointer hover:bg-gray-800/40" : ""} onClick={() => hasMeta && setExpandedFactor(isExpanded ? null : f.factor)}>
+                      <tr
+                        className={(hasMeta || onJumpToMacroDrilldown) ? "cursor-pointer hover:bg-gray-800/40" : ""}
+                        onClick={() => {
+                          if (hasMeta) {
+                            setExpandedFactor(isExpanded ? null : f.factor);
+                            return;
+                          }
+                          if (onJumpToMacroDrilldown) {
+                            // Drift factors are tracked under the same key as the
+                            // drift IC engine emits — pass through verbatim.
+                            onJumpToMacroDrilldown(f.factor, "drift_pnl", 30);
+                          }
+                        }}
+                      >
                         <td className="px-3 py-1.5 text-gray-300">
                           {hasMeta && (isExpanded ? <ChevronDown className="inline w-3 h-3 mr-1 text-gray-500" /> : <ChevronRight className="inline w-3 h-3 mr-1 text-gray-500" />)}
                           {f.factor}
+                          {f.soft_paused && (
+                            <span
+                              className="ml-2 inline-flex items-center px-1.5 py-[1px] rounded text-[9px] font-mono uppercase bg-gray-700/40 text-gray-300 border border-gray-600/50"
+                              title="Calibrator soft-paused this factor: |IC|<0.03 for 3 consecutive computes."
+                            >
+                              paused
+                            </span>
+                          )}
+                          {f.sign_flipped && (
+                            <span
+                              className="ml-2 inline-flex items-center px-1.5 py-[1px] rounded text-[9px] font-mono uppercase bg-amber-900/40 text-amber-300 border border-amber-700/50"
+                              title="Calibrator sign-flipped this factor: |IC|>0.10 with opposite-of-prior sign over 2 consecutive computes."
+                            >
+                              flip
+                            </span>
+                          )}
                           {isSaylor && f.metadata?.drought_active && (
                             <span
                               className="ml-2 inline-flex items-center px-1.5 py-[1px] rounded text-[9px] font-mono uppercase bg-red-900/40 text-red-300 border border-red-800/50"
@@ -974,7 +1140,34 @@ export function RiskStressTab() {
                           )}
                         </td>
                         <td className="px-3 py-1.5 text-right font-mono text-gray-300">{valStr}</td>
-                        <td className="px-3 py-1.5 text-right font-mono text-gray-500">{f.persistence.toFixed(2)}</td>
+                        <td
+                          className={`px-3 py-1.5 text-right font-mono ${f.soft_paused ? "text-gray-600" : "text-gray-300"}`}
+                          title={
+                            f.persistence_prior != null
+                              ? `prior ${f.persistence_prior.toFixed(2)} → effective ${f.persistence.toFixed(2)}${f.soft_paused ? " (paused → 0)" : ""}`
+                              : "hardcoded prior — calibrator has not produced an override yet"
+                          }
+                        >
+                          {f.persistence.toFixed(2)}
+                        </td>
+                        <td
+                          className={`px-3 py-1.5 text-right font-mono ${
+                            f.ic_value == null
+                              ? "text-gray-600"
+                              : f.ic_value > 0.10
+                              ? "text-green-400"
+                              : f.ic_value < -0.10
+                              ? "text-red-400"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {f.ic_value != null
+                            ? `${f.ic_value >= 0 ? "+" : ""}${f.ic_value.toFixed(3)}`
+                            : "—"}
+                        </td>
+                        <td className="px-3 py-1.5 text-right font-mono text-gray-500">
+                          {f.ic_n ?? "—"}
+                        </td>
                         <td className="px-3 py-1.5 text-right font-mono text-gray-300">{f.contribution_bps.toFixed(1)} bps</td>
                         <td className={`px-3 py-1.5 text-right font-medium ${dirColor}`}>
                           <span className="font-mono">{dirIcon}</span> {f.direction}
@@ -1000,7 +1193,7 @@ export function RiskStressTab() {
                                   <span className="text-gray-600 mr-1">├─</span>{r.label} <span className="text-gray-600">({r.weight})</span>
                                 </td>
                                 <td className="px-3 py-1 text-right font-mono text-gray-400 text-[11px]">{r.score != null ? r.score.toFixed(0) : "—"}</td>
-                                <td colSpan={3} className="px-3 py-1 text-right font-mono text-gray-600 text-[11px]">{r.detail || ""}</td>
+                                <td colSpan={5} className="px-3 py-1 text-right font-mono text-gray-600 text-[11px]">{r.detail || ""}</td>
                               </tr>
                             ))}
                             <tr className="bg-gray-900/30">
@@ -1032,7 +1225,22 @@ export function RiskStressTab() {
             const inBand = b.current_beta_net_pct >= b.lower_pct && b.current_beta_net_pct <= b.upper_pct;
             return (
               <div className="mb-3 px-3">
-                <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-2">Dynamic Drift Bands (beta net %)</div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-[10px] text-gray-600 uppercase tracking-wider">Dynamic Drift Bands (beta net %)</div>
+                  {b.macro_delta_pp != null && b.macro_delta_pp !== 0 && (
+                    <div
+                      className="text-[10px] font-mono"
+                      title={b.macro_delta_pp > 0
+                        ? "Macro composite high-conviction bull: bands widened to let beta drift further before rebalancing."
+                        : "Macro composite in transition: bands tightened to rebalance sooner."}
+                    >
+                      <span className="text-gray-500 uppercase tracking-wider">macro</span>
+                      <span className={`ml-1 ${b.macro_delta_pp > 0 ? "text-green-400" : "text-amber-400"}`}>
+                        {b.macro_delta_pp >= 0 ? "+" : ""}{b.macro_delta_pp.toFixed(1)}pp
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="relative h-10 bg-gray-900 rounded-md overflow-hidden border border-gray-700">
                   {/* Danger zones near hard limits */}
                   <div className="absolute h-full bg-red-900/15" style={{ left: 0, width: `${toPos(-b.hard_limit_pct + 5)}%` }} />

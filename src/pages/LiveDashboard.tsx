@@ -34,6 +34,19 @@ import { useDashboard, useStatus } from "../hooks/useDashboardQuery";
 
 export function LiveDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+  // 2026-05-31: pending Macro Regime → Drilldown payload set by cross-tab
+  // navigation (e.g. Risk & Stress factor row click). Consumed once by
+  // MacroRegimeTab via a useEffect, then cleared via clearPending() so a
+  // subsequent manual switch into Macro Regime doesn't reapply it.
+  const [pendingMacroDrilldown, setPendingMacroDrilldown] = useState<{
+    key: string; dependent: string; horizon: 7 | 30 | 90;
+  } | null>(null);
+  const navigateToMacroDrilldown = (
+    key: string, dependent: string, horizon: 7 | 30 | 90,
+  ) => {
+    setPendingMacroDrilldown({ key, dependent, horizon });
+    setActiveTab("macro-regime");
+  };
   const { data: dashboard, isLoading, error } = useDashboard();
   const { data: status } = useStatus();
 
@@ -79,6 +92,9 @@ export function LiveDashboard() {
             activeTab={activeTab}
             dashboard={dashboard}
             onNavigate={setActiveTab}
+            navigateToMacroDrilldown={navigateToMacroDrilldown}
+            pendingMacroDrilldown={pendingMacroDrilldown}
+            clearPendingMacroDrilldown={() => setPendingMacroDrilldown(null)}
           />
         ) : null}
       </main>
@@ -90,10 +106,18 @@ function TabContent({
   activeTab,
   dashboard,
   onNavigate,
+  navigateToMacroDrilldown,
+  pendingMacroDrilldown,
+  clearPendingMacroDrilldown,
 }: {
   activeTab: string;
   dashboard: NonNullable<ReturnType<typeof useDashboard>["data"]>;
   onNavigate: (tabId: string) => void;
+  navigateToMacroDrilldown: (
+    key: string, dependent: string, horizon: 7 | 30 | 90,
+  ) => void;
+  pendingMacroDrilldown: { key: string; dependent: string; horizon: 7 | 30 | 90 } | null;
+  clearPendingMacroDrilldown: () => void;
 }) {
   switch (activeTab) {
     case "overview":
@@ -131,11 +155,16 @@ function TabContent({
     case "pairs":
       return <PairsTab />;
     case "risk-stress":
-      return <RiskStressTab />;
+      return <RiskStressTab onJumpToMacroDrilldown={navigateToMacroDrilldown} />;
     case "leverage-calibration":
       return <LeverageCalibrationTab />;
     case "macro-regime":
-      return <MacroRegimeTab />;
+      return (
+        <MacroRegimeTab
+          pendingDrilldown={pendingMacroDrilldown}
+          clearPendingDrilldown={clearPendingMacroDrilldown}
+        />
+      );
     case "execution":
       return <ExecutionTab />;
     case "scaling":
