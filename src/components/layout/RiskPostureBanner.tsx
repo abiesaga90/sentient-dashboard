@@ -100,11 +100,11 @@ export function RiskPostureBanner() {
       <span className="text-[10px] uppercase tracking-wider text-gray-600 font-semibold">Risk</span>
 
       <Metric
-        label="σ EWMA"
+        label="L/S spread σ"
         value={data.sigma_daily_pct != null ? `${data.sigma_daily_pct.toFixed(2)}%/d` : "—"}
         sub={data.sigma_annual_pct != null ? `${data.sigma_annual_pct.toFixed(1)}%/y` : undefined}
         valueClass={regimeCol}
-        regime={data.vol_regime}
+        regime={data.vol_regime ? `BTC ${data.vol_regime}` : null}
       />
 
       <Divider />
