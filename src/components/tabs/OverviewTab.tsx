@@ -17,6 +17,7 @@ import { usePnl, useRiskHistory } from "../../hooks/useDashboardQuery";
 import type { DashboardResponse } from "../../types/api";
 import { SizingStatusCard } from "../overview/SizingStatusCard";
 import { UniMMRCard } from "../overview/UniMMRCard";
+import { TokenizedSleeveCard } from "../overview/TokenizedSleeveCard";
 
 interface OverviewTabProps {
   data: DashboardResponse;
@@ -76,6 +77,7 @@ export function OverviewTab({ data, onNavigate }: OverviewTabProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <UniMMRCard onNavigate={onNavigate} />
         <SizingStatusCard onNavigate={onNavigate} />
+        <TokenizedSleeveCard onNavigate={onNavigate} />
       </div>
 
       {/* Equity Curve */}
