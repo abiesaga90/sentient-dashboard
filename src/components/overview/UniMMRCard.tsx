@@ -11,7 +11,7 @@ import { cn, formatUSD } from "../../lib/utils";
  * Technically the ratio that triggers PM liquidation at < 1.0, but on our
  * beta-neutral L/S book it sits at 50+ because the PM engine nets longs
  * and shorts in its stress scenarios. Liquidation is not a realistic
- * concern — the 9.5% PTT-DD stop trips ~15x before uniMMR could approach
+ * concern — the 10% PTT-DD stop trips ~15x before uniMMR could approach
  * 1.0. We use uniMMR as a HEDGE QUALITY gauge instead.
  *
  * Thresholds (strategy-calibrated, NOT Binance's liquidation bands):
@@ -154,7 +154,7 @@ export function UniMMRCard({
           </div>
           <div>
             <span className="text-gray-100 font-semibold">Why we watch it (not for liquidation):</span>{" "}
-            the 9.5% PTT-DD stop would trip ~15× before uniMMR could approach
+            the 10% PTT-DD stop would trip ~15× before uniMMR could approach
             1.0 — liquidation is not a realistic concern. Instead, uniMMR is a
             leading indicator of <em>hedge quality</em>. A trend from 150 →
             50 → 20 over a week means longs and shorts are no longer offsetting

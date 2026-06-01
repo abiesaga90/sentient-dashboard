@@ -744,7 +744,7 @@ export function ShortSelectionTab() {
                 { label: "Monthly Rotation", value: "720h (30d)" },
                 { label: "Momentum Exit", value: "15% / 14d spread" },
                 { label: "Max Hold", value: "30 days" },
-                { label: "DD Stop", value: "9.5% PTT DD" },
+                { label: "DD Stop", value: "10% PTT DD" },
               ].map(({ label, value }) => (
                 <div key={label} className="flex items-center justify-between bg-gray-900/50 rounded px-2 py-1.5">
                   <span className="text-gray-400">{label}</span>

@@ -1730,7 +1730,7 @@ export function RiskStressTab({ onJumpToMacroDrilldown }: RiskStressTabProps = {
             }
           | undefined;
         // Fallback schedule (legacy curve) if backend hasn't shipped dd_trim_schedule yet
-        const fallback: ScheduleRow[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 9.5].map((dd) => ({
+        const fallback: ScheduleRow[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((dd) => ({
           dd_pct: dd,
           scale: dd >= stopPct ? 0 : Math.pow(1 - dd / stopPct, 0.5),
           gross_pct: (dd >= stopPct ? 0 : Math.pow(1 - dd / stopPct, 0.5)) * 100,

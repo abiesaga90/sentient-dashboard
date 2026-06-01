@@ -22,7 +22,7 @@ import { formatUSD, cn } from "../../lib/utils";
  *
  * uniMMR technically governs PM liquidation at < 1.0, but on a beta-neutral
  * L/S book it sits at 50+ because the PM engine nets longs and shorts in
- * stress. Liquidation is never a realistic concern — the 9.5% PTT-DD stop
+ * stress. Liquidation is never a realistic concern — the 10% PTT-DD stop
  * would trip ~15× before uniMMR could reach 1.0. We use uniMMR instead as
  * a leading indicator of hedge quality: falling values flag that the L/S
  * stress offset is breaking down.
@@ -208,7 +208,7 @@ export function UniMMRDetail() {
           its stress scenarios, so MM requirement stays tiny (typically &lt;1%
           of equity) and uniMMR sits at 50+. For uniMMR to hit Binance's
           liquidation threshold of 1.0 we'd need to lose ~99% of account
-          equity — but the <span className="font-mono">9.5%</span> PTT-DD
+          equity — but the <span className="font-mono">10%</span> PTT-DD
           stop would cut positions ~15× earlier.
         </div>
         <div>

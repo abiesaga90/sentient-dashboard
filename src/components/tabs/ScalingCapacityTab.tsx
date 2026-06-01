@@ -221,7 +221,7 @@ function buildBandSeries(proj: SortinoProjectionPoint[]) {
 
 function DDRecoveryPanel({
   ddPct,
-  ddStopPct = 9.5,
+  ddStopPct = 10,
   gatePct = 5.0,
   notional,
   dailyPortfolioVolUsd,
