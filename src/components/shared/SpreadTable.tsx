@@ -27,6 +27,7 @@ interface ExOutlierData {
   label: string;
   symbols: string[];
   total_pnl_removed: number;
+  horizons?: Record<string, SpreadData>;
   periods: Record<string, SpreadData>;
   cumulative_spread_pct: number;
   information_ratio: number;
@@ -103,6 +104,13 @@ export function SpreadTable({
   const lm = levered ? leverageRatio : 1;
   const exo = exOutliers;
 
+  // Swap short-term horizons (4h/12h/24h/3d) too when the exclusion is on.
+  // exo.horizons is populated whenever ex-leg notionals are computable; fall
+  // back to the full-book horizons if the backend omitted it (empty dict).
+  const activeHorizons =
+    exOuts && exo && exo.horizons && Object.keys(exo.horizons).length > 0
+      ? exo.horizons
+      : horizons;
   const activePeriods = exOuts && exo ? exo.periods : periods;
   const activeIR = exOuts && exo ? exo.information_ratio : informationRatio;
   const activeCapture = exOuts && exo ? exo.down_day_capture_pct : downDayCapture;
@@ -143,7 +151,7 @@ export function SpreadTable({
     return out;
   };
 
-  const displayHorizons = scaleSpread(horizons);
+  const displayHorizons = scaleSpread(activeHorizons);
   const displayPeriods = scaleSpread(activePeriods);
 
   // Check if attribution data is available

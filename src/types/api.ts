@@ -187,6 +187,15 @@ export interface Portfolio {
       label: string;
       symbols: string[];
       total_pnl_removed: number;
+      horizons?: Record<string, {
+        spread_pct: number;
+        long_pct: number;
+        short_pct: number;
+        ew_spread_pct?: number | null;
+        ew_long_pct?: number | null;
+        ew_short_pct?: number | null;
+        sizing_lift_pct?: number | null;
+      }>;
       periods: Record<string, {
         spread_pct: number;
         long_pct: number;
