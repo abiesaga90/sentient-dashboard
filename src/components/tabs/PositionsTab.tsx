@@ -40,16 +40,23 @@ const columns: Column<Position>[] = [
         <div className="flex gap-1 flex-wrap">
           {r.tags.map((t) => {
             const isPinned = t === "PINNED";
+            const isFrozen = t === "FROZEN";
+            const variant = isFrozen ? "info" : isPinned ? "warning" : "default";
+            const title = isFrozen
+              ? "Frozen sleeve (REBALANCE_FROZEN_SYMBOLS): held untouched by the rebalance engine — no target, resize, trim, or rotation-close. Only the hard DD_STOP can exit it. Change size only via manual-twap. (This is why it can show as 'rotated OUT' in alerts despite never being closed.)"
+              : isPinned
+                ? "Force-pinned via ALWAYS_INCLUDE_SHORTS (discretionary conviction short)"
+                : undefined;
             return (
               <Badge
                 key={t}
-                variant={isPinned ? "warning" : "default"}
+                variant={variant}
                 className={`text-[10px] px-1 py-0 ${
-                  isPinned ? "font-semibold tracking-wide" : ""
+                  isPinned || isFrozen ? "font-semibold tracking-wide" : ""
                 }`}
-                title={isPinned ? "Force-pinned via ALWAYS_INCLUDE_SHORTS (discretionary conviction short)" : undefined}
+                title={title}
               >
-                {t}
+                {isFrozen ? "🧊 FROZEN" : t}
               </Badge>
             );
           })}
