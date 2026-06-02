@@ -8,6 +8,7 @@ import { Badge } from "../ui/Badge";
 import { formatUSD } from "../../lib/utils";
 import type { Position, BetaAggregate, RiskData } from "../../types/api";
 import { BasketPnlChart, type BasketPnlPoint } from "../positions/BasketPnlChart";
+import { BasisSleeveSection } from "../positions/BasisSleeveSection";
 import { ExposurePanel } from "../shared/ExposurePanel";
 
 type SideFilter = "all" | "LONG" | "SHORT";
@@ -296,6 +297,9 @@ export function PositionsTab() {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Basis sleeve (funding carry) — renders only when configured */}
+      <BasisSleeveSection />
+
       {/* Unrealized P&L Summary */}
       {positions.length > 0 && (
         <Card>
