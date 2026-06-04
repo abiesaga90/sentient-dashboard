@@ -158,8 +158,10 @@ const columns: Column<Position>[] = [
       // For shorts, positive funding = we receive; for longs, positive = we pay
       const effective = r.side === "SHORT" ? ann : -ann;
       const color = effective > 0 ? "text-green-400" : effective < -10 ? "text-red-400" : "text-amber-400";
+      const ivl = (r as any).funding_interval_h;
+      const ivlNote = ivl && ivl !== 8 ? ` [${ivl}h settle]` : "";
       return (
-        <span className={`font-mono text-[11px] ${color}`} title={`${ann > 0 ? "+" : ""}${ann.toFixed(1)}% ann. (${r.side === "SHORT" ? "receiving" : "paying"})`}>
+        <span className={`font-mono text-[11px] ${color}`} title={`${ann > 0 ? "+" : ""}${ann.toFixed(1)}% ann. (${r.side === "SHORT" ? "receiving" : "paying"})${ivlNote}`}>
           {effective > 0 ? "+" : ""}{effective.toFixed(1)}%
         </span>
       );
@@ -170,6 +172,31 @@ const columns: Column<Position>[] = [
       const ann = (r as any).funding_rate_ann ?? 0;
       return r.side === "SHORT" ? ann : -ann;
     },
+    align: "right",
+  },
+  {
+    // Funding $ accrued on the CURRENT open trade (since this position's entry).
+    // Sign: positive = we received funding, negative = we paid.
+    key: "funding_paid",
+    header: "Fund $ (trade)",
+    render: (r) => {
+      const v = (r as any).funding_paid;
+      if (v == null || v === 0) return <span className="text-gray-700">—</span>;
+      return <PnlText value={v} title="Funding accrued on the current open trade (since entry)" />;
+    },
+    sortKey: (r) => (r as any).funding_paid ?? 0,
+    align: "right",
+  },
+  {
+    // Funding $ accrued on this symbol across ALL trades since strategy inception.
+    key: "funding_paid_all_time",
+    header: "Fund $ (all)",
+    render: (r) => {
+      const v = (r as any).funding_paid_all_time;
+      if (v == null || v === 0) return <span className="text-gray-700">—</span>;
+      return <PnlText value={v} title="Total funding on this symbol across all trades since inception" />;
+    },
+    sortKey: (r) => (r as any).funding_paid_all_time ?? 0,
     align: "right",
   },
   {
