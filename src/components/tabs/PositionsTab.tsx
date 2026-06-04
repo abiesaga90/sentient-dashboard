@@ -153,6 +153,15 @@ const columns: Column<Position>[] = [
     key: "funding_rate_ann",
     header: "Fund%",
     render: (r) => {
+      // Basis-sleeve spot legs have no funding but cost USDT borrow — show it.
+      if ((r as any).is_basis_spot) {
+        const b = (r as any).usdt_borrow_ann_pct;
+        return b ? (
+          <span className="font-mono text-[11px] text-red-400" title="USDT borrow cost on the spot leg (financing)">
+            -{b.toFixed(1)}% borrow
+          </span>
+        ) : <span className="text-gray-700">—</span>;
+      }
       const ann = (r as any).funding_rate_ann;
       if (ann == null || ann === 0) return <span className="text-gray-700">—</span>;
       // For shorts, positive funding = we receive; for longs, positive = we pay

@@ -94,6 +94,8 @@ export function BasisSleeveSection() {
               <th className="text-right py-1.5 px-2">Spot long</th>
               <th className="text-right py-1.5 px-2">Net delta</th>
               <th className="text-right py-1.5 px-2">Accrued funding</th>
+              <th className="text-right py-1.5 px-2">USDT borrow/d</th>
+              <th className="text-right py-1.5 px-2">Net carry/d</th>
               <th className="text-center py-1.5 px-2">State</th>
             </tr>
           </thead>
@@ -115,6 +117,12 @@ export function BasisSleeveSection() {
                 </td>
                 <td className={`py-1.5 px-2 text-right font-mono ${tone(p.accrued_funding_usd)}`}>
                   {p.accrued_funding_usd >= 0 ? "+" : ""}${p.accrued_funding_usd.toFixed(2)}
+                </td>
+                <td className="py-1.5 px-2 text-right font-mono text-red-400">
+                  -${((p as any).usdt_borrow_daily_usd ?? 0).toFixed(2)}
+                </td>
+                <td className={`py-1.5 px-2 text-right font-mono ${tone((p as any).net_carry_daily_usd ?? 0)}`}>
+                  {((p as any).net_carry_daily_usd ?? 0) >= 0 ? "+" : ""}${((p as any).net_carry_daily_usd ?? 0).toFixed(2)}
                 </td>
                 <td className="py-1.5 px-2 text-center">
                   <Badge variant={p.delta_neutral ? "success" : "warning"} className="text-[10px]">
