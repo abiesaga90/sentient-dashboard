@@ -199,6 +199,17 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
               </div>
             );
           })()}
+          {((risk as any).sleeve?.n_pairs ?? 0) > 0 && (
+            <div className="mt-2 pt-2 border-t border-gray-800 text-[10px]">
+              <div className="flex justify-between text-gray-500">
+                <span>Basis sleeve ({(risk as any).sleeve.n_pairs})</span>
+                <span className="text-gray-300 font-semibold">
+                  ${((risk as any).sleeve.gross_usd ?? 0).toFixed(0)} gross · Δ ${((risk as any).sleeve.net_delta_usd ?? 0).toFixed(0)}
+                </span>
+              </div>
+              <div className="text-gray-600">core gross/net above excludes the sleeve (delta-neutral carry)</div>
+            </div>
+          )}
         </Card>
 
         {/* Positions */}
@@ -206,6 +217,9 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
           <CardTitle>Positions</CardTitle>
           <div className="text-xl font-bold text-gray-100 mt-1">
             {portfolio.n_longs}L / {portfolio.n_shorts}S
+            {((risk as any).sleeve?.n_pairs ?? 0) > 0 && (
+              <span className="text-[11px] text-gray-500 font-normal"> +{(risk as any).sleeve.n_pairs} sleeve</span>
+            )}
           </div>
           <div className="text-[10px] text-gray-600 mt-1">
             Target: {portfolio.n_longs_target}L / {portfolio.n_shorts_target}S
