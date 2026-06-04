@@ -295,13 +295,6 @@ export function PositionsTab() {
     staleTime: 60_000,
   });
 
-  // Basis-sleeve spot legs (collateral, not in /api/positions). Merge them in
-  // as tagged LONG rows so the Positions tab + counts account for them.
-  const { data: sleeve } = useQuery<{ enabled: boolean; pairs: any[] }>({
-    queryKey: ["basis-sleeve", engine.id],
-    queryFn: () => client.get("/api/basis-sleeve"),
-    refetchInterval: 30_000,
-  });
 
   if (isLoading) {
     return (
@@ -311,26 +304,9 @@ export function PositionsTab() {
     );
   }
 
-  const corePositions = data?.positions ?? [];
-  // Synthetic rows for the basis-sleeve spot longs (held as margin collateral,
-  // not real positions). funding_rate_ann=null keeps them out of the funding
-  // summary (spot accrues no funding); pnl shown as N/A (hedge leg).
-  const spotLegs: Position[] = (sleeve?.pairs ?? [])
-    .filter((p) => (p.spot_units ?? 0) > 0)
-    .map((p) => ({
-      symbol: `${p.base} (spot)`,
-      side: "LONG",
-      tags: ["BASIS SPOT"],
-      current_price: p.mark,
-      entry_price: p.mark,
-      quantity: p.spot_units,
-      notional: p.spot_usd,
-      pnl_pct: null,
-      pnl_usd: null,
-      funding_rate_ann: null,
-      hours_held: 0,
-    } as unknown as Position));
-  const positions = [...corePositions, ...spotLegs];
+  // Basis-sleeve spot legs are now injected server-side into /api/positions
+  // (tagged "BASIS SPOT"), so no client-side merge needed.
+  const positions = data?.positions ?? [];
   const beta = data?.beta;
   const filtered =
     sideFilter === "all"

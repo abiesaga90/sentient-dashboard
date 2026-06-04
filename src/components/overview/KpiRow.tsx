@@ -204,10 +204,10 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
               <div className="flex justify-between text-gray-500">
                 <span>Basis sleeve ({(risk as any).sleeve.n_pairs})</span>
                 <span className="text-gray-300 font-semibold">
-                  ${((risk as any).sleeve.gross_usd ?? 0).toFixed(0)} gross · Δ ${((risk as any).sleeve.net_delta_usd ?? 0).toFixed(0)}
+                  ${((risk as any).sleeve.gross_usd ?? 0).toFixed(0)} gross · Δ ${((risk as any).sleeve.net_delta_usd ?? 0).toFixed(0)} · borrow ~${((risk as any).sleeve.usdt_borrow_daily_usd ?? 0).toFixed(1)}/d
                 </span>
               </div>
-              <div className="text-gray-600">core gross/net above excludes the sleeve (delta-neutral carry)</div>
+              <div className="text-gray-600">core gross/net above excludes the sleeve (delta-neutral carry; spot legs cost USDT borrow)</div>
             </div>
           )}
         </Card>
