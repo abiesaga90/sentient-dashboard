@@ -515,6 +515,28 @@ export function PositionsTab() {
                 </div>
               </div>
             </div>
+            {(() => {
+              const nav = (risk as any)?.nav ?? 0;
+              const grossN = totalNotional;  // gross notional of funded positions
+              const annUsd = dailyUsd * 365;
+              const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
+              const dNav = nav > 0 ? (dailyUsd / nav) * 100 : 0;
+              const dGross = grossN > 0 ? (dailyUsd / grossN) * 100 : 0;
+              const aNav = nav > 0 ? (annUsd / nav) * 100 : 0;
+              const aGross = grossN > 0 ? (annUsd / grossN) * 100 : 0;
+              return (
+                <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-gray-500">
+                  <div>
+                    Daily: <span className="font-mono text-gray-300">{fmt(dNav)}</span> of NAV ·{" "}
+                    <span className="font-mono text-gray-300">{fmt(dGross)}</span> of gross notional
+                  </div>
+                  <div>
+                    Annualized: <span className="font-mono text-gray-300">{fmt(aNav)}</span> of NAV ·{" "}
+                    <span className="font-mono text-gray-300">{fmt(aGross)}</span> of gross notional
+                  </div>
+                </div>
+              );
+            })()}
             <div className="mt-2 text-[10px] text-gray-600">
               Sign convention: short funding receipt is positive, long funding payment
               is negative. {withFunding.length}/{positions.length} positions have live
