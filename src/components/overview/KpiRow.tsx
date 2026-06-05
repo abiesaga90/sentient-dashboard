@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardTitle } from "../ui/Card";
 import { formatUSD, formatPct, cn } from "../../lib/utils";
+import { useEngine } from "../../hooks/useEngine";
 import type { Portfolio, RiskData } from "../../types/api";
 
 interface PositionData {
@@ -21,6 +23,17 @@ type ExposureView = "gross" | "notional" | "nav";
 export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
   const [exposureView, setExposureView] = useState<ExposureView>("gross");
   const leverage = risk.gross_pct / 100;
+  const { client, engine } = useEngine();
+  const { data: carry } = useQuery<{
+    available?: boolean;
+    summary?: { net_carry_usd_yr: number; net_carry_pct_notional: number };
+  }>({
+    queryKey: ["funding-carry-kpi", engine.id],
+    queryFn: () => client.get("/api/funding-carry/latest"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+  const carrySummary = carry?.available ? carry.summary : undefined;
 
   return (
     <div className="space-y-3">
@@ -228,6 +241,24 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
             Total: {portfolio.n_positions} positions
           </div>
         </Card>
+
+        {/* Net Funding Carry */}
+        {carrySummary && (
+          <Card>
+            <CardTitle>Net Carry</CardTitle>
+            <div className={cn(
+              "text-xl font-bold mt-1",
+              carrySummary.net_carry_usd_yr >= 0 ? "text-green-400" : "text-red-400"
+            )}>
+              {carrySummary.net_carry_usd_yr >= 0 ? "+" : ""}
+              {formatUSD(carrySummary.net_carry_usd_yr, 0)}/yr
+            </div>
+            <div className="text-[10px] text-gray-600 mt-1">
+              {formatPct(carrySummary.net_carry_pct_notional)} of notional
+            </div>
+            <div className="text-[10px] text-gray-600">funding carry (book)</div>
+          </Card>
+        )}
       </div>
 
       {/* Spread Vol Metrics */}
@@ -427,13 +458,20 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
             />
             <ComplianceRow
               label="Gross"
-              current={formatPct(risk.gross_pct)}
+              current={(() => {
+                const c = risk.compliance as any;
+                const core = c.gross_pct_core ?? risk.gross_pct;
+                const total = c.gross_pct_total ?? risk.gross_pct;
+                return Math.abs(total - core) > 0.5
+                  ? `${formatPct(core)} core (${formatPct(total)} incl. sleeve)`
+                  : formatPct(core);
+              })()}
               limit={`${risk.limits.max_leverage_pct}%`}
               ok={risk.compliance.gross_ok}
             />
             <ComplianceRow
               label="Net"
-              current={formatPct(risk.net_pct)}
+              current={formatPct((risk.compliance as any).net_pct_core ?? risk.net_pct)}
               limit={`±${risk.limits.max_net_pct}%`}
               ok={risk.compliance.net_ok}
             />

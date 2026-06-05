@@ -24,6 +24,7 @@ import {
   Plug,
   CandlestickChart,
   CalendarDays,
+  Coins,
 } from "lucide-react";
 
 export const DASHBOARD_TABS = [
@@ -37,6 +38,7 @@ export const DASHBOARD_TABS = [
   { id: "risk-stress", label: "Risk & Stress", icon: <ShieldAlert size={14} /> },
   { id: "leverage-calibration", label: "Leverage Calibration", icon: <TrendingDown size={14} /> },
   { id: "positions", label: "Positions", icon: <List size={14} /> },
+  { id: "funding-carry", label: "Funding Carry", icon: <Coins size={14} /> },
   { id: "long-signals", label: "Long Signals", icon: <Activity size={14} /> },
   { id: "long-selection", label: "Long Selection", icon: <Zap size={14} /> },
   { id: "short-selection", label: "Short Selection", icon: <ArrowDownUp size={14} /> },

@@ -6,6 +6,7 @@ import { RiskPostureBanner } from "../components/layout/RiskPostureBanner";
 import { SizingShadowAlert } from "../components/layout/SizingShadowAlert";
 import { OverviewTab } from "../components/tabs/OverviewTab";
 import { PositionsTab } from "../components/tabs/PositionsTab";
+import { FundingCarryTab } from "../components/tabs/FundingCarryTab";
 import { ShortSelectionTab } from "../components/tabs/ShortSelectionTab";
 import { NextRebalanceTab } from "../components/tabs/NextRebalanceTab";
 import { ExecutionTab } from "../components/tabs/ExecutionTab";
@@ -134,6 +135,8 @@ function TabContent({
       return <SizingShadowTab />;
     case "positions":
       return <PositionsTab />;
+    case "funding-carry":
+      return <FundingCarryTab />;
     case "short-selection":
       return <ShortSelectionTab />;
     case "next-rebalance":
