@@ -29,6 +29,9 @@ interface BasisSleeveResponse {
     gross_usd?: number;
     net_delta_usd?: number;
     accrued_funding_usd?: number;
+    usdt_borrow_accrued_usd?: number;
+    net_carry_accrued_usd?: number;
+    usdt_borrow_actual?: boolean;
   };
 }
 
@@ -61,7 +64,7 @@ export function BasisSleeveSection() {
         </CardTitle>
       </CardHeader>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs mb-3">
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
           <div className="text-[10px] text-gray-500 uppercase">Pairs</div>
           <div className="text-lg font-mono font-semibold text-gray-200">{s.n_pairs ?? 0}</div>
@@ -76,10 +79,21 @@ export function BasisSleeveSection() {
             {(s.net_delta_usd ?? 0) >= 0 ? "+" : ""}${(s.net_delta_usd ?? 0).toFixed(0)}
           </div>
         </div>
-        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-          <div className="text-[10px] text-gray-500 uppercase">Accrued Funding</div>
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]" title="Gross funding received (before USDT borrow cost)">
+          <div className="text-[10px] text-gray-500 uppercase">Funding Gross</div>
           <div className={`text-lg font-mono font-semibold ${tone(s.accrued_funding_usd ?? 0)}`}>
             {(s.accrued_funding_usd ?? 0) >= 0 ? "+" : ""}${(s.accrued_funding_usd ?? 0).toFixed(2)}
+          </div>
+        </div>
+        <div
+          className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]"
+          title={`Net carry = funding received minus USDT borrow paid${
+            s.usdt_borrow_actual ? " (actual ledger interest)" : " (modeled borrow)"
+          }`}
+        >
+          <div className="text-[10px] text-gray-500 uppercase">Net Carry</div>
+          <div className={`text-lg font-mono font-semibold ${tone(s.net_carry_accrued_usd ?? 0)}`}>
+            {(s.net_carry_accrued_usd ?? 0) >= 0 ? "+" : ""}${(s.net_carry_accrued_usd ?? 0).toFixed(2)}
           </div>
         </div>
       </div>
