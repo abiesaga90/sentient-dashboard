@@ -162,7 +162,8 @@ export function BasisSleeveSection() {
             <tr className="text-[10px] text-gray-500 uppercase border-b border-[var(--border)]">
               <th className="text-left py-1.5 px-2">Pair</th>
               <th className="text-right py-1.5 px-2">Days</th>
-              <th className="text-right py-1.5 px-2">Funding %ann</th>
+              <th className="text-right py-1.5 px-2" title="7d trailing realized net carry (durable signal the allocator weights on)">7d carry (durable)</th>
+              <th className="text-right py-1.5 px-2" title="Live funding tick, annualized — spike-prone, NOT the basis for reallocation">Funding now (tick)</th>
               <th className="text-right py-1.5 px-2">Perp short</th>
               <th className="text-right py-1.5 px-2">Spot long</th>
               <th className="text-right py-1.5 px-2">Net delta</th>
@@ -179,7 +180,10 @@ export function BasisSleeveSection() {
                 <td className="py-1.5 px-2 text-right font-mono text-gray-400">
                   {(p.days_held ?? 0).toFixed(1)}d
                 </td>
-                <td className="py-1.5 px-2 text-right font-mono text-emerald-400">
+                <td className="py-1.5 px-2 text-right font-mono text-emerald-400 font-semibold">
+                  {alloc?.sustained_carry?.[p.symbol] == null ? "—" : `${alloc.sustained_carry[p.symbol] >= 0 ? "+" : ""}${alloc.sustained_carry[p.symbol].toFixed(0)}%`}
+                </td>
+                <td className="py-1.5 px-2 text-right font-mono text-gray-500" title="Live tick — spike-prone, not the reallocation signal">
                   {p.funding_rate_ann_pct == null ? "—" : `${p.funding_rate_ann_pct.toFixed(1)}%`}
                 </td>
                 <td className="py-1.5 px-2 text-right font-mono text-gray-300">
