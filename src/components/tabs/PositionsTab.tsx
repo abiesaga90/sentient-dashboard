@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import {
+  AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine, ResponsiveContainer,
+} from "recharts";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
 import { DataTable, type Column } from "../shared/DataTable";
@@ -285,11 +288,12 @@ interface FundingEarned {
 }
 
 function FundingSummary({
-  positions, risk, earned,
+  positions, risk, earned, series,
 }: {
   positions: Position[];
   risk: RiskData | undefined;
   earned: FundingEarned | undefined;
+  series: { series: { date: string; funding: number }[]; anchor_ts: string | null } | undefined;
 }) {
   // Sign convention: SHORT positive funding = we RECEIVE (good); LONG positive = we PAY.
   const withFunding = positions.filter(
@@ -318,31 +322,67 @@ function FundingSummary({
   const annUsd = dailyUsd * 365;
   const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
   const usd = (v: number) => `${v >= 0 ? "+" : ""}$${v.toFixed(2)}`;
-  const EarnedCell = ({ label, v, sub }: { label: string; v: number | null; sub?: string }) => (
-    <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-      <div className="text-[10px] text-gray-500 uppercase">{label}</div>
-      <div className={`text-base font-mono font-semibold ${v == null ? "text-gray-600" : t(v, 0.01)}`}>
-        {v == null ? "—" : usd(v)}
-      </div>
-      {sub && <div className="text-[10px] text-gray-600 mt-0.5">{sub}</div>}
-    </div>
-  );
+  // Since-pivot (anchor) go-forward tracking — the scorecard for the carry pivot.
+  const anchor = earned?.anchor_ts || series?.anchor_ts || null;
+  const sincePivot = earned?.since_anchor ?? 0;
+  const pivotDays = anchor ? Math.max((Date.now() - new Date(anchor).getTime()) / 86400000, 0) : 0;
+  const pivotDailyAvg = pivotDays > 0.25 ? sincePivot / pivotDays : 0;
+  const pivotAnnPace = pivotDailyAvg * 365;
+  const anchorDate = anchor ? anchor.slice(0, 10) : null;
+  const cumChart: { d: string; cum: number }[] = [];
+  {
+    let cum = 0;
+    for (const pt of series?.series ?? []) {
+      if (anchorDate && pt.date < anchorDate) continue;
+      cum += pt.funding;
+      cumChart.push({ d: pt.date.slice(5), cum: +cum.toFixed(2) });
+    }
+  }
   return (
     <Card>
       <CardHeader><CardTitle>Funding Summary</CardTitle></CardHeader>
 
-      {/* Realized funding actually earned (exchange settlements) */}
-      {earned && (
-        <div className="mb-3">
-          <div className="text-[10px] text-gray-500 uppercase mb-1">Realized earned (actual settlements)</div>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
-            <EarnedCell label="Today" v={earned.today} />
-            <EarnedCell label="7d" v={earned.d7} />
-            <EarnedCell label="30d" v={earned.d30} />
-            <EarnedCell label={earned.anchor_ts ? `Since ${earned.anchor_ts.slice(0, 10)}` : "Since now"} v={earned.since_anchor} sub="from now" />
-            <EarnedCell label="Inception" v={earned.all_time} sub="all-time" />
-          </div>
+      {/* SINCE PIVOT — go-forward scorecard for the carry pivot (history de-emphasized below) */}
+      <div className="text-[10px] text-gray-500 uppercase mb-1">
+        Since pivot to carry{anchorDate ? ` (${anchorDate})` : ""}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-2">
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+          <div className="text-[10px] text-gray-500 uppercase">Earned since pivot</div>
+          <div className={`text-xl font-mono font-bold ${t(sincePivot, 0.01)}`}>{usd(sincePivot)}</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">{pivotDays.toFixed(1)}d elapsed</div>
         </div>
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+          <div className="text-[10px] text-gray-500 uppercase">Daily avg (realized)</div>
+          <div className={`text-lg font-mono font-semibold ${t(pivotDailyAvg, 0.01)}`}>{usd(pivotDailyAvg)}/d</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">since pivot</div>
+        </div>
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+          <div className="text-[10px] text-gray-500 uppercase">Annualized pace</div>
+          <div className={`text-lg font-mono font-semibold ${t(pivotAnnPace, 1)}`}>{usd(pivotAnnPace)}/yr</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">{nav > 0 ? fmt(pivotAnnPace / nav * 100) : "—"} of NAV</div>
+        </div>
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+          <div className="text-[10px] text-gray-500 uppercase">Today (realized)</div>
+          <div className={`text-lg font-mono font-semibold ${t(earned?.today ?? 0, 0.01)}`}>{usd(earned?.today ?? 0)}</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">since 00:00 UTC</div>
+        </div>
+      </div>
+      {cumChart.length > 1 ? (
+        <div className="h-40 mb-3">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={cumChart}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+              <XAxis dataKey="d" tick={{ fill: "#64748b", fontSize: 9 }} minTickGap={30} />
+              <YAxis tick={{ fill: "#64748b", fontSize: 9 }} />
+              <Tooltip contentStyle={{ background: "#111118", border: "1px solid #1e1e2e", fontSize: 11 }} />
+              <ReferenceLine y={0} stroke="#334155" />
+              <Area type="monotone" dataKey="cum" name="Cumulative funding $" stroke="#22c55e" fill="#22c55e22" strokeWidth={1.5} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="text-[10px] text-gray-600 mb-3">Cumulative chart populates as settlements accrue since the pivot.</div>
       )}
 
       {/* Current run-rate */}
@@ -373,8 +413,13 @@ function FundingSummary({
         <div>Daily: <span className="font-mono text-gray-300">{fmt(nav > 0 ? (dailyUsd / nav) * 100 : 0)}</span> of NAV · <span className="font-mono text-gray-300">{fmt(totalNotional > 0 ? (dailyUsd / totalNotional) * 100 : 0)}</span> of gross</div>
         <div>Annualized: <span className="font-mono text-gray-300">{fmt(nav > 0 ? (annUsd / nav) * 100 : 0)}</span> of NAV · <span className="font-mono text-gray-300">{fmt(totalNotional > 0 ? (annUsd / totalNotional) * 100 : 0)}</span> of gross</div>
       </div>
-      <div className="mt-2 text-[10px] text-gray-600">
-        Run-rate = current funding rates annualized. Realized = actual settlements received/paid (sign: short receipt +, long payment −). {withFunding.length}/{positions.length} positions have live funding.
+      {earned && (
+        <div className="mt-2 text-[10px] text-gray-600 opacity-70">
+          Pre-pivot context (not the focus): 7d <span className="font-mono">{usd(earned.d7)}</span> · 30d <span className="font-mono">{usd(earned.d30)}</span> · inception <span className="font-mono">{usd(earned.all_time)}</span>
+        </div>
+      )}
+      <div className="mt-1 text-[10px] text-gray-600">
+        Run-rate = current funding rates annualized (forward estimate). Realized = actual settlements received/paid (sign: short receipt +, long payment −). {withFunding.length}/{positions.length} positions have live funding.
       </div>
     </Card>
   );
@@ -413,6 +458,15 @@ export function PositionsTab() {
     queryFn: () => client.get("/api/funding-earned"),
     refetchInterval: 60_000,
     staleTime: 30_000,
+  });
+
+  const { data: fundingSeries } = useQuery<{
+    series: { date: string; funding: number }[]; anchor_ts: string | null;
+  }>({
+    queryKey: ["funding-earned-series", engine.id],
+    queryFn: () => client.get("/api/funding-earned/series", { days: 90 }),
+    refetchInterval: 5 * 60_000,
+    staleTime: 60_000,
   });
 
 
@@ -454,8 +508,8 @@ export function PositionsTab() {
 
   return (
     <div className="p-4 space-y-4">
-      {/* Funding Summary — moved to front; realized earned + run-rate */}
-      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} />
+      {/* Funding Summary — moved to front; since-pivot tracking + run-rate */}
+      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} series={fundingSeries} />
 
       {/* Basis sleeve (funding carry) — renders only when configured */}
       <BasisSleeveSection />
