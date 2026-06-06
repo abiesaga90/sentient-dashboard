@@ -288,17 +288,33 @@ interface FundingEarned {
 }
 
 function FundingSummary({
-  positions, risk, earned, series,
+  positions, risk, earned, series, carry,
 }: {
   positions: Position[];
   risk: RiskData | undefined;
   earned: FundingEarned | undefined;
   series: { series: { date: string; funding: number }[]; anchor_ts: string | null } | undefined;
+  carry: { positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[] } | undefined;
 }) {
   // Sign convention: SHORT positive funding = we RECEIVE (good); LONG positive = we PAY.
+  // Rate basis: prefer TRAILING REALIZED settled funding (30d, else 7d) over the
+  // instantaneous premiumIndex tick — actual settlements, not a spike-prone live
+  // estimate. carryBySym carries the durable rate per name from /funding-carry.
+  const carryBySym = new Map<string, number>();
+  for (const r of carry?.positions ?? []) {
+    const rate = r.carry_ann ?? r.funding_30d_ann ?? r.funding_7d_ann;
+    if (rate != null) carryBySym.set(r.symbol, rate);
+  }
+  const rateOf = (p: Position): number | null => {
+    const tr = carryBySym.get((p as any).symbol);
+    if (tr != null) return tr;
+    const live = (p as any).funding_rate_ann;
+    return live != null ? live : null;
+  };
   const withFunding = positions.filter(
-    (p) => (p as any).funding_rate_ann != null && p.notional > 0
+    (p) => rateOf(p) != null && p.notional > 0
   );
+  const nTrailing = withFunding.filter((p) => carryBySym.has((p as any).symbol)).length;
   if (withFunding.length === 0) return null;
   const totalNotional = withFunding.reduce((a, p) => a + p.notional, 0);
   const longs = withFunding.filter((p) => p.side === "LONG");
@@ -307,16 +323,16 @@ function FundingSummary({
   const shortNotional = shorts.reduce((a, p) => a + p.notional, 0);
   const sideSign = (side: string) => (side === "SHORT" ? 1 : -1);
   const weightedAnn =
-    withFunding.reduce((a, p) => a + (p as any).funding_rate_ann * sideSign(p.side) * p.notional, 0) /
+    withFunding.reduce((a, p) => a + (rateOf(p) as number) * sideSign(p.side) * p.notional, 0) /
     totalNotional;
   const avgAnnLong = longNotional > 0
-    ? longs.reduce((a, p) => a + (p as any).funding_rate_ann * p.notional, 0) / longNotional : 0;
+    ? longs.reduce((a, p) => a + (rateOf(p) as number) * p.notional, 0) / longNotional : 0;
   const avgAnnShort = shortNotional > 0
-    ? shorts.reduce((a, p) => a + (p as any).funding_rate_ann * p.notional, 0) / shortNotional : 0;
+    ? shorts.reduce((a, p) => a + (rateOf(p) as number) * p.notional, 0) / shortNotional : 0;
   const dailyUsd = withFunding.reduce(
-    (a, p) => a + ((p as any).funding_rate_ann / 100 / 365) * p.notional * sideSign(p.side), 0);
-  const dailyLong = longs.reduce((a, p) => a + ((p as any).funding_rate_ann / 100 / 365) * p.notional * -1, 0);
-  const dailyShort = shorts.reduce((a, p) => a + ((p as any).funding_rate_ann / 100 / 365) * p.notional * 1, 0);
+    (a, p) => a + ((rateOf(p) as number) / 100 / 365) * p.notional * sideSign(p.side), 0);
+  const dailyLong = longs.reduce((a, p) => a + ((rateOf(p) as number) / 100 / 365) * p.notional * -1, 0);
+  const dailyShort = shorts.reduce((a, p) => a + ((rateOf(p) as number) / 100 / 365) * p.notional * 1, 0);
   const t = (v: number, eps = 1) => Math.abs(v) < eps ? "text-gray-300" : v > 0 ? "text-green-400" : "text-red-400";
   const nav = (risk as any)?.nav ?? 0;
   const annUsd = dailyUsd * 365;
@@ -326,7 +342,9 @@ function FundingSummary({
   const anchor = earned?.anchor_ts || series?.anchor_ts || null;
   const sincePivot = earned?.since_anchor ?? 0;
   const pivotDays = anchor ? Math.max((Date.now() - new Date(anchor).getTime()) / 86400000, 0) : 0;
-  const pivotDailyAvg = pivotDays > 0.25 ? sincePivot / pivotDays : 0;
+  // Realized daily average from actual settlements since the pivot. Guard only
+  // against a near-zero denominator (first hour) to avoid a wild extrapolation.
+  const pivotDailyAvg = pivotDays > 0.04 ? sincePivot / pivotDays : 0;
   const pivotAnnPace = pivotDailyAvg * 365;
   const anchorDate = anchor ? anchor.slice(0, 10) : null;
   const cumChart: { d: string; cum: number }[] = [];
@@ -419,7 +437,7 @@ function FundingSummary({
         </div>
       )}
       <div className="mt-1 text-[10px] text-gray-600">
-        Run-rate = current funding rates annualized (forward estimate). Realized = actual settlements received/paid (sign: short receipt +, long payment −). {withFunding.length}/{positions.length} positions have live funding.
+        Run-rate = {nTrailing}/{withFunding.length} names on TRAILING REALIZED funding (30d/7d settled, actual), rest on live tick; annualized as a forward projection. Realized = actual settlements received/paid (sign: short receipt +, long payment −).
       </div>
     </Card>
   );
@@ -469,6 +487,16 @@ export function PositionsTab() {
     staleTime: 60_000,
   });
 
+  // Per-name trailing realized funding (durable signal) for the run-rate basis.
+  const { data: fundingCarry } = useQuery<{
+    positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[];
+  }>({
+    queryKey: ["funding-carry-latest", engine.id],
+    queryFn: () => client.get("/api/funding-carry/latest"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+
 
   if (isLoading) {
     return (
@@ -509,7 +537,7 @@ export function PositionsTab() {
   return (
     <div className="p-4 space-y-4">
       {/* Funding Summary — moved to front; since-pivot tracking + run-rate */}
-      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} series={fundingSeries} />
+      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} series={fundingSeries} carry={fundingCarry} />
 
       {/* Basis sleeve (funding carry) — renders only when configured */}
       <BasisSleeveSection />
