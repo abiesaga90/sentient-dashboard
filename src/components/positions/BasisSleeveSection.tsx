@@ -19,6 +19,8 @@ interface BasisPair {
   accrued_funding_usd: number;
   entry_time: string | null;
   delta_neutral: boolean;
+  days_held?: number;
+  net_carry_accrued_usd?: number;
 }
 
 interface BasisSleeveResponse {
@@ -32,6 +34,13 @@ interface BasisSleeveResponse {
     usdt_borrow_accrued_usd?: number;
     net_carry_accrued_usd?: number;
     usdt_borrow_actual?: boolean;
+    days_held?: number;
+    nav?: number;
+    net_carry_ann_usd?: number;
+    net_carry_ann_pct_nav?: number;
+    net_carry_ann_pct_gross?: number;
+    net_carry_return_pct_nav?: number;
+    net_carry_return_pct_gross?: number;
   };
 }
 
@@ -98,11 +107,38 @@ export function BasisSleeveSection() {
         </div>
       </div>
 
+      <div className="text-[11px] text-gray-400 mb-3 flex flex-wrap gap-x-4 gap-y-1">
+        <span title="Trade age (longest-held pair)">
+          Held: <span className="font-mono text-gray-300">{(s.days_held ?? 0).toFixed(1)}d</span>
+        </span>
+        <span title="Net carry run-rate, annualized, as a % of NAV and of sleeve gross notional">
+          Annualized net carry:{" "}
+          <span className={`font-mono ${tone(s.net_carry_ann_pct_nav ?? 0)}`}>
+            {(s.net_carry_ann_pct_nav ?? 0) >= 0 ? "+" : ""}{(s.net_carry_ann_pct_nav ?? 0).toFixed(2)}% of NAV
+          </span>
+          {" · "}
+          <span className={`font-mono ${tone(s.net_carry_ann_pct_gross ?? 0)}`}>
+            {(s.net_carry_ann_pct_gross ?? 0) >= 0 ? "+" : ""}{(s.net_carry_ann_pct_gross ?? 0).toFixed(2)}% of gross
+          </span>
+        </span>
+        <span title="Net carry actually earned since the positions opened, as a % of NAV and of sleeve gross">
+          Earned so far:{" "}
+          <span className={`font-mono ${tone(s.net_carry_return_pct_nav ?? 0)}`}>
+            {(s.net_carry_return_pct_nav ?? 0) >= 0 ? "+" : ""}{(s.net_carry_return_pct_nav ?? 0).toFixed(3)}% of NAV
+          </span>
+          {" · "}
+          <span className={`font-mono ${tone(s.net_carry_return_pct_gross ?? 0)}`}>
+            {(s.net_carry_return_pct_gross ?? 0) >= 0 ? "+" : ""}{(s.net_carry_return_pct_gross ?? 0).toFixed(3)}% of gross
+          </span>
+        </span>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="text-[10px] text-gray-500 uppercase border-b border-[var(--border)]">
               <th className="text-left py-1.5 px-2">Pair</th>
+              <th className="text-right py-1.5 px-2">Days</th>
               <th className="text-right py-1.5 px-2">Funding %ann</th>
               <th className="text-right py-1.5 px-2">Perp short</th>
               <th className="text-right py-1.5 px-2">Spot long</th>
@@ -117,6 +153,9 @@ export function BasisSleeveSection() {
             {data.pairs.map((p) => (
               <tr key={p.symbol} className="border-b border-[var(--border)]/40">
                 <td className="py-1.5 px-2 font-medium text-gray-200">{p.base}</td>
+                <td className="py-1.5 px-2 text-right font-mono text-gray-400">
+                  {(p.days_held ?? 0).toFixed(1)}d
+                </td>
                 <td className="py-1.5 px-2 text-right font-mono text-emerald-400">
                   {p.funding_rate_ann_pct == null ? "—" : `${p.funding_rate_ann_pct.toFixed(1)}%`}
                 </td>
