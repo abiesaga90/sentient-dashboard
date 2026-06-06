@@ -279,6 +279,107 @@ const columns: Column<Position>[] = [
   },
 ];
 
+interface FundingEarned {
+  today: number; d7: number; d30: number; all_time: number;
+  since_anchor: number | null; anchor_ts: string | null;
+}
+
+function FundingSummary({
+  positions, risk, earned,
+}: {
+  positions: Position[];
+  risk: RiskData | undefined;
+  earned: FundingEarned | undefined;
+}) {
+  // Sign convention: SHORT positive funding = we RECEIVE (good); LONG positive = we PAY.
+  const withFunding = positions.filter(
+    (p) => (p as any).funding_rate_ann != null && p.notional > 0
+  );
+  if (withFunding.length === 0) return null;
+  const totalNotional = withFunding.reduce((a, p) => a + p.notional, 0);
+  const longs = withFunding.filter((p) => p.side === "LONG");
+  const shorts = withFunding.filter((p) => p.side === "SHORT");
+  const longNotional = longs.reduce((a, p) => a + p.notional, 0);
+  const shortNotional = shorts.reduce((a, p) => a + p.notional, 0);
+  const sideSign = (side: string) => (side === "SHORT" ? 1 : -1);
+  const weightedAnn =
+    withFunding.reduce((a, p) => a + (p as any).funding_rate_ann * sideSign(p.side) * p.notional, 0) /
+    totalNotional;
+  const avgAnnLong = longNotional > 0
+    ? longs.reduce((a, p) => a + (p as any).funding_rate_ann * p.notional, 0) / longNotional : 0;
+  const avgAnnShort = shortNotional > 0
+    ? shorts.reduce((a, p) => a + (p as any).funding_rate_ann * p.notional, 0) / shortNotional : 0;
+  const dailyUsd = withFunding.reduce(
+    (a, p) => a + ((p as any).funding_rate_ann / 100 / 365) * p.notional * sideSign(p.side), 0);
+  const dailyLong = longs.reduce((a, p) => a + ((p as any).funding_rate_ann / 100 / 365) * p.notional * -1, 0);
+  const dailyShort = shorts.reduce((a, p) => a + ((p as any).funding_rate_ann / 100 / 365) * p.notional * 1, 0);
+  const t = (v: number, eps = 1) => Math.abs(v) < eps ? "text-gray-300" : v > 0 ? "text-green-400" : "text-red-400";
+  const nav = (risk as any)?.nav ?? 0;
+  const annUsd = dailyUsd * 365;
+  const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
+  const usd = (v: number) => `${v >= 0 ? "+" : ""}$${v.toFixed(2)}`;
+  const EarnedCell = ({ label, v, sub }: { label: string; v: number | null; sub?: string }) => (
+    <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+      <div className="text-[10px] text-gray-500 uppercase">{label}</div>
+      <div className={`text-base font-mono font-semibold ${v == null ? "text-gray-600" : t(v, 0.01)}`}>
+        {v == null ? "—" : usd(v)}
+      </div>
+      {sub && <div className="text-[10px] text-gray-600 mt-0.5">{sub}</div>}
+    </div>
+  );
+  return (
+    <Card>
+      <CardHeader><CardTitle>Funding Summary</CardTitle></CardHeader>
+
+      {/* Realized funding actually earned (exchange settlements) */}
+      {earned && (
+        <div className="mb-3">
+          <div className="text-[10px] text-gray-500 uppercase mb-1">Realized earned (actual settlements)</div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+            <EarnedCell label="Today" v={earned.today} />
+            <EarnedCell label="7d" v={earned.d7} />
+            <EarnedCell label="30d" v={earned.d30} />
+            <EarnedCell label={earned.anchor_ts ? `Since ${earned.anchor_ts.slice(0, 10)}` : "Since now"} v={earned.since_anchor} sub="from now" />
+            <EarnedCell label="Inception" v={earned.all_time} sub="all-time" />
+          </div>
+        </div>
+      )}
+
+      {/* Current run-rate */}
+      <div className="text-[10px] text-gray-500 uppercase mb-1">Current run-rate</div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+          <div className="text-[10px] text-gray-500 uppercase">Net Ann % (weighted)</div>
+          <div className={`text-lg font-mono font-semibold ${t(weightedAnn)}`}>{fmt(weightedAnn)}</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">net of side sign</div>
+        </div>
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+          <div className="text-[10px] text-gray-500 uppercase">Daily $</div>
+          <div className={`text-lg font-mono font-semibold ${t(dailyUsd)}`}>{usd(dailyUsd)}</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">{dailyUsd >= 0 ? "we receive" : "we pay"}</div>
+        </div>
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+          <div className="text-[10px] text-gray-500 uppercase">Long side</div>
+          <div className={`text-sm font-mono ${dailyLong >= 0 ? "text-green-400" : "text-red-400"}`}>{usd(dailyLong)}/d</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">pays {avgAnnLong.toFixed(1)}% ann avg</div>
+        </div>
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
+          <div className="text-[10px] text-gray-500 uppercase">Short side</div>
+          <div className={`text-sm font-mono ${dailyShort >= 0 ? "text-green-400" : "text-red-400"}`}>{usd(dailyShort)}/d</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">receives {avgAnnShort.toFixed(1)}% ann avg</div>
+        </div>
+      </div>
+      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-gray-500">
+        <div>Daily: <span className="font-mono text-gray-300">{fmt(nav > 0 ? (dailyUsd / nav) * 100 : 0)}</span> of NAV · <span className="font-mono text-gray-300">{fmt(totalNotional > 0 ? (dailyUsd / totalNotional) * 100 : 0)}</span> of gross</div>
+        <div>Annualized: <span className="font-mono text-gray-300">{fmt(nav > 0 ? (annUsd / nav) * 100 : 0)}</span> of NAV · <span className="font-mono text-gray-300">{fmt(totalNotional > 0 ? (annUsd / totalNotional) * 100 : 0)}</span> of gross</div>
+      </div>
+      <div className="mt-2 text-[10px] text-gray-600">
+        Run-rate = current funding rates annualized. Realized = actual settlements received/paid (sign: short receipt +, long payment −). {withFunding.length}/{positions.length} positions have live funding.
+      </div>
+    </Card>
+  );
+}
+
 export function PositionsTab() {
   const { client, engine } = useEngine();
   const [sideFilter, setSideFilter] = useState<SideFilter>("all");
@@ -302,6 +403,16 @@ export function PositionsTab() {
     queryFn: () => client.get("/api/basket-pnl/history", { days: 90 }),
     refetchInterval: 5 * 60_000,
     staleTime: 60_000,
+  });
+
+  const { data: fundingEarned } = useQuery<{
+    today: number; d7: number; d30: number; all_time: number;
+    since_anchor: number | null; anchor_ts: string | null;
+  }>({
+    queryKey: ["funding-earned", engine.id],
+    queryFn: () => client.get("/api/funding-earned"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
   });
 
 
@@ -343,6 +454,9 @@ export function PositionsTab() {
 
   return (
     <div className="p-4 space-y-4">
+      {/* Funding Summary — moved to front; realized earned + run-rate */}
+      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} />
+
       {/* Basis sleeve (funding carry) — renders only when configured */}
       <BasisSleeveSection />
 
@@ -411,140 +525,6 @@ export function PositionsTab() {
       {/* Exposure & Beta Hedging — 3 denominator views (Gross / Notional [Nickel] / NAV) */}
       {beta && <ExposurePanel positions={positions} beta={beta} risk={risk} />}
 
-      {/* Funding Summary — weighted across all positions, sign-aware */}
-      {(() => {
-        // Sign convention: SHORT positive funding = we RECEIVE (good).
-        // LONG positive funding = we PAY (bad). So effective_ann_per_position
-        // = funding_rate_ann * (side === "SHORT" ? +1 : -1).
-        const withFunding = positions.filter(
-          (p) => (p as any).funding_rate_ann != null && p.notional > 0
-        );
-        if (withFunding.length === 0) return null;
-        const totalNotional = withFunding.reduce((a, p) => a + p.notional, 0);
-        const longs = withFunding.filter((p) => p.side === "LONG");
-        const shorts = withFunding.filter((p) => p.side === "SHORT");
-        const longNotional = longs.reduce((a, p) => a + p.notional, 0);
-        const shortNotional = shorts.reduce((a, p) => a + p.notional, 0);
-        const sideSign = (side: string) => (side === "SHORT" ? 1 : -1);
-        // weighted avg ann %, signed (positive = net funding income)
-        const weightedAnn =
-          withFunding.reduce(
-            (a, p) => a + (p as any).funding_rate_ann * sideSign(p.side) * p.notional,
-            0
-          ) / totalNotional;
-        const avgAnnLong =
-          longNotional > 0
-            ? longs.reduce((a, p) => a + (p as any).funding_rate_ann * p.notional, 0) /
-              longNotional
-            : 0;
-        const avgAnnShort =
-          shortNotional > 0
-            ? shorts.reduce((a, p) => a + (p as any).funding_rate_ann * p.notional, 0) /
-              shortNotional
-            : 0;
-        // daily $: (ann% / 100) / 365 × notional × sideSign
-        const dailyUsd = withFunding.reduce(
-          (a, p) =>
-            a +
-            ((p as any).funding_rate_ann / 100 / 365) * p.notional * sideSign(p.side),
-          0
-        );
-        const dailyLong = longs.reduce(
-          (a, p) => a + ((p as any).funding_rate_ann / 100 / 365) * p.notional * -1,
-          0
-        );
-        const dailyShort = shorts.reduce(
-          (a, p) => a + ((p as any).funding_rate_ann / 100 / 365) * p.notional * 1,
-          0
-        );
-        const dailyTone =
-          Math.abs(dailyUsd) < 1
-            ? "text-gray-300"
-            : dailyUsd > 0
-              ? "text-green-400"
-              : "text-red-400";
-        const annTone =
-          Math.abs(weightedAnn) < 1
-            ? "text-gray-300"
-            : weightedAnn > 0
-              ? "text-green-400"
-              : "text-red-400";
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Funding Summary</CardTitle>
-            </CardHeader>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Net Ann % (weighted)</div>
-                <div className={`text-lg font-mono font-semibold ${annTone}`}>
-                  {weightedAnn >= 0 ? "+" : ""}
-                  {weightedAnn.toFixed(2)}%
-                </div>
-                <div className="text-[10px] text-gray-600 mt-0.5">net of side sign</div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Daily $</div>
-                <div className={`text-lg font-mono font-semibold ${dailyTone}`}>
-                  {dailyUsd >= 0 ? "+" : ""}${dailyUsd.toFixed(2)}
-                </div>
-                <div className="text-[10px] text-gray-600 mt-0.5">
-                  {dailyUsd >= 0 ? "we receive" : "we pay"}
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Long side</div>
-                <div
-                  className={`text-sm font-mono ${dailyLong >= 0 ? "text-green-400" : "text-red-400"}`}
-                >
-                  {dailyLong >= 0 ? "+" : ""}${dailyLong.toFixed(2)}/d
-                </div>
-                <div className="text-[10px] text-gray-600 mt-0.5">
-                  pays {avgAnnLong.toFixed(1)}% ann avg
-                </div>
-              </div>
-              <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-                <div className="text-[10px] text-gray-500 uppercase">Short side</div>
-                <div
-                  className={`text-sm font-mono ${dailyShort >= 0 ? "text-green-400" : "text-red-400"}`}
-                >
-                  {dailyShort >= 0 ? "+" : ""}${dailyShort.toFixed(2)}/d
-                </div>
-                <div className="text-[10px] text-gray-600 mt-0.5">
-                  receives {avgAnnShort.toFixed(1)}% ann avg
-                </div>
-              </div>
-            </div>
-            {(() => {
-              const nav = (risk as any)?.nav ?? 0;
-              const grossN = totalNotional;  // gross notional of funded positions
-              const annUsd = dailyUsd * 365;
-              const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
-              const dNav = nav > 0 ? (dailyUsd / nav) * 100 : 0;
-              const dGross = grossN > 0 ? (dailyUsd / grossN) * 100 : 0;
-              const aNav = nav > 0 ? (annUsd / nav) * 100 : 0;
-              const aGross = grossN > 0 ? (annUsd / grossN) * 100 : 0;
-              return (
-                <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-gray-500">
-                  <div>
-                    Daily: <span className="font-mono text-gray-300">{fmt(dNav)}</span> of NAV ·{" "}
-                    <span className="font-mono text-gray-300">{fmt(dGross)}</span> of gross notional
-                  </div>
-                  <div>
-                    Annualized: <span className="font-mono text-gray-300">{fmt(aNav)}</span> of NAV ·{" "}
-                    <span className="font-mono text-gray-300">{fmt(aGross)}</span> of gross notional
-                  </div>
-                </div>
-              );
-            })()}
-            <div className="mt-2 text-[10px] text-gray-600">
-              Sign convention: short funding receipt is positive, long funding payment
-              is negative. {withFunding.length}/{positions.length} positions have live
-              funding rate.
-            </div>
-          </Card>
-        );
-      })()}
 
       <Card>
         <CardHeader>
