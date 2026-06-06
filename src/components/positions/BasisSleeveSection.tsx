@@ -61,6 +61,14 @@ export function BasisSleeveSection() {
     refetchInterval: 30_000,
     staleTime: 15_000,
   });
+  const { data: alloc } = useQuery<{
+    available?: boolean; fire?: boolean; reason?: string; auto_execute?: boolean;
+    sustained_carry?: Record<string, number>; deltas?: Record<string, number>;
+  }>({
+    queryKey: ["basis-sleeve-allocator", engine.id],
+    queryFn: () => client.get("/api/basis-sleeve-allocator"),
+    refetchInterval: 60_000,
+  });
 
   if (!data?.enabled || !data.pairs?.length) return null;
   const s = data.summary ?? {};
@@ -132,6 +140,21 @@ export function BasisSleeveSection() {
           </span>
         </span>
       </div>
+
+      {alloc?.available !== false && alloc?.sustained_carry && (
+        <div className="text-[10px] text-gray-500 mb-3 flex flex-wrap gap-x-3 gap-y-1 items-center">
+          <span className="uppercase">Allocator{alloc.auto_execute ? "" : " (shadow)"}:</span>
+          <span className={alloc.fire ? "text-amber-400 font-mono" : "text-gray-400 font-mono"}>
+            {alloc.fire ? "REWEIGHT" : "hold"}
+          </span>
+          {alloc.sustained_carry && (
+            <span className="font-mono text-gray-400">
+              7d carry: {Object.entries(alloc.sustained_carry).map(([k, v]) => `${k.replace("USDT", "")} ${v >= 0 ? "+" : ""}${v.toFixed(0)}%`).join(" · ")}
+            </span>
+          )}
+          <span className="text-gray-600">{alloc.reason}</span>
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
