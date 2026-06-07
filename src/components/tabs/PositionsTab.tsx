@@ -338,6 +338,13 @@ function FundingSummary({
   const annUsd = dailyUsd * 365;
   const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
   const usd = (v: number) => `${v >= 0 ? "+" : ""}$${v.toFixed(2)}`;
+  // Compact dollars: $27.5k / $1.2M for large figures, plain $ below 1k.
+  const usdK = (v: number) => {
+    const a = Math.abs(v), s = v >= 0 ? "+" : "-";
+    if (a >= 1_000_000) return `${s}$${(a / 1_000_000).toFixed(2)}M`;
+    if (a >= 1_000) return `${s}$${(a / 1_000).toFixed(1)}k`;
+    return `${s}$${a.toFixed(0)}`;
+  };
   // Since-pivot (anchor) go-forward tracking — the scorecard for the carry pivot.
   const anchor = earned?.anchor_ts || series?.anchor_ts || null;
   const sincePivot = earned?.since_anchor ?? 0;
@@ -377,7 +384,7 @@ function FundingSummary({
         </div>
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
           <div className="text-[10px] text-gray-500 uppercase">Annualized pace</div>
-          <div className={`text-lg font-mono font-semibold ${t(pivotAnnPace, 1)}`}>{usd(pivotAnnPace)}/yr</div>
+          <div className={`text-lg font-mono font-semibold ${t(pivotAnnPace, 1)}`}>{usdK(pivotAnnPace)}/yr</div>
           <div className="text-[10px] text-gray-600 mt-0.5">{nav > 0 ? fmt(pivotAnnPace / nav * 100) : "—"} of NAV</div>
         </div>
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
