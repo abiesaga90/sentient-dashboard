@@ -8,14 +8,25 @@ interface PnlSummaryProps {
 }
 
 export function PnlSummary({ pnl }: PnlSummaryProps) {
+  const ex = (pnl as any).ex_scam_mistakes as
+    | { total_return: number; total_return_pct: number; scam_pnl: number; symbols: string[] }
+    | undefined;
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
       <PnlCard
         title="All-Time P&L"
         pnl={pnl.all_time.total_return}
         pct={pnl.all_time.total_return_pct}
         sub={`Since ${formatUSD(pnl.starting_capital)}`}
       />
+      {ex && (
+        <PnlCard
+          title="All-Time ex-scam"
+          pnl={ex.total_return}
+          pct={ex.total_return_pct}
+          sub={`+${formatUSD(-ex.scam_pnl)} from ${ex.symbols.map((s) => s.replace("USDT", "")).join("/")} losses`}
+        />
+      )}
       <PnlCard
         title="WTD P&L"
         pnl={pnl.wtd.pnl}
