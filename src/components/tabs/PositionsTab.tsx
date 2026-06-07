@@ -285,6 +285,10 @@ const columns: Column<Position>[] = [
 interface FundingEarned {
   today: number; d7: number; d30: number; all_time: number;
   since_anchor: number | null; anchor_ts: string | null;
+  segments?: {
+    core_realized: number; sleeve_funding: number;
+    sleeve_borrow: number; sleeve_realized_net: number;
+  } | null;
 }
 
 function FundingSummary({
@@ -449,16 +453,21 @@ function FundingSummary({
         const coreNav = coreYr != null && nav > 0 ? (coreYr / nav) * 100 : null;
         const totYr = (coreYr ?? 0) + (slvYr ?? 0);
         const totNav = (coreNav ?? 0) + (slvNav ?? 0);
+        const seg = earned?.segments;
+        const coreReal = seg?.core_realized;
+        const slvReal = seg?.sleeve_realized_net;
+        const totReal = seg ? (coreReal ?? 0) + (slvReal ?? 0) : null;
         const cell = (v: number | null | undefined, f: (n: number) => string) =>
           v == null ? <span className="text-gray-600">—</span> : <span className={`font-mono ${t(v, 0.01)}`}>{f(v)}</span>;
         return (
           <div className="mt-3">
-            <div className="text-[10px] text-gray-500 uppercase mb-1">Carry by segment (annualized net)</div>
+            <div className="text-[10px] text-gray-500 uppercase mb-1">Carry by segment — Core strategy vs Basis sleeve</div>
             <table className="w-full text-[11px]">
               <thead>
                 <tr className="text-[10px] text-gray-500 uppercase border-b border-[var(--border)]">
                   <th className="text-left py-1 px-2">Segment</th>
-                  <th className="text-right py-1 px-2">$/yr</th>
+                  <th className="text-right py-1 px-2">Realized<br/>since pivot</th>
+                  <th className="text-right py-1 px-2">Ann $/yr</th>
                   <th className="text-right py-1 px-2">% of NAV</th>
                   <th className="text-right py-1 px-2">% of gross</th>
                 </tr>
@@ -466,25 +475,28 @@ function FundingSummary({
               <tbody>
                 <tr className="border-b border-[var(--border)]/40">
                   <td className="py-1 px-2 text-gray-300">Core strategy <span className="text-gray-600">(L/S book)</span></td>
+                  <td className="py-1 px-2 text-right">{cell(coreReal, usd)}</td>
                   <td className="py-1 px-2 text-right">{cell(coreYr, usdK)}</td>
                   <td className="py-1 px-2 text-right">{cell(coreNav, fmt)}</td>
                   <td className="py-1 px-2 text-right">{cell(coreGross, fmt)}</td>
                 </tr>
                 <tr className="border-b border-[var(--border)]/40">
                   <td className="py-1 px-2 text-gray-300">Basis sleeve <span className="text-gray-600">(delta-neutral)</span></td>
+                  <td className="py-1 px-2 text-right">{cell(slvReal, usd)}</td>
                   <td className="py-1 px-2 text-right">{cell(slvYr, usdK)}</td>
                   <td className="py-1 px-2 text-right">{cell(slvNav, fmt)}</td>
                   <td className="py-1 px-2 text-right">{cell(slvGross, fmt)}</td>
                 </tr>
                 <tr className="font-semibold">
                   <td className="py-1 px-2 text-gray-200">Total</td>
+                  <td className="py-1 px-2 text-right">{cell(totReal, usd)}</td>
                   <td className="py-1 px-2 text-right">{cell(totYr, usdK)}</td>
                   <td className="py-1 px-2 text-right">{cell(totNav, fmt)}</td>
                   <td className="py-1 px-2 text-right text-gray-600">—</td>
                 </tr>
               </tbody>
             </table>
-            <div className="text-[10px] text-gray-600 mt-1">Net of funding − borrow. Core = forward run-rate on trailing carry (ex-sleeve, ex-frozen); sleeve = funding received − USDT borrow. % of gross is each segment vs its own notional.</div>
+            <div className="text-[10px] text-gray-600 mt-1">All net of funding − borrow. Realized = actual settlements since the pivot; Ann $/yr = forward run-rate (core on trailing carry ex-sleeve/ex-frozen, sleeve = funding − USDT borrow). % of gross is each segment vs its own notional.</div>
           </div>
         );
       })()}
@@ -528,6 +540,7 @@ export function PositionsTab() {
   const { data: fundingEarned } = useQuery<{
     today: number; d7: number; d30: number; all_time: number;
     since_anchor: number | null; anchor_ts: string | null;
+    segments?: { core_realized: number; sleeve_funding: number; sleeve_borrow: number; sleeve_realized_net: number } | null;
   }>({
     queryKey: ["funding-earned", engine.id],
     queryFn: () => client.get("/api/funding-earned"),
