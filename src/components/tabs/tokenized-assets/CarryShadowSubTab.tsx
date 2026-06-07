@@ -1,6 +1,6 @@
 import { useFundingCarryShadow, type CarryShadowPair } from "../../../hooks/useFundingCarryShadow";
 import { Card } from "../../ui/Card";
-import { fmtUsd, fmtPct, pctColor } from "./format";
+import { fmtUsd, pctColor } from "./format";
 
 const sym = (s: string) => s.replace("USDT", "");
 
