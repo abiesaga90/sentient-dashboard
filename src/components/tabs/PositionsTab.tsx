@@ -288,13 +288,14 @@ interface FundingEarned {
 }
 
 function FundingSummary({
-  positions, risk, earned, series, carry,
+  positions, risk, earned, series, carry, sleeve,
 }: {
   positions: Position[];
   risk: RiskData | undefined;
   earned: FundingEarned | undefined;
   series: { series: { date: string; funding: number }[]; anchor_ts: string | null } | undefined;
-  carry: { positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[] } | undefined;
+  carry: { positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[]; summary?: { net_carry_usd_yr?: number; net_carry_pct_notional?: number } } | undefined;
+  sleeve: { summary?: { net_carry_ann_usd?: number; net_carry_ann_pct_nav?: number; net_carry_ann_pct_gross?: number; gross_usd?: number } } | undefined;
 }) {
   // Sign convention: SHORT positive funding = we RECEIVE (good); LONG positive = we PAY.
   // Rate basis: prefer TRAILING REALIZED settled funding (30d, else 7d) over the
@@ -438,6 +439,55 @@ function FundingSummary({
         <div>Daily: <span className="font-mono text-gray-300">{fmt(nav > 0 ? (dailyUsd / nav) * 100 : 0)}</span> of NAV · <span className="font-mono text-gray-300">{fmt(totalNotional > 0 ? (dailyUsd / totalNotional) * 100 : 0)}</span> of gross</div>
         <div>Annualized: <span className="font-mono text-gray-300">{fmt(nav > 0 ? (annUsd / nav) * 100 : 0)}</span> of NAV · <span className="font-mono text-gray-300">{fmt(totalNotional > 0 ? (annUsd / totalNotional) * 100 : 0)}</span> of gross</div>
       </div>
+      {(() => {
+        const coreYr = carry?.summary?.net_carry_usd_yr;
+        const coreGross = carry?.summary?.net_carry_pct_notional;
+        const slvYr = sleeve?.summary?.net_carry_ann_usd;
+        const slvNav = sleeve?.summary?.net_carry_ann_pct_nav;
+        const slvGross = sleeve?.summary?.net_carry_ann_pct_gross;
+        if (coreYr == null && slvYr == null) return null;
+        const coreNav = coreYr != null && nav > 0 ? (coreYr / nav) * 100 : null;
+        const totYr = (coreYr ?? 0) + (slvYr ?? 0);
+        const totNav = (coreNav ?? 0) + (slvNav ?? 0);
+        const cell = (v: number | null | undefined, f: (n: number) => string) =>
+          v == null ? <span className="text-gray-600">—</span> : <span className={`font-mono ${t(v, 0.01)}`}>{f(v)}</span>;
+        return (
+          <div className="mt-3">
+            <div className="text-[10px] text-gray-500 uppercase mb-1">Carry by segment (annualized net)</div>
+            <table className="w-full text-[11px]">
+              <thead>
+                <tr className="text-[10px] text-gray-500 uppercase border-b border-[var(--border)]">
+                  <th className="text-left py-1 px-2">Segment</th>
+                  <th className="text-right py-1 px-2">$/yr</th>
+                  <th className="text-right py-1 px-2">% of NAV</th>
+                  <th className="text-right py-1 px-2">% of gross</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-[var(--border)]/40">
+                  <td className="py-1 px-2 text-gray-300">Core strategy <span className="text-gray-600">(L/S book)</span></td>
+                  <td className="py-1 px-2 text-right">{cell(coreYr, usdK)}</td>
+                  <td className="py-1 px-2 text-right">{cell(coreNav, fmt)}</td>
+                  <td className="py-1 px-2 text-right">{cell(coreGross, fmt)}</td>
+                </tr>
+                <tr className="border-b border-[var(--border)]/40">
+                  <td className="py-1 px-2 text-gray-300">Basis sleeve <span className="text-gray-600">(delta-neutral)</span></td>
+                  <td className="py-1 px-2 text-right">{cell(slvYr, usdK)}</td>
+                  <td className="py-1 px-2 text-right">{cell(slvNav, fmt)}</td>
+                  <td className="py-1 px-2 text-right">{cell(slvGross, fmt)}</td>
+                </tr>
+                <tr className="font-semibold">
+                  <td className="py-1 px-2 text-gray-200">Total</td>
+                  <td className="py-1 px-2 text-right">{cell(totYr, usdK)}</td>
+                  <td className="py-1 px-2 text-right">{cell(totNav, fmt)}</td>
+                  <td className="py-1 px-2 text-right text-gray-600">—</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="text-[10px] text-gray-600 mt-1">Net of funding − borrow. Core = forward run-rate on trailing carry (ex-sleeve, ex-frozen); sleeve = funding received − USDT borrow. % of gross is each segment vs its own notional.</div>
+          </div>
+        );
+      })()}
       {earned && (
         <div className="mt-2 text-[10px] text-gray-600 opacity-70">
           Pre-pivot context (not the focus): 7d <span className="font-mono">{usd(earned.d7)}</span> · 30d <span className="font-mono">{usd(earned.d30)}</span> · inception <span className="font-mono">{usd(earned.all_time)}</span>
@@ -497,9 +547,23 @@ export function PositionsTab() {
   // Per-name trailing realized funding (durable signal) for the run-rate basis.
   const { data: fundingCarry } = useQuery<{
     positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[];
+    summary?: { net_carry_usd_yr?: number; net_carry_pct_notional?: number };
   }>({
     queryKey: ["funding-carry-latest", engine.id],
     queryFn: () => client.get("/api/funding-carry/latest"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+
+  // Basis sleeve net-carry (for the Core vs Sleeve comparison).
+  const { data: basisSleeve } = useQuery<{
+    summary?: {
+      net_carry_ann_usd?: number; net_carry_ann_pct_nav?: number;
+      net_carry_ann_pct_gross?: number; gross_usd?: number;
+    };
+  }>({
+    queryKey: ["basis-sleeve-fs", engine.id],
+    queryFn: () => client.get("/api/basis-sleeve"),
     refetchInterval: 60_000,
     staleTime: 30_000,
   });
@@ -544,7 +608,7 @@ export function PositionsTab() {
   return (
     <div className="p-4 space-y-4">
       {/* Funding Summary — moved to front; since-pivot tracking + run-rate */}
-      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} series={fundingSeries} carry={fundingCarry} />
+      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} series={fundingSeries} carry={fundingCarry} sleeve={basisSleeve} />
 
       {/* Basis sleeve (funding carry) — renders only when configured */}
       <BasisSleeveSection />

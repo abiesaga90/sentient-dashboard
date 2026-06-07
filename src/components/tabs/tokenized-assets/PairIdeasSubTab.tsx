@@ -703,6 +703,26 @@ function PairRow({
               </span>
             </span>
           )}
+          {m.carry_apr_pct_1x != null && m.carry_apr_pct_1x >= 15 && (
+            <span
+              title={
+                `Net funding carry for the displayed direction (short collects funding, long pays/collects).\n` +
+                `Short ${(m.funding_short_apr_pct ?? 0).toFixed(1)}% − ` +
+                `Long ${(m.funding_long_apr_pct ?? 0).toFixed(1)}% = ${m.carry_apr_pct_1x.toFixed(1)}% (1×).\n` +
+                `Perp-perp carry, not cointegrating: price/hedge drift can swamp this — see the funding-carry shadow.`
+              }
+              className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10px] ${
+                m.carry_apr_pct_1x >= 30
+                  ? "border-amber-400 bg-amber-950/70 text-amber-100 font-bold"
+                  : "border-amber-700 bg-amber-950/40 text-amber-300"
+              }`}
+            >
+              💰 Carry
+              <span className="ml-1 font-mono opacity-90">
+                +{m.carry_apr_pct_1x.toFixed(0)}%
+              </span>
+            </span>
+          )}
           {agreement.decided_count > 0 && (
             <span
               title={
