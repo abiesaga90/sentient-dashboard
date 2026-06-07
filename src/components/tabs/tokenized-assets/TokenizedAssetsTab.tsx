@@ -10,14 +10,16 @@ import { CommoditiesSubTab } from "./CommoditiesSubTab";
 import { PairIdeasSubTab } from "./PairIdeasSubTab";
 import { TriplesSubTab } from "./TriplesSubTab";
 import { BacktestSubTab } from "./BacktestSubTab";
+import { CarryShadowSubTab } from "./CarryShadowSubTab";
 import { MacroPanel } from "./MacroPanel";
 import { fmtUsd, fmtPct } from "./format";
 
-type SubTabId = AssetClass | "pairs" | "triples" | "backtest";
+type SubTabId = AssetClass | "pairs" | "triples" | "backtest" | "carry_shadow";
 
 const SUBTABS: { id: SubTabId; label: string }[] = [
   { id: "triples", label: "1L : 2S Triples" },
   { id: "pairs", label: "Pair Ideas" },
+  { id: "carry_shadow", label: "Carry Shadow" },
   { id: "backtest", label: "Backtest" },
   { id: "stock", label: "Single Stocks" },
   { id: "etf", label: "ETFs" },
@@ -30,7 +32,8 @@ export function TokenizedAssetsTab() {
   const { data, isLoading, error } = useTokenizedAssets();
 
   const rows = useMemo(() => {
-    if (active === "pairs" || active === "triples" || active === "backtest") return [];
+    if (active === "pairs" || active === "triples" || active === "backtest" || active === "carry_shadow")
+      return [];
     return (data?.rows ?? []).filter((r) => r.asset_class === active);
   }, [data, active]);
 
@@ -296,7 +299,7 @@ export function TokenizedAssetsTab() {
           >
             {t.label}
             <span className="ml-1.5 text-[10px] text-gray-600">
-              {t.id === "backtest"
+              {t.id === "backtest" || t.id === "carry_shadow"
                 ? ""
                 : t.id === "triples"
                 ? (data?.pairs?.triples?.length ?? 0)
@@ -319,6 +322,8 @@ export function TokenizedAssetsTab() {
         />
       ) : active === "pairs" ? (
         <PairIdeasSubTab pairs={data?.pairs} rows={data?.rows} />
+      ) : active === "carry_shadow" ? (
+        <CarryShadowSubTab />
       ) : active === "backtest" ? (
         <BacktestSubTab />
       ) : (
