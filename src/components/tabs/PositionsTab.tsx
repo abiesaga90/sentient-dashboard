@@ -302,15 +302,14 @@ interface FundingEventsResp {
 }
 
 function FundingSummary({
-  positions, risk, earned, series, events, carry, sleeve,
+  risk, earned, series, events, carry, sleeve,
 }: {
-  positions: Position[];
   risk: RiskData | undefined;
   earned: FundingEarned | undefined;
   series: { series: { date: string; funding: number }[]; anchor_ts: string | null } | undefined;
   events: FundingEventsResp | undefined;
-  carry: { positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[]; summary?: { net_carry_usd_yr?: number; net_carry_pct_notional?: number } } | undefined;
-  sleeve: { summary?: { net_carry_ann_usd?: number; net_carry_ann_pct_nav?: number; net_carry_ann_pct_gross?: number; gross_usd?: number } } | undefined;
+  carry: { positions?: { symbol: string; side?: string; notional_usd?: number; carry_ann: number | null; carry_usd_yr?: number; funding_30d_ann: number | null; funding_7d_ann: number | null }[]; summary?: { net_carry_usd_yr?: number; net_carry_pct_notional?: number } } | undefined;
+  sleeve: { summary?: { net_carry_ann_usd?: number; net_carry_ann_pct_nav?: number; net_carry_ann_pct_gross?: number; gross_usd?: number; net_carry_daily_usd?: number } } | undefined;
 }) {
   // Sign convention: SHORT positive funding = we RECEIVE (good); LONG positive = we PAY.
   // Rate basis: prefer TRAILING REALIZED settled funding (30d, else 7d) over the
@@ -321,38 +320,51 @@ function FundingSummary({
     const rate = r.carry_ann ?? r.funding_30d_ann ?? r.funding_7d_ann;
     if (rate != null) carryBySym.set(r.symbol, rate);
   }
-  const rateOf = (p: Position): number | null => {
-    const tr = carryBySym.get((p as any).symbol);
-    if (tr != null) return tr;
-    const live = (p as any).funding_rate_ann;
-    return live != null ? live : null;
-  };
-  const withFunding = positions.filter(
-    (p) => rateOf(p) != null && p.notional > 0
-  );
-  const nTrailing = withFunding.filter((p) => carryBySym.has((p as any).symbol)).length;
   const [chartMode, setChartMode] = useState<"events" | "daily">("events");
-  if (withFunding.length === 0) return null;
-  const totalNotional = withFunding.reduce((a, p) => a + p.notional, 0);
-  const longs = withFunding.filter((p) => p.side === "LONG");
-  const shorts = withFunding.filter((p) => p.side === "SHORT");
-  const longNotional = longs.reduce((a, p) => a + p.notional, 0);
-  const shortNotional = shorts.reduce((a, p) => a + p.notional, 0);
-  const sideSign = (side: string) => (side === "SHORT" ? 1 : -1);
-  const weightedAnn =
-    withFunding.reduce((a, p) => a + (rateOf(p) as number) * sideSign(p.side) * p.notional, 0) /
-    totalNotional;
-  const avgAnnLong = longNotional > 0
-    ? longs.reduce((a, p) => a + (rateOf(p) as number) * p.notional, 0) / longNotional : 0;
-  const avgAnnShort = shortNotional > 0
-    ? shorts.reduce((a, p) => a + (rateOf(p) as number) * p.notional, 0) / shortNotional : 0;
-  const dailyUsd = withFunding.reduce(
-    (a, p) => a + ((rateOf(p) as number) / 100 / 365) * p.notional * sideSign(p.side), 0);
-  const dailyLong = longs.reduce((a, p) => a + ((rateOf(p) as number) / 100 / 365) * p.notional * -1, 0);
-  const dailyShort = shorts.reduce((a, p) => a + ((rateOf(p) as number) / 100 / 365) * p.notional * 1, 0);
+
+  // Run-rate is built on ONE standardized universe so it reconciles with the
+  // "Carry by segment" table below (run-rate Total === core + sleeve-net):
+  //   CORE  = carry.positions (the L/S book from /api/funding-carry — keeps frozen
+  //           conviction longs like TRX, excludes the basis sleeve AND the scam-
+  //           strip de-noise shorts). carry_usd_yr already carries the side sign
+  //           (short receipt +, long payment −) baked in by the backend.
+  //   SLEEVE = funding − USDT borrow (delta-neutral), from /api/basis-sleeve.
+  // This drops the prior whole-book funding-only sum, which double-diverged from
+  // the segment table by (A) omitting the sleeve USDT borrow and (B) including
+  // scam-strip names the core excludes.
+  const corePositions = (carry?.positions ?? []).filter(
+    (r) => r.carry_usd_yr != null && (r.side === "LONG" || r.side === "SHORT")
+  );
+  const nTrailing = corePositions.filter((r) => carryBySym.has(r.symbol)).length;
+  const coreLongs = corePositions.filter((r) => r.side === "LONG");
+  const coreShorts = corePositions.filter((r) => r.side === "SHORT");
+  const coreNotional = corePositions.reduce((a, r) => a + (r.notional_usd ?? 0), 0);
+  const longNotional = coreLongs.reduce((a, r) => a + (r.notional_usd ?? 0), 0);
+  const shortNotional = coreShorts.reduce((a, r) => a + (r.notional_usd ?? 0), 0);
+  // Sleeve net carry (funding − borrow). Prefer the explicit daily field; fall
+  // back to annualized/365 so the borrow is always netted out.
+  const slvSum = sleeve?.summary;
+  const sleeveDaily = slvSum?.net_carry_daily_usd != null
+    ? slvSum.net_carry_daily_usd
+    : (slvSum?.net_carry_ann_usd != null ? slvSum.net_carry_ann_usd / 365 : 0);
+  const sleeveGross = slvSum?.gross_usd ?? 0;
+  if (corePositions.length === 0 && sleeveGross === 0) return null;
+
+  // Whole-book daily/ann run-rate = core + sleeve-net (borrow netted).
+  const coreDaily = corePositions.reduce((a, r) => a + (r.carry_usd_yr ?? 0) / 365, 0);
+  const dailyUsd = coreDaily + sleeveDaily;
+  const annUsd = dailyUsd * 365;
+  // "of gross" denominator spans both universes (core notional + sleeve gross).
+  const totalNotional = coreNotional + sleeveGross;
+  const weightedAnn = totalNotional > 0 ? (annUsd / totalNotional) * 100 : 0;
+  // Per-side split (informational): core only by side; the delta-neutral sleeve
+  // net carry is folded into the short side (it is the perp-short carry engine).
+  const dailyLong = coreLongs.reduce((a, r) => a + (r.carry_usd_yr ?? 0) / 365, 0);
+  const dailyShort = coreShorts.reduce((a, r) => a + (r.carry_usd_yr ?? 0) / 365, 0) + sleeveDaily;
+  const avgAnnLong = longNotional > 0 ? (dailyLong * 365 / longNotional) * 100 : 0;
+  const avgAnnShort = shortNotional > 0 ? (dailyShort * 365 / shortNotional) * 100 : 0;
   const t = (v: number, eps = 1) => Math.abs(v) < eps ? "text-gray-300" : v > 0 ? "text-green-400" : "text-red-400";
   const nav = (risk as any)?.nav ?? 0;
-  const annUsd = dailyUsd * 365;
   const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`;
   const usd = (v: number) => `${v >= 0 ? "+" : ""}$${v.toFixed(2)}`;
   // Compact dollars: $27.5k / $1.2M for large figures, plain $ below 1k.
@@ -515,12 +527,12 @@ function FundingSummary({
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
           <div className="text-[10px] text-gray-500 uppercase">Long side</div>
           <div className={`text-sm font-mono ${dailyLong >= 0 ? "text-green-400" : "text-red-400"}`}>{usd(dailyLong)}/d</div>
-          <div className="text-[10px] text-gray-600 mt-0.5">pays {avgAnnLong.toFixed(1)}% ann avg</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">net carry {avgAnnLong >= 0 ? "+" : ""}{avgAnnLong.toFixed(1)}% ann</div>
         </div>
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
           <div className="text-[10px] text-gray-500 uppercase">Short side</div>
           <div className={`text-sm font-mono ${dailyShort >= 0 ? "text-green-400" : "text-red-400"}`}>{usd(dailyShort)}/d</div>
-          <div className="text-[10px] text-gray-600 mt-0.5">receives {avgAnnShort.toFixed(1)}% ann avg</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">net carry {avgAnnShort >= 0 ? "+" : ""}{avgAnnShort.toFixed(1)}% ann (incl. sleeve)</div>
         </div>
       </div>
       <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-gray-500">
@@ -580,7 +592,7 @@ function FundingSummary({
                 </tr>
               </tbody>
             </table>
-            <div className="text-[10px] text-gray-600 mt-1">All net of funding − borrow. Realized = actual settlements since the pivot; Ann $/yr = forward run-rate (core on trailing carry ex-sleeve/ex-frozen, sleeve = funding − USDT borrow). % of gross is each segment vs its own notional.</div>
+            <div className="text-[10px] text-gray-600 mt-1">All net of funding − borrow. Realized = actual settlements since the pivot; Ann $/yr = forward run-rate. Core = the L/S book on trailing realized carry (incl. frozen conviction longs like TRX; ex-basis-sleeve; ex-scam-strip de-noise shorts). Sleeve = funding − USDT borrow (delta-neutral). Total = Core + Sleeve, and equals the "Current run-rate" annualized figure above. % of gross is each segment vs its own notional.</div>
           </div>
         );
       })()}
@@ -590,7 +602,7 @@ function FundingSummary({
         </div>
       )}
       <div className="mt-1 text-[10px] text-gray-600">
-        Run-rate = {nTrailing}/{withFunding.length} names on TRAILING REALIZED funding (30d/7d settled, actual), rest on live tick; annualized as a forward projection. Realized = actual settlements received/paid (sign: short receipt +, long payment −).
+        Run-rate Total = Core + Sleeve (= the segment-table Total), annualized as a forward projection. Core = {nTrailing}/{corePositions.length} L/S names on TRAILING REALIZED carry (30d/7d settled; incl. frozen longs like TRX, ex-sleeve, ex-scam-strip), rest on live tick. Sleeve = funding − USDT borrow (delta-neutral). Realized = actual settlements received/paid (sign: short receipt +, long payment −).
       </div>
     </Card>
   );
@@ -650,7 +662,7 @@ export function PositionsTab() {
 
   // Per-name trailing realized funding (durable signal) for the run-rate basis.
   const { data: fundingCarry } = useQuery<{
-    positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[];
+    positions?: { symbol: string; side?: string; notional_usd?: number; carry_ann: number | null; carry_usd_yr?: number; funding_30d_ann: number | null; funding_7d_ann: number | null }[];
     summary?: { net_carry_usd_yr?: number; net_carry_pct_notional?: number };
   }>({
     queryKey: ["funding-carry-latest", engine.id],
@@ -664,6 +676,7 @@ export function PositionsTab() {
     summary?: {
       net_carry_ann_usd?: number; net_carry_ann_pct_nav?: number;
       net_carry_ann_pct_gross?: number; gross_usd?: number;
+      net_carry_daily_usd?: number;
     };
   }>({
     queryKey: ["basis-sleeve-fs", engine.id],
@@ -712,7 +725,7 @@ export function PositionsTab() {
   return (
     <div className="p-4 space-y-4">
       {/* Funding Summary — moved to front; since-pivot tracking + run-rate */}
-      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} series={fundingSeries} events={fundingEvents} carry={fundingCarry} sleeve={basisSleeve} />
+      <FundingSummary risk={risk} earned={fundingEarned} series={fundingSeries} events={fundingEvents} carry={fundingCarry} sleeve={basisSleeve} />
 
       {/* Basis sleeve (funding carry) — renders only when configured */}
       <BasisSleeveSection />
