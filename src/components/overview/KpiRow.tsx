@@ -34,6 +34,21 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
     staleTime: 30_000,
   });
   const carrySummary = carry?.available ? carry.summary : undefined;
+  // Basis-sleeve carry is computed by a separate monitor and is excluded from
+  // the core funding-carry book; fetch it so the KPI shows core + sleeve.
+  const { data: sleeve } = useQuery<{
+    enabled?: boolean;
+    summary?: { net_carry_ann_usd?: number; net_carry_ann_pct_gross?: number };
+  }>({
+    queryKey: ["basis-sleeve-kpi", engine.id],
+    queryFn: () => client.get("/api/basis-sleeve"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+  const sleeveSummary =
+    sleeve?.enabled && sleeve.summary?.net_carry_ann_usd != null
+      ? sleeve.summary
+      : undefined;
 
   return (
     <div className="space-y-3">
@@ -242,23 +257,41 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
           </div>
         </Card>
 
-        {/* Net Funding Carry */}
-        {carrySummary && (
-          <Card>
-            <CardTitle>Net Carry</CardTitle>
-            <div className={cn(
-              "text-xl font-bold mt-1",
-              carrySummary.net_carry_usd_yr >= 0 ? "text-green-400" : "text-red-400"
-            )}>
-              {carrySummary.net_carry_usd_yr >= 0 ? "+" : ""}
-              {formatUSD(carrySummary.net_carry_usd_yr, 0)}/yr
-            </div>
-            <div className="text-[10px] text-gray-600 mt-1">
-              {formatPct(carrySummary.net_carry_pct_notional)} of notional
-            </div>
-            <div className="text-[10px] text-gray-600">funding carry (book)</div>
-          </Card>
-        )}
+        {/* Net Funding Carry (core book + basis sleeve) */}
+        {(carrySummary || sleeveSummary) && (() => {
+          const coreUsd = carrySummary?.net_carry_usd_yr ?? 0;
+          const sleeveUsd = sleeveSummary?.net_carry_ann_usd ?? 0;
+          const totalUsd = coreUsd + sleeveUsd;
+          const sign = (v: number) => (v >= 0 ? "+" : "");
+          return (
+            <Card>
+              <CardTitle>Net Carry</CardTitle>
+              <div className={cn(
+                "text-xl font-bold mt-1",
+                totalUsd >= 0 ? "text-green-400" : "text-red-400"
+              )}>
+                {sign(totalUsd)}{formatUSD(totalUsd, 0)}/yr
+              </div>
+              <div className="text-[10px] text-gray-600 mt-1">
+                core {sign(coreUsd)}{formatUSD(coreUsd, 0)}
+                {sleeveSummary && (
+                  <> · sleeve {sign(sleeveUsd)}{formatUSD(sleeveUsd, 0)}</>
+                )}
+              </div>
+              {carrySummary && (
+                <div className="text-[10px] text-gray-600">
+                  {formatPct(carrySummary.net_carry_pct_notional)} of book notional
+                  {sleeveSummary?.net_carry_ann_pct_gross != null && (
+                    <> · {formatPct(sleeveSummary.net_carry_ann_pct_gross)} sleeve gross</>
+                  )}
+                </div>
+              )}
+              <div className="text-[10px] text-gray-600">
+                funding carry ({sleeveSummary ? "book + sleeve" : "book"})
+              </div>
+            </Card>
+          );
+        })()}
       </div>
 
       {/* Spread Vol Metrics */}
