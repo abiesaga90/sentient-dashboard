@@ -257,37 +257,37 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
           </div>
         </Card>
 
-        {/* Net Funding Carry (core book + basis sleeve) */}
+        {/* Net Funding Carry — sleeve is the dominant carry engine (headline);
+            core book is the secondary line. */}
         {(carrySummary || sleeveSummary) && (() => {
           const coreUsd = carrySummary?.net_carry_usd_yr ?? 0;
           const sleeveUsd = sleeveSummary?.net_carry_ann_usd ?? 0;
           const totalUsd = coreUsd + sleeveUsd;
           const sign = (v: number) => (v >= 0 ? "+" : "");
+          const headlineUsd = sleeveSummary ? sleeveUsd : coreUsd;
           return (
             <Card>
               <CardTitle>Net Carry</CardTitle>
               <div className={cn(
                 "text-xl font-bold mt-1",
-                totalUsd >= 0 ? "text-green-400" : "text-red-400"
+                headlineUsd >= 0 ? "text-green-400" : "text-red-400"
               )}>
-                {sign(totalUsd)}{formatUSD(totalUsd, 0)}/yr
+                {sign(headlineUsd)}{formatUSD(headlineUsd, 0)}/yr
               </div>
               <div className="text-[10px] text-gray-600 mt-1">
-                core {sign(coreUsd)}{formatUSD(coreUsd, 0)}
-                {sleeveSummary && (
-                  <> · sleeve {sign(sleeveUsd)}{formatUSD(sleeveUsd, 0)}</>
-                )}
+                {sleeveSummary?.net_carry_ann_pct_gross != null
+                  ? `${formatPct(sleeveSummary.net_carry_ann_pct_gross)} of sleeve gross`
+                  : carrySummary
+                    ? `${formatPct(carrySummary.net_carry_pct_notional)} of book notional`
+                    : ""}
               </div>
-              {carrySummary && (
+              {sleeveSummary && carrySummary && (
                 <div className="text-[10px] text-gray-600">
-                  {formatPct(carrySummary.net_carry_pct_notional)} of book notional
-                  {sleeveSummary?.net_carry_ann_pct_gross != null && (
-                    <> · {formatPct(sleeveSummary.net_carry_ann_pct_gross)} sleeve gross</>
-                  )}
+                  core {sign(coreUsd)}{formatUSD(coreUsd, 0)} · total {sign(totalUsd)}{formatUSD(totalUsd, 0)}/yr
                 </div>
               )}
               <div className="text-[10px] text-gray-600">
-                funding carry ({sleeveSummary ? "book + sleeve" : "book"})
+                funding carry ({sleeveSummary ? "sleeve" : "book"})
               </div>
             </Card>
           );
