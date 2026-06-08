@@ -405,7 +405,7 @@ function FundingSummary({
 
       {/* SINCE PIVOT — go-forward scorecard for the carry pivot (history de-emphasized below) */}
       <div className="text-[10px] text-gray-500 uppercase mb-1">
-        Since pivot to carry{anchorDate ? ` (${anchorDate})` : ""}
+        Since pivot to carry — realized{anchorDate ? ` (${anchorDate})` : ""}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-2">
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
@@ -418,10 +418,10 @@ function FundingSummary({
           <div className={`text-lg font-mono font-semibold ${t(pivotDailyAvg, 0.01)}`}>{usd(pivotDailyAvg)}/d</div>
           <div className="text-[10px] text-gray-600 mt-0.5">since pivot</div>
         </div>
-        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
-          <div className="text-[10px] text-gray-500 uppercase">Annualized pace</div>
+        <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]" title="Realized extrapolation: actual funding banked since the pivot ÷ days elapsed × 365. Noisy <7d and gross of spikes — it reverts toward the forward run-rate as the window lengthens.">
+          <div className="text-[10px] text-gray-500 uppercase">Annualized pace <span className="text-gray-600">(realized)</span></div>
           <div className={`text-lg font-mono font-semibold ${t(pivotAnnPace, 1)}`}>{usdK(pivotAnnPace)}/yr</div>
-          <div className="text-[10px] text-gray-600 mt-0.5">{nav > 0 ? fmt(pivotAnnPace / nav * 100) : "—"} of NAV</div>
+          <div className="text-[10px] text-gray-600 mt-0.5">vs run-rate <span className="font-mono text-gray-400">{usdK(annUsd)}/yr</span> · noisy &lt;7d</div>
         </div>
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
           <div className="text-[10px] text-gray-500 uppercase">Today (realized)</div>
@@ -512,7 +512,7 @@ function FundingSummary({
       )}
 
       {/* Current run-rate */}
-      <div className="text-[10px] text-gray-500 uppercase mb-1">Current run-rate</div>
+      <div className="text-[10px] text-gray-500 uppercase mb-1">Current run-rate — forward (current funding tick)</div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
           <div className="text-[10px] text-gray-500 uppercase">Net Ann % (weighted)</div>

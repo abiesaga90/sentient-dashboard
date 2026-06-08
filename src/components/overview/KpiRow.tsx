@@ -49,6 +49,30 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
     sleeve?.enabled && sleeve.summary?.net_carry_ann_usd != null
       ? sleeve.summary
       : undefined;
+  // Realized funding since the carry pivot — so the Net Carry KPI shows the
+  // forward run-rate AND what's actually been banked (the run-rate is a current-
+  // tick projection; realized is noisy <7d and reverts toward the run-rate).
+  const { data: earned } = useQuery<{
+    since_anchor: number | null;
+    anchor_ts: string | null;
+  }>({
+    queryKey: ["funding-earned-kpi", engine.id],
+    queryFn: () => client.get("/api/funding-earned"),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  });
+  const sincePivot = earned?.since_anchor ?? null;
+  const pivotDays = earned?.anchor_ts
+    ? Math.max((Date.now() - new Date(earned.anchor_ts).getTime()) / 86400000, 0)
+    : 0;
+  const pivotAnnPace = pivotDays > 0.04 && sincePivot != null ? (sincePivot / pivotDays) * 365 : null;
+  // Compact dollars: +$26.8k / +$1.2M; plain $ below 1k.
+  const usdK = (v: number) => {
+    const a = Math.abs(v), s = v >= 0 ? "+" : "-";
+    if (a >= 1_000_000) return `${s}$${(a / 1_000_000).toFixed(2)}M`;
+    if (a >= 1_000) return `${s}$${(a / 1_000).toFixed(1)}k`;
+    return `${s}$${a.toFixed(0)}`;
+  };
 
   return (
     <div className="space-y-3">
@@ -273,6 +297,7 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
                 headlineUsd >= 0 ? "text-green-400" : "text-red-400"
               )}>
                 {sign(headlineUsd)}{formatUSD(headlineUsd, 0)}/yr
+                <span className="text-[10px] font-normal text-gray-500"> · run-rate (fwd)</span>
               </div>
               <div className="text-[10px] text-gray-600 mt-1">
                 {sleeveSummary?.net_carry_ann_pct_gross != null
@@ -286,7 +311,24 @@ export function KpiRow({ portfolio, risk, ntRisk, positions }: KpiRowProps) {
                   core {sign(coreUsd)}{formatUSD(coreUsd, 0)} · total {sign(totalUsd)}{formatUSD(totalUsd, 0)}/yr
                 </div>
               )}
-              <div className="text-[10px] text-gray-600">
+              {/* Realized (since pivot) — what's actually been banked. The
+                  annualized pace is noisy <7d and reverts toward the run-rate. */}
+              {sincePivot != null && (
+                <div className="mt-1 pt-1 border-t border-[var(--border)]/50">
+                  <div className={cn(
+                    "text-[11px] font-mono",
+                    sincePivot >= 0 ? "text-green-400" : "text-red-400"
+                  )}>
+                    realized {sign(sincePivot)}{formatUSD(sincePivot, 0)} in {pivotDays.toFixed(1)}d
+                  </div>
+                  {pivotAnnPace != null && (
+                    <div className="text-[10px] text-gray-600">
+                      (~{usdK(pivotAnnPace)}/yr pace, noisy &lt;7d)
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="text-[10px] text-gray-600 mt-1">
                 funding carry ({sleeveSummary ? "sleeve" : "book"})
               </div>
             </Card>
