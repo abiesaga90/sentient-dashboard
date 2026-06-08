@@ -37,8 +37,19 @@ interface BasisSleeveResponse {
     days_held?: number;
     nav?: number;
     net_carry_ann_usd?: number;
+    // Forward (current funding tick) run-rate.
+    net_carry_daily_usd?: number;
+    net_carry_daily_pct_nav?: number;
+    net_carry_daily_pct_gross?: number;
     net_carry_ann_pct_nav?: number;
     net_carry_ann_pct_gross?: number;
+    // Realized run-rate (trailing accrued / days held).
+    net_carry_realized_daily_usd?: number;
+    net_carry_realized_daily_pct_nav?: number;
+    net_carry_realized_daily_pct_gross?: number;
+    net_carry_realized_ann_pct_nav?: number;
+    net_carry_realized_ann_pct_gross?: number;
+    // Cumulative earned since open.
     net_carry_return_pct_nav?: number;
     net_carry_return_pct_gross?: number;
   };
@@ -119,16 +130,6 @@ export function BasisSleeveSection() {
         <span title="Trade age (longest-held pair)">
           Held: <span className="font-mono text-gray-300">{(s.days_held ?? 0).toFixed(1)}d</span>
         </span>
-        <span title="Net carry run-rate, annualized, as a % of NAV and of sleeve gross notional">
-          Annualized net carry:{" "}
-          <span className={`font-mono ${tone(s.net_carry_ann_pct_nav ?? 0)}`}>
-            {(s.net_carry_ann_pct_nav ?? 0) >= 0 ? "+" : ""}{(s.net_carry_ann_pct_nav ?? 0).toFixed(2)}% of NAV
-          </span>
-          {" · "}
-          <span className={`font-mono ${tone(s.net_carry_ann_pct_gross ?? 0)}`}>
-            {(s.net_carry_ann_pct_gross ?? 0) >= 0 ? "+" : ""}{(s.net_carry_ann_pct_gross ?? 0).toFixed(2)}% of gross
-          </span>
-        </span>
         <span title="Net carry actually earned since the positions opened, as a % of NAV and of sleeve gross">
           Earned so far:{" "}
           <span className={`font-mono ${tone(s.net_carry_return_pct_nav ?? 0)}`}>
@@ -139,6 +140,69 @@ export function BasisSleeveSection() {
             {(s.net_carry_return_pct_gross ?? 0) >= 0 ? "+" : ""}{(s.net_carry_return_pct_gross ?? 0).toFixed(3)}% of gross
           </span>
         </span>
+      </div>
+
+      {/* Daily net carry — two views. REALIZED = trailing accrued/days actually
+          banked. FORWARD = projection of the current funding tick (spike-prone,
+          mean-reverts), so forward > realized when funding is elevated. */}
+      <div className="mb-3">
+        <div className="text-[10px] text-gray-500 uppercase mb-1">Daily net carry — two views</div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-[10px] text-gray-500 uppercase border-b border-[var(--border)]">
+                <th className="text-left py-1 px-2">Metric</th>
+                <th className="text-right py-1 px-2" title="Trailing: net carry actually banked (accrued ÷ days held). The honest run-rate.">
+                  Realized (trailing)
+                </th>
+                <th className="text-right py-1 px-2" title="Projection of the CURRENT funding tick. Spike-prone — funding mean-reverts, so this overstates a sustainable rate.">
+                  Forward (current tick)
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-[var(--border)]/40">
+                <td className="py-1 px-2 text-gray-400">Net carry $/day</td>
+                <td className={`py-1 px-2 text-right font-mono ${tone(s.net_carry_realized_daily_usd ?? 0)}`}>
+                  {(s.net_carry_realized_daily_usd ?? 0) >= 0 ? "+" : ""}${(s.net_carry_realized_daily_usd ?? 0).toFixed(2)}
+                </td>
+                <td className={`py-1 px-2 text-right font-mono ${tone(s.net_carry_daily_usd ?? 0)}`}>
+                  {(s.net_carry_daily_usd ?? 0) >= 0 ? "+" : ""}${(s.net_carry_daily_usd ?? 0).toFixed(2)}
+                </td>
+              </tr>
+              <tr className="border-b border-[var(--border)]/40">
+                <td className="py-1 px-2 text-gray-400">% of NAV / day</td>
+                <td className={`py-1 px-2 text-right font-mono ${tone(s.net_carry_realized_daily_pct_nav ?? 0)}`}>
+                  {(s.net_carry_realized_daily_pct_nav ?? 0) >= 0 ? "+" : ""}{(s.net_carry_realized_daily_pct_nav ?? 0).toFixed(3)}%
+                </td>
+                <td className={`py-1 px-2 text-right font-mono ${tone(s.net_carry_daily_pct_nav ?? 0)}`}>
+                  {(s.net_carry_daily_pct_nav ?? 0) >= 0 ? "+" : ""}{(s.net_carry_daily_pct_nav ?? 0).toFixed(3)}%
+                </td>
+              </tr>
+              <tr className="border-b border-[var(--border)]/40">
+                <td className="py-1 px-2 text-gray-400">% of gross / day</td>
+                <td className={`py-1 px-2 text-right font-mono ${tone(s.net_carry_realized_daily_pct_gross ?? 0)}`}>
+                  {(s.net_carry_realized_daily_pct_gross ?? 0) >= 0 ? "+" : ""}{(s.net_carry_realized_daily_pct_gross ?? 0).toFixed(3)}%
+                </td>
+                <td className={`py-1 px-2 text-right font-mono ${tone(s.net_carry_daily_pct_gross ?? 0)}`}>
+                  {(s.net_carry_daily_pct_gross ?? 0) >= 0 ? "+" : ""}{(s.net_carry_daily_pct_gross ?? 0).toFixed(3)}%
+                </td>
+              </tr>
+              <tr>
+                <td className="py-1 px-2 text-gray-400">Annualized (NAV)</td>
+                <td className={`py-1 px-2 text-right font-mono ${tone(s.net_carry_realized_ann_pct_nav ?? 0)}`}>
+                  {(s.net_carry_realized_ann_pct_nav ?? 0) >= 0 ? "+" : ""}{(s.net_carry_realized_ann_pct_nav ?? 0).toFixed(2)}%/yr
+                </td>
+                <td className={`py-1 px-2 text-right font-mono ${tone(s.net_carry_ann_pct_nav ?? 0)}`}>
+                  {(s.net_carry_ann_pct_nav ?? 0) >= 0 ? "+" : ""}{(s.net_carry_ann_pct_nav ?? 0).toFixed(2)}%/yr
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="text-[10px] text-gray-600 mt-1">
+          Forward projects the current funding tick (spike-prone); realized is what's actually banked. Trust realized.
+        </div>
       </div>
 
       {alloc?.available !== false && alloc?.sustained_carry && (
