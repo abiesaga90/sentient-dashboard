@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine, ResponsiveContainer,
+  AreaChart, Area, ComposedChart, Line, Scatter, ZAxis,
+  XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine, ResponsiveContainer,
 } from "recharts";
 import { useEngine } from "../../hooks/useEngine";
 import { Card, CardHeader, CardTitle } from "../ui/Card";
@@ -291,13 +292,23 @@ interface FundingEarned {
   } | null;
 }
 
+interface FundingEvent {
+  ts: string; binance_ts: number; type: "funding" | "borrow";
+  symbol: string; amount: number; cumulative_net: number;
+}
+interface FundingEventsResp {
+  anchor_ts: string | null; since: string; events: FundingEvent[];
+  summary: { funding_total: number; borrow_total: number; net_total: number; n_funding: number; n_borrow: number };
+}
+
 function FundingSummary({
-  positions, risk, earned, series, carry, sleeve,
+  positions, risk, earned, series, events, carry, sleeve,
 }: {
   positions: Position[];
   risk: RiskData | undefined;
   earned: FundingEarned | undefined;
   series: { series: { date: string; funding: number }[]; anchor_ts: string | null } | undefined;
+  events: FundingEventsResp | undefined;
   carry: { positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[]; summary?: { net_carry_usd_yr?: number; net_carry_pct_notional?: number } } | undefined;
   sleeve: { summary?: { net_carry_ann_usd?: number; net_carry_ann_pct_nav?: number; net_carry_ann_pct_gross?: number; gross_usd?: number } } | undefined;
 }) {
@@ -320,6 +331,7 @@ function FundingSummary({
     (p) => rateOf(p) != null && p.notional > 0
   );
   const nTrailing = withFunding.filter((p) => carryBySym.has((p as any).symbol)).length;
+  const [chartMode, setChartMode] = useState<"events" | "daily">("events");
   if (withFunding.length === 0) return null;
   const totalNotional = withFunding.reduce((a, p) => a + p.notional, 0);
   const longs = withFunding.filter((p) => p.side === "LONG");
@@ -368,6 +380,13 @@ function FundingSummary({
       cumChart.push({ d: pt.date.slice(5), cum: +cum.toFixed(2) });
     }
   }
+  // Granular per-payment series: every funding settlement + USDT borrow charge,
+  // with cumulative_net pre-summed server-side. Markers split by type.
+  const evAll = (events?.events ?? []).map((e) => ({ ...e, absAmount: Math.abs(e.amount) }));
+  const fundingPts = evAll.filter((e) => e.type === "funding");
+  const borrowPts = evAll.filter((e) => e.type === "borrow");
+  const haveEvents = evAll.length > 1;
+  const evSum = events?.summary;
   return (
     <Card>
       <CardHeader><CardTitle>Funding Summary</CardTitle></CardHeader>
@@ -398,8 +417,60 @@ function FundingSummary({
           <div className="text-[10px] text-gray-600 mt-0.5">since 00:00 UTC</div>
         </div>
       </div>
-      {cumChart.length > 1 ? (
-        <div className="h-40 mb-3">
+      {/* Cumulative carry chart — per-payment (granular) or daily, toggleable */}
+      <div className="flex items-center gap-2 mb-1">
+        <div className="text-[10px] text-gray-500 uppercase">
+          Cumulative carry — {chartMode === "events" ? "every payment" : "daily"}
+        </div>
+        <div className="ml-auto flex rounded border border-[var(--border)] overflow-hidden text-[10px]">
+          {(["events", "daily"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setChartMode(m)}
+              className={`px-2 py-0.5 ${chartMode === m ? "bg-[var(--bg-secondary)] text-gray-200" : "text-gray-500"}`}
+            >
+              {m === "events" ? "Per-payment" : "Daily"}
+            </button>
+          ))}
+        </div>
+      </div>
+      {chartMode === "events" && haveEvents ? (
+        <div className="h-44 mb-1">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={evAll} margin={{ top: 6, right: 10, bottom: 0, left: -12 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+              <XAxis
+                dataKey="binance_ts"
+                type="number"
+                scale="time"
+                domain={["dataMin", "dataMax"]}
+                tick={{ fill: "#64748b", fontSize: 9 }}
+                minTickGap={45}
+                tickFormatter={(v: number) =>
+                  new Date(v).toLocaleString(undefined, { month: "2-digit", day: "2-digit", hour: "2-digit" })}
+              />
+              <YAxis tick={{ fill: "#64748b", fontSize: 9 }} tickFormatter={(v: number) => `$${v.toFixed(0)}`} />
+              <ZAxis dataKey="absAmount" range={[18, 140]} />
+              <Tooltip
+                contentStyle={{ background: "#111118", border: "1px solid #1e1e2e", fontSize: 11 }}
+                labelFormatter={(v: any) => new Date(v as number).toUTCString().slice(5, 22) + " UTC"}
+                formatter={(val: any, name: any, p: any) => {
+                  const e = p?.payload;
+                  if (name === "Cumulative net") return [`$${Number(val).toFixed(2)}`, "Cumulative net"];
+                  const sign = e?.amount >= 0 ? "+" : "";
+                  return [`${sign}$${Number(e?.amount).toFixed(4)} · ${e?.symbol}`,
+                    e?.type === "borrow" ? "USDT borrow" : "Funding settle"];
+                }}
+              />
+              <ReferenceLine y={0} stroke="#334155" />
+              <Line type="stepAfter" dataKey="cumulative_net" name="Cumulative net" stroke="#22c55e" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+              <Scatter data={fundingPts} dataKey="cumulative_net" name="Funding" fill="#22c55e" isAnimationActive={false} />
+              <Scatter data={borrowPts} dataKey="cumulative_net" name="USDT borrow" fill="#ef4444" isAnimationActive={false} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      ) : chartMode === "daily" && cumChart.length > 1 ? (
+        <div className="h-40 mb-1">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={cumChart}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
@@ -412,7 +483,20 @@ function FundingSummary({
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="text-[10px] text-gray-600 mb-3">Cumulative chart populates as settlements accrue since the pivot.</div>
+        <div className="text-[10px] text-gray-600 mb-3">
+          {chartMode === "events"
+            ? "Per-payment chart populates as settlements accrue since the pivot."
+            : "Cumulative chart populates as settlements accrue since the pivot."}
+        </div>
+      )}
+      {chartMode === "events" && haveEvents && evSum && (
+        <div className="flex gap-3 text-[10px] text-gray-500 mb-3">
+          <span><span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1" />
+            {evSum.n_funding} funding · +${evSum.funding_total.toFixed(2)}</span>
+          <span><span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-1" />
+            {evSum.n_borrow} borrow · ${evSum.borrow_total.toFixed(2)}</span>
+          <span className="ml-auto text-gray-400">net ${evSum.net_total.toFixed(2)}</span>
+        </div>
       )}
 
       {/* Current run-rate */}
@@ -557,6 +641,13 @@ export function PositionsTab() {
     staleTime: 60_000,
   });
 
+  const { data: fundingEvents } = useQuery<FundingEventsResp>({
+    queryKey: ["funding-earned-events", engine.id],
+    queryFn: () => client.get("/api/funding-earned/events", { days: 30 }),
+    refetchInterval: 5 * 60_000,
+    staleTime: 60_000,
+  });
+
   // Per-name trailing realized funding (durable signal) for the run-rate basis.
   const { data: fundingCarry } = useQuery<{
     positions?: { symbol: string; carry_ann: number | null; funding_30d_ann: number | null; funding_7d_ann: number | null }[];
@@ -621,7 +712,7 @@ export function PositionsTab() {
   return (
     <div className="p-4 space-y-4">
       {/* Funding Summary — moved to front; since-pivot tracking + run-rate */}
-      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} series={fundingSeries} carry={fundingCarry} sleeve={basisSleeve} />
+      <FundingSummary positions={positions} risk={risk} earned={fundingEarned} series={fundingSeries} events={fundingEvents} carry={fundingCarry} sleeve={basisSleeve} />
 
       {/* Basis sleeve (funding carry) — renders only when configured */}
       <BasisSleeveSection />
