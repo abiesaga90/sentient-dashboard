@@ -516,7 +516,8 @@ function FundingSummary({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
           <div className="text-[10px] text-gray-500 uppercase">Net Ann % (weighted)</div>
-          <div className={`text-lg font-mono font-semibold ${t(weightedAnn)}`}>{fmt(weightedAnn)}</div>
+          <div className={`text-lg font-mono font-semibold ${t(nav > 0 ? (annUsd / nav) * 100 : 0)}`}>{fmt(nav > 0 ? (annUsd / nav) * 100 : 0)} <span className="text-[10px] text-gray-500 font-normal">of NAV</span></div>
+          <div className={`text-sm font-mono ${t(weightedAnn)}`}>{fmt(weightedAnn)} <span className="text-[10px] text-gray-600 font-normal">of gross</span></div>
           <div className="text-[10px] text-gray-600 mt-0.5">net of side sign</div>
         </div>
         <div className="text-center p-2 bg-[var(--bg-secondary)] rounded border border-[var(--border)]">
