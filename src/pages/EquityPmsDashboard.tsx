@@ -5,17 +5,24 @@ import {
   AreaChart, Area, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
 
+type Pos = {
+  symbol: string; side: string; qty: number | null; entry: number | null; mark: number | null;
+  notional: number; pct: number; upnl: number; upnl_pct: number; funding_apr: number | null;
+};
 type Paper = {
   mode: string; venue: string; inception: string; as_of: string; days: number;
-  nav_index: number; cum_return_nav_pct: number; dd_nav_pct: number;
-  gross_pct: number; net_pct: number; net_beta: number; n_longs: number;
+  nav_index: number; cum_return_nav_pct: number; dd_nav_pct: number; max_dd_nav_pct: number;
+  sharpe: number; sortino: number; gross_pct: number; net_pct: number; net_beta: number; n_longs: number;
   last_rebalance: string; rebalance_days: number;
   gates: { roll4wk_sortino: number; scaling_ok: boolean; dd_gross_mult: number; hard_stop_breached: boolean };
   limits: { gross_cap_pct: number; net_cap_pct: number; dd_hard_nav_pct: number; dd_pause_nav_pct: number };
-  book: { symbol: string; notional: number; pct: number; leg: string }[];
-  nav_curve: { date: string; nav: number; dd: number }[];
+  book: Pos[];
+  nav_curve: { date: string; nav: number }[];
   note: string;
 };
+
+const f1 = (n: number) => (n >= 0 ? "+" : "") + n.toFixed(1);
+const usd = (n: number) => "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
 
 function Kpi({ label, value, sub, tone = "cyan" }: { label: string; value: string; sub?: string; tone?: string }) {
   const c = tone === "red" ? "text-red-400" : tone === "amber" ? "text-amber-400" : tone === "green" ? "text-emerald-400" : "text-cyan-400";
@@ -29,13 +36,13 @@ function Kpi({ label, value, sub, tone = "cyan" }: { label: string; value: strin
 }
 
 function ExposureBar({ label, value, cap, capLabel }: { label: string; value: number; cap: number; capLabel: string }) {
-  const pct = Math.min(100, Math.abs(value) / cap * 100);
+  const pct = Math.min(100, (Math.abs(value) / cap) * 100);
   const over = Math.abs(value) > cap;
   return (
     <div className="mb-4">
       <div className="flex justify-between text-sm mb-1">
         <span className="text-gray-400">{label}</span>
-        <span className={over ? "text-red-400" : "text-gray-200"}>{value}% <span className="text-gray-600">/ {capLabel}</span></span>
+        <span className={over ? "text-red-400" : "text-gray-200"}>{value.toFixed(1)}% <span className="text-gray-600">/ {capLabel}</span></span>
       </div>
       <div className="h-2 rounded-full bg-[var(--border)] overflow-hidden">
         <div className={`h-full ${over ? "bg-red-500" : "bg-cyan-500"}`} style={{ width: `${pct}%` }} />
@@ -44,101 +51,133 @@ function ExposureBar({ label, value, cap, capLabel }: { label: string; value: nu
   );
 }
 
-export function EquityPmsDashboard() {
-  const [p, setP] = useState<Paper | null>(null);
-  const [err, setErr] = useState(false);
-  useEffect(() => {
-    fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
-  }, []);
-
-  if (err) return <Shell><p className="text-gray-400">Paper state unavailable.</p></Shell>;
-  if (!p) return <Shell><p className="text-gray-500">Loading…</p></Shell>;
-
-  const ddTone = Math.abs(p.dd_nav_pct) >= p.limits.dd_hard_nav_pct ? "red" : Math.abs(p.dd_nav_pct) >= p.limits.dd_pause_nav_pct ? "amber" : "green";
-  const sortino = p.gates.roll4wk_sortino;
-
+function Row({ k, v, ok }: { k: string; v: string; ok: boolean }) {
   return (
-    <Shell badge={`${p.mode} · ${p.venue} · as of ${p.as_of}`}>
-      {/* KPI row */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Kpi label="NAV (index 100)" value={p.nav_index.toFixed(1)} sub={`since ${p.inception}`} />
-        <Kpi label="Cum return (NAV)" value={`${p.cum_return_nav_pct >= 0 ? "+" : ""}${p.cum_return_nav_pct.toFixed(1)}%`} sub={`${p.days} days`} tone={p.cum_return_nav_pct >= 0 ? "green" : "red"} />
-        <Kpi label="Drawdown (NAV)" value={`${p.dd_nav_pct.toFixed(1)}%`} sub={`hard stop −${p.limits.dd_hard_nav_pct}%`} tone={ddTone} />
-        <Kpi label="Net beta" value={`+${p.net_beta.toFixed(2)}`} sub="market sensitivity" />
-        <Kpi label="Rolling-4wk Sortino" value={sortino.toFixed(2)} sub={`scale gate > 1.5`} tone={sortino > 1.5 ? "green" : "amber"} />
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-6 mb-6">
-        {/* NAV curve */}
-        <div className="md:col-span-2 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
-          <div className="text-sm font-medium text-gray-200 mb-3">Paper NAV (index 100 at inception)</div>
-          <ResponsiveContainer width="100%" height={260}>
-            <AreaChart data={p.nav_curve} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-              <defs>
-                <linearGradient id="nav" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="#22d3ee" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#64748b" }} minTickGap={40} />
-              <YAxis domain={["dataMin - 2", "dataMax + 2"]} tick={{ fontSize: 10, fill: "#64748b" }} width={42} />
-              <RTooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", fontSize: 12 }} />
-              <ReferenceLine y={100} stroke="#475569" strokeDasharray="3 3" />
-              <Area type="monotone" dataKey="nav" stroke="#22d3ee" strokeWidth={2} fill="url(#nav)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Exposure + gates */}
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
-          <div className="text-sm font-medium text-gray-200 mb-4">Exposure vs Nickel limits</div>
-          <ExposureBar label="Gross" value={p.gross_pct} cap={p.limits.gross_cap_pct} capLabel={`${p.limits.gross_cap_pct}% cap`} />
-          <ExposureBar label="Net (long)" value={p.net_pct} cap={p.limits.net_cap_pct} capLabel={`±${p.limits.net_cap_pct}% cap`} />
-          <ExposureBar label="Drawdown" value={Math.abs(p.dd_nav_pct)} cap={p.limits.dd_hard_nav_pct} capLabel={`${p.limits.dd_hard_nav_pct}% stop`} />
-          <div className="mt-4 pt-3 border-t border-[var(--border)] text-sm space-y-1.5">
-            <Row k="Scaling gate" v={p.gates.scaling_ok ? "PASS" : "pause"} ok={p.gates.scaling_ok} />
-            <Row k="De-risk gross mult" v={`${p.gates.dd_gross_mult}×`} ok={p.gates.dd_gross_mult >= 1} />
-            <Row k="Hard stop" v={p.gates.hard_stop_breached ? "BREACHED" : "clear"} ok={!p.gates.hard_stop_breached} />
-            <Row k="Last rebalance" v={p.last_rebalance ?? "—"} ok />
-            <Row k="Cadence" v={`${p.rebalance_days}d`} ok />
-          </div>
-        </div>
-      </div>
-
-      {/* Positions */}
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
-        <div className="text-sm font-medium text-gray-200 mb-3">Current book — {p.n_longs} longs + hedge</div>
-        <table className="w-full text-sm">
-          <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
-            <tr><th className="text-left py-2">Symbol</th><th className="text-left">Leg</th><th className="text-right">Notional</th><th className="text-right">% notional</th></tr>
-          </thead>
-          <tbody>
-            {p.book.map((b) => (
-              <tr key={b.symbol} className="border-b border-[var(--border)]/40">
-                <td className="py-2 text-gray-200 font-medium">{b.symbol}</td>
-                <td className={b.leg === "hedge" ? "text-gray-500" : "text-cyan-400"}>{b.leg}</td>
-                <td className="text-right text-gray-300">${b.notional.toLocaleString()}</td>
-                <td className={`text-right ${b.pct >= 0 ? "text-emerald-400" : "text-red-400"}`}>{b.pct >= 0 ? "+" : ""}{b.pct}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="text-xs text-gray-600 mt-4">{p.note}</p>
-    </Shell>
+    <div className="flex justify-between"><span className="text-gray-400">{k}</span>
+      <span className={ok ? "text-emerald-400" : "text-amber-400"}>{v}</span></div>
   );
 }
 
-function Row({ k, v, ok }: { k: string; v: string; ok: boolean }) {
+function NavChart({ curve }: { curve: { date: string; nav: number }[] }) {
   return (
-    <div className="flex justify-between">
-      <span className="text-gray-400">{k}</span>
-      <span className={ok ? "text-emerald-400" : "text-amber-400"}>{v}</span>
+    <ResponsiveContainer width="100%" height={280}>
+      <AreaChart data={curve} margin={{ top: 5, right: 10, left: -8, bottom: 0 }}>
+        <defs>
+          <linearGradient id="nav" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="#22d3ee" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#64748b" }} minTickGap={50} />
+        <YAxis domain={["dataMin - 2", "dataMax + 2"]} tick={{ fontSize: 10, fill: "#64748b" }} width={42} />
+        <RTooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", fontSize: 12 }} />
+        <ReferenceLine y={100} stroke="#475569" strokeDasharray="3 3" />
+        <Area type="monotone" dataKey="nav" stroke="#22d3ee" strokeWidth={2} fill="url(#nav)" />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
+function OverviewTab({ p }: { p: Paper }) {
+  return (
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <Kpi label="NAV (index 100)" value={p.nav_index.toFixed(1)} sub={`since ${p.inception}`} />
+        <Kpi label="Cum return (NAV)" value={`${f1(p.cum_return_nav_pct)}%`} sub={`${p.days} trading days`} tone={p.cum_return_nav_pct >= 0 ? "green" : "red"} />
+        <Kpi label="Sharpe" value={p.sharpe.toFixed(2)} sub="since inception" />
+        <Kpi label="Sortino" value={p.sortino.toFixed(2)} sub="since inception" tone="green" />
+        <Kpi label="Net beta" value={`+${p.net_beta.toFixed(2)}`} sub="market sensitivity" />
+      </div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-6">
+        <div className="text-sm font-medium text-gray-200 mb-3">Paper NAV (index 100 at inception)</div>
+        <NavChart curve={p.nav_curve} />
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4"><div className="text-gray-500 text-xs mb-1">Gross / Net</div><div className="text-gray-200">{p.gross_pct.toFixed(0)}% / {f1(p.net_pct)}%</div></div>
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4"><div className="text-gray-500 text-xs mb-1">Max drawdown</div><div className="text-gray-200">{p.max_dd_nav_pct.toFixed(1)}%</div></div>
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4"><div className="text-gray-500 text-xs mb-1">Last rebalance</div><div className="text-gray-200">{p.last_rebalance ?? "—"}</div></div>
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4"><div className="text-gray-500 text-xs mb-1">Scaling gate</div><div className={p.gates.scaling_ok ? "text-emerald-400" : "text-amber-400"}>{p.gates.scaling_ok ? "PASS" : "pause"}</div></div>
+      </div>
+    </>
+  );
+}
+
+function PositionsTab({ p }: { p: Paper }) {
+  const totUpnl = p.book.reduce((a, b) => a + b.upnl, 0);
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 overflow-x-auto">
+      <div className="flex justify-between text-sm mb-3">
+        <span className="font-medium text-gray-200">{p.n_longs} longs + hedge</span>
+        <span className="text-gray-400">Unrealized P&L <span className={totUpnl >= 0 ? "text-emerald-400" : "text-red-400"}>{usd(totUpnl)}</span></span>
+      </div>
+      <table className="w-full text-sm whitespace-nowrap">
+        <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
+          <tr>
+            <th className="text-left py-2 pr-4">Symbol</th><th className="text-left pr-4">Side</th>
+            <th className="text-right pr-4">Size</th><th className="text-right pr-4">Entry</th>
+            <th className="text-right pr-4">Mark</th><th className="text-right pr-4">Notional</th>
+            <th className="text-right pr-4">Weight</th><th className="text-right pr-4">uPnL</th>
+            <th className="text-right pr-4">uPnL %</th><th className="text-right">Funding</th>
+          </tr>
+        </thead>
+        <tbody>
+          {p.book.map((b) => (
+            <tr key={b.symbol} className="border-b border-[var(--border)]/40">
+              <td className="py-2 pr-4 text-gray-200 font-medium">{b.symbol}</td>
+              <td className={`pr-4 ${b.side === "hedge" ? "text-gray-500" : b.side === "long" ? "text-emerald-400" : "text-red-400"}`}>{b.side}</td>
+              <td className="text-right pr-4 text-gray-300">{b.qty?.toLocaleString() ?? "—"}</td>
+              <td className="text-right pr-4 text-gray-400">{b.entry != null ? `$${b.entry}` : "—"}</td>
+              <td className="text-right pr-4 text-gray-300">{b.mark != null ? `$${b.mark}` : "—"}</td>
+              <td className="text-right pr-4 text-gray-300">{usd(b.notional)}</td>
+              <td className={`text-right pr-4 ${b.pct >= 0 ? "text-gray-300" : "text-red-400"}`}>{f1(b.pct)}%</td>
+              <td className={`text-right pr-4 ${b.upnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>{usd(b.upnl)}</td>
+              <td className={`text-right pr-4 ${b.upnl_pct >= 0 ? "text-emerald-400" : "text-red-400"}`}>{f1(b.upnl_pct)}%</td>
+              <td className="text-right text-gray-500">{b.funding_apr != null ? `${b.funding_apr.toFixed(1)}%` : "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="text-[11px] text-gray-600 mt-3">uPnL is since the last monthly rebalance ({p.last_rebalance}). Funding = current perp APR. Paper book on the underlying / Binance marks.</p>
     </div>
   );
 }
 
-function Shell({ children, badge }: { children: React.ReactNode; badge?: string }) {
+function RiskTab({ p }: { p: Paper }) {
+  const sortino = p.gates.roll4wk_sortino;
+  return (
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
+        <div className="text-sm font-medium text-gray-200 mb-4">Exposure vs Nickel limits</div>
+        <ExposureBar label="Gross" value={p.gross_pct} cap={p.limits.gross_cap_pct} capLabel={`${p.limits.gross_cap_pct}% cap`} />
+        <ExposureBar label="Net (long)" value={p.net_pct} cap={p.limits.net_cap_pct} capLabel={`±${p.limits.net_cap_pct}% cap`} />
+        <ExposureBar label="Drawdown" value={Math.abs(p.dd_nav_pct)} cap={p.limits.dd_hard_nav_pct} capLabel={`${p.limits.dd_hard_nav_pct}% stop`} />
+        <div className="mt-2 text-xs text-gray-500">Net beta +{p.net_beta.toFixed(2)} · gross runs far under the 200% cap (drawdown binds first).</div>
+      </div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
+        <div className="text-sm font-medium text-gray-200 mb-4">Risk gates &amp; controls</div>
+        <div className="space-y-2 text-sm">
+          <Row k="Scaling gate (Sortino > 1.5)" v={p.gates.scaling_ok ? "PASS" : "pause"} ok={p.gates.scaling_ok} />
+          <Row k="Rolling 4-wk Sortino (current)" v={sortino.toFixed(2)} ok={sortino > 1.5} />
+          <Row k="Track Sortino (since inception)" v={p.sortino.toFixed(2)} ok={p.sortino > 1.5} />
+          <Row k="De-risk gross multiplier" v={`${p.gates.dd_gross_mult}×`} ok={p.gates.dd_gross_mult >= 1} />
+          <Row k="Hard stop (10% notl / 20% NAV)" v={p.gates.hard_stop_breached ? "BREACHED" : "clear"} ok={!p.gates.hard_stop_breached} />
+          <Row k="Max drawdown (NAV)" v={`${p.max_dd_nav_pct.toFixed(1)}%`} ok={Math.abs(p.max_dd_nav_pct) < p.limits.dd_hard_nav_pct} />
+          <Row k="Rebalance cadence" v={`${p.rebalance_days}d`} ok />
+        </div>
+        <p className="text-[11px] text-gray-600 mt-3">The rolling-4wk Sortino is the live Nickel scaling-gate input; it is noisy (20-day window) and dips below 1.5 during normal drawdowns — that correctly pauses up-scaling. The track Sortino is the through-period record.</p>
+      </div>
+    </div>
+  );
+}
+
+export function EquityPmsDashboard() {
+  const [p, setP] = useState<Paper | null>(null);
+  const [err, setErr] = useState(false);
+  const [tab, setTab] = useState<"overview" | "positions" | "risk">("overview");
+  useEffect(() => {
+    fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
+  }, []);
+
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-gray-300">
       <nav className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
@@ -147,13 +186,30 @@ function Shell({ children, badge }: { children: React.ReactNode; badge?: string 
         </Link>
         <div className="flex items-center gap-3">
           <Link to="/equity-rv" className="text-sm text-cyan-400 hover:text-cyan-300">Strategy &amp; research →</Link>
-          {badge && <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full border border-cyan-500/40 text-cyan-400">{badge}</span>}
+          {p && <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full border border-cyan-500/40 text-cyan-400">{p.mode} · {p.venue} · {p.as_of}</span>}
         </div>
       </nav>
       <main className="max-w-6xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold text-gray-100 mb-1">Equity PMS — Operational Dashboard</h1>
-        <p className="text-sm text-gray-500 mb-6">Paper-trade book, exposures, and risk gates. Research / pre-launch.</p>
-        {children}
+        <p className="text-sm text-gray-500 mb-5">Paper-trade book, exposures, and risk gates. Research / pre-launch.</p>
+        {err && <p className="text-gray-400">Paper state unavailable.</p>}
+        {!err && !p && <p className="text-gray-500">Loading…</p>}
+        {p && (
+          <>
+            <div className="flex gap-1 mb-6 border-b border-[var(--border)]">
+              {(["overview", "positions", "risk"] as const).map((t) => (
+                <button key={t} onClick={() => setTab(t)}
+                  className={`px-4 py-2 text-sm capitalize border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+            {tab === "overview" && <OverviewTab p={p} />}
+            {tab === "positions" && <PositionsTab p={p} />}
+            {tab === "risk" && <RiskTab p={p} />}
+            <p className="text-xs text-gray-600 mt-6">{p.note}</p>
+          </>
+        )}
       </main>
     </div>
   );

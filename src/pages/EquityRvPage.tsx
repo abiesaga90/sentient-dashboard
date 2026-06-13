@@ -27,7 +27,7 @@ type PaperState = {
   nav_index: number; cum_return_nav_pct: number; dd_nav_pct: number;
   gross_pct: number; net_pct: number; n_longs: number;
   gates: { roll4wk_sortino: number; scaling_ok: boolean };
-  book: { symbol: string; pct: number; leg: string }[];
+  book: { symbol: string; pct: number; side: string }[];
   nav_curve: { date: string; nav: number }[];
   note: string;
 };
@@ -87,7 +87,7 @@ function PaperTradeSection() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-2 text-sm">
           {ps.book.map((b) => (
             <div key={b.symbol} className="flex justify-between">
-              <span className={b.leg === "hedge" ? "text-gray-500" : "text-gray-300"}>{b.symbol}</span>
+              <span className={b.side === "hedge" ? "text-gray-500" : "text-gray-300"}>{b.symbol}</span>
               <span className={b.pct >= 0 ? "text-cyan-400" : "text-red-400"}>{b.pct >= 0 ? "+" : ""}{b.pct}%</span>
             </div>
           ))}
