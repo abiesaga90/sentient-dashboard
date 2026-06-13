@@ -142,10 +142,13 @@ function Shell({ children, badge }: { children: React.ReactNode; badge?: string 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-gray-300">
       <nav className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
-        <Link to="/equity-rv" className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-200">
-          <ArrowLeft size={16} /> Tokenized Equity L/S
+        <Link to="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-200">
+          <ArrowLeft size={16} /> Sentient Advisory
         </Link>
-        {badge && <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full border border-cyan-500/40 text-cyan-400">{badge}</span>}
+        <div className="flex items-center gap-3">
+          <Link to="/equity-rv" className="text-sm text-cyan-400 hover:text-cyan-300">Strategy &amp; research →</Link>
+          {badge && <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full border border-cyan-500/40 text-cyan-400">{badge}</span>}
+        </div>
       </nav>
       <main className="max-w-6xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold text-gray-100 mb-1">Equity PMS — Operational Dashboard</h1>

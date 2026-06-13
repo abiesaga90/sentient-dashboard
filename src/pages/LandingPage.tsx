@@ -32,8 +32,8 @@ export function LandingPage() {
             icon={<LineChart size={28} />}
             title="Tokenized Equity L/S"
             description="Fundamentally-driven long/short on tokenized US-equity perps. Analyst earnings-surprise + momentum, factor-hedged with QQQ+SOXL, engineered to a hard drawdown cap."
-            linkTo="/equity-rv"
-            linkLabel="Strategy & Backtest"
+            linkTo="/equity-rv/dashboard"
+            linkLabel="Live Dashboard"
             tags={["Tokenized Equities", "Earnings-Surprise", "Factor-Hedged"]}
             featured
           />
