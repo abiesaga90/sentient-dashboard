@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, TrendingUp, Coins } from "lucide-react";
+import { ArrowRight, TrendingUp, Coins, LineChart } from "lucide-react";
 import { Button } from "../components/ui/Button";
 
 export function LandingPage() {
@@ -18,16 +18,25 @@ export function LandingPage() {
           Sentient Advisory LLC
         </p>
         <h2 className="text-4xl md:text-5xl font-bold text-gray-100 mb-4 leading-tight">
-          Systematic Digital Asset Strategies
+          Systematic Strategies for Tokenized &amp; Digital Markets
         </h2>
         <p className="text-lg text-gray-400 max-w-2xl mb-16">
-          Autonomous, risk-managed strategies across crypto markets.
-          Quantitative frameworks, on-chain transparency, institutional-grade
-          infrastructure.
+          Fundamental and quantitative strategies across tokenized equities and
+          crypto. Institutional-grade risk controls, hard drawdown caps,
+          transparent infrastructure.
         </p>
 
         {/* Strategy cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full">
+          <StrategyCard
+            icon={<LineChart size={28} />}
+            title="Tokenized Equity L/S"
+            description="Fundamentally-driven long/short on tokenized US-equity perps. Analyst earnings-surprise + momentum, factor-hedged with QQQ+SOXL, engineered to a hard drawdown cap."
+            linkTo="/equity-rv"
+            linkLabel="Strategy & Backtest"
+            tags={["Tokenized Equities", "Earnings-Surprise", "Factor-Hedged"]}
+            featured
+          />
           <StrategyCard
             icon={<TrendingUp size={28} />}
             title="L/S Relative Value"
@@ -62,6 +71,7 @@ function StrategyCard({
   linkTo,
   linkLabel,
   tags,
+  featured = false,
 }: {
   icon: React.ReactNode;
   title: string;
@@ -69,10 +79,22 @@ function StrategyCard({
   linkTo: string;
   linkLabel: string;
   tags: string[];
+  featured?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-6 text-left flex flex-col hover:border-gray-600 transition-colors">
-      <div className="text-purple-400 mb-4">{icon}</div>
+    <div
+      className={`relative rounded-xl border bg-[var(--bg-card)] p-6 text-left flex flex-col transition-colors ${
+        featured
+          ? "border-cyan-500/60 ring-1 ring-cyan-500/30 hover:border-cyan-400"
+          : "border-[var(--border)] hover:border-gray-600"
+      }`}
+    >
+      {featured && (
+        <span className="absolute -top-2.5 left-4 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500 text-gray-900">
+          Flagship
+        </span>
+      )}
+      <div className={featured ? "text-cyan-400 mb-4" : "text-purple-400 mb-4"}>{icon}</div>
       <h3 className="text-lg font-semibold text-gray-100 mb-2">{title}</h3>
       <p className="text-sm text-gray-400 mb-4 flex-1">{description}</p>
       <div className="flex flex-wrap gap-2 mb-5">

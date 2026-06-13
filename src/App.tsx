@@ -12,6 +12,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { LiveDashboard } from "./pages/LiveDashboard";
 import { DefiYieldPage } from "./pages/DefiYieldPage";
 import { YieldDashboard } from "./pages/YieldDashboard";
+import { EquityRvPage } from "./pages/EquityRvPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +46,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/equity-rv" element={<EquityRvPage />} />
             <Route path="/live" element={<LiveDashboard />} />
             <Route path="/defi-yield" element={<DefiYieldPage />} />
             <Route path="/defi-yield/dashboard" element={<YieldDashboard />} />
