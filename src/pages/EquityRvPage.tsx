@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, FileText } from "lucide-react";
 
@@ -18,6 +19,77 @@ function Exhibit({ src, title, note }: { src: string; title: string; note?: stri
       <img src={src} alt={title} className="w-full rounded-lg bg-white" />
       {note && <p className="text-xs text-gray-500 mt-3">{note}</p>}
     </figure>
+  );
+}
+
+type PaperState = {
+  mode: string; venue: string; inception: string; as_of: string; days: number;
+  nav_index: number; cum_return_nav_pct: number; dd_nav_pct: number;
+  gross_pct: number; net_pct: number; n_longs: number;
+  gates: { roll4wk_sortino: number; scaling_ok: boolean };
+  book: { symbol: string; pct: number; leg: string }[];
+  nav_curve: { date: string; nav: number }[];
+  note: string;
+};
+
+function NavSparkline({ curve }: { curve: { date: string; nav: number }[] }) {
+  if (!curve?.length) return null;
+  const w = 600, h = 150, pad = 10;
+  const navs = curve.map((c) => c.nav);
+  const min = Math.min(...navs, 100), max = Math.max(...navs);
+  const x = (i: number) => pad + (i / (curve.length - 1)) * (w - 2 * pad);
+  const y = (v: number) => h - pad - ((v - min) / (max - min || 1)) * (h - 2 * pad);
+  const d = curve.map((c, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(c.nav).toFixed(1)}`).join(" ");
+  const up = navs[navs.length - 1] >= 100;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full" preserveAspectRatio="none" style={{ height: 150 }}>
+      <line x1={pad} y1={y(100)} x2={w - pad} y2={y(100)} stroke="#475569" strokeDasharray="3 3" strokeWidth="1" />
+      <path d={d} fill="none" stroke={up ? "#22d3ee" : "#f87171"} strokeWidth="2" />
+    </svg>
+  );
+}
+
+function PaperTradeSection() {
+  const [ps, setPs] = useState<PaperState | null>(null);
+  const [err, setErr] = useState(false);
+  useEffect(() => {
+    fetch("/equity-rv/paper_state.json")
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then(setPs)
+      .catch(() => setErr(true));
+  }, []);
+  if (err || !ps) return null;
+  return (
+    <section className="mb-12">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold text-gray-100">Live paper trade</h2>
+        <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full border border-cyan-500/40 text-cyan-400">
+          {ps.mode} · {ps.venue} · as of {ps.as_of}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+        <Metric label="NAV (index 100)" value={ps.nav_index.toFixed(1)} sub={`since ${ps.inception}`} />
+        <Metric label="Cum. return (NAV)" value={`${ps.cum_return_nav_pct >= 0 ? "+" : ""}${ps.cum_return_nav_pct.toFixed(1)}%`} sub={`${ps.days} trading days`} />
+        <Metric label="Drawdown (NAV)" value={`${ps.dd_nav_pct.toFixed(1)}%`} sub="peak-to-trough" />
+        <Metric label="Net / Gross" value={`${ps.net_pct}% / ${ps.gross_pct}%`} sub={`${ps.n_longs} longs + hedge`} />
+      </div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-5">
+        <div className="text-sm font-medium text-gray-200 mb-2">Paper NAV (index 100 at inception)</div>
+        <NavSparkline curve={ps.nav_curve} />
+      </div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <div className="text-sm font-medium text-gray-200 mb-3">Current book</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-2 text-sm">
+          {ps.book.map((b) => (
+            <div key={b.symbol} className="flex justify-between">
+              <span className={b.leg === "hedge" ? "text-gray-500" : "text-gray-300"}>{b.symbol}</span>
+              <span className={b.pct >= 0 ? "text-cyan-400" : "text-red-400"}>{b.pct >= 0 ? "+" : ""}{b.pct}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="text-xs text-gray-600 mt-3">{ps.note}</p>
+    </section>
   );
 }
 
@@ -59,8 +131,11 @@ export function EquityRvPage() {
           performance representation.
         </p>
 
+        {/* Live paper trade (fetched from the PMS paper_state.json) */}
+        <PaperTradeSection />
+
         {/* Performance */}
-        <h2 className="text-xl font-semibold text-gray-100 mb-4">Performance &amp; risk</h2>
+        <h2 className="text-xl font-semibold text-gray-100 mb-4">Backtest performance &amp; risk</h2>
         <div className="grid md:grid-cols-2 gap-5 mb-12">
           <Exhibit src="/equity-rv/equity_curve.png" title="Growth of 100 (NAV basis)" />
           <Exhibit src="/equity-rv/drawdown.png" title="Drawdown vs Nickel risk limits" />
