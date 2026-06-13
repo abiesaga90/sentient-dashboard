@@ -13,6 +13,8 @@ type Paper = {
   mode: string; venue: string; inception: string; as_of: string; days: number;
   nav_index: number; cum_return_nav_pct: number; dd_nav_pct: number; max_dd_nav_pct: number;
   sharpe: number; sortino: number; gross_pct: number; net_pct: number; net_beta: number; n_longs: number;
+  gross_pct_nav: number; net_pct_nav: number; unimmr: number | null; unimmr_est: boolean;
+  pnl_periods: { wtd: number; mtd: number; qtd: number; ytd: number; all_time: number };
   last_rebalance: string; rebalance_days: number;
   gates: { roll4wk_sortino: number; scaling_ok: boolean; dd_gross_mult: number; hard_stop_breached: boolean };
   limits: { gross_cap_pct: number; net_cap_pct: number; dd_hard_nav_pct: number; dd_pause_nav_pct: number };
@@ -78,6 +80,44 @@ function NavChart({ curve }: { curve: { date: string; nav: number }[] }) {
   );
 }
 
+function PnlPeriods({ p }: { p: Paper }) {
+  const items: [string, number][] = [["WTD", p.pnl_periods.wtd], ["MTD", p.pnl_periods.mtd],
+    ["QTD", p.pnl_periods.qtd], ["YTD", p.pnl_periods.ytd], ["All-time", p.pnl_periods.all_time]];
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-6">
+      <div className="text-sm font-medium text-gray-200 mb-3">P&amp;L (NAV basis)</div>
+      <div className="grid grid-cols-5 gap-3">
+        {items.map(([k, v]) => (
+          <div key={k}>
+            <div className="text-[11px] uppercase tracking-wider text-gray-500">{k}</div>
+            <div className={`text-lg font-semibold ${v >= 0 ? "text-emerald-400" : "text-red-400"}`}>{f1(v)}%</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Movers({ book }: { book: Pos[] }) {
+  const named = book.filter((b) => b.side !== "hedge");
+  const win = [...named].sort((a, b) => b.upnl - a.upnl).slice(0, 3);
+  const los = [...named].sort((a, b) => a.upnl - b.upnl).slice(0, 3);
+  const row = (b: Pos) => (
+    <div key={b.symbol} className="flex justify-between text-sm">
+      <span className="text-gray-300">{b.symbol}</span>
+      <span className={b.upnl >= 0 ? "text-emerald-400" : "text-red-400"}>{usd(b.upnl)} ({f1(b.upnl_pct)}%)</span>
+    </div>
+  );
+  return (
+    <div className="grid md:grid-cols-2 gap-4 mb-6">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <div className="text-sm font-medium text-emerald-400 mb-2">Top gainers</div><div className="space-y-1">{win.map(row)}</div></div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <div className="text-sm font-medium text-red-400 mb-2">Top losers</div><div className="space-y-1">{los.map(row)}</div></div>
+    </div>
+  );
+}
+
 function OverviewTab({ p }: { p: Paper }) {
   return (
     <>
@@ -92,6 +132,8 @@ function OverviewTab({ p }: { p: Paper }) {
         <div className="text-sm font-medium text-gray-200 mb-3">Paper NAV (index 100 at inception)</div>
         <NavChart curve={p.nav_curve} />
       </div>
+      <PnlPeriods p={p} />
+      <Movers book={p.book} />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4"><div className="text-gray-500 text-xs mb-1">Gross / Net</div><div className="text-gray-200">{p.gross_pct.toFixed(0)}% / {f1(p.net_pct)}%</div></div>
         <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4"><div className="text-gray-500 text-xs mb-1">Max drawdown</div><div className="text-gray-200">{p.max_dd_nav_pct.toFixed(1)}%</div></div>
@@ -103,12 +145,19 @@ function OverviewTab({ p }: { p: Paper }) {
 }
 
 function PositionsTab({ p }: { p: Paper }) {
+  const named = p.book.filter((b) => b.side !== "hedge");
+  const W = named.filter((b) => b.upnl > 0), L = named.filter((b) => b.upnl < 0);
   const totUpnl = p.book.reduce((a, b) => a + b.upnl, 0);
+  const sum = (xs: Pos[]) => xs.reduce((a, b) => a + b.upnl, 0);
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 overflow-x-auto">
-      <div className="flex justify-between text-sm mb-3">
+      <div className="flex justify-between items-center text-sm mb-3">
         <span className="font-medium text-gray-200">{p.n_longs} longs + hedge</span>
-        <span className="text-gray-400">Unrealized P&L <span className={totUpnl >= 0 ? "text-emerald-400" : "text-red-400"}>{usd(totUpnl)}</span></span>
+        <div className="flex gap-4 text-xs">
+          <span className="text-emerald-400">W: {W.length} ({usd(sum(W))})</span>
+          <span className="text-red-400">L: {L.length} ({usd(sum(L))})</span>
+          <span className="text-gray-400">Net uPnL <span className={totUpnl >= 0 ? "text-emerald-400" : "text-red-400"}>{usd(totUpnl)}</span></span>
+        </div>
       </div>
       <table className="w-full text-sm whitespace-nowrap">
         <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
@@ -151,7 +200,13 @@ function RiskTab({ p }: { p: Paper }) {
         <ExposureBar label="Gross" value={p.gross_pct} cap={p.limits.gross_cap_pct} capLabel={`${p.limits.gross_cap_pct}% cap`} />
         <ExposureBar label="Net (long)" value={p.net_pct} cap={p.limits.net_cap_pct} capLabel={`±${p.limits.net_cap_pct}% cap`} />
         <ExposureBar label="Drawdown" value={Math.abs(p.dd_nav_pct)} cap={p.limits.dd_hard_nav_pct} capLabel={`${p.limits.dd_hard_nav_pct}% stop`} />
-        <div className="mt-2 text-xs text-gray-500">Net beta +{p.net_beta.toFixed(2)} · gross runs far under the 200% cap (drawdown binds first).</div>
+        <div className="mt-3 pt-3 border-t border-[var(--border)] grid grid-cols-3 gap-y-1.5 text-xs">
+          <div className="text-gray-600" /><div className="text-right text-gray-500">Notional</div><div className="text-right text-gray-500">NAV</div>
+          <div className="text-gray-400">Gross</div><div className="text-right text-gray-300">{p.gross_pct.toFixed(0)}%</div><div className="text-right text-gray-300">{p.gross_pct_nav.toFixed(0)}%</div>
+          <div className="text-gray-400">Net</div><div className="text-right text-gray-300">{f1(p.net_pct)}%</div><div className="text-right text-gray-300">{f1(p.net_pct_nav)}%</div>
+          <div className="text-gray-400">Net beta</div><div className="text-right text-cyan-400">+{p.net_beta.toFixed(2)}</div><div className="text-right text-gray-600">market</div>
+        </div>
+        <div className="mt-2 text-[11px] text-gray-600">Nickel sizes risk on NOTIONAL (notional = 2× NAV). Gross runs far under the 200%-notional cap — drawdown binds first.</div>
       </div>
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
         <div className="text-sm font-medium text-gray-200 mb-4">Risk gates &amp; controls</div>
@@ -162,6 +217,7 @@ function RiskTab({ p }: { p: Paper }) {
           <Row k="De-risk gross multiplier" v={`${p.gates.dd_gross_mult}×`} ok={p.gates.dd_gross_mult >= 1} />
           <Row k="Hard stop (10% notl / 20% NAV)" v={p.gates.hard_stop_breached ? "BREACHED" : "clear"} ok={!p.gates.hard_stop_breached} />
           <Row k="Max drawdown (NAV)" v={`${p.max_dd_nav_pct.toFixed(1)}%`} ok={Math.abs(p.max_dd_nav_pct) < p.limits.dd_hard_nav_pct} />
+          <Row k={`uniMMR — Binance PM${p.unimmr_est ? " (est)" : ""}`} v={p.unimmr != null ? `${p.unimmr}×` : "—"} ok={(p.unimmr ?? 99) > 1.3} />
           <Row k="Rebalance cadence" v={`${p.rebalance_days}d`} ok />
         </div>
         <p className="text-[11px] text-gray-600 mt-3">The rolling-4wk Sortino is the live Nickel scaling-gate input; it is noisy (20-day window) and dips below 1.5 during normal drawdowns — that correctly pauses up-scaling. The track Sortino is the through-period record.</p>
