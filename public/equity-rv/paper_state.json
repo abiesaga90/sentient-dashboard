@@ -10,6 +10,7 @@
   "dd_nav_pct": -5.1499999999999995,
   "gross_pct": 33.5,
   "net_pct": 17.0,
+  "net_beta": 0.116,
   "n_longs": 10,
   "gates": {
     "scaling_ok": false,
@@ -18,6 +19,14 @@
     "dd_nav": 0.0515,
     "dd_gross_mult": 1.0,
     "hard_stop_breached": false
+  },
+  "last_rebalance": "2026-05-22",
+  "rebalance_days": 21,
+  "limits": {
+    "gross_cap_pct": 200.0,
+    "net_cap_pct": 30.0,
+    "dd_hard_nav_pct": 20.0,
+    "dd_pause_nav_pct": 10.0
   },
   "book": [
     {
@@ -191,7 +200,7 @@
     },
     {
       "date": "2026-01-20",
-      "nav": 110.1,
+      "nav": 110.11,
       "dd": 0.0
     },
     {
@@ -561,7 +570,7 @@
     },
     {
       "date": "2026-05-06",
-      "nav": 121.43,
+      "nav": 121.44,
       "dd": -0.83
     },
     {
@@ -661,7 +670,7 @@
     },
     {
       "date": "2026-06-04",
-      "nav": 120.22,
+      "nav": 120.23,
       "dd": -4.35
     },
     {
@@ -695,6 +704,6 @@
       "dd": -5.15
     }
   ],
-  "generated_at": "2026-06-13T14:47:10.606415Z",
+  "generated_at": "2026-06-13T15:32:37.114189Z",
   "note": "Paper-trade simulation on the validated strategy, seeded from recent live data and extended forward daily. Notional $100,000. Research, not investment advice or a performance representation."
 }

@@ -63,9 +63,14 @@ function PaperTradeSection() {
     <section className="mb-12">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-100">Live paper trade</h2>
-        <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full border border-cyan-500/40 text-cyan-400">
-          {ps.mode} · {ps.venue} · as of {ps.as_of}
-        </span>
+        <div className="flex items-center gap-3">
+          <Link to="/equity-rv/dashboard" className="text-sm text-cyan-400 hover:text-cyan-300 border border-cyan-500/40 rounded-lg px-3 py-1.5">
+            Open PMS dashboard →
+          </Link>
+          <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full border border-cyan-500/40 text-cyan-400">
+            {ps.mode} · {ps.venue} · as of {ps.as_of}
+          </span>
+        </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
         <Metric label="NAV (index 100)" value={ps.nav_index.toFixed(1)} sub={`since ${ps.inception}`} />
