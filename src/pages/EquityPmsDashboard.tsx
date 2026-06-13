@@ -226,10 +226,77 @@ function RiskTab({ p }: { p: Paper }) {
   );
 }
 
+function Sec({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 mb-5">
+      <h3 className="text-base font-semibold text-gray-100 mb-3">{title}</h3>
+      <div className="text-sm text-gray-400 leading-relaxed space-y-2">{children}</div>
+    </section>
+  );
+}
+
+function ProcessTab() {
+  return (
+    <div className="max-w-3xl">
+      <Sec title="What it is">
+        <p>A systematic, market-neutral-to-lightly-net-long long/short book on <span className="text-gray-200">tokenized US-equity perpetual futures</span>. We own the AI and mega-cap-tech companies that are beating earnings expectations — the systematic version of how concentrated growth funds (Tiger Global, Altimeter, Atreides, Coatue, Situational Awareness) pick their longs — and hedge the market and the AI-compute factor so the return is driven by <span className="text-gray-200">stock selection, not beta</span>. Engineered to a hard drawdown cap.</p>
+        <p className="text-xs text-gray-600">Universe ~33 tokenized US-equity perps · Binance USDT-M (Nickel account) · monthly rebalance · maker execution.</p>
+      </Sec>
+
+      <Sec title="The edge — analyst earnings surprise">
+        <p>The driver is <span className="text-gray-200">analyst EPS surprise</span>: how much a company's reported earnings beat or miss the consensus estimate. Stocks that beat keep drifting up for weeks (post-earnings-announcement drift) as the market under-reacts and analysts revise estimates higher. We rank every name by its latest surprise, confirmed by price momentum:</p>
+        <p className="font-mono text-cyan-400 text-xs bg-[var(--bg-primary)] rounded p-2">score = 1.0 × z(EPS&nbsp;surprise) + 0.5 × z(price&nbsp;momentum) → long the top names</p>
+        <p>The surprise is <span className="text-gray-200">new information at each quarterly report</span>, so it complements price momentum rather than duplicating it. In our factor research it was the only fundamental that added alpha on top of momentum — every other (value, growth, margins) was redundant or noise.</p>
+      </Sec>
+
+      <Sec title="How the book is built">
+        <ul className="list-disc pl-5 space-y-1.5">
+          <li>Long the top ~10 names by score. <span className="text-gray-200">No single-name shorts</span> — they squeeze in an AI bull and carry no measured edge.</li>
+          <li>Hedge with <span className="text-gray-200">QQQ + SOXL</span> via a min-variance overlay — neutralizes both the broad market and the AI-compute / semiconductor factor (the dominant risk in this universe).</li>
+          <li>Layer a deliberate, bounded <span className="text-gray-200">+10–15% net-long tilt</span> — the beta we choose to keep.</li>
+          <li>Vol-target the book; size on notional within Nickel's limits; execute as a maker via TWAP.</li>
+          <li>Rebalance monthly and around earnings; ~1× annual turnover, low cost.</li>
+        </ul>
+      </Sec>
+
+      <Sec title="Risk management">
+        <ul className="list-disc pl-5 space-y-1.5">
+          <li>Sized on <span className="text-gray-200">NOTIONAL</span> (Nickel's risk denominator), not margin. Notional = 2× NAV; gross cap 200% notional; net cap ±30% notional.</li>
+          <li><span className="text-gray-200">Hard drawdown stop</span> at 10% notional / 20% NAV; a de-risk ladder cuts gross before that.</li>
+          <li>Capital scaling gated on rolling-4-week Sortino &gt; 1.5 and shallow drawdown.</li>
+          <li>Net beta (~+0.12) is the controlled directional risk; uniMMR tracks Binance-PM liquidation safety.</li>
+        </ul>
+      </Sec>
+
+      <Sec title="How we research it">
+        <ul className="list-disc pl-5 space-y-1.5">
+          <li><span className="text-gray-200">Point-in-time data.</span> Every fundamental is used only as-of its real report/filing date (SEC EDGAR XBRL + analyst earnings), so the backtest never sees the future — validated with a look-ahead leak detector.</li>
+          <li><span className="text-gray-200">Factor selection.</span> We evaluated each fundamental individually. Analyst earnings surprise was the only one that improved a momentum book. Trailing value <span className="text-gray-200">failed</span> — in a universe of intangible-heavy secular compounders, a cheapness screen mechanically shorts the winners.</li>
+          <li><span className="text-gray-200">Robustness gate.</span> Positive in every sub-period and in 92% of rolling 6-month windows; across 72 parameter combinations every one clears Sharpe &gt; 1.0. We anchor on the <span className="text-gray-200">median (~1.7 Sharpe)</span>, not the best-fit cell.</li>
+          <li><span className="text-gray-200">Hedge &amp; net-beta.</span> Chosen empirically — QQQ+SOXL gave the shallowest drawdown without over-fitting; the net-beta level was set on a return-vs-drawdown frontier.</li>
+        </ul>
+      </Sec>
+
+      <Sec title="Lineage">
+        <p><span className="text-gray-200">Long side:</span> mirrors how Tiger / Altimeter / Atreides / Coatue / Situational Awareness harvest beat-and-raise growth-tech compounders, systematized into rules.</p>
+        <p><span className="text-gray-200">Risk side:</span> multi-manager pod discipline (Citadel / Millennium) — factor-neutralize, run a tight drawdown leash, and isolate selection alpha from market beta.</p>
+      </Sec>
+
+      <Sec title="Honest limitations">
+        <ul className="list-disc pl-5 space-y-1.5">
+          <li>Validated over a single ~3-year AI-bull regime; the hedge/quality overlays matter most in the correction we have not yet observed.</li>
+          <li>Analyst-surprise coverage is ~23 of 33 names today; a paid estimates feed extends it to all names (incl. NVDA).</li>
+          <li>Best-config metrics are optimistic out-of-sample — we report the robustness median as the expectation.</li>
+        </ul>
+      </Sec>
+    </div>
+  );
+}
+
 export function EquityPmsDashboard() {
   const [p, setP] = useState<Paper | null>(null);
   const [err, setErr] = useState(false);
-  const [tab, setTab] = useState<"overview" | "positions" | "risk">("overview");
+  const [tab, setTab] = useState<"overview" | "positions" | "risk" | "process">("overview");
   useEffect(() => {
     fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
   }, []);
@@ -253,16 +320,17 @@ export function EquityPmsDashboard() {
         {p && (
           <>
             <div className="flex gap-1 mb-6 border-b border-[var(--border)]">
-              {(["overview", "positions", "risk"] as const).map((t) => (
+              {([["overview", "Overview"], ["positions", "Positions"], ["risk", "Risk"], ["process", "Investment Process"]] as const).map(([t, label]) => (
                 <button key={t} onClick={() => setTab(t)}
-                  className={`px-4 py-2 text-sm capitalize border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
-                  {t}
+                  className={`px-4 py-2 text-sm border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
+                  {label}
                 </button>
               ))}
             </div>
             {tab === "overview" && <OverviewTab p={p} />}
             {tab === "positions" && <PositionsTab p={p} />}
             {tab === "risk" && <RiskTab p={p} />}
+            {tab === "process" && <ProcessTab />}
             <p className="text-xs text-gray-600 mt-6">{p.note}</p>
           </>
         )}
