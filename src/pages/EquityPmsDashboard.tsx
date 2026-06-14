@@ -8,6 +8,7 @@ import {
 type Pos = {
   symbol: string; side: string; qty: number | null; entry: number | null; mark: number | null;
   notional: number; pct: number; upnl: number; upnl_pct: number; funding_apr: number | null;
+  held_days: number | null;
 };
 type Paper = {
   mode: string; venue: string; inception: string; as_of: string; days: number;
@@ -163,6 +164,7 @@ function PositionsTab({ p }: { p: Paper }) {
         <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
           <tr>
             <th className="text-left py-2 pr-4">Symbol</th><th className="text-left pr-4">Side</th>
+            <th className="text-right pr-4">Held</th>
             <th className="text-right pr-4">Size</th><th className="text-right pr-4">Entry</th>
             <th className="text-right pr-4">Mark</th><th className="text-right pr-4">Notional</th>
             <th className="text-right pr-4">Weight</th><th className="text-right pr-4">uPnL</th>
@@ -174,6 +176,7 @@ function PositionsTab({ p }: { p: Paper }) {
             <tr key={b.symbol} className="border-b border-[var(--border)]/40">
               <td className="py-2 pr-4 text-gray-200 font-medium">{b.symbol}</td>
               <td className={`pr-4 ${b.side === "hedge" ? "text-gray-500" : b.side === "long" ? "text-emerald-400" : "text-red-400"}`}>{b.side}</td>
+              <td className="text-right pr-4 text-gray-400">{b.held_days != null ? `${b.held_days}d` : "—"}</td>
               <td className="text-right pr-4 text-gray-300">{b.qty?.toLocaleString() ?? "—"}</td>
               <td className="text-right pr-4 text-gray-400">{b.entry != null ? `$${b.entry}` : "—"}</td>
               <td className="text-right pr-4 text-gray-300">{b.mark != null ? `$${b.mark}` : "—"}</td>
@@ -186,7 +189,7 @@ function PositionsTab({ p }: { p: Paper }) {
           ))}
         </tbody>
       </table>
-      <p className="text-[11px] text-gray-600 mt-3">uPnL is since the last monthly rebalance ({p.last_rebalance}). Funding = current perp APR. Paper book on the underlying / Binance marks.</p>
+      <p className="text-[11px] text-gray-600 mt-3">Held = continuous days in the book (clock resets if a name rotates out and back). uPnL is since the last monthly rebalance ({p.last_rebalance}). Funding = current perp APR. Paper book on the underlying / Binance marks.</p>
     </div>
   );
 }
