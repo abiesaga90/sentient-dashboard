@@ -231,6 +231,7 @@ function RiskTab({ p }: { p: Paper }) {
 
 type RRow = {
   symbol: string; label: string; sector: string | null; subsector: string | null;
+  ai_role: "supplier" | "spender" | "neutral"; ai_subtype: string | null;
   rank: number; in_book: boolean; status: "in" | "enters" | "drops" | "bench";
   eps_surprise_pct: number | null; z_eps: number; z_mom: number; score: number;
   trailing_pe: number | null; price_to_sales: number | null; ev_ebitda: number | null;
@@ -244,7 +245,13 @@ type Research = {
   as_of: string; venue: string; top_k: number; n_universe: number; signal: string; mom_desc: string;
   valuation_overlay: { weight: number; metric: string; status: string; evidence: string };
   smart_money: { filing_period: string; funds: string[]; note: string };
+  ai_thesis: string; ai_finding: string;
   rows: RRow[]; note: string;
+};
+const ROLE_CHIP: Record<string, string> = {
+  supplier: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30",
+  spender: "bg-red-500/15 text-red-300 border-red-500/30",
+  neutral: "bg-gray-700/30 text-gray-500 border-gray-600/30",
 };
 
 const STATUS: Record<string, { label: string; cls: string }> = {
@@ -262,6 +269,7 @@ function ResearchTab() {
   const [r, setR] = useState<Research | null>(null);
   const [err, setErr] = useState(false);
   const [byVal, setByVal] = useState(false);
+  const [roleF, setRoleF] = useState<"all" | "ex_spenders" | "suppliers">("all");
   const [open, setOpen] = useState<string | null>(null);
   useEffect(() => {
     fetch("/equity-rv/research_state.json")
@@ -272,7 +280,8 @@ function ResearchTab() {
   if (err) return <p className="text-gray-500 text-sm">Research state unavailable — run the daily job.</p>;
   if (!r) return <p className="text-gray-500 text-sm">Loading…</p>;
   const K = r.top_k;
-  const rows = [...r.rows].sort((a, b) => (byVal ? a.rank_val - b.rank_val : a.rank - b.rank));
+  const keep = (x: RRow) => roleF === "all" || (roleF === "suppliers" ? x.ai_role === "supplier" : x.ai_role !== "spender");
+  const rows = [...r.rows].filter(keep).sort((a, b) => (byVal ? a.rank_val - b.rank_val : a.rank - b.rank));
 
   return (
     <div>
@@ -287,6 +296,7 @@ function ResearchTab() {
           <span className="text-amber-300">Valuation overlay (✦)</span> — {r.valuation_overlay.metric}, weight {r.valuation_overlay.weight}. <span className="text-gray-300">{r.valuation_overlay.status}.</span> {r.valuation_overlay.evidence} Toggle it below to see which names it pulls in / out.
         </p>
         <p className="mt-2"><span className="text-gray-300">13F</span> = independent smart-money cross-check — # of {r.smart_money.funds.join(" / ")} long the name ({r.smart_money.filing_period} filings, ~45-day lag). Context, not a selection input.</p>
+        <p className="mt-2"><span className="text-cyan-300">Supply chain</span> / <span className="text-red-300">spender</span> — {r.ai_thesis} <span className="text-gray-500">{r.ai_finding}</span></p>
       </div>
 
       {/* lens toggle */}
@@ -294,6 +304,11 @@ function ResearchTab() {
         <span className="text-gray-500">Rank by:</span>
         <button onClick={() => setByVal(false)} className={`px-3 py-1 rounded-lg border ${!byVal ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500"}`}>Live signal</button>
         <button onClick={() => setByVal(true)} className={`px-3 py-1 rounded-lg border ${byVal ? "border-amber-500 text-amber-300" : "border-[var(--border)] text-gray-500"}`}>+ Valuation overlay ✦</button>
+        <span className="text-gray-700 mx-1">·</span>
+        <span className="text-gray-500">Universe:</span>
+        {([["all", "All"], ["ex_spenders", "Ex-spenders"], ["suppliers", "Suppliers only"]] as const).map(([k, lab]) => (
+          <button key={k} onClick={() => setRoleF(k)} className={`px-3 py-1 rounded-lg border ${roleF === k ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500"}`}>{lab}</button>
+        ))}
       </div>
 
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 overflow-x-auto">
@@ -318,7 +333,11 @@ function ResearchTab() {
                     className={`border-b border-[var(--border)]/40 cursor-pointer hover:bg-white/[0.02] ${activeRank <= K ? "" : "opacity-70"}`}>
                     <td className="text-right py-2 pr-2 text-gray-300">{b.rank}</td>
                     <td className={`text-right pr-3 ${b.rank_val <= K ? "text-amber-300" : "text-gray-500"}`}>{b.rank_val}</td>
-                    <td className="pr-4"><span className="text-gray-200 font-medium">{b.symbol}</span> <span className="text-gray-600 text-xs">{b.sector}</span></td>
+                    <td className="pr-4">
+                      <span className="text-gray-200 font-medium">{b.symbol}</span>
+                      <span className={`ml-2 text-[9px] uppercase tracking-wider px-1 py-0.5 rounded border ${ROLE_CHIP[b.ai_role]}`}>{b.ai_role === "supplier" ? "supply" : b.ai_role}</span>
+                      <span className="text-gray-600 text-xs ml-1">{b.sector}</span>
+                    </td>
                     <td className={`text-right pr-3 ${zc(b.z_eps)}`}>{b.z_eps.toFixed(2)}</td>
                     <td className={`text-right pr-3 ${zc(b.z_mom)}`}>{b.z_mom.toFixed(2)}</td>
                     <td className="text-right pr-4 text-gray-200">{b.score.toFixed(2)}</td>
@@ -333,6 +352,7 @@ function ResearchTab() {
                       <td colSpan={11} className="px-4 py-3">
                         <div className="text-xs text-gray-400 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1.5">
                           <div><span className="text-gray-600">Sector</span> · {b.sector} / {b.subsector}</div>
+                          <div><span className="text-gray-600">AI role</span> · {b.ai_role}{b.ai_subtype ? ` — ${b.ai_subtype}` : ""}</div>
                           <div><span className="text-gray-600">Mkt cap</span> · {bn(b.market_cap)} · <span className="text-gray-600">Rev TTM</span> {bn(b.revenue_ttm)}</div>
                           <div><span className="text-gray-600">EPS surprise</span> · {b.eps_surprise_pct == null ? "no coverage" : `${b.eps_surprise_pct.toFixed(0)}%`}</div>
                           <div><span className="text-gray-600">Funding APR</span> · {b.funding_apr == null ? "—" : `${b.funding_apr.toFixed(1)}%`}</div>
