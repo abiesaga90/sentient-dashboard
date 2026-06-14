@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import {
@@ -229,7 +229,136 @@ function RiskTab({ p }: { p: Paper }) {
   );
 }
 
-function Sec({ title, children }: { title: string; children: React.ReactNode }) {
+type RRow = {
+  symbol: string; label: string; sector: string | null; subsector: string | null;
+  rank: number; in_book: boolean; status: "in" | "enters" | "drops" | "bench";
+  eps_surprise_pct: number | null; z_eps: number; z_mom: number; score: number;
+  trailing_pe: number | null; price_to_sales: number | null; ev_ebitda: number | null;
+  z_val: number; score_val: number; rank_val: number;
+  sm_count: number; sm_funds: string[] | null; sm_note: string | null;
+  funding_apr: number | null; operating_margin: number | null; gross_margin: number | null;
+  roe: number | null; revenue_ttm: number | null; eps_ttm: number | null; market_cap: number | null;
+  days_since_report: number | null; last_fiscal_period: string | null;
+};
+type Research = {
+  as_of: string; venue: string; top_k: number; n_universe: number; signal: string; mom_desc: string;
+  valuation_overlay: { weight: number; metric: string; status: string; evidence: string };
+  smart_money: { filing_period: string; funds: string[]; note: string };
+  rows: RRow[]; note: string;
+};
+
+const STATUS: Record<string, { label: string; cls: string }> = {
+  in: { label: "IN BOOK", cls: "bg-cyan-500/15 text-cyan-300 border-cyan-500/40" },
+  enters: { label: "+VAL IN", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/40" },
+  drops: { label: "VAL OUT", cls: "bg-amber-500/15 text-amber-300 border-amber-500/40" },
+  bench: { label: "bench", cls: "bg-gray-700/30 text-gray-500 border-gray-600/40" },
+};
+const pct0 = (n: number | null) => (n == null ? "—" : `${(n * 100).toFixed(0)}%`);
+const bn = (n: number | null) => (n == null ? "—" : `$${(n / 1e9).toFixed(n < 1e10 ? 1 : 0)}B`);
+const pe = (n: number | null) => (n == null ? "—" : n <= 0 ? "neg" : n.toFixed(0));
+const zc = (z: number) => (z > 0.15 ? "text-emerald-400" : z < -0.15 ? "text-red-400" : "text-gray-400");
+
+function ResearchTab() {
+  const [r, setR] = useState<Research | null>(null);
+  const [err, setErr] = useState(false);
+  const [byVal, setByVal] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
+  useEffect(() => {
+    fetch("/equity-rv/research_state.json")
+      .then((x) => (x.ok ? x.json() : Promise.reject()))
+      .then(setR)
+      .catch(() => setErr(true));
+  }, []);
+  if (err) return <p className="text-gray-500 text-sm">Research state unavailable — run the daily job.</p>;
+  if (!r) return <p className="text-gray-500 text-sm">Loading…</p>;
+  const K = r.top_k;
+  const rows = [...r.rows].sort((a, b) => (byVal ? a.rank_val - b.rank_val : a.rank - b.rank));
+
+  return (
+    <div>
+      {/* what this is */}
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 mb-4 text-sm text-gray-400 leading-relaxed">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <h3 className="text-base font-semibold text-gray-100">Single-name selection research</h3>
+          <span className="text-[11px] uppercase tracking-wider text-gray-500">{r.n_universe} names · as of {r.as_of} · {r.venue}</span>
+        </div>
+        <p>Every name in the universe scored by the <span className="text-gray-200">live signal</span> — <code className="text-cyan-400">{r.signal}</code> ({r.mom_desc}) — long the <span className="text-gray-200">top {K}</span>. EPS-surprise drives, momentum confirms; each z-scored across the names that have it.</p>
+        <p className="mt-2">
+          <span className="text-amber-300">Valuation overlay (✦)</span> — {r.valuation_overlay.metric}, weight {r.valuation_overlay.weight}. <span className="text-gray-300">{r.valuation_overlay.status}.</span> {r.valuation_overlay.evidence} Toggle it below to see which names it pulls in / out.
+        </p>
+        <p className="mt-2"><span className="text-gray-300">13F</span> = independent smart-money cross-check — # of {r.smart_money.funds.join(" / ")} long the name ({r.smart_money.filing_period} filings, ~45-day lag). Context, not a selection input.</p>
+      </div>
+
+      {/* lens toggle */}
+      <div className="flex items-center gap-2 mb-3 text-sm">
+        <span className="text-gray-500">Rank by:</span>
+        <button onClick={() => setByVal(false)} className={`px-3 py-1 rounded-lg border ${!byVal ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500"}`}>Live signal</button>
+        <button onClick={() => setByVal(true)} className={`px-3 py-1 rounded-lg border ${byVal ? "border-amber-500 text-amber-300" : "border-[var(--border)] text-gray-500"}`}>+ Valuation overlay ✦</button>
+      </div>
+
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 overflow-x-auto">
+        <table className="w-full text-sm whitespace-nowrap">
+          <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
+            <tr>
+              <th className="text-right py-2 pr-2">Rk</th><th className="text-right pr-3">Rk✦</th>
+              <th className="text-left pr-4">Name</th>
+              <th className="text-right pr-3">zEps</th><th className="text-right pr-3">zMom</th><th className="text-right pr-4">Score</th>
+              <th className="text-right pr-3 border-l border-[var(--border)] pl-3">P/E</th><th className="text-right pr-3">zVal</th><th className="text-right pr-4">Score✦</th>
+              <th className="text-right pr-4 border-l border-[var(--border)] pl-3">13F</th>
+              <th className="text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((b) => {
+              const activeRank = byVal ? b.rank_val : b.rank;
+              const isOpen = open === b.symbol;
+              return (
+                <Fragment key={b.symbol}>
+                  <tr onClick={() => setOpen(isOpen ? null : b.symbol)}
+                    className={`border-b border-[var(--border)]/40 cursor-pointer hover:bg-white/[0.02] ${activeRank <= K ? "" : "opacity-70"}`}>
+                    <td className="text-right py-2 pr-2 text-gray-300">{b.rank}</td>
+                    <td className={`text-right pr-3 ${b.rank_val <= K ? "text-amber-300" : "text-gray-500"}`}>{b.rank_val}</td>
+                    <td className="pr-4"><span className="text-gray-200 font-medium">{b.symbol}</span> <span className="text-gray-600 text-xs">{b.sector}</span></td>
+                    <td className={`text-right pr-3 ${zc(b.z_eps)}`}>{b.z_eps.toFixed(2)}</td>
+                    <td className={`text-right pr-3 ${zc(b.z_mom)}`}>{b.z_mom.toFixed(2)}</td>
+                    <td className="text-right pr-4 text-gray-200">{b.score.toFixed(2)}</td>
+                    <td className="text-right pr-3 border-l border-[var(--border)] pl-3 text-gray-400">{pe(b.trailing_pe)}</td>
+                    <td className={`text-right pr-3 ${zc(b.z_val)}`}>{b.z_val.toFixed(2)}</td>
+                    <td className="text-right pr-4 text-amber-200/90">{b.score_val.toFixed(2)}</td>
+                    <td className="text-right pr-4 border-l border-[var(--border)] pl-3">{b.sm_count > 0 ? <span className="text-cyan-300">{b.sm_count}/4</span> : <span className="text-gray-600">—</span>}</td>
+                    <td><span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${STATUS[b.status].cls}`}>{STATUS[b.status].label}</span></td>
+                  </tr>
+                  {isOpen && (
+                    <tr className="bg-white/[0.02]">
+                      <td colSpan={11} className="px-4 py-3">
+                        <div className="text-xs text-gray-400 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1.5">
+                          <div><span className="text-gray-600">Sector</span> · {b.sector} / {b.subsector}</div>
+                          <div><span className="text-gray-600">Mkt cap</span> · {bn(b.market_cap)} · <span className="text-gray-600">Rev TTM</span> {bn(b.revenue_ttm)}</div>
+                          <div><span className="text-gray-600">EPS surprise</span> · {b.eps_surprise_pct == null ? "no coverage" : `${b.eps_surprise_pct.toFixed(0)}%`}</div>
+                          <div><span className="text-gray-600">Funding APR</span> · {b.funding_apr == null ? "—" : `${b.funding_apr.toFixed(1)}%`}</div>
+                          <div><span className="text-gray-600">Gross / Op margin</span> · {pct0(b.gross_margin)} / {pct0(b.operating_margin)}</div>
+                          <div><span className="text-gray-600">ROE</span> · {pct0(b.roe)}</div>
+                          <div><span className="text-gray-600">P/S · EV/EBITDA</span> · {b.price_to_sales == null ? "—" : b.price_to_sales.toFixed(1)} · {b.ev_ebitda == null ? "—" : b.ev_ebitda.toFixed(1)}</div>
+                          <div><span className="text-gray-600">Last report</span> · {b.last_fiscal_period ?? "—"}{b.days_since_report != null ? ` (${b.days_since_report.toFixed(0)}d ago)` : ""}</div>
+                          {b.sm_count > 0 && <div className="lg:col-span-4 text-cyan-300/80">13F: {b.sm_count}/4 funds long{b.sm_funds ? ` (${b.sm_funds.join(", ")})` : ""}{b.sm_note ? ` — ${b.sm_note}` : ""}</div>}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+        <p className="text-[11px] text-gray-600 mt-3">
+          Click a row for fundamentals. <span className="text-cyan-300">IN BOOK</span> = top-{K} on the live signal · <span className="text-emerald-300">+VAL IN</span> / <span className="text-amber-300">VAL OUT</span> = the valuation overlay would add / drop it. Selection is the live signal only; valuation &amp; 13F are validation context. {r.note}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function Sec({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 mb-5">
       <h3 className="text-base font-semibold text-gray-100 mb-3">{title}</h3>
@@ -299,7 +428,7 @@ function ProcessTab() {
 export function EquityPmsDashboard() {
   const [p, setP] = useState<Paper | null>(null);
   const [err, setErr] = useState(false);
-  const [tab, setTab] = useState<"overview" | "positions" | "risk" | "process">("overview");
+  const [tab, setTab] = useState<"overview" | "positions" | "research" | "risk" | "process">("overview");
   useEffect(() => {
     fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
   }, []);
@@ -323,7 +452,7 @@ export function EquityPmsDashboard() {
         {p && (
           <>
             <div className="flex gap-1 mb-6 border-b border-[var(--border)]">
-              {([["overview", "Overview"], ["positions", "Positions"], ["risk", "Risk"], ["process", "Investment Process"]] as const).map(([t, label]) => (
+              {([["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["risk", "Risk"], ["process", "Investment Process"]] as const).map(([t, label]) => (
                 <button key={t} onClick={() => setTab(t)}
                   className={`px-4 py-2 text-sm border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
                   {label}
@@ -332,6 +461,7 @@ export function EquityPmsDashboard() {
             </div>
             {tab === "overview" && <OverviewTab p={p} />}
             {tab === "positions" && <PositionsTab p={p} />}
+            {tab === "research" && <ResearchTab />}
             {tab === "risk" && <RiskTab p={p} />}
             {tab === "process" && <ProcessTab />}
             <p className="text-xs text-gray-600 mt-6">{p.note}</p>
