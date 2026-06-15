@@ -20,6 +20,8 @@ type Paper = {
   pnl_periods: { wtd: number; mtd: number; qtd: number; ytd: number; all_time: number };
   last_rebalance: string; rebalance_days: number;
   gates: { roll4wk_sortino: number; scaling_ok: boolean; dd_gross_mult: number; hard_stop_breached: boolean };
+  attribution: { total_nav: number; beta_nav: number; selection_nav: number; long_nav: number; hedge_nav: number; beta: number };
+  dd_ladder: { steps: { dd_nav_pct: number; gross_mult: number }[]; hard_stop_nav_pct: number; current_dd_nav_pct: number; current_mult: number };
   limits: { gross_cap_pct: number; net_cap_pct: number; dd_hard_nav_pct: number; dd_pause_nav_pct: number };
   book: Pos[];
   nav_curve: { date: string; nav: number }[];
@@ -121,6 +123,54 @@ function Movers({ book }: { book: Pos[] }) {
   );
 }
 
+function AttributionPanel({ a }: { a: Paper["attribution"] }) {
+  const share = a.total_nav !== 0 ? Math.round((100 * a.selection_nav) / a.total_nav) : 0;
+  const Tile = ({ label, v, tone }: { label: string; v: number; tone: string }) => (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg-primary)] p-3">
+      <div className="text-[11px] uppercase tracking-wider text-gray-500">{label}</div>
+      <div className={`text-xl font-semibold ${tone === "green" ? "text-emerald-400" : tone === "cyan" ? "text-cyan-400" : v >= 0 ? "text-gray-200" : "text-red-400"}`}>{f1(v)}%</div>
+    </div>
+  );
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-6">
+      <div className="text-sm font-medium text-gray-200 mb-3">Return attribution <span className="text-gray-500 font-normal">— NAV basis, additive since inception</span></div>
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        <Tile label="Selection (alpha)" v={a.selection_nav} tone="green" />
+        <Tile label="Beta (market)" v={a.beta_nav} tone="cyan" />
+        <Tile label="Total" v={a.total_nav} tone="gray" />
+      </div>
+      <div className="text-xs text-gray-500">
+        ~<span className="text-gray-300">{share}% of the return is stock-selection alpha</span> (book beta {a.beta.toFixed(2)}). Gross legs:{" "}
+        <span className="text-emerald-400">Longs {f1(a.long_nav)}%</span> · <span className="text-red-400">Hedge {f1(a.hedge_nav)}%</span> — the hedge is beta insurance (a drag in a bull, protection in a drawdown).
+      </div>
+    </div>
+  );
+}
+
+function DdLadder({ l }: { l: Paper["dd_ladder"] }) {
+  const rows = [...l.steps, { dd_nav_pct: l.hard_stop_nav_pct, gross_mult: 0 }];
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-6">
+      <div className="text-sm font-medium text-gray-200 mb-1">De-risk ladder <span className="text-gray-500 font-normal">— gross is cut as drawdown deepens (NAV basis)</span></div>
+      <div className="text-xs text-gray-500 mb-3">Current DD <span className={l.current_dd_nav_pct <= -0.1 ? "text-amber-400" : "text-gray-300"}>{f1(l.current_dd_nav_pct)}%</span> → gross ×<span className="text-gray-300">{l.current_mult.toFixed(2)}</span></div>
+      <div className="space-y-1.5">
+        {rows.map((s, i) => {
+          const breached = Math.abs(l.current_dd_nav_pct) >= s.dd_nav_pct;
+          return (
+            <div key={i} className="flex items-center gap-3 text-sm">
+              <span className={`w-16 text-right ${breached ? "text-red-400" : "text-gray-400"}`}>−{s.dd_nav_pct.toFixed(0)}%</span>
+              <div className="flex-1 h-2.5 rounded bg-[var(--border)] overflow-hidden">
+                <div className={`h-full ${s.gross_mult === 0 ? "bg-red-500" : "bg-cyan-500/60"}`} style={{ width: `${Math.max(4, s.gross_mult * 100)}%` }} />
+              </div>
+              <span className={`w-24 ${s.gross_mult === 0 ? "text-red-400" : "text-gray-300"}`}>{s.gross_mult === 0 ? "FLAT (stop)" : `gross ×${s.gross_mult.toFixed(2)}`}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function OverviewTab({ p }: { p: Paper }) {
   return (
     <>
@@ -136,6 +186,7 @@ function OverviewTab({ p }: { p: Paper }) {
         <NavChart curve={p.nav_curve} />
       </div>
       <PnlPeriods p={p} />
+      <AttributionPanel a={p.attribution} />
       <Movers book={p.book} />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4"><div className="text-gray-500 text-xs mb-1">Gross / Net</div><div className="text-gray-200">{p.gross_pct.toFixed(0)}% / {f1(p.net_pct)}%</div></div>
@@ -271,6 +322,7 @@ function PositionsTab({ p }: { p: Paper }) {
 function RiskTab({ p }: { p: Paper }) {
   const sortino = p.gates.roll4wk_sortino;
   return (
+    <>
     <div className="grid md:grid-cols-2 gap-6">
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
         <div className="text-sm font-medium text-gray-200 mb-4">Exposure vs Nickel limits</div>
@@ -299,7 +351,9 @@ function RiskTab({ p }: { p: Paper }) {
         </div>
         <p className="text-[11px] text-gray-600 mt-3">The rolling-4wk Sortino is the live Nickel scaling-gate input; it is noisy (20-day window) and dips below 1.5 during normal drawdowns — that correctly pauses up-scaling. The track Sortino is the through-period record.</p>
       </div>
+      <div className="md:col-span-2"><DdLadder l={p.dd_ladder} /></div>
     </div>
+    </>
   );
 }
 
