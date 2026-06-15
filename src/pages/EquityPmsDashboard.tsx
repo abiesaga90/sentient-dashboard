@@ -232,17 +232,18 @@ function RiskTab({ p }: { p: Paper }) {
 type RRow = {
   symbol: string; label: string; sector: string | null; subsector: string | null;
   ai_role: "supplier" | "spender" | "neutral"; ai_subtype: string | null;
-  rank: number; in_book: boolean; status: "in" | "enters" | "drops" | "bench";
-  eps_surprise_pct: number | null; z_eps: number; z_mom: number; score: number;
+  rank: number | null; rank_exval: number | null; in_book: boolean;
+  status: "in" | "enters" | "drops" | "bench" | "excluded";
+  eps_surprise_pct: number | null; z_eps: number; z_mom: number; z_val: number;
+  score: number; score_exval: number;
   trailing_pe: number | null; price_to_sales: number | null; ev_ebitda: number | null;
-  z_val: number; score_val: number; rank_val: number;
   sm_count: number; sm_funds: string[] | null; sm_note: string | null;
   funding_apr: number | null; operating_margin: number | null; gross_margin: number | null;
   roe: number | null; revenue_ttm: number | null; eps_ttm: number | null; market_cap: number | null;
   days_since_report: number | null; last_fiscal_period: string | null;
 };
 type Research = {
-  as_of: string; venue: string; top_k: number; n_universe: number; signal: string; mom_desc: string;
+  as_of: string; venue: string; top_k: number; n_universe: number; n_excluded: number; signal: string; mom_desc: string;
   valuation_overlay: { weight: number; metric: string; status: string; evidence: string };
   smart_money: { filing_period: string; funds: string[]; note: string };
   ai_thesis: string; ai_finding: string;
@@ -259,6 +260,7 @@ const STATUS: Record<string, { label: string; cls: string }> = {
   enters: { label: "+VAL IN", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/40" },
   drops: { label: "VAL OUT", cls: "bg-amber-500/15 text-amber-300 border-amber-500/40" },
   bench: { label: "bench", cls: "bg-gray-700/30 text-gray-500 border-gray-600/40" },
+  excluded: { label: "EXCLUDED", cls: "bg-red-500/10 text-red-400/80 border-red-500/30" },
 };
 const pct0 = (n: number | null) => (n == null ? "—" : `${(n * 100).toFixed(0)}%`);
 const bn = (n: number | null) => (n == null ? "—" : `$${(n / 1e9).toFixed(n < 1e10 ? 1 : 0)}B`);
@@ -268,7 +270,7 @@ const zc = (z: number) => (z > 0.15 ? "text-emerald-400" : z < -0.15 ? "text-red
 function ResearchTab() {
   const [r, setR] = useState<Research | null>(null);
   const [err, setErr] = useState(false);
-  const [byVal, setByVal] = useState(false);
+  const [exVal, setExVal] = useState(false);
   const [roleF, setRoleF] = useState<"all" | "ex_spenders" | "suppliers">("all");
   const [open, setOpen] = useState<string | null>(null);
   useEffect(() => {
@@ -281,7 +283,8 @@ function ResearchTab() {
   if (!r) return <p className="text-gray-500 text-sm">Loading…</p>;
   const K = r.top_k;
   const keep = (x: RRow) => roleF === "all" || (roleF === "suppliers" ? x.ai_role === "supplier" : x.ai_role !== "spender");
-  const rows = [...r.rows].filter(keep).sort((a, b) => (byVal ? a.rank_val - b.rank_val : a.rank - b.rank));
+  const rk = (x: RRow) => (exVal ? x.rank_exval : x.rank) ?? Infinity;   // excluded names sort last
+  const rows = [...r.rows].filter(keep).sort((a, b) => rk(a) - rk(b));
 
   return (
     <div>
@@ -291,19 +294,19 @@ function ResearchTab() {
           <h3 className="text-base font-semibold text-gray-100">Single-name selection research</h3>
           <span className="text-[11px] uppercase tracking-wider text-gray-500">{r.n_universe} names · as of {r.as_of} · {r.venue}</span>
         </div>
-        <p>Every name in the universe scored by the <span className="text-gray-200">live signal</span> — <code className="text-cyan-400">{r.signal}</code> ({r.mom_desc}) — long the <span className="text-gray-200">top {K}</span>. EPS-surprise drives, momentum confirms; each z-scored across the names that have it.</p>
+        <p>Every name scored by the <span className="text-gray-200">live signal</span> — <code className="text-cyan-400">{r.signal}</code> ({r.mom_desc}) — long the <span className="text-gray-200">top {K}</span> eligible names. EPS-surprise drives, momentum confirms, valuation tilts; each z-scored across the names that have it.</p>
         <p className="mt-2">
-          <span className="text-amber-300">Valuation overlay (✦)</span> — {r.valuation_overlay.metric}, weight {r.valuation_overlay.weight}. <span className="text-gray-300">{r.valuation_overlay.status}.</span> {r.valuation_overlay.evidence} Toggle it below to see which names it pulls in / out.
+          <span className="text-amber-300">Valuation (z-val)</span> — {r.valuation_overlay.metric}, weight {r.valuation_overlay.weight}. <span className="text-gray-300">{r.valuation_overlay.status}.</span> {r.valuation_overlay.evidence} The <span className="text-gray-300">ex-valuation</span> toggle shows rank without it.
         </p>
+        <p className="mt-2"><span className="text-cyan-300">Supply chain</span> / <span className="text-red-300">spender</span> — {r.ai_thesis} <span className="text-gray-500">{r.ai_finding}</span> {r.n_excluded} spenders excluded from the book (shown as EXCLUDED).</p>
         <p className="mt-2"><span className="text-gray-300">13F</span> = independent smart-money cross-check — # of {r.smart_money.funds.join(" / ")} long the name ({r.smart_money.filing_period} filings, ~45-day lag). Context, not a selection input.</p>
-        <p className="mt-2"><span className="text-cyan-300">Supply chain</span> / <span className="text-red-300">spender</span> — {r.ai_thesis} <span className="text-gray-500">{r.ai_finding}</span></p>
       </div>
 
       {/* lens toggle */}
       <div className="flex items-center gap-2 mb-3 text-sm">
         <span className="text-gray-500">Rank by:</span>
-        <button onClick={() => setByVal(false)} className={`px-3 py-1 rounded-lg border ${!byVal ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500"}`}>Live signal</button>
-        <button onClick={() => setByVal(true)} className={`px-3 py-1 rounded-lg border ${byVal ? "border-amber-500 text-amber-300" : "border-[var(--border)] text-gray-500"}`}>+ Valuation overlay ✦</button>
+        <button onClick={() => setExVal(false)} className={`px-3 py-1 rounded-lg border ${!exVal ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500"}`}>Live (eps+mom+val)</button>
+        <button onClick={() => setExVal(true)} className={`px-3 py-1 rounded-lg border ${exVal ? "border-amber-500 text-amber-300" : "border-[var(--border)] text-gray-500"}`}>Ex-valuation</button>
         <span className="text-gray-700 mx-1">·</span>
         <span className="text-gray-500">Universe:</span>
         {([["all", "All"], ["ex_spenders", "Ex-spenders"], ["suppliers", "Suppliers only"]] as const).map(([k, lab]) => (
@@ -315,24 +318,25 @@ function ResearchTab() {
         <table className="w-full text-sm whitespace-nowrap">
           <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
             <tr>
-              <th className="text-right py-2 pr-2">Rk</th><th className="text-right pr-3">Rk✦</th>
+              <th className="text-right py-2 pr-2">Rk</th><th className="text-right pr-3">exV</th>
               <th className="text-left pr-4">Name</th>
-              <th className="text-right pr-3">zEps</th><th className="text-right pr-3">zMom</th><th className="text-right pr-4">Score</th>
-              <th className="text-right pr-3 border-l border-[var(--border)] pl-3">P/E</th><th className="text-right pr-3">zVal</th><th className="text-right pr-4">Score✦</th>
+              <th className="text-right pr-3">zEps</th><th className="text-right pr-3">zMom</th>
+              <th className="text-right pr-3">zVal</th><th className="text-right pr-4">Score</th>
+              <th className="text-right pr-4 border-l border-[var(--border)] pl-3">P/E</th>
               <th className="text-right pr-4 border-l border-[var(--border)] pl-3">13F</th>
               <th className="text-left">Status</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((b) => {
-              const activeRank = byVal ? b.rank_val : b.rank;
               const isOpen = open === b.symbol;
+              const ex = b.status === "excluded";
               return (
                 <Fragment key={b.symbol}>
                   <tr onClick={() => setOpen(isOpen ? null : b.symbol)}
-                    className={`border-b border-[var(--border)]/40 cursor-pointer hover:bg-white/[0.02] ${activeRank <= K ? "" : "opacity-70"}`}>
-                    <td className="text-right py-2 pr-2 text-gray-300">{b.rank}</td>
-                    <td className={`text-right pr-3 ${b.rank_val <= K ? "text-amber-300" : "text-gray-500"}`}>{b.rank_val}</td>
+                    className={`border-b border-[var(--border)]/40 cursor-pointer hover:bg-white/[0.02] ${b.in_book ? "" : "opacity-70"}`}>
+                    <td className={`text-right py-2 pr-2 ${b.in_book ? "text-cyan-300" : ex ? "text-red-400/60" : "text-gray-400"}`}>{b.rank ?? "—"}</td>
+                    <td className="text-right pr-3 text-gray-500">{b.rank_exval ?? "—"}</td>
                     <td className="pr-4">
                       <span className="text-gray-200 font-medium">{b.symbol}</span>
                       <span className={`ml-2 text-[9px] uppercase tracking-wider px-1 py-0.5 rounded border ${ROLE_CHIP[b.ai_role]}`}>{b.ai_role === "supplier" ? "supply" : b.ai_role}</span>
@@ -340,16 +344,15 @@ function ResearchTab() {
                     </td>
                     <td className={`text-right pr-3 ${zc(b.z_eps)}`}>{b.z_eps.toFixed(2)}</td>
                     <td className={`text-right pr-3 ${zc(b.z_mom)}`}>{b.z_mom.toFixed(2)}</td>
-                    <td className="text-right pr-4 text-gray-200">{b.score.toFixed(2)}</td>
-                    <td className="text-right pr-3 border-l border-[var(--border)] pl-3 text-gray-400">{pe(b.trailing_pe)}</td>
                     <td className={`text-right pr-3 ${zc(b.z_val)}`}>{b.z_val.toFixed(2)}</td>
-                    <td className="text-right pr-4 text-amber-200/90">{b.score_val.toFixed(2)}</td>
+                    <td className="text-right pr-4 text-gray-200">{b.score.toFixed(2)}</td>
+                    <td className="text-right pr-4 border-l border-[var(--border)] pl-3 text-gray-400">{pe(b.trailing_pe)}</td>
                     <td className="text-right pr-4 border-l border-[var(--border)] pl-3">{b.sm_count > 0 ? <span className="text-cyan-300">{b.sm_count}/4</span> : <span className="text-gray-600">—</span>}</td>
                     <td><span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${STATUS[b.status].cls}`}>{STATUS[b.status].label}</span></td>
                   </tr>
                   {isOpen && (
                     <tr className="bg-white/[0.02]">
-                      <td colSpan={11} className="px-4 py-3">
+                      <td colSpan={10} className="px-4 py-3">
                         <div className="text-xs text-gray-400 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1.5">
                           <div><span className="text-gray-600">Sector</span> · {b.sector} / {b.subsector}</div>
                           <div><span className="text-gray-600">AI role</span> · {b.ai_role}{b.ai_subtype ? ` — ${b.ai_subtype}` : ""}</div>
@@ -371,7 +374,7 @@ function ResearchTab() {
           </tbody>
         </table>
         <p className="text-[11px] text-gray-600 mt-3">
-          Click a row for fundamentals. <span className="text-cyan-300">IN BOOK</span> = top-{K} on the live signal · <span className="text-emerald-300">+VAL IN</span> / <span className="text-amber-300">VAL OUT</span> = the valuation overlay would add / drop it. Selection is the live signal only; valuation &amp; 13F are validation context. {r.note}
+          Click a row for fundamentals. <span className="text-cyan-300">IN BOOK</span> = top-{K} eligible on the live score · <span className="text-emerald-300">+VAL IN</span> / <span className="text-amber-300">VAL OUT</span> = valuation moved it into / out of the book vs ex-valuation · <span className="text-red-400/80">EXCLUDED</span> = capex spender, screened from the book. exV = rank without the valuation leg. 13F is validation context. {r.note}
         </p>
       </div>
     </div>
@@ -397,13 +400,14 @@ function ProcessTab() {
 
       <Sec title="The edge — analyst earnings surprise">
         <p>The driver is <span className="text-gray-200">analyst EPS surprise</span>: how much a company's reported earnings beat or miss the consensus estimate. Stocks that beat keep drifting up for weeks (post-earnings-announcement drift) as the market under-reacts and analysts revise estimates higher. We rank every name by its latest surprise, confirmed by price momentum:</p>
-        <p className="font-mono text-cyan-400 text-xs bg-[var(--bg-primary)] rounded p-2">score = 1.0 × z(EPS&nbsp;surprise) + 0.5 × z(price&nbsp;momentum) → long the top names</p>
-        <p>The surprise is <span className="text-gray-200">new information at each quarterly report</span>, so it complements price momentum rather than duplicating it. In our factor research it was the only fundamental that added alpha on top of momentum — every other (value, growth, margins) was redundant or noise.</p>
+        <p className="font-mono text-cyan-400 text-xs bg-[var(--bg-primary)] rounded p-2">score = 1.0 × z(EPS&nbsp;surprise) + 0.5 × z(momentum) + 0.5 × z(cheap&nbsp;P/E) → long the top names</p>
+        <p>The surprise is <span className="text-gray-200">new information at each quarterly report</span>, so it complements price momentum rather than duplicating it. A <span className="text-gray-200">relative-valuation</span> leg (cross-sectional cheapness) tilts among the already-good names toward the cheaper ones — validated to add risk-adjusted return on Binance (robust across params), held off on Hyperliquid where the all-supplier universe has little valuation spread. Growth, margins and trailing-value-as-a-screen were tested and dropped.</p>
       </Sec>
 
       <Sec title="How the book is built">
         <ul className="list-disc pl-5 space-y-1.5">
           <li>Long the top ~10 names by score. <span className="text-gray-200">No single-name shorts</span> — they squeeze in an AI bull and carry no measured edge.</li>
+          <li><span className="text-gray-200">Own the AI supply chain, not the spenders.</span> We hold the firms that <span className="text-gray-200">sell into</span> the buildout (semis, memory, networking, foundry, optics) and exclude the hyperscalers that <span className="text-gray-200">spend</span> the capex — validated to lift Sharpe and cut drawdown on both venues.</li>
           <li>Hedge with <span className="text-gray-200">QQQ + SOXL</span> via a min-variance overlay — neutralizes both the broad market and the AI-compute / semiconductor factor (the dominant risk in this universe).</li>
           <li>Layer a deliberate, bounded <span className="text-gray-200">+10–15% net-long tilt</span> — the beta we choose to keep.</li>
           <li>Vol-target the book; size on notional within Nickel's limits; execute as a maker via TWAP.</li>
