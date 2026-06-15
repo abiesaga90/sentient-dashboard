@@ -381,6 +381,120 @@ function ResearchTab() {
   );
 }
 
+type WRow = {
+  ticker: string; name: string; asset_class: string; sector: string | null; ai_role: string | null;
+  venues: string[]; in_universe: boolean; in_book: boolean;
+  last: number | null; chg_24h: number | null; funding_apr: number | null; vol: number | null;
+  binance: { last: number; chg: number } | null; hyperliquid: { last: number; chg: number | null; dexes?: string[] } | null;
+};
+type Watch = {
+  as_of: string;
+  venues: { binance: { ok: boolean; count: number }; hyperliquid: { ok: boolean; dexs: string[]; count: number } };
+  n: number; n_both: number; rows: WRow[]; note: string;
+};
+
+const px = (n: number | null) => (n == null ? "—" : n.toLocaleString(undefined, { minimumFractionDigits: n < 10 ? 3 : 2, maximumFractionDigits: n < 10 ? 3 : 2 }));
+const VBADGE: Record<string, string> = { binance: "bg-cyan-500/15 text-cyan-300", hyperliquid: "bg-violet-500/15 text-violet-300" };
+
+function WatchlistTab() {
+  const [w, setW] = useState<Watch | null>(null);
+  const [err, setErr] = useState(false);
+  const [q, setQ] = useState("");
+  const [venue, setVenue] = useState<"all" | "binance" | "hyperliquid" | "both">("all");
+  const [cls, setCls] = useState("all");
+  const [oursOnly, setOursOnly] = useState(false);
+  const [sort, setSort] = useState<"vol" | "gain" | "lose" | "ticker">("vol");
+  useEffect(() => {
+    fetch("/equity-rv/watchlist_state.json")
+      .then((x) => (x.ok ? x.json() : Promise.reject()))
+      .then(setW)
+      .catch(() => setErr(true));
+  }, []);
+  if (err) return <p className="text-gray-500 text-sm">Watchlist unavailable — run the daily job.</p>;
+  if (!w) return <p className="text-gray-500 text-sm">Loading…</p>;
+  const classes = ["all", ...Array.from(new Set(w.rows.map((r) => r.asset_class)))];
+  const ql = q.trim().toLowerCase();
+  let rows = w.rows.filter((r) => {
+    if (oursOnly && !r.in_universe) return false;
+    if (venue === "both" && r.venues.length < 2) return false;
+    if ((venue === "binance" || venue === "hyperliquid") && !r.venues.includes(venue)) return false;
+    if (cls !== "all" && r.asset_class !== cls) return false;
+    if (ql && !(r.ticker.toLowerCase().includes(ql) || r.name.toLowerCase().includes(ql) || (r.sector || "").toLowerCase().includes(ql))) return false;
+    return true;
+  });
+  rows = [...rows].sort((a, b) =>
+    sort === "ticker" ? a.ticker.localeCompare(b.ticker)
+      : sort === "gain" ? (b.chg_24h ?? -1e9) - (a.chg_24h ?? -1e9)
+      : sort === "lose" ? (a.chg_24h ?? 1e9) - (b.chg_24h ?? 1e9)
+      : (b.vol ?? 0) - (a.vol ?? 0));
+  const Btn = ({ on, set, children }: { on: boolean; set: () => void; children: ReactNode }) => (
+    <button onClick={set} className={`px-2.5 py-1 rounded-lg border text-xs ${on ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500 hover:text-gray-300"}`}>{children}</button>
+  );
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+          <h3 className="text-base font-semibold text-gray-100">Tokenized RWA watchlist</h3>
+          <p className="text-[11px] text-gray-500">{w.n} instruments · {w.n_both} on both venues · Binance {w.venues.binance.count} · Hyperliquid {w.venues.hyperliquid.count} ({w.venues.hyperliquid.dexs.join("/")}) · {w.as_of}</p>
+        </div>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search ticker / name / sector…"
+          className="bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm text-gray-200 w-56 focus:outline-none focus:border-cyan-500/50" />
+      </div>
+      <div className="flex flex-wrap items-center gap-2 mb-3 text-sm">
+        <span className="text-gray-600 text-xs">Venue</span>
+        <Btn on={venue === "all"} set={() => setVenue("all")}>All</Btn>
+        <Btn on={venue === "binance"} set={() => setVenue("binance")}>Binance</Btn>
+        <Btn on={venue === "hyperliquid"} set={() => setVenue("hyperliquid")}>Hyperliquid</Btn>
+        <Btn on={venue === "both"} set={() => setVenue("both")}>Both</Btn>
+        <span className="text-gray-700 mx-1">·</span>
+        <select value={cls} onChange={(e) => setCls(e.target.value)} className="bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg px-2 py-1 text-xs text-gray-300">
+          {classes.map((c) => <option key={c} value={c}>{c === "all" ? "All classes" : c}</option>)}
+        </select>
+        <span className="text-gray-700 mx-1">·</span>
+        <Btn on={oursOnly} set={() => setOursOnly(!oursOnly)}>Our universe</Btn>
+        <span className="text-gray-700 mx-1">·</span>
+        <span className="text-gray-600 text-xs">Sort</span>
+        <Btn on={sort === "vol"} set={() => setSort("vol")}>Volume</Btn>
+        <Btn on={sort === "gain"} set={() => setSort("gain")}>Gainers</Btn>
+        <Btn on={sort === "lose"} set={() => setSort("lose")}>Losers</Btn>
+        <Btn on={sort === "ticker"} set={() => setSort("ticker")}>A–Z</Btn>
+      </div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 overflow-x-auto">
+        <table className="w-full text-sm whitespace-nowrap">
+          <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
+            <tr>
+              <th className="text-left py-2 pr-4">Ticker</th><th className="text-left pr-4">Name</th>
+              <th className="text-left pr-4">Class</th><th className="text-left pr-4">Venues</th>
+              <th className="text-right pr-4">Last</th><th className="text-right pr-4">24h</th>
+              <th className="text-right pr-4">Funding</th><th className="text-left">Tag</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.ticker} className="border-b border-[var(--border)]/40 hover:bg-white/[0.02]">
+                <td className="py-2 pr-4 text-gray-100 font-medium">{r.ticker}</td>
+                <td className="pr-4 text-gray-400 max-w-[180px] truncate">{r.name}</td>
+                <td className="pr-4 text-gray-500 text-xs">{r.asset_class}</td>
+                <td className="pr-4">
+                  {r.venues.map((v) => <span key={v} className={`mr-1 text-[9px] uppercase px-1 py-0.5 rounded ${VBADGE[v]}`}>{v[0]}</span>)}
+                </td>
+                <td className="text-right pr-4 text-gray-200 tabular-nums">{px(r.last)}</td>
+                <td className={`text-right pr-4 tabular-nums ${r.chg_24h == null ? "text-gray-600" : r.chg_24h >= 0 ? "text-emerald-400" : "text-red-400"}`}>{r.chg_24h == null ? "—" : `${f1(r.chg_24h)}%`}</td>
+                <td className="text-right pr-4 text-gray-500 tabular-nums">{r.funding_apr == null ? "—" : `${r.funding_apr.toFixed(0)}%`}</td>
+                <td>{r.in_book ? <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border bg-cyan-500/15 text-cyan-300 border-cyan-500/40">★ book</span>
+                  : r.in_universe ? <span className="text-[10px] uppercase tracking-wider text-gray-500">universe</span> : null}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!rows.length && <p className="text-gray-600 text-sm py-3">No instruments match.</p>}
+        <p className="text-[11px] text-gray-600 mt-3">{w.note}</p>
+      </div>
+    </div>
+  );
+}
+
 function Sec({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 mb-5">
@@ -452,7 +566,7 @@ function ProcessTab() {
 export function EquityPmsDashboard() {
   const [p, setP] = useState<Paper | null>(null);
   const [err, setErr] = useState(false);
-  const [tab, setTab] = useState<"overview" | "positions" | "research" | "risk" | "process">("overview");
+  const [tab, setTab] = useState<"watchlist" | "overview" | "positions" | "research" | "risk" | "process">("overview");
   useEffect(() => {
     fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
   }, []);
@@ -476,13 +590,14 @@ export function EquityPmsDashboard() {
         {p && (
           <>
             <div className="flex gap-1 mb-6 border-b border-[var(--border)]">
-              {([["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["risk", "Risk"], ["process", "Investment Process"]] as const).map(([t, label]) => (
+              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["risk", "Risk"], ["process", "Investment Process"]] as const).map(([t, label]) => (
                 <button key={t} onClick={() => setTab(t)}
                   className={`px-4 py-2 text-sm border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
                   {label}
                 </button>
               ))}
             </div>
+            {tab === "watchlist" && <WatchlistTab />}
             {tab === "overview" && <OverviewTab p={p} />}
             {tab === "positions" && <PositionsTab p={p} />}
             {tab === "research" && <ResearchTab />}
