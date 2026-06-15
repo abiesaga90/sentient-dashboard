@@ -20,7 +20,7 @@
       "Tiger Global",
       "Coatue"
     ],
-    "note": "13F-HR, ~45-day reporting lag; long-equity + put options only, no direct shorts visible. Cross-check / research lens, not a trading signal. Refresh quarterly."
+    "note": "13F-HR, ~45-day lag; long-equity + puts only. # of tracked filers long the name, from the panel. Cross-check, not a selection input."
   },
   "ai_thesis": "Own the AI hardware / supply chain (firms that RECEIVE AI capex as revenue); avoid the hyperscalers & enterprises that SPEND the capex (uncertain ROIC, FCF pressure).",
   "ai_finding": "Backtest: excluding capex SPENDERS (hyperscalers) lifts Sharpe 2.02->2.65, Sortino 3.26->4.37, DD -11.6%->-10.9%. Suppliers-ONLY too narrow (1.09 Sharpe, -20% DD \u2014 loses diversifying neutrals). Rule = exclude spenders, keep suppliers + neutrals.",
@@ -49,8 +49,12 @@
       "peg": null,
       "target_upside": -25.2,
       "sm_count": 3,
-      "sm_funds": null,
-      "sm_note": null,
+      "sm_funds": [
+        "Atreides",
+        "SAA",
+        "Tiger Global"
+      ],
+      "sm_note": "holds PUTs",
       "funding_apr": 5.445,
       "operating_margin": -0.07623433489355277,
       "gross_margin": 0.2876340027178016,
@@ -88,7 +92,7 @@
       "sm_funds": [
         "SAA"
       ],
-      "sm_note": "SAA conviction long",
+      "sm_note": null,
       "funding_apr": 14.364,
       "operating_margin": 0.4073118932038835,
       "gross_margin": 0.560376213592233,
@@ -123,8 +127,12 @@
       "peg": 0.3359,
       "target_upside": -11.7,
       "sm_count": 3,
-      "sm_funds": null,
-      "sm_note": null,
+      "sm_funds": [
+        "Atreides",
+        "Coatue",
+        "SAA"
+      ],
+      "sm_note": "holds PUTs",
       "funding_apr": 16.736,
       "operating_margin": 1.0001780056249778,
       "gross_margin": 1.20912100822386,
@@ -195,7 +203,11 @@
       "peg": 1.4162,
       "target_upside": 20.3,
       "sm_count": 3,
-      "sm_funds": null,
+      "sm_funds": [
+        "Atreides",
+        "Coatue",
+        "Tiger Global"
+      ],
       "sm_note": null,
       "funding_apr": 0.703,
       "operating_margin": 0.38399779824471175,
@@ -230,8 +242,11 @@
       "fwd_pe": 50.826546,
       "peg": null,
       "target_upside": 20.6,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 2,
+      "sm_funds": [
+        "Atreides",
+        "Tiger Global"
+      ],
       "sm_note": null,
       "funding_apr": 15.243,
       "operating_margin": 0.09528210898569361,
@@ -374,8 +389,10 @@
       "fwd_pe": 19.847832,
       "peg": 0.8969,
       "target_upside": -13.7,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 1,
+      "sm_funds": [
+        "Coatue"
+      ],
       "sm_note": null,
       "funding_apr": 13.013,
       "operating_margin": 0.25524310472722367,
@@ -447,8 +464,13 @@
       "peg": 0.6315,
       "target_upside": 45.7,
       "sm_count": 4,
-      "sm_funds": null,
-      "sm_note": "all four long-equity (SAA also holds NVDA puts)",
+      "sm_funds": [
+        "Atreides",
+        "Coatue",
+        "SAA",
+        "Tiger Global"
+      ],
+      "sm_note": "holds PUTs",
       "funding_apr": 5.074,
       "operating_margin": 0.6402002437956377,
       "gross_margin": 0.741454331711974,
@@ -482,9 +504,11 @@
       "fwd_pe": 39.040714,
       "peg": 1.2306,
       "target_upside": -4.9,
-      "sm_count": 0,
-      "sm_funds": null,
-      "sm_note": null,
+      "sm_count": 1,
+      "sm_funds": [
+        "SAA"
+      ],
+      "sm_note": "holds PUTs",
       "funding_apr": 2.546,
       "operating_margin": 0.11651625994553319,
       "gross_margin": 0.5028034388850323,
@@ -699,8 +723,12 @@
       "peg": 1.324,
       "target_upside": 10.4,
       "sm_count": 3,
-      "sm_funds": null,
-      "sm_note": null,
+      "sm_funds": [
+        "Coatue",
+        "SAA",
+        "Tiger Global"
+      ],
+      "sm_note": "holds PUTs",
       "funding_apr": -2.867,
       "operating_margin": null,
       "gross_margin": null,
@@ -770,8 +798,11 @@
       "fwd_pe": 15.6425705,
       "peg": 0.8192,
       "target_upside": 45.9,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 2,
+      "sm_funds": [
+        "Coatue",
+        "Tiger Global"
+      ],
       "sm_note": null,
       "funding_apr": 0.61,
       "operating_margin": 0.4121333072822173,
@@ -806,11 +837,12 @@
       "fwd_pe": -124.10056,
       "peg": null,
       "target_upside": 39.4,
-      "sm_count": 1,
+      "sm_count": 2,
       "sm_funds": [
+        "Atreides",
         "SAA"
       ],
-      "sm_note": "SAA conviction long",
+      "sm_note": null,
       "funding_apr": 0.731,
       "operating_margin": -0.02609930872882412,
       "gross_margin": null,
@@ -844,9 +876,12 @@
       "fwd_pe": 19.744751,
       "peg": 0.6943,
       "target_upside": 36.6,
-      "sm_count": 0,
-      "sm_funds": null,
-      "sm_note": null,
+      "sm_count": 2,
+      "sm_funds": [
+        "Coatue",
+        "Tiger Global"
+      ],
+      "sm_note": "holds PUTs",
       "funding_apr": 13.835,
       "operating_margin": 0.43392301066719674,
       "gross_margin": 0.6827535943815014,
@@ -880,8 +915,10 @@
       "fwd_pe": 15.744881,
       "peg": 5.5848,
       "target_upside": 51.7,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 1,
+      "sm_funds": [
+        "Tiger Global"
+      ],
       "sm_note": null,
       "funding_apr": 0.0,
       "operating_margin": 0.11660178441708421,
@@ -1024,8 +1061,11 @@
       "fwd_pe": 20.197561,
       "peg": 1.2046,
       "target_upside": 43.7,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 2,
+      "sm_funds": [
+        "Coatue",
+        "Tiger Global"
+      ],
       "sm_note": null,
       "funding_apr": 5.0,
       "operating_margin": 1.437919916595876,
@@ -1060,8 +1100,10 @@
       "fwd_pe": 7.2123857,
       "peg": 0.7484,
       "target_upside": 24.1,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 1,
+      "sm_funds": [
+        "Coatue"
+      ],
       "sm_note": null,
       "funding_apr": -2.43,
       "operating_margin": 0.17854390229442105,
@@ -1096,8 +1138,11 @@
       "fwd_pe": 21.689682,
       "peg": 1.4149,
       "target_upside": 23.7,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 2,
+      "sm_funds": [
+        "Atreides",
+        "Coatue"
+      ],
       "sm_note": null,
       "funding_apr": -9.927,
       "operating_margin": 1.1444487966227097,
@@ -1204,8 +1249,10 @@
       "fwd_pe": 33.259575,
       "peg": 2.6135,
       "target_upside": 8.2,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 1,
+      "sm_funds": [
+        "Tiger Global"
+      ],
       "sm_note": null,
       "funding_apr": 0.505,
       "operating_margin": null,
@@ -1276,8 +1323,11 @@
       "fwd_pe": 162.57526,
       "peg": 5.5963,
       "target_upside": 3.5,
-      "sm_count": 0,
-      "sm_funds": null,
+      "sm_count": 2,
+      "sm_funds": [
+        "Atreides",
+        "Coatue"
+      ],
       "sm_note": null,
       "funding_apr": 0.006,
       "operating_margin": 0.05003116092318066,
@@ -1326,6 +1376,6 @@
       "last_fiscal_period": "2026-03-31"
     }
   ],
-  "generated_at": "2026-06-15T10:14:44.441817Z",
+  "generated_at": "2026-06-15T18:16:47.989419Z",
   "note": "Single-name selection research on the validated signal. Valuation overlay & 13F are CONTEXT/validation, not live selection inputs. Research, not investment advice."
 }
