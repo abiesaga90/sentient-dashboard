@@ -625,6 +625,64 @@ function WatchlistTab() {
   );
 }
 
+type Hedge = {
+  symbol: string; name: string; short_weight_pct: number | null; desc: string; source: string;
+  holdings: { symbol: string; name: string; weight: number; in_book: boolean }[];
+};
+type HedgeState = { as_of: string; hedges: Hedge[]; note: string };
+
+function HedgeTab() {
+  const [h, setH] = useState<HedgeState | null>(null);
+  const [err, setErr] = useState(false);
+  useEffect(() => {
+    fetch("/equity-rv/hedge_state.json").then((x) => (x.ok ? x.json() : Promise.reject())).then(setH).catch(() => setErr(true));
+  }, []);
+  if (err) return <p className="text-gray-500 text-sm">Hedge constituents unavailable — run the daily job.</p>;
+  if (!h) return <p className="text-gray-500 text-sm">Loading…</p>;
+  return (
+    <div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 mb-4 text-sm text-gray-400 leading-relaxed">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <h3 className="text-base font-semibold text-gray-100">What we hedge with</h3>
+          <span className="text-[11px] uppercase tracking-wider text-gray-500">as of {h.as_of}</span>
+        </div>
+        <p>The short hedge legs neutralize the market + AI-compute (semis) factor beta. Below are their underlying constituents. <span className="text-cyan-300">★ long</span> = the name is also a long in our book — a partial self-hedge, so net single-name exposure is smaller than the long weight alone. {h.note}</p>
+      </div>
+      <div className="grid md:grid-cols-2 gap-5">
+        {h.hedges.map((hd) => (
+          <div key={hd.symbol} className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+            <div className="flex justify-between items-start mb-1">
+              <div><span className="text-gray-100 font-semibold">{hd.symbol}</span> <span className="text-gray-500 text-xs">{hd.name}</span></div>
+              <span className={`text-sm font-medium ${(hd.short_weight_pct ?? 0) < -0.05 ? "text-red-400" : "text-gray-400"}`}>
+                book {hd.short_weight_pct != null ? `${f1(hd.short_weight_pct)}%` : "—"}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 mb-1">{hd.desc}</p>
+            <p className="text-[11px] text-gray-600 mb-3">{hd.source}</p>
+            <table className="w-full text-sm">
+              <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
+                <tr><th className="text-left py-1.5 pr-2">Name</th><th className="text-right">Weight</th></tr>
+              </thead>
+              <tbody>
+                {hd.holdings.map((r) => (
+                  <tr key={r.symbol} className="border-b border-[var(--border)]/40">
+                    <td className="py-1.5 pr-2">
+                      <span className="text-gray-200 font-medium">{r.symbol}</span>
+                      <span className="text-gray-600 text-xs ml-1">{r.name}</span>
+                      {r.in_book && <span className="ml-2 text-[10px] uppercase tracking-wider text-cyan-300">★ long</span>}
+                    </td>
+                    <td className="text-right text-gray-300 tabular-nums">{r.weight}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Sec({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 mb-5">
@@ -696,7 +754,7 @@ function ProcessTab() {
 export function EquityPmsDashboard() {
   const [p, setP] = useState<Paper | null>(null);
   const [err, setErr] = useState(false);
-  const [tab, setTab] = useState<"watchlist" | "overview" | "positions" | "research" | "risk" | "process">("overview");
+  const [tab, setTab] = useState<"watchlist" | "overview" | "positions" | "research" | "risk" | "hedge" | "process">("overview");
   useEffect(() => {
     fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
   }, []);
@@ -720,7 +778,7 @@ export function EquityPmsDashboard() {
         {p && (
           <>
             <div className="flex gap-1 mb-6 border-b border-[var(--border)]">
-              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["risk", "Risk"], ["process", "Investment Process"]] as const).map(([t, label]) => (
+              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["risk", "Risk"], ["hedge", "Hedge"], ["process", "Investment Process"]] as const).map(([t, label]) => (
                 <button key={t} onClick={() => setTab(t)}
                   className={`px-4 py-2 text-sm border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
                   {label}
@@ -732,6 +790,7 @@ export function EquityPmsDashboard() {
             {tab === "positions" && <PositionsTab p={p} />}
             {tab === "research" && <ResearchTab />}
             {tab === "risk" && <RiskTab p={p} />}
+            {tab === "hedge" && <HedgeTab />}
             {tab === "process" && <ProcessTab />}
             <p className="text-xs text-gray-600 mt-6">{p.note}</p>
           </>
