@@ -170,8 +170,8 @@ function BuildupChart({ book }: { book: Pos[] }) {
           <button onClick={() => setMode("beta")} className={`px-2.5 py-1 rounded-lg border ${mode === "beta" ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500"}`}>Net beta</button>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={260}>
-        <BarChart data={data} margin={{ top: 5, right: 8, left: -8, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={280}>
+        <BarChart data={data} margin={{ top: 20, right: 8, left: -8, bottom: 0 }}>
           <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#64748b" }} interval={0} />
           <YAxis tick={{ fontSize: 10, fill: "#64748b" }} width={42} tickFormatter={(v) => (mode === "notional" ? `${v}%` : `${v}`)} />
           <RTooltip cursor={{ fill: "rgba(255,255,255,0.03)" }}
@@ -187,7 +187,16 @@ function BuildupChart({ book }: { book: Pos[] }) {
             }} />
           <ReferenceLine y={0} stroke="#475569" />
           <Bar dataKey="base" stackId="a" fill="transparent" />
-          <Bar dataKey="bar" stackId="a" radius={[2, 2, 0, 0]}>
+          <Bar dataKey="bar" stackId="a" radius={[2, 2, 0, 0]}
+            label={({ x, y, width, index }: any) => {
+              const d = data[index];
+              return d ? (
+                <text x={x + width / 2} y={y - 5} textAnchor="middle" fontSize={9}
+                  fill={d.kind === "net" ? "#67e8f9" : d.kind === "hedge" ? "#fca5a5" : "#86efac"}>
+                  {fmt(d.v)}
+                </text>
+              ) : null;
+            }}>
             {data.map((d, i) => <Cell key={i} fill={color(d.kind)} />)}
           </Bar>
         </BarChart>
