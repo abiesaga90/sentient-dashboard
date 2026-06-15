@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ENGINES } from "./config/engines";
 import { ApiClient } from "./lib/api-client";
@@ -12,7 +12,6 @@ import { LandingPage } from "./pages/LandingPage";
 import { LiveDashboard } from "./pages/LiveDashboard";
 import { DefiYieldPage } from "./pages/DefiYieldPage";
 import { YieldDashboard } from "./pages/YieldDashboard";
-import { EquityRvPage } from "./pages/EquityRvPage";
 import { EquityPmsDashboard } from "./pages/EquityPmsDashboard";
 
 const queryClient = new QueryClient({
@@ -47,7 +46,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/equity-rv" element={<EquityRvPage />} />
+            <Route path="/equity-rv" element={<Navigate to="/equity-rv/dashboard" replace />} />
             <Route path="/equity-rv/dashboard" element={<EquityPmsDashboard />} />
             <Route path="/live" element={<LiveDashboard />} />
             <Route path="/defi-yield" element={<DefiYieldPage />} />

@@ -362,7 +362,7 @@ type RRow = {
   ai_role: "supplier" | "spender" | "neutral"; ai_subtype: string | null; shortage_role: string | null;
   rank: number | null; rank_exval: number | null; in_book: boolean;
   status: "in" | "enters" | "drops" | "bench" | "excluded";
-  eps_surprise_pct: number | null; z_eps: number; z_mom: number; z_val: number;
+  eps_surprise_pct: number | null; z_eps: number; z_mom: number; z_val: number; z_thesis?: number; z_rev?: number;
   score: number; score_exval: number;
   trailing_pe: number | null; price_to_sales: number | null; ev_ebitda: number | null;
   fwd_pe: number | null; peg: number | null; target_upside: number | null;
@@ -372,7 +372,9 @@ type RRow = {
   days_since_report: number | null; last_fiscal_period: string | null;
 };
 type Research = {
-  as_of: string; venue: string; top_k: number; n_universe: number; n_excluded: number; signal: string; mom_desc: string;
+  as_of: string; venue: string; top_k: number; n_universe: number; n_excluded: number; n_screened?: number; signal: string; mom_desc: string;
+  screen?: { min_coverage: number; min_revenue_b: number; desc: string };
+  thesis_tilt?: { weight: number; desc: string };
   valuation_overlay: { weight: number; metric: string; status: string; evidence: string };
   smart_money: { filing_period: string; funds: string[]; note: string };
   ai_thesis: string; ai_finding: string;
@@ -391,6 +393,7 @@ const STATUS: Record<string, { label: string; cls: string }> = {
   enters: { label: "+VAL IN", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/40" },
   drops: { label: "VAL OUT", cls: "bg-amber-500/15 text-amber-300 border-amber-500/40" },
   bench: { label: "bench", cls: "bg-gray-700/30 text-gray-500 border-gray-600/40" },
+  screened: { label: "SCREENED", cls: "bg-orange-500/10 text-orange-400/80 border-orange-500/30" },
   excluded: { label: "EXCLUDED", cls: "bg-red-500/10 text-red-400/80 border-red-500/30" },
 };
 const pct0 = (n: number | null) => (n == null ? "—" : `${(n * 100).toFixed(0)}%`);
@@ -425,7 +428,13 @@ function ResearchTab() {
           <h3 className="text-base font-semibold text-gray-100">Single-name selection research</h3>
           <span className="text-[11px] uppercase tracking-wider text-gray-500">{r.n_universe} names · as of {r.as_of} · {r.venue}</span>
         </div>
-        <p>Every name scored by the <span className="text-gray-200">live signal</span> — <code className="text-cyan-400">{r.signal}</code> ({r.mom_desc}) — long the <span className="text-gray-200">top {K}</span> eligible names. EPS-surprise drives, momentum confirms, valuation tilts; each z-scored across the names that have it.</p>
+        <p><span className="text-gray-200">Open universe</span> — every tradeable tokenized perp (+ new listings, auto-discovered) → scored by the live signal: <code className="text-cyan-400">{r.signal}</code> ({r.mom_desc}). EPS-surprise drives, momentum confirms; valuation + the picks-&-shovels thesis tilt rank within; each z-scored across the names that have it.</p>
+        {r.screen && (
+          <p className="mt-2"><span className="text-orange-300">Investability screen</span> — {r.screen.desc} {(r.n_screened ?? 0)} names screened out (shown SCREENED).</p>
+        )}
+        {r.thesis_tilt && r.thesis_tilt.weight > 0 && (
+          <p className="mt-2"><span className="text-cyan-300">Thesis tilt (z-thesis)</span> — weight {r.thesis_tilt.weight}. {r.thesis_tilt.desc}</p>
+        )}
         <p className="mt-2">
           <span className="text-amber-300">Valuation (z-val)</span> — {r.valuation_overlay.metric}, weight {r.valuation_overlay.weight}. <span className="text-gray-300">{r.valuation_overlay.status}.</span> {r.valuation_overlay.evidence} The <span className="text-gray-300">ex-valuation</span> toggle shows rank without it.
         </p>
@@ -470,7 +479,7 @@ function ResearchTab() {
               <th className="text-right py-2 pr-2">Rk</th><th className="text-right pr-3">exV</th>
               <th className="text-left pr-4">Name</th>
               <th className="text-right pr-3">zEps</th><th className="text-right pr-3">zMom</th>
-              <th className="text-right pr-3">zVal</th><th className="text-right pr-4">Score</th>
+              <th className="text-right pr-3">zVal</th><th className="text-right pr-3">zThs</th><th className="text-right pr-4">Score</th>
               <th className="text-right pr-4 border-l border-[var(--border)] pl-3">P/E</th>
               <th className="text-right pr-4 border-l border-[var(--border)] pl-3">13F</th>
               <th className="text-left">Status</th>
@@ -494,6 +503,7 @@ function ResearchTab() {
                     <td className={`text-right pr-3 ${zc(b.z_eps)}`}>{b.z_eps.toFixed(2)}</td>
                     <td className={`text-right pr-3 ${zc(b.z_mom)}`}>{b.z_mom.toFixed(2)}</td>
                     <td className={`text-right pr-3 ${zc(b.z_val)}`}>{b.z_val.toFixed(2)}</td>
+                    <td className={`text-right pr-3 ${zc(b.z_thesis ?? 0)}`}>{(b.z_thesis ?? 0).toFixed(2)}</td>
                     <td className="text-right pr-4 text-gray-200">{b.score.toFixed(2)}</td>
                     <td className="text-right pr-4 border-l border-[var(--border)] pl-3 text-gray-400">{pe(b.trailing_pe)}</td>
                     <td className="text-right pr-4 border-l border-[var(--border)] pl-3">{b.sm_count > 0 ? <span className="text-cyan-300">{b.sm_count}/4</span> : <span className="text-gray-600">—</span>}</td>
@@ -501,7 +511,7 @@ function ResearchTab() {
                   </tr>
                   {isOpen && (
                     <tr className="bg-white/[0.02]">
-                      <td colSpan={10} className="px-4 py-3">
+                      <td colSpan={11} className="px-4 py-3">
                         <div className="text-xs text-gray-400 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1.5">
                           <div><span className="text-gray-600">Sector</span> · {b.sector} / {b.subsector}</div>
                           <div><span className="text-gray-600">AI role</span> · {b.ai_role}{b.ai_subtype ? ` — ${b.ai_subtype}` : ""}{b.shortage_role ? <span className="text-cyan-400/70"> · {b.shortage_role}</span> : null}</div>
@@ -843,25 +853,28 @@ function ProcessTab() {
   return (
     <div className="max-w-3xl">
       <Sec title="What it is">
-        <p>A systematic, market-neutral-to-lightly-net-long long/short book on <span className="text-gray-200">tokenized US-equity perpetual futures</span>. We own the AI and mega-cap-tech companies that are beating earnings expectations — the systematic version of how concentrated growth funds (Tiger Global, Altimeter, Atreides, Coatue, Situational Awareness) pick their longs — and hedge the market and the AI-compute factor so the return is driven by <span className="text-gray-200">stock selection, not beta</span>. Engineered to a hard drawdown cap.</p>
-        <p className="text-xs text-gray-600">Universe ~33 tokenized US-equity perps · Binance USDT-M (Nickel account) · monthly rebalance · maker execution.</p>
+        <p>A systematic, market-neutral-to-lightly-net-long long/short book on <span className="text-gray-200">tokenized US-equity perpetual futures</span>. We own the AI supply-chain and mega-cap-tech companies that are beating earnings expectations — the systematic version of how the AI-frontier crossover funds (Coatue, Altimeter, Tiger, Atreides, Situational Awareness — the same investors backing OpenAI / Anthropic / SpaceX) pick their longs — and hedge the market and the AI-compute factor so the return is driven by <span className="text-gray-200">stock selection, not beta</span>. Engineered to a hard drawdown cap.</p>
+        <p className="text-xs text-gray-600">Open universe — all tradeable tokenized US-equity perps + new listings (auto-discovered) → investability screen → diversified top ~25 · Binance USDT-M (Nickel account) · monthly rebalance · maker execution.</p>
       </Sec>
 
-      <Sec title="The edge — analyst earnings surprise">
-        <p>The driver is <span className="text-gray-200">analyst EPS surprise</span>: how much a company's reported earnings beat or miss the consensus estimate. Stocks that beat keep drifting up for weeks (post-earnings-announcement drift) as the market under-reacts and analysts revise estimates higher. We rank every name by its latest surprise, confirmed by price momentum:</p>
-        <p className="font-mono text-cyan-400 text-xs bg-[var(--bg-primary)] rounded p-2">score = 1.0 × z(EPS&nbsp;surprise) + 0.5 × z(momentum) + 0.5 × z(cheap&nbsp;P/E) → long the top names</p>
-        <p>The surprise is <span className="text-gray-200">new information at each quarterly report</span>, so it complements price momentum rather than duplicating it. A <span className="text-gray-200">relative-valuation</span> leg (cross-sectional cheapness) tilts among the already-good names toward the cheaper ones — validated to add risk-adjusted return on Binance (robust across params), held off on Hyperliquid where the all-supplier universe has little valuation spread. Growth, margins and trailing-value-as-a-screen were tested and dropped.</p>
+      <Sec title="The edge — beat-and-raise, in the AI supply chain">
+        <p>The driver is <span className="text-gray-200">analyst EPS surprise</span> (the beat) confirmed by <span className="text-gray-200">price momentum</span>, tilted toward the <span className="text-gray-200">AI picks-&-shovels</span> supply chain and toward names with <span className="text-gray-200">rising estimates</span> (the raise). Beats keep drifting up for weeks (post-earnings drift) as analysts revise higher — Coatue's data shows the market rewards exactly these "sellers of the shortage" (+107% YTD vs +4% for the capex "buyers"):</p>
+        <p className="font-mono text-cyan-400 text-xs bg-[var(--bg-primary)] rounded p-2">score = 1.0·z(EPS&nbsp;surprise) + 0.5·z(momentum) + 0.5·z(cheap&nbsp;P/E) + 2.0·z(AI-supply&nbsp;thesis) [+ z(EPS&nbsp;revisions)] → long the top ~25</p>
+        <p>Surprise is <span className="text-gray-200">new information at each quarterly report</span>, so it complements momentum. Relative-valuation tilts within the already-good names toward the cheaper ones. The <span className="text-gray-200">thesis tilt</span> systematically captures the supply-chain bet (it does nothing on an already-all-supplier set — proof it isn't a generic booster). An <span className="text-gray-200">estimate-revisions</span> leg (the "raise") is wired and turns on with the analyst-estimates feed. Growth and trailing-value-as-a-screen were tested and dropped.</p>
       </Sec>
 
       <Sec title="How the book is built">
         <ul className="list-disc pl-5 space-y-1.5">
-          <li>Long the top ~10 names by score. <span className="text-gray-200">No single-name shorts</span> — they squeeze in an AI bull and carry no measured edge.</li>
-          <li><span className="text-gray-200">Own the AI supply chain, not the spenders.</span> We hold the firms that <span className="text-gray-200">sell into</span> the buildout (semis, memory, networking, foundry, optics) and exclude the hyperscalers that <span className="text-gray-200">spend</span> the capex — validated to lift Sharpe and cut drawdown on both venues.</li>
-          <li>Hedge with <span className="text-gray-200">QQQ + SOXL</span> via a min-variance overlay — neutralizes both the broad market and the AI-compute / semiconductor factor (the dominant risk in this universe).</li>
-          <li>Layer a deliberate, bounded <span className="text-gray-200">+10–15% net-long tilt</span> — the beta we choose to keep.</li>
-          <li>Vol-target the book; size on notional within Nickel's limits; execute as a maker via TWAP.</li>
-          <li>Rebalance monthly and around earnings; ~1× annual turnover, low cost.</li>
+          <li><span className="text-gray-200">Open universe → screen → signal.</span> Discover every tradeable tokenized perp (new listings flow in automatically); a profitability-<span className="text-gray-200">agnostic</span> investability screen (analyst coverage + revenue) keeps the unprofitable hypergrowth winners (CoreWeave, Rocket Lab) and drops speculative shells. The signal is an ordering tool, not a universe builder.</li>
+          <li>Long the <span className="text-gray-200">top ~25</span> by score — diversified across 6 sectors. <span className="text-gray-200">No single-name shorts</span> (they squeeze in an AI bull, no measured edge). Per-name cap controls concentration.</li>
+          <li><span className="text-gray-200">Own the AI supply chain, not the spenders.</span> Hold the firms that <span className="text-gray-200">sell into</span> the buildout (semis, memory, networking, foundry, optics); exclude the hyperscalers that <span className="text-gray-200">spend</span> the capex — validated, and confirmed by Coatue.</li>
+          <li>Hedge with <span className="text-gray-200">QQQ + SOXL</span> via a min-variance overlay — neutralizes the broad market and the AI-compute / semiconductor factor.</li>
+          <li>Deliberate, bounded <span className="text-gray-200">+10–15% net-long tilt</span>; vol-target; size on notional within Nickel's limits; maker TWAP; rebalance monthly + around earnings.</li>
         </ul>
+      </Sec>
+
+      <Sec title="Smart-money tracking">
+        <p>We track the <span className="text-gray-200">full 13F books</span> of 15 AI-frontier crossover funds — the SpaceX / OpenAI / Anthropic round-backers that also file 13Fs (Coatue, Altimeter, Tiger, Dragoneer, D1, Appaloosa, Whale Rock, Sands, Baillie Gifford, Viking, ARK, Duquesne, …). Two actionable views: <span className="text-gray-200">consensus</span> (names many funds hold that we can trade now) and <span className="text-gray-200">watch-when-listed</span> (names they hold with no perp yet — we onboard the day Binance lists them). Cross-check / idea-generation, not a selection input.</p>
       </Sec>
 
       <Sec title="Risk management">
@@ -875,23 +888,23 @@ function ProcessTab() {
 
       <Sec title="How we research it">
         <ul className="list-disc pl-5 space-y-1.5">
-          <li><span className="text-gray-200">Point-in-time data.</span> Every fundamental is used only as-of its real report/filing date (SEC EDGAR XBRL + analyst earnings), so the backtest never sees the future — validated with a look-ahead leak detector.</li>
-          <li><span className="text-gray-200">Factor selection.</span> We evaluated each fundamental individually. Analyst earnings surprise was the only one that improved a momentum book. Trailing value <span className="text-gray-200">failed</span> — in a universe of intangible-heavy secular compounders, a cheapness screen mechanically shorts the winners.</li>
-          <li><span className="text-gray-200">Robustness gate.</span> Positive in every sub-period and in 92% of rolling 6-month windows; across 72 parameter combinations every one clears Sharpe &gt; 1.0. We anchor on the <span className="text-gray-200">median (~1.7 Sharpe)</span>, not the best-fit cell.</li>
-          <li><span className="text-gray-200">Hedge &amp; net-beta.</span> Chosen empirically — QQQ+SOXL gave the shallowest drawdown without over-fitting; the net-beta level was set on a return-vs-drawdown frontier.</li>
+          <li><span className="text-gray-200">Point-in-time data.</span> Every fundamental is used only as-of its real report/filing date, so the backtest never sees the future.</li>
+          <li><span className="text-gray-200">Open universe beats hand-curation.</span> The systematic screen + thesis tilt (diversified, K=25) beats the hand-picked basket — Sharpe <span className="text-gray-200">3.03 vs 2.70</span>, Sortino <span className="text-gray-200">4.37 vs 4.26</span> — by capturing the thesis more completely (it auto-found SK Hynix / Samsung / Dell the curation missed) and scaling to new listings.</li>
+          <li><span className="text-gray-200">Factor selection.</span> Analyst earnings surprise was the only fundamental that improved a momentum book. Trailing value <span className="text-gray-200">as a stand-alone screen</span> failed; as a within-universe tilt it adds.</li>
+          <li><span className="text-gray-200">Robustness.</span> Positive across sub-period thirds; the thesis-tilt weight is set as deliberate conviction, not the in-sample max. We report the conservative expectation, not the peak.</li>
         </ul>
       </Sec>
 
       <Sec title="Lineage">
-        <p><span className="text-gray-200">Long side:</span> mirrors how Tiger / Altimeter / Atreides / Coatue / Situational Awareness harvest beat-and-raise growth-tech compounders, systematized into rules.</p>
-        <p><span className="text-gray-200">Risk side:</span> multi-manager pod discipline (Citadel / Millennium) — factor-neutralize, run a tight drawdown leash, and isolate selection alpha from market beta.</p>
+        <p><span className="text-gray-200">Long side:</span> mirrors how Coatue / Altimeter / Tiger / Atreides / Situational Awareness harvest beat-and-raise supply-chain compounders — and we track their actual 13F books to stay aligned.</p>
+        <p><span className="text-gray-200">Risk side:</span> multi-manager pod discipline (Citadel / Millennium) — factor-neutralize, tight drawdown leash, isolate selection alpha from market beta.</p>
       </Sec>
 
       <Sec title="Honest limitations">
         <ul className="list-disc pl-5 space-y-1.5">
           <li>Validated over a single ~3-year AI-bull regime; the hedge/quality overlays matter most in the correction we have not yet observed.</li>
-          <li>Analyst-surprise coverage is ~23 of 33 names today; a paid estimates feed extends it to all names (incl. NVDA).</li>
-          <li>Best-config metrics are optimistic out-of-sample — we report the robustness median as the expectation.</li>
+          <li>The 3.03 Sharpe is in-sample with a conviction-weighted thesis tilt — expect materially less out-of-sample; the estimate-revisions leg (pending the analyst feed) is the path to widen the edge on alpha, not concentration.</li>
+          <li>The investability screen + valuation legs use current snapshots for recent listings (mild look-ahead in backtest; correct for live).</li>
         </ul>
       </Sec>
     </div>
@@ -913,7 +926,6 @@ export function EquityPmsDashboard() {
           <ArrowLeft size={16} /> Sentient Advisory
         </Link>
         <div className="flex items-center gap-3">
-          <Link to="/equity-rv" className="text-sm text-cyan-400 hover:text-cyan-300">Strategy &amp; research →</Link>
           {p && <span className="text-[11px] uppercase tracking-wider px-2 py-1 rounded-full border border-cyan-500/40 text-cyan-400">{p.mode} · {p.venue} · {p.as_of}</span>}
         </div>
       </nav>
