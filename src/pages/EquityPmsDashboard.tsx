@@ -514,7 +514,7 @@ function ResearchTab() {
 type WRow = {
   ticker: string; name: string; asset_class: string; sector: string | null; ai_role: string | null;
   venues: string[]; in_universe: boolean; in_book: boolean;
-  last: number | null; chg_24h: number | null; funding_apr: number | null; vol: number | null;
+  last: number | null; chg_24h: number | null; funding_apr: number | null; ann_vol: number | null; vol: number | null;
   binance: { last: number; chg: number } | null; hyperliquid: { last: number; chg: number | null; dexes?: string[] } | null;
 };
 type Watch = {
@@ -597,7 +597,7 @@ function WatchlistTab() {
               <th className="text-left py-2 pr-4">Ticker</th><th className="text-left pr-4">Name</th>
               <th className="text-left pr-4">Class</th><th className="text-left pr-4">Venues</th>
               <th className="text-right pr-4">Last</th><th className="text-right pr-4">24h</th>
-              <th className="text-right pr-4">Funding</th><th className="text-left">Tag</th>
+              <th className="text-right pr-4">Ann vol</th><th className="text-right pr-4">Funding</th><th className="text-left">Tag</th>
             </tr>
           </thead>
           <tbody>
@@ -611,6 +611,7 @@ function WatchlistTab() {
                 </td>
                 <td className="text-right pr-4 text-gray-200 tabular-nums">{px(r.last)}</td>
                 <td className={`text-right pr-4 tabular-nums ${r.chg_24h == null ? "text-gray-600" : r.chg_24h >= 0 ? "text-emerald-400" : "text-red-400"}`}>{r.chg_24h == null ? "—" : `${f1(r.chg_24h)}%`}</td>
+                <td className="text-right pr-4 text-gray-400 tabular-nums">{r.ann_vol == null ? "—" : `${r.ann_vol.toFixed(0)}%`}</td>
                 <td className="text-right pr-4 text-gray-500 tabular-nums">{r.funding_apr == null ? "—" : `${r.funding_apr.toFixed(0)}%`}</td>
                 <td>{r.in_book ? <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded border bg-cyan-500/15 text-cyan-300 border-cyan-500/40">★ book</span>
                   : r.in_universe ? <span className="text-[10px] uppercase tracking-wider text-gray-500">universe</span> : null}</td>
