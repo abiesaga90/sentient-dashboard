@@ -46,6 +46,9 @@
     {
       "symbol": "JPM",
       "side": "long",
+      "name": "JPMorgan",
+      "sector": "Finance",
+      "market_cap": 856106955292,
       "qty": 29.27,
       "entry": 299.91,
       "mark": 319.5,
@@ -59,6 +62,9 @@
     {
       "symbol": "DIS",
       "side": "long",
+      "name": "Disney",
+      "sector": "Media",
+      "market_cap": 174380646249,
       "qty": 83.77,
       "entry": 105.42,
       "mark": 100.42,
@@ -72,6 +78,9 @@
     {
       "symbol": "CSCO",
       "side": "long",
+      "name": "Cisco",
+      "sector": "Networking",
+      "market_cap": 478726650802,
       "qty": 64.64,
       "entry": 115.53,
       "mark": 121.46,
@@ -85,6 +94,9 @@
     {
       "symbol": "MRVL",
       "side": "long",
+      "name": "Marvell",
+      "sector": "Semis",
+      "market_cap": 249318000000,
       "qty": 10.99,
       "entry": 182.58,
       "mark": 285.0,
@@ -98,6 +110,9 @@
     {
       "symbol": "MU",
       "side": "long",
+      "name": "Micron",
+      "sector": "Memory",
+      "market_cap": 1127766401769,
       "qty": 2.81,
       "entry": 776.01,
       "mark": 1000.03,
@@ -111,6 +126,9 @@
     {
       "symbol": "INTC",
       "side": "long",
+      "name": "Intel",
+      "sector": "Semis",
+      "market_cap": 630813270737,
       "qty": 20.1,
       "entry": 115.93,
       "mark": 125.51,
@@ -124,6 +142,9 @@
     {
       "symbol": "SNDK",
       "side": "long",
+      "name": "SanDisk",
+      "sector": "Memory",
+      "market_cap": null,
       "qty": 1.12,
       "entry": 1382.72,
       "mark": 2009.01,
@@ -137,6 +158,9 @@
     {
       "symbol": "CRWV",
       "side": "long",
+      "name": "CoreWeave",
+      "sector": "AI Compute",
+      "market_cap": 57137584168,
       "qty": 21.39,
       "entry": 114.21,
       "mark": 104.73,
@@ -150,6 +174,9 @@
     {
       "symbol": "RKLB",
       "side": "long",
+      "name": "Rocket Lab",
+      "sector": "Aerospace",
+      "market_cap": null,
       "qty": 19.49,
       "entry": 132.55,
       "mark": 105.5,
@@ -163,6 +190,9 @@
     {
       "symbol": "LITE",
       "side": "long",
+      "name": "Lumentum",
+      "sector": "AI Compute",
+      "market_cap": 72062639380,
       "qty": 2.19,
       "entry": 1001.81,
       "mark": 926.26,
@@ -176,6 +206,9 @@
     {
       "symbol": "QQQ",
       "side": "hedge",
+      "name": "Invesco QQQ (Nasdaq-100)",
+      "sector": "Broad Index",
+      "market_cap": null,
       "qty": -8.17,
       "entry": 719.79,
       "mark": 722.74,
@@ -189,6 +222,9 @@
     {
       "symbol": "SOXL",
       "side": "hedge",
+      "name": "Direxion 3x Semis Bull",
+      "sector": "Sector Index",
+      "market_cap": null,
       "qty": -30.6,
       "entry": 186.19,
       "mark": 239.55,
@@ -1462,6 +1498,6 @@
       "dd": 0.0
     }
   ],
-  "generated_at": "2026-06-15T08:22:03.078353Z",
+  "generated_at": "2026-06-15T08:42:12.767947Z",
   "note": "Paper-trade simulation on the validated strategy, seeded from recent live data and extended forward daily. Notional $100,000. Research, not investment advice or a performance representation."
 }

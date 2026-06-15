@@ -8,8 +8,9 @@ import {
 type Pos = {
   symbol: string; side: string; qty: number | null; entry: number | null; mark: number | null;
   notional: number; pct: number; upnl: number; upnl_pct: number; funding_apr: number | null;
-  held_days: number | null;
+  held_days: number | null; name: string | null; sector: string | null; market_cap: number | null;
 };
+const mcap = (n: number | null) => (n == null ? "—" : n >= 1e12 ? `$${(n / 1e12).toFixed(2)}T` : n >= 1e9 ? `$${(n / 1e9).toFixed(0)}B` : `$${(n / 1e6).toFixed(0)}M`);
 type Paper = {
   mode: string; venue: string; inception: string; as_of: string; days: number;
   nav_index: number; cum_return_nav_pct: number; dd_nav_pct: number; max_dd_nav_pct: number;
@@ -163,7 +164,8 @@ function PositionsTab({ p }: { p: Paper }) {
       <table className="w-full text-sm whitespace-nowrap">
         <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
           <tr>
-            <th className="text-left py-2 pr-4">Symbol</th><th className="text-left pr-4">Side</th>
+            <th className="text-left py-2 pr-4">Symbol</th><th className="text-left pr-4">Sector</th>
+            <th className="text-right pr-4">Mkt cap</th><th className="text-left pr-4">Side</th>
             <th className="text-right pr-4">Held</th>
             <th className="text-right pr-4">Size</th><th className="text-right pr-4">Entry</th>
             <th className="text-right pr-4">Mark</th><th className="text-right pr-4">Notional</th>
@@ -174,7 +176,12 @@ function PositionsTab({ p }: { p: Paper }) {
         <tbody>
           {p.book.map((b) => (
             <tr key={b.symbol} className="border-b border-[var(--border)]/40">
-              <td className="py-2 pr-4 text-gray-200 font-medium">{b.symbol}</td>
+              <td className="py-2 pr-4">
+                <div className="text-gray-200 font-medium">{b.symbol}</div>
+                {b.name && <div className="text-[11px] text-gray-600 max-w-[150px] truncate">{b.name}</div>}
+              </td>
+              <td className="pr-4 text-gray-500 text-xs">{b.sector ?? "—"}</td>
+              <td className="text-right pr-4 text-gray-400">{mcap(b.market_cap)}</td>
               <td className={`pr-4 ${b.side === "hedge" ? "text-gray-500" : b.side === "long" ? "text-emerald-400" : "text-red-400"}`}>{b.side}</td>
               <td className="text-right pr-4 text-gray-400">{b.held_days != null ? `${b.held_days}d` : "—"}</td>
               <td className="text-right pr-4 text-gray-300">{b.qty?.toLocaleString() ?? "—"}</td>
@@ -237,6 +244,7 @@ type RRow = {
   eps_surprise_pct: number | null; z_eps: number; z_mom: number; z_val: number;
   score: number; score_exval: number;
   trailing_pe: number | null; price_to_sales: number | null; ev_ebitda: number | null;
+  fwd_pe: number | null; peg: number | null; target_upside: number | null;
   sm_count: number; sm_funds: string[] | null; sm_note: string | null;
   funding_apr: number | null; operating_margin: number | null; gross_margin: number | null;
   roe: number | null; revenue_ttm: number | null; eps_ttm: number | null; market_cap: number | null;
@@ -362,6 +370,7 @@ function ResearchTab() {
                           <div><span className="text-gray-600">Gross / Op margin</span> · {pct0(b.gross_margin)} / {pct0(b.operating_margin)}</div>
                           <div><span className="text-gray-600">ROE</span> · {pct0(b.roe)}</div>
                           <div><span className="text-gray-600">P/S · EV/EBITDA</span> · {b.price_to_sales == null ? "—" : b.price_to_sales.toFixed(1)} · {b.ev_ebitda == null ? "—" : b.ev_ebitda.toFixed(1)}</div>
+                          <div className="text-amber-200/80"><span className="text-gray-600">Fwd P/E · PEG</span> · {b.fwd_pe == null ? "—" : b.fwd_pe.toFixed(1)} · {b.peg == null ? "—" : b.peg.toFixed(2)}{b.target_upside != null ? ` · tgt ${f1(b.target_upside)}%` : ""}</div>
                           <div><span className="text-gray-600">Last report</span> · {b.last_fiscal_period ?? "—"}{b.days_since_report != null ? ` (${b.days_since_report.toFixed(0)}d ago)` : ""}</div>
                           {b.sm_count > 0 && <div className="lg:col-span-4 text-cyan-300/80">13F: {b.sm_count}/4 funds long{b.sm_funds ? ` (${b.sm_funds.join(", ")})` : ""}{b.sm_note ? ` — ${b.sm_note}` : ""}</div>}
                         </div>
