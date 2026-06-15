@@ -2,13 +2,14 @@ import { useEffect, useState, Fragment, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import {
-  AreaChart, Area, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, ReferenceLine,
+  AreaChart, Area, BarChart, Bar, Cell, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
 
 type Pos = {
   symbol: string; side: string; qty: number | null; entry: number | null; mark: number | null;
   notional: number; pct: number; upnl: number; upnl_pct: number; funding_apr: number | null;
   held_days: number | null; name: string | null; sector: string | null; market_cap: number | null;
+  beta: number | null; beta_contrib: number | null;
 };
 const mcap = (n: number | null) => (n == null ? "—" : n >= 1e12 ? `$${(n / 1e12).toFixed(2)}T` : n >= 1e9 ? `$${(n / 1e9).toFixed(0)}B` : `$${(n / 1e6).toFixed(0)}M`);
 type Paper = {
@@ -146,12 +147,67 @@ function OverviewTab({ p }: { p: Paper }) {
   );
 }
 
+function BuildupChart({ book }: { book: Pos[] }) {
+  const [mode, setMode] = useState<"notional" | "beta">("notional");
+  const val = (b: Pos) => (mode === "notional" ? b.pct : b.beta_contrib ?? 0);
+  const fmt = (v: number) => (mode === "notional" ? `${v >= 0 ? "+" : ""}${v.toFixed(1)}%` : `${v >= 0 ? "+" : ""}${v.toFixed(2)}β`);
+  const items = [...book].sort((a, b) => val(b) - val(a));   // longs (desc) → hedges, then NET
+  let cum = 0;
+  const data = items.map((b) => {
+    const start = cum; cum += val(b);
+    return { name: b.symbol, base: Math.min(start, cum), bar: Math.abs(val(b)), v: val(b), kind: b.side };
+  });
+  data.push({ name: "NET", base: Math.min(0, cum), bar: Math.abs(cum), v: cum, kind: "net" });
+  const color = (k: string) => (k === "net" ? "#22d3ee" : k === "hedge" ? "#f87171" : "#34d399");
+
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mt-5">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-sm font-medium text-gray-200">Exposure build-up
+          <span className="text-gray-500 font-normal"> — how longs + hedge combine to net {mode === "notional" ? "notional" : "beta"} ({fmt(cum)})</span></div>
+        <div className="flex gap-1 text-xs">
+          <button onClick={() => setMode("notional")} className={`px-2.5 py-1 rounded-lg border ${mode === "notional" ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500"}`}>Net notional</button>
+          <button onClick={() => setMode("beta")} className={`px-2.5 py-1 rounded-lg border ${mode === "beta" ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500"}`}>Net beta</button>
+        </div>
+      </div>
+      <ResponsiveContainer width="100%" height={260}>
+        <BarChart data={data} margin={{ top: 5, right: 8, left: -8, bottom: 0 }}>
+          <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#64748b" }} interval={0} />
+          <YAxis tick={{ fontSize: 10, fill: "#64748b" }} width={42} tickFormatter={(v) => (mode === "notional" ? `${v}%` : `${v}`)} />
+          <RTooltip cursor={{ fill: "rgba(255,255,255,0.03)" }}
+            content={({ active, payload }: any) => {
+              if (!active || !payload?.length) return null;
+              const d = payload[0].payload;
+              return (
+                <div className="bg-[#0f172a] border border-[#1e293b] rounded px-2 py-1 text-xs">
+                  <span className="text-gray-300">{d.name === "NET" ? "Net" : d.name}</span>{" "}
+                  <span className={d.v >= 0 ? "text-emerald-400" : "text-red-400"}>{fmt(d.v)}</span>
+                </div>
+              );
+            }} />
+          <ReferenceLine y={0} stroke="#475569" />
+          <Bar dataKey="base" stackId="a" fill="transparent" />
+          <Bar dataKey="bar" stackId="a" radius={[2, 2, 0, 0]}>
+            {data.map((d, i) => <Cell key={i} fill={color(d.kind)} />)}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+      <p className="text-[11px] text-gray-600 mt-2">
+        {mode === "notional"
+          ? "Each bar = position weight on notional; longs (green) add, the QQQ/SOXL hedges (red) subtract → net notional."
+          : "Each bar = beta contribution (weight × beta vs SPY). Longs add market beta; the QQQ/SOXL hedges (red) strip most of it out → a small deliberate net long-beta tilt. SOXL's pull is large for its size (3× ETF)."}
+      </p>
+    </div>
+  );
+}
+
 function PositionsTab({ p }: { p: Paper }) {
   const named = p.book.filter((b) => b.side !== "hedge");
   const W = named.filter((b) => b.upnl > 0), L = named.filter((b) => b.upnl < 0);
   const totUpnl = p.book.reduce((a, b) => a + b.upnl, 0);
   const sum = (xs: Pos[]) => xs.reduce((a, b) => a + b.upnl, 0);
   return (
+    <>
     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 overflow-x-auto">
       <div className="flex justify-between items-center text-sm mb-3">
         <span className="font-medium text-gray-200">{p.n_longs} longs + hedge</span>
@@ -198,6 +254,8 @@ function PositionsTab({ p }: { p: Paper }) {
       </table>
       <p className="text-[11px] text-gray-600 mt-3">Held = continuous days in the book (clock resets if a name rotates out and back). uPnL is since the last monthly rebalance ({p.last_rebalance}). Funding = current perp APR. Paper book on the underlying / Binance marks.</p>
     </div>
+    <BuildupChart book={p.book} />
+    </>
   );
 }
 
