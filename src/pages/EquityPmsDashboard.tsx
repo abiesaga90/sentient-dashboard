@@ -359,7 +359,7 @@ function RiskTab({ p }: { p: Paper }) {
 
 type RRow = {
   symbol: string; label: string; sector: string | null; subsector: string | null;
-  ai_role: "supplier" | "spender" | "neutral"; ai_subtype: string | null;
+  ai_role: "supplier" | "spender" | "neutral"; ai_subtype: string | null; shortage_role: string | null;
   rank: number | null; rank_exval: number | null; in_book: boolean;
   status: "in" | "enters" | "drops" | "bench" | "excluded";
   eps_surprise_pct: number | null; z_eps: number; z_mom: number; z_val: number;
@@ -376,6 +376,8 @@ type Research = {
   valuation_overlay: { weight: number; metric: string; status: string; evidence: string };
   smart_money: { filing_period: string; funds: string[]; note: string };
   ai_thesis: string; ai_finding: string;
+  shortage_framing?: Record<string, string>;
+  coatue_evidence?: { sellers_ytd: number; buyers_ytd: number; source: string } | null;
   rows: RRow[]; note: string;
 };
 const ROLE_CHIP: Record<string, string> = {
@@ -431,6 +433,24 @@ function ResearchTab() {
         <p className="mt-2"><span className="text-gray-300">13F</span> = independent smart-money cross-check — # of {r.smart_money.funds.join(" / ")} long the name ({r.smart_money.filing_period} filings, ~45-day lag). Context, not a selection input.</p>
       </div>
 
+      {/* Coatue 'sellers vs buyers of the shortage' validation */}
+      {r.coatue_evidence && (
+        <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/[0.04] p-4 mb-4 text-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+            <h3 className="text-sm font-semibold text-cyan-200">Market is rewarding the sellers of the shortage</h3>
+            <span className="text-[10px] uppercase tracking-wider text-gray-500">external validation · {r.coatue_evidence.source}</span>
+          </div>
+          <p className="text-gray-400 leading-relaxed">
+            Our <span className="text-cyan-300">suppliers</span> are Coatue's <span className="text-cyan-300">“sellers of the shortage”</span> (semis / memory / optics — high pricing power, fixed cost base, <span className="text-gray-200">big EPS revisions</span>); our excluded <span className="text-red-300">spenders</span> are their <span className="text-red-300">“buyers of the shortage”</span> (hyperscaler capex, modest revisions). Their YTD scoreboard:
+          </p>
+          <div className="flex items-center gap-4 mt-2.5">
+            <div className="flex items-baseline gap-2"><span className="text-2xl font-semibold text-cyan-300">+{r.coatue_evidence.sellers_ytd}%</span><span className="text-xs text-gray-500">sellers (our longs)</span></div>
+            <span className="text-gray-700">vs</span>
+            <div className="flex items-baseline gap-2"><span className="text-2xl font-semibold text-red-300/80">+{r.coatue_evidence.buyers_ytd}%</span><span className="text-xs text-gray-500">buyers (we exclude)</span></div>
+          </div>
+        </div>
+      )}
+
       {/* lens toggle */}
       <div className="flex items-center gap-2 mb-3 text-sm">
         <span className="text-gray-500">Rank by:</span>
@@ -484,7 +504,7 @@ function ResearchTab() {
                       <td colSpan={10} className="px-4 py-3">
                         <div className="text-xs text-gray-400 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1.5">
                           <div><span className="text-gray-600">Sector</span> · {b.sector} / {b.subsector}</div>
-                          <div><span className="text-gray-600">AI role</span> · {b.ai_role}{b.ai_subtype ? ` — ${b.ai_subtype}` : ""}</div>
+                          <div><span className="text-gray-600">AI role</span> · {b.ai_role}{b.ai_subtype ? ` — ${b.ai_subtype}` : ""}{b.shortage_role ? <span className="text-cyan-400/70"> · {b.shortage_role}</span> : null}</div>
                           <div><span className="text-gray-600">Mkt cap</span> · {bn(b.market_cap)} · <span className="text-gray-600">Rev TTM</span> {bn(b.revenue_ttm)}</div>
                           <div><span className="text-gray-600">EPS surprise</span> · {b.eps_surprise_pct == null ? "no coverage" : `${b.eps_surprise_pct.toFixed(0)}%`}</div>
                           <div><span className="text-gray-600">Funding APR</span> · {b.funding_apr == null ? "—" : `${b.funding_apr.toFixed(1)}%`}</div>
@@ -525,6 +545,132 @@ type Watch = {
 
 const px = (n: number | null) => (n == null ? "—" : n.toLocaleString(undefined, { minimumFractionDigits: n < 10 ? 3 : 2, maximumFractionDigits: n < 10 ? 3 : 2 }));
 const VBADGE: Record<string, string> = { binance: "bg-cyan-500/15 text-cyan-300", hyperliquid: "bg-violet-500/15 text-violet-300" };
+
+type SMHolding = { issuer: string; ticker: string | null; sector: string | null; pct_aum: number; value_usd: number; tradeable: boolean; is_new: boolean; has_put: boolean };
+type SMFund = { fund: string; note: string; period: string; aum_usd: number; n_positions: number; n_tradeable: number; conc_top10: number; top_holdings: SMHolding[]; new_buys: string[]; exits: string[] };
+type SmartMoney = {
+  as_of: string; n_funds: number; thesis: string;
+  funds: SMFund[];
+  consensus_tradeable: { ticker: string; perp: string | null; sector: string | null; n_funds: number; funds: string[]; value_usd: number }[];
+  watch_when_listed: { issuer: string; n_funds: number; funds: string[]; value_usd: number }[];
+  note: string;
+};
+
+function SmartMoneyTab() {
+  const [s, setS] = useState<SmartMoney | null>(null);
+  const [err, setErr] = useState(false);
+  const [openFund, setOpenFund] = useState<string | null>(null);
+  useEffect(() => {
+    fetch("/equity-rv/smart_money_state.json").then((x) => (x.ok ? x.json() : Promise.reject())).then(setS).catch(() => setErr(true));
+  }, []);
+  if (err) return <p className="text-gray-500 text-sm">Smart-money state unavailable — run build_smart_money + smart_money_report.</p>;
+  if (!s) return <p className="text-gray-500 text-sm">Loading…</p>;
+
+  return (
+    <div>
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5 mb-4 text-sm text-gray-400 leading-relaxed">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <h3 className="text-base font-semibold text-gray-100">AI-frontier smart money — full 13F books</h3>
+          <span className="text-[11px] uppercase tracking-wider text-gray-500">{s.n_funds} funds · as of {s.as_of}</span>
+        </div>
+        <p>{s.thesis}</p>
+        <p className="mt-2 text-gray-500">{s.note}</p>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-4 mb-4">
+        {/* tradeable-now consensus */}
+        <div className="rounded-xl border border-cyan-500/25 bg-cyan-500/[0.03] p-4">
+          <h4 className="text-sm font-semibold text-cyan-200 mb-1">Consensus — tradeable now</h4>
+          <p className="text-xs text-gray-500 mb-3">Names ≥2 funds hold that already have a tokenized perp — actionable conviction.</p>
+          <table className="w-full text-sm">
+            <thead className="text-[10px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]"><tr>
+              <th className="text-left py-1.5">Ticker</th><th className="text-left">Sector</th><th className="text-right">#Funds</th><th className="text-right">$ held</th>
+            </tr></thead>
+            <tbody>
+              {s.consensus_tradeable.slice(0, 14).map((c) => (
+                <tr key={c.ticker} className="border-b border-[var(--border)]/40">
+                  <td className="py-1.5 text-gray-200 font-medium">{c.ticker}</td>
+                  <td className="text-gray-500 text-xs">{c.sector}</td>
+                  <td className="text-right text-cyan-300">{c.n_funds}</td>
+                  <td className="text-right text-gray-400">{bn(c.value_usd)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* watch when listed */}
+        <div className="rounded-xl border border-amber-500/25 bg-amber-500/[0.03] p-4">
+          <h4 className="text-sm font-semibold text-amber-200 mb-1">Watch — when listed</h4>
+          <p className="text-xs text-gray-500 mb-3">Names ≥2 funds hold with <span className="text-amber-300">no perp yet</span> — onboard the day Binance lists them.</p>
+          <table className="w-full text-sm">
+            <thead className="text-[10px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]"><tr>
+              <th className="text-left py-1.5">Issuer</th><th className="text-right">#Funds</th><th className="text-right">$ held</th>
+            </tr></thead>
+            <tbody>
+              {s.watch_when_listed.slice(0, 14).map((w) => (
+                <tr key={w.issuer} className="border-b border-[var(--border)]/40">
+                  <td className="py-1.5 text-gray-300">{w.issuer}</td>
+                  <td className="text-right text-amber-300">{w.n_funds}</td>
+                  <td className="text-right text-gray-400">{bn(w.value_usd)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* per-fund books */}
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <h4 className="text-sm font-semibold text-gray-200 mb-3">Fund books <span className="text-gray-600 font-normal text-xs">· click to expand · NEW = new this quarter · ✓ = tradeable perp</span></h4>
+        <div className="space-y-1.5">
+          {s.funds.map((f) => {
+            const isOpen = openFund === f.fund;
+            return (
+              <div key={f.fund} className="border-b border-[var(--border)]/40">
+                <div onClick={() => setOpenFund(isOpen ? null : f.fund)} className="flex items-center justify-between py-2 cursor-pointer hover:bg-white/[0.02]">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-gray-200 font-medium">{f.fund}</span>
+                    <span className="text-[10px] text-gray-500">{f.note}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span>{bn(f.aum_usd)} US equity</span>
+                    <span>{f.n_positions} pos · {f.n_tradeable} tradeable</span>
+                    <span className="text-gray-600">top-10 {f.conc_top10}%</span>
+                  </div>
+                </div>
+                {isOpen && (
+                  <div className="pb-3 pl-2">
+                    <table className="w-full text-sm mb-2">
+                      <thead className="text-[10px] uppercase tracking-wider text-gray-500"><tr>
+                        <th className="text-left py-1">Holding</th><th className="text-left">Sector</th><th className="text-right">% AUM</th><th className="text-right">$</th>
+                      </tr></thead>
+                      <tbody>
+                        {f.top_holdings.map((h) => (
+                          <tr key={h.issuer} className="border-b border-[var(--border)]/20">
+                            <td className="py-1 text-gray-300">
+                              {h.tradeable ? <span className="text-cyan-400 mr-1">✓</span> : null}{h.ticker || h.issuer}
+                              {h.is_new ? <span className="ml-1.5 text-[9px] uppercase text-emerald-400 border border-emerald-500/30 rounded px-1">new</span> : null}
+                              {h.has_put ? <span className="ml-1 text-[9px] uppercase text-red-400/70">put</span> : null}
+                            </td>
+                            <td className="text-gray-600 text-xs">{h.sector || "—"}</td>
+                            <td className="text-right text-gray-400">{h.pct_aum.toFixed(1)}%</td>
+                            <td className="text-right text-gray-500">{bn(h.value_usd)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {f.new_buys.length > 0 && <p className="text-xs text-emerald-400/80"><span className="text-gray-600">New buys:</span> {f.new_buys.join(", ")}</p>}
+                    {f.exits.length > 0 && <p className="text-xs text-red-400/70 mt-0.5"><span className="text-gray-600">Exits:</span> {f.exits.join(", ")}</p>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function WatchlistTab() {
   const [w, setW] = useState<Watch | null>(null);
@@ -755,7 +901,7 @@ function ProcessTab() {
 export function EquityPmsDashboard() {
   const [p, setP] = useState<Paper | null>(null);
   const [err, setErr] = useState(false);
-  const [tab, setTab] = useState<"watchlist" | "overview" | "positions" | "research" | "risk" | "hedge" | "process">("overview");
+  const [tab, setTab] = useState<"watchlist" | "overview" | "positions" | "research" | "smartmoney" | "risk" | "hedge" | "process">("overview");
   useEffect(() => {
     fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
   }, []);
@@ -779,7 +925,7 @@ export function EquityPmsDashboard() {
         {p && (
           <>
             <div className="flex gap-1 mb-6 border-b border-[var(--border)]">
-              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["risk", "Risk"], ["hedge", "Hedge"], ["process", "Investment Process"]] as const).map(([t, label]) => (
+              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["smartmoney", "Smart Money"], ["risk", "Risk"], ["hedge", "Hedge"], ["process", "Investment Process"]] as const).map(([t, label]) => (
                 <button key={t} onClick={() => setTab(t)}
                   className={`px-4 py-2 text-sm border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
                   {label}
@@ -790,6 +936,7 @@ export function EquityPmsDashboard() {
             {tab === "overview" && <OverviewTab p={p} />}
             {tab === "positions" && <PositionsTab p={p} />}
             {tab === "research" && <ResearchTab />}
+            {tab === "smartmoney" && <SmartMoneyTab />}
             {tab === "risk" && <RiskTab p={p} />}
             {tab === "hedge" && <HedgeTab />}
             {tab === "process" && <ProcessTab />}
