@@ -24,6 +24,7 @@ type Paper = {
   dd_ladder: { steps: { dd_nav_pct: number; gross_mult: number }[]; hard_stop_nav_pct: number; current_dd_nav_pct: number; current_mult: number };
   limits: { gross_cap_pct: number; net_cap_pct: number; dd_hard_nav_pct: number; dd_pause_nav_pct: number };
   book: Pos[];
+  layer_mix?: { layer: string; pct: number }[];
   nav_curve: { date: string; nav: number }[];
   note: string;
 };
@@ -187,6 +188,28 @@ function OverviewTab({ p }: { p: Paper }) {
       </div>
       <PnlPeriods p={p} />
       <AttributionPanel a={p.attribution} />
+      {p.layer_mix && p.layer_mix.length > 0 && (
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-5">
+          <div className="text-sm font-medium text-gray-200 mb-1">AI-stack layer mix
+            <span className="text-gray-500 font-normal text-xs"> — long book by weight; "follow the gigawatts" → neocloud + power are the forward bottleneck</span></div>
+          <div className="space-y-1.5 mt-3">
+            {p.layer_mix.map((m) => {
+              const max = Math.max(...p.layer_mix!.map((x) => x.pct));
+              const fwd = m.layer === "neocloud" || m.layer === "power/grid";
+              return (
+                <div key={m.layer} className="flex items-center gap-2 text-xs">
+                  <div className="w-36 text-gray-400 text-right">{m.layer}</div>
+                  <div className="flex-1 bg-[var(--bg-primary)] rounded h-4">
+                    <div className={`h-4 rounded ${fwd ? "bg-amber-500/50" : "bg-cyan-500/40"}`} style={{ width: `${(m.pct / max) * 100}%` }} />
+                  </div>
+                  <div className="w-12 text-right text-gray-300">{m.pct.toFixed(1)}%</div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-[11px] text-gray-600 mt-2">Compute-adjacent layers (memory / custom-silicon / optical / foundry) are the marginal bid now; <span className="text-amber-400/80">neocloud + power</span> are the forward bottleneck (SAA / Coatue) — currently light.</p>
+        </div>
+      )}
       <Movers book={p.book} />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4"><div className="text-gray-500 text-xs mb-1">Gross / Net</div><div className="text-gray-200">{p.gross_pct.toFixed(0)}% / {f1(p.net_pct)}%</div></div>
