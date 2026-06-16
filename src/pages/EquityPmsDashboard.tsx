@@ -502,7 +502,7 @@ function ResearchTab() {
               <th className="text-right py-2 pr-2">Rk</th><th className="text-right pr-3">exV</th>
               <th className="text-left pr-4">Name</th>
               <th className="text-right pr-3">zEps</th><th className="text-right pr-3">zMom</th>
-              <th className="text-right pr-3">zVal</th><th className="text-right pr-3">zThs</th><th className="text-right pr-4">Score</th>
+              <th className="text-right pr-3">zVal</th><th className="text-right pr-3">zThs</th><th className="text-right pr-3">zRev</th><th className="text-right pr-4">Score</th>
               <th className="text-right pr-4 border-l border-[var(--border)] pl-3">P/E</th>
               <th className="text-right pr-4 border-l border-[var(--border)] pl-3">13F</th>
               <th className="text-left">Status</th>
@@ -527,6 +527,7 @@ function ResearchTab() {
                     <td className={`text-right pr-3 ${zc(b.z_mom)}`}>{b.z_mom.toFixed(2)}</td>
                     <td className={`text-right pr-3 ${zc(b.z_val)}`}>{b.z_val.toFixed(2)}</td>
                     <td className={`text-right pr-3 ${zc(b.z_thesis ?? 0)}`}>{(b.z_thesis ?? 0).toFixed(2)}</td>
+                    <td className={`text-right pr-3 ${zc(b.z_rev ?? 0)}`}>{(b.z_rev ?? 0).toFixed(2)}</td>
                     <td className="text-right pr-4 text-gray-200">{b.score.toFixed(2)}</td>
                     <td className="text-right pr-4 border-l border-[var(--border)] pl-3 text-gray-400">{pe(b.trailing_pe)}</td>
                     <td className="text-right pr-4 border-l border-[var(--border)] pl-3">{b.sm_count > 0 ? <span className="text-cyan-300">{b.sm_count}/4</span> : <span className="text-gray-600">—</span>}</td>
@@ -534,7 +535,7 @@ function ResearchTab() {
                   </tr>
                   {isOpen && (
                     <tr className="bg-white/[0.02]">
-                      <td colSpan={11} className="px-4 py-3">
+                      <td colSpan={12} className="px-4 py-3">
                         <div className="text-xs text-gray-400 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1.5">
                           <div><span className="text-gray-600">Sector</span> · {b.sector} / {b.subsector}</div>
                           <div><span className="text-gray-600">AI role</span> · {b.ai_role}{b.ai_subtype ? ` — ${b.ai_subtype}` : ""}{b.shortage_role ? <span className="text-cyan-400/70"> · {b.shortage_role}</span> : null}</div>
