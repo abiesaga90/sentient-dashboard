@@ -731,6 +731,119 @@ function SmartMoneyTab() {
   );
 }
 
+type RegimeSig = { name: string; value: string; trend: string; state: "green" | "amber" | "red"; desc: string };
+type Regime = {
+  as_of: string; state: "GREEN" | "AMBER" | "RED"; headline: string;
+  signals: RegimeSig[]; playbook: string[];
+  spread: Record<string, { sellers: number; buyers: number; spread_pp: number }>;
+  spread_pace_pp_per_mo: Record<string, number>;
+  spread_history: { date: string; spread_pp: number }[];
+  layer_momentum: { layer: string; mom_3mo: number }[];
+  map: { takeaway: string; mechanism: string; status: string; live: string }[];
+  note: string;
+};
+const ST = { green: "text-emerald-400 border-emerald-500/40 bg-emerald-500/10", amber: "text-amber-400 border-amber-500/40 bg-amber-500/10", red: "text-red-400 border-red-500/40 bg-red-500/10" };
+const STBIG = { GREEN: "text-emerald-400 border-emerald-500/50 bg-emerald-500/[0.08]", AMBER: "text-amber-400 border-amber-500/50 bg-amber-500/[0.08]", RED: "text-red-400 border-red-500/50 bg-red-500/[0.08]" };
+
+function RegimeTab() {
+  const [r, setR] = useState<Regime | null>(null);
+  const [err, setErr] = useState(false);
+  useEffect(() => {
+    fetch("/equity-rv/regime_state.json").then((x) => (x.ok ? x.json() : Promise.reject())).then(setR).catch(() => setErr(true));
+  }, []);
+  if (err) return <p className="text-gray-500 text-sm">Regime state unavailable — run research/regime_monitor.py.</p>;
+  if (!r) return <p className="text-gray-500 text-sm">Loading…</p>;
+  const maxL = Math.max(...r.layer_momentum.map((x) => Math.abs(x.mom_3mo)), 1);
+  return (
+    <div>
+      {/* state gauge */}
+      <div className={`rounded-xl border p-5 mb-4 ${STBIG[r.state]}`}>
+        <div className="flex items-center gap-3 mb-1">
+          <span className="text-2xl font-bold">{r.state === "GREEN" ? "🟢" : r.state === "AMBER" ? "🟡" : "🔴"} {r.state}</span>
+          <span className="text-[11px] uppercase tracking-wider text-gray-500">AI-supply trade · as of {r.as_of}</span>
+        </div>
+        <p className="text-sm text-gray-300">{r.headline}</p>
+      </div>
+
+      {/* leading signals */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+        {r.signals.map((s) => (
+          <div key={s.name} className={`rounded-xl border p-3 ${ST[s.state]}`}>
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-gray-400">{s.name}</span>
+              <span className="text-[9px] uppercase">{s.state}</span>
+            </div>
+            <div className="text-lg font-semibold text-gray-100 mt-1">{s.value}</div>
+            <div className="text-[11px] text-gray-400">{s.trend}</div>
+            <div className="text-[10px] text-gray-600 mt-1">{s.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-4 mb-4">
+        {/* sellers-buyers spread history */}
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+          <div className="text-sm font-medium text-gray-200 mb-1">Sellers − Buyers spread (3mo trailing)</div>
+          <div className="text-[11px] text-gray-500 mb-2">Coatue's gauge. Now +{r.spread["3mo"]?.spread_pp}pp · pace {r.spread_pace_pp_per_mo["6mo"]}→{r.spread_pace_pp_per_mo["3mo"]}→{r.spread_pace_pp_per_mo["1mo"]} pp/mo</div>
+          <ResponsiveContainer width="100%" height={160}>
+            <AreaChart data={r.spread_history} margin={{ top: 5, right: 8, left: -12, bottom: 0 }}>
+              <XAxis dataKey="date" tick={{ fontSize: 8, fill: "#64748b" }} interval={Math.ceil(r.spread_history.length / 5)} />
+              <YAxis tick={{ fontSize: 9, fill: "#64748b" }} width={38} tickFormatter={(v) => `${v}`} />
+              <RTooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", fontSize: 11 }} />
+              <ReferenceLine y={0} stroke="#475569" />
+              <Area dataKey="spread_pp" stroke="#00B4D8" fill="#00B4D8" fillOpacity={0.15} strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        {/* layer momentum */}
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+          <div className="text-sm font-medium text-gray-200 mb-2">Layer leadership (3mo momentum)</div>
+          <div className="space-y-1 mt-1">
+            {r.layer_momentum.map((m) => {
+              const fwd = m.layer === "neocloud" || m.layer === "power/grid";
+              return (
+                <div key={m.layer} className="flex items-center gap-2 text-xs">
+                  <div className="w-32 text-right text-gray-400">{m.layer}</div>
+                  <div className="flex-1 bg-[var(--bg-primary)] rounded h-3.5"><div className={`h-3.5 rounded ${fwd ? "bg-amber-500/50" : "bg-cyan-500/40"}`} style={{ width: `${(Math.abs(m.mom_3mo) / maxL) * 100}%` }} /></div>
+                  <div className="w-12 text-right text-gray-300">{m.mom_3mo >= 0 ? "+" : ""}{m.mom_3mo}%</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* playbook */}
+      <div className={`rounded-xl border p-4 mb-4 ${STBIG[r.state]}`}>
+        <div className="text-sm font-semibold mb-2">Playbook — {r.state}</div>
+        <ul className="list-disc pl-5 space-y-1 text-sm text-gray-300">{r.playbook.map((p, i) => <li key={i}>{p}</li>)}</ul>
+      </div>
+
+      {/* systematisation map */}
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">
+        <div className="text-sm font-medium text-gray-200 mb-1">Strategy systematisation map</div>
+        <p className="text-[11px] text-gray-500 mb-3">Every key takeaway (Coatue · SAA · Aletheia · Gavin Baker) → its systematic mechanism → live value. This is the whole thing, tracked.</p>
+        <table className="w-full text-sm">
+          <thead className="text-[10px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]"><tr>
+            <th className="text-left py-1.5">Takeaway</th><th className="text-left">Mechanism</th><th className="text-left">Status</th><th className="text-left">Live</th>
+          </tr></thead>
+          <tbody>
+            {r.map.map((m) => (
+              <tr key={m.takeaway} className="border-b border-[var(--border)]/40">
+                <td className="py-1.5 text-gray-300 pr-3">{m.takeaway}</td>
+                <td className="text-gray-500 text-xs pr-3">{m.mechanism}</td>
+                <td className="pr-3"><span className={`text-[10px] uppercase px-1.5 py-0.5 rounded border ${m.status === "LIVE" ? "border-emerald-500/40 text-emerald-400" : m.status === "ARMED" || m.status === "TESTED" ? "border-amber-500/40 text-amber-400" : "border-gray-600/40 text-gray-500"}`}>{m.status}</span></td>
+                <td className="text-cyan-400/70 text-xs">{m.live}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[11px] text-gray-600 mt-3">{r.note}</p>
+    </div>
+  );
+}
+
 function WatchlistTab() {
   const [w, setW] = useState<Watch | null>(null);
   const [err, setErr] = useState(false);
@@ -963,7 +1076,7 @@ function ProcessTab() {
 export function EquityPmsDashboard() {
   const [p, setP] = useState<Paper | null>(null);
   const [err, setErr] = useState(false);
-  const [tab, setTab] = useState<"watchlist" | "overview" | "positions" | "research" | "smartmoney" | "risk" | "hedge" | "process">("overview");
+  const [tab, setTab] = useState<"watchlist" | "overview" | "positions" | "research" | "smartmoney" | "regime" | "risk" | "hedge" | "process">("overview");
   useEffect(() => {
     fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
   }, []);
@@ -986,7 +1099,7 @@ export function EquityPmsDashboard() {
         {p && (
           <>
             <div className="flex gap-1 mb-6 border-b border-[var(--border)]">
-              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["smartmoney", "Smart Money"], ["risk", "Risk"], ["hedge", "Hedge"], ["process", "Investment Process"]] as const).map(([t, label]) => (
+              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["smartmoney", "Smart Money"], ["regime", "Regime"], ["risk", "Risk"], ["hedge", "Hedge"], ["process", "Investment Process"]] as const).map(([t, label]) => (
                 <button key={t} onClick={() => setTab(t)}
                   className={`px-4 py-2 text-sm border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
                   {label}
@@ -998,6 +1111,7 @@ export function EquityPmsDashboard() {
             {tab === "positions" && <PositionsTab p={p} />}
             {tab === "research" && <ResearchTab />}
             {tab === "smartmoney" && <SmartMoneyTab />}
+            {tab === "regime" && <RegimeTab />}
             {tab === "risk" && <RiskTab p={p} />}
             {tab === "hedge" && <HedgeTab />}
             {tab === "process" && <ProcessTab />}
