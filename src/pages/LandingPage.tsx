@@ -31,10 +31,10 @@ export function LandingPage() {
           <StrategyCard
             icon={<LineChart size={28} />}
             title="Tokenized Equity L/S"
-            description="Fundamentally-driven long/short on tokenized US-equity perps. Analyst earnings-surprise + momentum, factor-hedged with QQQ+SOXL, engineered to a hard drawdown cap."
+            description="Systematic, beta-neutral long/short across all tradeable tokenized US-equity perps. Owns the AI supply chain that's beating-and-raising earnings (EPS surprise + estimate revisions + momentum), QQQ+SOXL-hedged, regime-monitored, inside a hard drawdown cap."
             linkTo="/equity-rv/dashboard"
             linkLabel="Live Dashboard"
-            tags={["Tokenized Equities", "Earnings-Surprise", "Factor-Hedged"]}
+            tags={["AI Supply Chain", "Beat-and-Raise", "Beta-Neutral"]}
             featured
           />
           <StrategyCard
