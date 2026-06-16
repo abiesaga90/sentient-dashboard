@@ -397,7 +397,7 @@ function RiskTab({ p }: { p: Paper }) {
           <div className="text-gray-400">Net</div><div className="text-right text-gray-300">{f1(p.net_pct)}%</div><div className="text-right text-gray-300">{f1(p.net_pct_nav)}%</div>
           <div className="text-gray-400">Net beta</div><div className="text-right text-cyan-400">+{p.net_beta.toFixed(2)}</div><div className="text-right text-gray-600">market</div>
         </div>
-        <div className="mt-2 text-[11px] text-gray-600">Nickel sizes risk on NOTIONAL (notional = 2× NAV). Gross runs far under the 200%-notional cap — drawdown binds first.</div>
+        <div className="mt-2 text-[11px] text-gray-600">Nickel sizes on NOTIONAL (= 2× NAV). We govern <span className="text-gray-400">delta</span> (net β ≈ 0); face net-notional sits above the 30% face cap only because the 3×-levered SOXL hedge's small face belies a large delta hedge — the book is delta-flat (see the frontier below). Binding limits: 200% gross + −10% notional DD.</div>
       </div>
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
         <div className="text-sm font-medium text-gray-200 mb-4">Risk gates &amp; controls</div>
