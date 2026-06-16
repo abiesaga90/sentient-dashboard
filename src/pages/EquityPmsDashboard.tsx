@@ -342,8 +342,47 @@ function PositionsTab({ p }: { p: Paper }) {
   );
 }
 
+type FPoint = { vol: number; gross_pct: number; nav_lev: number; navvol: number; dd_nav: number; dd_notional: number; cagr: number; sharpe: number; sortino: number; calmar: number | null; net_beta: number; face_net_pct: number; chosen: boolean };
+type Frontier = { as_of: string; chosen: FPoint | null; caps: { gross_pct: number; dd_notional_pct: number; dd_nav_pct: number; pause_notional_pct: number }; points: FPoint[]; note: string };
+
+function FrontierCard({ fr }: { fr: Frontier }) {
+  const ch = fr.chosen;
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+        <div className="text-sm font-medium text-gray-200">Risk-return frontier — leverage at constant Sharpe, within the DD cap</div>
+        {ch && <span className="text-[11px] uppercase tracking-wider text-cyan-300">operating point · {ch.gross_pct}% gross · {ch.nav_lev}× NAV · +{ch.cagr}% CAGR</span>}
+      </div>
+      <p className="text-[11px] text-gray-500 mb-3">We govern <span className="text-gray-300">delta</span> (net β ≈ 0): leverage scales return at ~constant Sharpe. Face net-notional rises with gross — a 3×-SOXL artifact — while net β stays flat; we stop at the operating point for OOS prudence, not the gross / DD ceilings.</p>
+      <table className="w-full text-sm tabular-nums">
+        <thead><tr className="text-gray-500 text-xs border-b border-[var(--border)]">
+          <th className="text-left py-1.5 font-normal">Vol target</th><th className="text-right font-normal">Gross</th><th className="text-right font-normal">NAV lev</th>
+          <th className="text-right font-normal">Net β</th><th className="text-right font-normal">Face net</th><th className="text-right font-normal">DD (notl)</th>
+          <th className="text-right font-normal">CAGR</th><th className="text-right font-normal">Sharpe</th><th className="text-right font-normal pr-1">Calmar</th>
+        </tr></thead>
+        <tbody>
+          {fr.points.map((x) => (
+            <tr key={x.vol} className={`border-b border-[var(--border)]/40 ${x.chosen ? "bg-cyan-500/10 text-cyan-200 font-medium" : "text-gray-300"}`}>
+              <td className="text-left py-1.5">{x.vol}%{x.chosen ? "  ◀ ops" : ""}</td>
+              <td className="text-right">{x.gross_pct}%</td><td className="text-right">{x.nav_lev}×</td>
+              <td className="text-right">{x.net_beta.toFixed(2)}</td><td className="text-right text-amber-300/80">{x.face_net_pct}%</td>
+              <td className="text-right">{x.dd_notional}%</td><td className="text-right">+{x.cagr}%</td>
+              <td className="text-right">{x.sharpe.toFixed(2)}</td><td className="text-right pr-1">{x.calmar?.toFixed(1) ?? "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="text-[11px] text-gray-600 mt-3">{fr.note}</p>
+    </div>
+  );
+}
+
 function RiskTab({ p }: { p: Paper }) {
   const sortino = p.gates.roll4wk_sortino;
+  const [fr, setFr] = useState<Frontier | null>(null);
+  useEffect(() => {
+    fetch("/equity-rv/frontier_state.json").then((x) => (x.ok ? x.json() : Promise.reject())).then(setFr).catch(() => {});
+  }, []);
   return (
     <>
     <div className="grid md:grid-cols-2 gap-6">
@@ -375,6 +414,7 @@ function RiskTab({ p }: { p: Paper }) {
         <p className="text-[11px] text-gray-600 mt-3">The rolling-4wk Sortino is the live Nickel scaling-gate input; it is noisy (20-day window) and dips below 1.5 during normal drawdowns — that correctly pauses up-scaling. The track Sortino is the through-period record.</p>
       </div>
       <div className="md:col-span-2"><DdLadder l={p.dd_ladder} /></div>
+      {fr && <div className="md:col-span-2"><FrontierCard fr={fr} /></div>}
     </div>
     </>
   );
