@@ -1031,7 +1031,7 @@ function ProcessTab() {
           <li>Long the <span className="text-gray-200">top ~25</span> by score — diversified across 6 sectors. <span className="text-gray-200">No single-name shorts</span> (they squeeze in an AI bull, no measured edge). Per-name cap controls concentration.</li>
           <li><span className="text-gray-200">Own the AI supply chain, not the spenders.</span> Hold the firms that <span className="text-gray-200">sell into</span> the buildout (semis, memory, networking, foundry, optics); exclude the hyperscalers that <span className="text-gray-200">spend</span> the capex — validated, and confirmed by Coatue.</li>
           <li>Hedge with <span className="text-gray-200">QQQ + SOXL</span> via a min-variance overlay — neutralizes the broad market and the AI-compute / semiconductor factor.</li>
-          <li>Deliberate, bounded <span className="text-gray-200">+10–15% net-long tilt</span>; vol-target; size on notional within Nickel's limits; maker TWAP; rebalance monthly + around earnings.</li>
+          <li>Run <span className="text-gray-200">beta-neutral</span> (net beta ~0); vol-target; size on notional within Nickel's limits; maker TWAP; rebalance monthly + around earnings.</li>
         </ul>
       </Sec>
 
@@ -1039,19 +1039,24 @@ function ProcessTab() {
         <p>We track the <span className="text-gray-200">full 13F books</span> of 15 AI-frontier crossover funds — the SpaceX / OpenAI / Anthropic round-backers that also file 13Fs (Coatue, Altimeter, Tiger, Dragoneer, D1, Appaloosa, Whale Rock, Sands, Baillie Gifford, Viking, ARK, Duquesne, …). Two actionable views: <span className="text-gray-200">consensus</span> (names many funds hold that we can trade now) and <span className="text-gray-200">watch-when-listed</span> (names they hold with no perp yet — we onboard the day Binance lists them). Cross-check / idea-generation, not a selection input.</p>
       </Sec>
 
+      <Sec title="Regime monitoring — knowing when the trade matures">
+        <p>The AI-supply trade <span className="text-gray-200">won't last forever</span> (Gavin Baker: "the bottleneck trade is nearing its end"). The <span className="text-gray-200">Regime tab</span> turns that into leading signals — the sellers-buyers spread + its rate-of-change (Coatue's gauge), the seller estimate-revisions aggregate (earliest to roll), layer leadership, smart-money 13F rotation, and DRAM/NAND ASPs — into a <span className="text-gray-200">GREEN / AMBER / RED</span> state with a de-risk playbook. Crucially the book is largely <span className="text-gray-200">self-correcting</span>: as seller revisions roll and momentum fades, the revisions + momentum legs rotate those names out automatically. The monitor makes the turn visible early (the 2nd derivative) and adds explicit triggers — trim cyclical memory, lift the operator/power layer ("follow the gigawatts"), raise the hedge. Currently 🟢 GREEN (spread +91pp, but pace cooling).</p>
+      </Sec>
+
       <Sec title="Risk management">
         <ul className="list-disc pl-5 space-y-1.5">
           <li>Sized on <span className="text-gray-200">NOTIONAL</span> (Nickel's risk denominator), not margin. Notional = 2× NAV; gross cap 200% notional; net cap ±30% notional.</li>
+          <li><span className="text-gray-200">Net-notional buffer.</span> Positions drift with price between monthly rebalances (+~4.5pp/cycle), so we clamp to a <span className="text-gray-200">25% target</span> — a 5pp buffer below the ±30% cap — and the live forward-loop re-clamps if drift still approaches it. Backtest breaches fell 60% → 2% of days.</li>
           <li><span className="text-gray-200">Hard drawdown stop</span> at 10% notional / 20% NAV; a de-risk ladder cuts gross before that.</li>
           <li>Capital scaling gated on rolling-4-week Sortino &gt; 1.5 and shallow drawdown.</li>
-          <li>Net beta (~+0.12) is the controlled directional risk; uniMMR tracks Binance-PM liquidation safety.</li>
+          <li>Book runs <span className="text-gray-200">beta-neutral</span> (the net-notional cap binds before any beta tilt); uniMMR tracks Binance-PM liquidation safety.</li>
         </ul>
       </Sec>
 
       <Sec title="How we research it">
         <ul className="list-disc pl-5 space-y-1.5">
           <li><span className="text-gray-200">Point-in-time data.</span> Every fundamental is used only as-of its real report/filing date, so the backtest never sees the future.</li>
-          <li><span className="text-gray-200">Open universe beats hand-curation.</span> The systematic screen + thesis tilt (diversified, K=25) beats the hand-picked basket — Sharpe <span className="text-gray-200">3.03 vs 2.70</span>, Sortino <span className="text-gray-200">4.37 vs 4.26</span> — by capturing the thesis more completely (it auto-found SK Hynix / Samsung / Dell the curation missed) and scaling to new listings.</li>
+          <li><span className="text-gray-200">Full-universe data coverage (no hand-curation).</span> The early backtest ran on the ~34 names we had point-in-time fundamentals for — an AlphaVantage/EDGAR <span className="text-gray-200">data-coverage</span> limit at the start, never a stock-picking choice. Extending free yfinance EPS-surprise (validated equal to AlphaVantage) + Binance discovery to <span className="text-gray-200">every tradeable perp</span> let the same systematic process run on the complete universe, as always intended — auto-including SK Hynix / Samsung / Dell. The ~3.1 vs ~2.7 Sharpe lift is data-complete vs data-limited, not systematic-vs-human.</li>
           <li><span className="text-gray-200">Factor selection.</span> Analyst earnings surprise was the only fundamental that improved a momentum book. Trailing value <span className="text-gray-200">as a stand-alone screen</span> failed; as a within-universe tilt it adds.</li>
           <li><span className="text-gray-200">Robustness.</span> Positive across sub-period thirds; the thesis-tilt weight is set as deliberate conviction, not the in-sample max. We report the conservative expectation, not the peak.</li>
         </ul>
