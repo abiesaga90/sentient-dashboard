@@ -1,6 +1,6 @@
 {
   "as_of": "2026-06-15",
-  "generated_at": "2026-06-16T08:34:24.902737Z",
+  "generated_at": "2026-06-16T12:37:47.193016Z",
   "state": "GREEN",
   "headline": "Trade ON \u2014 sellers leading, the raise intact, bid on the accelerator. Full book.",
   "signals": [
@@ -33,17 +33,18 @@
       "desc": "cohort 13F QoQ \u2014 are the funds rotating?"
     },
     {
-      "name": "DRAM/NAND ASP (manual)",
-      "value": "rising",
-      "trend": "memory-cycle de-risk trigger",
+      "name": "Memory cycle (HBM/DRAM/NAND)",
+      "value": "rising \u00b7 sold out thru 2026 \u00b7 HBM/DRAM 2.6\u00d7",
+      "trend": "whole complex tight (DRAM caught up \u2014 bullish); ~50% of demand met; watch: non-AI (PC/handset) demand contracting",
       "state": "green",
-      "desc": "the cyclical-memory cut signal"
+      "desc": "our largest layer + the chokepoint demand squeezes through (the memory wall)"
     }
   ],
   "playbook": [
     "Full book on the current config (eps+mom+val+thesis+revisions).",
-    "Operator/power layer stays signal-sized; keep the watch-list (Astera/Ciena) ready.",
-    "Monitor the spread's 2nd derivative + seller revisions each refresh."
+    "Memory is the core long \u2014 HBM monopolists (MU / SK Hynix / Samsung) + NAND/storage (SanDisk / WDC); hold full while sold-out + revisions positive.",
+    "Operator/power layer stays signal-sized; keep the watch-list (Astera/ALAB, Arista/ANET, GE Vernova/GEV, Constellation/CEG) ready to onboard.",
+    "Monitor the spread's 2nd derivative + seller revisions + the memory tell each refresh."
   ],
   "spread": {
     "1mo": {
@@ -222,10 +223,10 @@
       "live": "state GREEN"
     },
     {
-      "takeaway": "Memory cycle-peak / ASP rollover",
-      "mechanism": "ASP de-risk trigger (manual input)",
+      "takeaway": "Memory wall = the chokepoint (sold out toward 2028)",
+      "mechanism": "Memory-cycle signal (ASP + sold-out horizon + HBM/DRAM premium driver + non-AI demand)",
       "status": "LIVE",
-      "live": "ASP rising"
+      "live": "memory GREEN \u00b7 ASP rising"
     },
     {
       "takeaway": "Hybrid hyperscalers (AMZN/GOOGL)",
