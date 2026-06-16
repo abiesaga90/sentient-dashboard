@@ -1,0 +1,131 @@
+{
+  "as_of": "2026-06-16",
+  "chosen": {
+    "vol": 10.0,
+    "gross_pct": 129,
+    "nav_lev": 2.57,
+    "navvol": 17,
+    "dd_nav": -12.9,
+    "dd_notional": -6.4,
+    "cagr": 73,
+    "sharpe": 3.34,
+    "sortino": 5.32,
+    "calmar": 5.69,
+    "net_beta": -0.07,
+    "face_net_pct": 34,
+    "chosen": true
+  },
+  "caps": {
+    "gross_pct": 200,
+    "dd_notional_pct": 10,
+    "dd_nav_pct": 20,
+    "pause_notional_pct": 5
+  },
+  "ladder": [
+    {
+      "dd_notional_pct": 3.0,
+      "gross_mult": 0.75
+    },
+    {
+      "dd_notional_pct": 5.0,
+      "gross_mult": 0.5
+    },
+    {
+      "dd_notional_pct": 8.0,
+      "gross_mult": 0.25
+    }
+  ],
+  "points": [
+    {
+      "vol": 6.0,
+      "gross_pct": 77,
+      "nav_lev": 1.54,
+      "navvol": 11,
+      "dd_nav": -8.4,
+      "dd_notional": -4.2,
+      "cagr": 45,
+      "sharpe": 3.31,
+      "sortino": 5.12,
+      "calmar": 5.37,
+      "net_beta": -0.04,
+      "face_net_pct": 20,
+      "chosen": false
+    },
+    {
+      "vol": 8.0,
+      "gross_pct": 103,
+      "nav_lev": 2.06,
+      "navvol": 14,
+      "dd_nav": -11.1,
+      "dd_notional": -5.6,
+      "cagr": 59,
+      "sharpe": 3.34,
+      "sortino": 5.34,
+      "calmar": 5.35,
+      "net_beta": -0.06,
+      "face_net_pct": 27,
+      "chosen": false
+    },
+    {
+      "vol": 10.0,
+      "gross_pct": 129,
+      "nav_lev": 2.57,
+      "navvol": 17,
+      "dd_nav": -12.9,
+      "dd_notional": -6.4,
+      "cagr": 73,
+      "sharpe": 3.34,
+      "sortino": 5.32,
+      "calmar": 5.69,
+      "net_beta": -0.07,
+      "face_net_pct": 34,
+      "chosen": true
+    },
+    {
+      "vol": 12.0,
+      "gross_pct": 154,
+      "nav_lev": 3.09,
+      "navvol": 18,
+      "dd_nav": -13.3,
+      "dd_notional": -6.7,
+      "cagr": 84,
+      "sharpe": 3.42,
+      "sortino": 5.52,
+      "calmar": 6.33,
+      "net_beta": -0.08,
+      "face_net_pct": 40,
+      "chosen": false
+    },
+    {
+      "vol": 14.0,
+      "gross_pct": 180,
+      "nav_lev": 3.6,
+      "navvol": 19,
+      "dd_nav": -13.0,
+      "dd_notional": -6.5,
+      "cagr": 88,
+      "sharpe": 3.43,
+      "sortino": 5.51,
+      "calmar": 6.76,
+      "net_beta": -0.1,
+      "face_net_pct": 47,
+      "chosen": false
+    },
+    {
+      "vol": 18.0,
+      "gross_pct": 198,
+      "nav_lev": 3.97,
+      "navvol": 19,
+      "dd_nav": -13.0,
+      "dd_notional": -6.5,
+      "cagr": 89,
+      "sharpe": 3.41,
+      "sortino": 5.47,
+      "calmar": 6.88,
+      "net_beta": -0.11,
+      "face_net_pct": 52,
+      "chosen": false
+    }
+  ],
+  "note": "In-sample, one AI-bull regime. We govern DELTA (net beta ~0); leverage of a delta-neutral book PRESERVES Sharpe (~3.3-3.4 across the frontier) \u2014 return scales ~linearly with gross. Face net-notional rises with gross (a SOXL-3x artifact \u2014 a small hedge face delivers a large delta hedge; we stay delta-flat). DD on NOTIONAL basis (Nickel DAL: 10% notional = 20% NAV). Binding limits = the 200% gross + -10% notional DD ceilings + OOS prudence, NOT face net-notional."
+}
