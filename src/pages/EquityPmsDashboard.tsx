@@ -563,6 +563,7 @@ type SmartMoney = {
   funds: SMFund[];
   consensus_tradeable: { ticker: string; perp: string | null; sector: string | null; n_funds: number; funds: string[]; value_usd: number }[];
   watch_when_listed: { issuer: string; n_funds: number; funds: string[]; value_usd: number }[];
+  crowded_risk?: { ticker: string; our_rank: number | null; put_usd: number; net_usd: number; put_funds: string[] }[];
   note: string;
 };
 
@@ -628,6 +629,30 @@ function SmartMoneyTab() {
           </table>
         </div>
       </div>
+
+      {/* crowded risk — our longs smart money is shorting via puts */}
+      {s.crowded_risk && s.crowded_risk.length > 0 && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/[0.04] p-4 mb-4">
+          <h4 className="text-sm font-semibold text-red-200 mb-1">Crowded-risk — our longs smart money is hedging / shorting</h4>
+          <p className="text-xs text-gray-500 mb-3">Names we hold long that tracked funds are <span className="text-red-300">putting</span> (e.g. SAA's chip hedges). A risk flag, not a sell signal — net stance shown; the cohort is still net-long most of these.</p>
+          <table className="w-full text-sm">
+            <thead className="text-[10px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]"><tr>
+              <th className="text-left py-1.5">Ticker</th><th className="text-right">Our rank</th><th className="text-right">Put $</th><th className="text-right">Net (long−put)</th><th className="text-left pl-3">Put by</th>
+            </tr></thead>
+            <tbody>
+              {s.crowded_risk.map((c) => (
+                <tr key={c.ticker} className="border-b border-[var(--border)]/40">
+                  <td className="py-1.5 text-gray-200 font-medium">{c.ticker}</td>
+                  <td className="text-right text-cyan-300">#{c.our_rank}</td>
+                  <td className="text-right text-red-300/80">{bn(c.put_usd)}</td>
+                  <td className={`text-right ${c.net_usd < 0 ? "text-red-400" : "text-gray-400"}`}>{c.net_usd < 0 ? "−" : "+"}{bn(Math.abs(c.net_usd))}</td>
+                  <td className="text-left pl-3 text-gray-500 text-xs">{c.put_funds.join(", ")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* per-fund books */}
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4">

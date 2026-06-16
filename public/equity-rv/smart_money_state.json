@@ -1,6 +1,6 @@
 {
   "as_of": "2026-03-31",
-  "generated_at": "2026-06-15T20:02:26.938673Z",
+  "generated_at": "2026-06-16T06:48:11.215278Z",
   "n_funds": 15,
   "thesis": "Trackable AI-frontier smart money \u2014 crossover funds that backed the private SpaceX / OpenAI / Anthropic rounds AND file 13F-HR, so their public books reveal their picks-and-shovels bets. Full books (not just our overlap) future-proof us: as Binance lists more tokenized stocks, we already know who backs each name.",
   "funds": [
@@ -3381,5 +3381,131 @@
       "value_usd": 2360094812
     }
   ],
-  "note": "13F-HR, ~45-day lag, US long-equity + puts only. Context/idea-generation, not advice."
+  "smart_money_puts": [
+    {
+      "ticker": "NVDA",
+      "long_usd": 16896345087,
+      "put_usd": 1568257120,
+      "net_usd": 15328087967,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 16
+    },
+    {
+      "ticker": "AMD",
+      "long_usd": 675764759,
+      "put_usd": 969160863,
+      "net_usd": -293396104,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 22
+    },
+    {
+      "ticker": "MU",
+      "long_usd": 881337532,
+      "put_usd": 583686168,
+      "net_usd": 297651364,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 7
+    },
+    {
+      "ticker": "TSM",
+      "long_usd": 9641776117,
+      "put_usd": 572014170,
+      "net_usd": 9069761947,
+      "put_funds": [
+        "Light Street",
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 14
+    },
+    {
+      "ticker": "INTC",
+      "long_usd": 110135965,
+      "put_usd": 159106302,
+      "net_usd": -48970337,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 2
+    },
+    {
+      "ticker": "GLW",
+      "long_usd": 466677186,
+      "put_usd": 21020962,
+      "net_usd": 445656224,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 13
+    }
+  ],
+  "crowded_risk": [
+    {
+      "ticker": "NVDA",
+      "long_usd": 16896345087,
+      "put_usd": 1568257120,
+      "net_usd": 15328087967,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 16
+    },
+    {
+      "ticker": "AMD",
+      "long_usd": 675764759,
+      "put_usd": 969160863,
+      "net_usd": -293396104,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 22
+    },
+    {
+      "ticker": "MU",
+      "long_usd": 881337532,
+      "put_usd": 583686168,
+      "net_usd": 297651364,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 7
+    },
+    {
+      "ticker": "TSM",
+      "long_usd": 9641776117,
+      "put_usd": 572014170,
+      "net_usd": 9069761947,
+      "put_funds": [
+        "Light Street",
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 14
+    },
+    {
+      "ticker": "INTC",
+      "long_usd": 110135965,
+      "put_usd": 159106302,
+      "net_usd": -48970337,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 2
+    },
+    {
+      "ticker": "GLW",
+      "long_usd": 466677186,
+      "put_usd": 21020962,
+      "net_usd": 445656224,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 13
+    }
+  ],
+  "note": "13F-HR, ~45-day lag, US long-equity + puts only. Context/idea-generation, not advice. Crowded-risk = names WE hold long that tracked funds are hedging/shorting via puts (e.g. SAA's chip puts)."
 }
