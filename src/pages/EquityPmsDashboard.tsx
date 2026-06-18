@@ -8,6 +8,7 @@ import {
 type Pos = {
   symbol: string; side: string; qty: number | null; entry: number | null; mark: number | null;
   notional: number; pct: number; upnl: number; upnl_pct: number; funding_apr: number | null;
+  dpnl?: number | null; dpnl_pct?: number | null;
   held_days: number | null; name: string | null; sector: string | null; market_cap: number | null;
   beta: number | null; beta_contrib: number | null;
 };
@@ -284,11 +285,50 @@ function BuildupChart({ book }: { book: Pos[] }) {
   );
 }
 
+// column registry for the positions table — drives both header + cell render, and makes
+// every column click-to-sort. `get` returns the sort key (string or number); `cell` renders.
+type Col = {
+  key: string; label: string; align: "left" | "right";
+  get: (b: Pos) => number | string; cell: (b: Pos) => ReactNode;
+};
+const sgn = (n: number | null | undefined) => (n != null && n >= 0 ? "text-emerald-400" : "text-red-400");
+const POS_COLS: Col[] = [
+  { key: "symbol", label: "Symbol", align: "left", get: (b) => b.symbol, cell: (b) => (
+      <div><div className="text-gray-200 font-medium">{b.symbol}</div>
+        {b.name && <div className="text-[11px] text-gray-600 max-w-[150px] truncate">{b.name}</div>}</div>) },
+  { key: "sector", label: "Sector", align: "left", get: (b) => b.sector ?? "", cell: (b) => <span className="text-gray-500 text-xs">{b.sector ?? "—"}</span> },
+  { key: "market_cap", label: "Mkt cap", align: "right", get: (b) => b.market_cap ?? -1, cell: (b) => <span className="text-gray-400">{mcap(b.market_cap)}</span> },
+  { key: "side", label: "Side", align: "left", get: (b) => b.side, cell: (b) => <span className={b.side === "hedge" ? "text-gray-500" : b.side === "long" ? "text-emerald-400" : "text-red-400"}>{b.side}</span> },
+  { key: "held_days", label: "Held", align: "right", get: (b) => b.held_days ?? -1, cell: (b) => <span className="text-gray-400">{b.held_days != null ? `${b.held_days}d` : "—"}</span> },
+  { key: "qty", label: "Size", align: "right", get: (b) => b.qty ?? -1, cell: (b) => <span className="text-gray-300">{b.qty?.toLocaleString() ?? "—"}</span> },
+  { key: "entry", label: "Entry", align: "right", get: (b) => b.entry ?? -1, cell: (b) => <span className="text-gray-400">{b.entry != null ? `$${b.entry}` : "—"}</span> },
+  { key: "mark", label: "Mark", align: "right", get: (b) => b.mark ?? -1, cell: (b) => <span className="text-gray-300">{b.mark != null ? `$${b.mark}` : "—"}</span> },
+  { key: "notional", label: "Notional", align: "right", get: (b) => b.notional, cell: (b) => <span className="text-gray-300">{usd(b.notional)}</span> },
+  { key: "pct", label: "Weight", align: "right", get: (b) => b.pct, cell: (b) => <span className={b.pct >= 0 ? "text-gray-300" : "text-red-400"}>{f1(b.pct)}%</span> },
+  { key: "dpnl", label: "Daily P&L", align: "right", get: (b) => b.dpnl ?? 0, cell: (b) => b.dpnl == null ? <span className="text-gray-600">—</span> : (
+      <span className={sgn(b.dpnl)}>{usd(b.dpnl)}{b.dpnl_pct != null && <span className="text-[11px] text-gray-500"> ({f1(b.dpnl >= 0 ? Math.abs(b.dpnl_pct) : -Math.abs(b.dpnl_pct))}%)</span>}</span>) },
+  { key: "upnl", label: "uPnL", align: "right", get: (b) => b.upnl, cell: (b) => <span className={sgn(b.upnl)}>{usd(b.upnl)}</span> },
+  { key: "upnl_pct", label: "uPnL %", align: "right", get: (b) => b.upnl_pct, cell: (b) => <span className={sgn(b.upnl_pct)}>{f1(b.upnl_pct)}%</span> },
+  { key: "funding_apr", label: "Funding", align: "right", get: (b) => b.funding_apr ?? -1, cell: (b) => <span className="text-gray-500">{b.funding_apr != null ? `${b.funding_apr.toFixed(1)}%` : "—"}</span> },
+];
+
 function PositionsTab({ p }: { p: Paper }) {
   const named = p.book.filter((b) => b.side !== "hedge");
   const W = named.filter((b) => b.upnl > 0), L = named.filter((b) => b.upnl < 0);
   const totUpnl = p.book.reduce((a, b) => a + b.upnl, 0);
+  const totDpnl = p.book.reduce((a, b) => a + (b.dpnl ?? 0), 0);
+  const hasDpnl = p.book.some((b) => b.dpnl != null);
   const sum = (xs: Pos[]) => xs.reduce((a, b) => a + b.upnl, 0);
+  // null sortKey → preserve the backend order (notional desc); click a header to sort by it.
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [asc, setAsc] = useState(false);
+  const onSort = (k: string) => { if (sortKey === k) setAsc(!asc); else { setSortKey(k); setAsc(false); } };
+  const rows = sortKey == null ? p.book : [...p.book].sort((x, y) => {
+    const c = POS_COLS.find((z) => z.key === sortKey)!;
+    const a = c.get(x), b = c.get(y);
+    const cmp = typeof a === "number" && typeof b === "number" ? a - b : String(a).localeCompare(String(b));
+    return asc ? cmp : -cmp;
+  });
   return (
     <>
     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 overflow-x-auto">
@@ -297,45 +337,32 @@ function PositionsTab({ p }: { p: Paper }) {
         <div className="flex gap-4 text-xs">
           <span className="text-emerald-400">W: {W.length} ({usd(sum(W))})</span>
           <span className="text-red-400">L: {L.length} ({usd(sum(L))})</span>
+          {hasDpnl && <span className="text-gray-400">Today <span className={sgn(totDpnl)}>{usd(totDpnl)}</span></span>}
           <span className="text-gray-400">Net uPnL <span className={totUpnl >= 0 ? "text-emerald-400" : "text-red-400"}>{usd(totUpnl)}</span></span>
         </div>
       </div>
       <table className="w-full text-sm whitespace-nowrap">
         <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
           <tr>
-            <th className="text-left py-2 pr-4">Symbol</th><th className="text-left pr-4">Sector</th>
-            <th className="text-right pr-4">Mkt cap</th><th className="text-left pr-4">Side</th>
-            <th className="text-right pr-4">Held</th>
-            <th className="text-right pr-4">Size</th><th className="text-right pr-4">Entry</th>
-            <th className="text-right pr-4">Mark</th><th className="text-right pr-4">Notional</th>
-            <th className="text-right pr-4">Weight</th><th className="text-right pr-4">uPnL</th>
-            <th className="text-right pr-4">uPnL %</th><th className="text-right">Funding</th>
+            {POS_COLS.map((c) => (
+              <th key={c.key} onClick={() => onSort(c.key)} title="Click to sort"
+                  className={`${c.align === "left" ? "text-left" : "text-right"} py-2 pr-4 cursor-pointer select-none hover:text-gray-300`}>
+                {c.label}{sortKey === c.key && <span className="text-cyan-400">{asc ? " ▲" : " ▼"}</span>}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {p.book.map((b) => (
+          {rows.map((b) => (
             <tr key={b.symbol} className="border-b border-[var(--border)]/40">
-              <td className="py-2 pr-4">
-                <div className="text-gray-200 font-medium">{b.symbol}</div>
-                {b.name && <div className="text-[11px] text-gray-600 max-w-[150px] truncate">{b.name}</div>}
-              </td>
-              <td className="pr-4 text-gray-500 text-xs">{b.sector ?? "—"}</td>
-              <td className="text-right pr-4 text-gray-400">{mcap(b.market_cap)}</td>
-              <td className={`pr-4 ${b.side === "hedge" ? "text-gray-500" : b.side === "long" ? "text-emerald-400" : "text-red-400"}`}>{b.side}</td>
-              <td className="text-right pr-4 text-gray-400">{b.held_days != null ? `${b.held_days}d` : "—"}</td>
-              <td className="text-right pr-4 text-gray-300">{b.qty?.toLocaleString() ?? "—"}</td>
-              <td className="text-right pr-4 text-gray-400">{b.entry != null ? `$${b.entry}` : "—"}</td>
-              <td className="text-right pr-4 text-gray-300">{b.mark != null ? `$${b.mark}` : "—"}</td>
-              <td className="text-right pr-4 text-gray-300">{usd(b.notional)}</td>
-              <td className={`text-right pr-4 ${b.pct >= 0 ? "text-gray-300" : "text-red-400"}`}>{f1(b.pct)}%</td>
-              <td className={`text-right pr-4 ${b.upnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>{usd(b.upnl)}</td>
-              <td className={`text-right pr-4 ${b.upnl_pct >= 0 ? "text-emerald-400" : "text-red-400"}`}>{f1(b.upnl_pct)}%</td>
-              <td className="text-right text-gray-500">{b.funding_apr != null ? `${b.funding_apr.toFixed(1)}%` : "—"}</td>
+              {POS_COLS.map((c) => (
+                <td key={c.key} className={`${c.align === "left" ? "" : "text-right"} py-2 pr-4`}>{c.cell(b)}</td>
+              ))}
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="text-[11px] text-gray-600 mt-3">Held = continuous days in the book (clock resets if a name rotates out and back). uPnL is since the last monthly rebalance ({p.last_rebalance}). Funding = current perp APR. Paper book on the underlying / Binance marks.</p>
+      <p className="text-[11px] text-gray-600 mt-3">Click any column header to sort. This book is recomputed daily from a fixed {p.days}-day lookback on the current universe — <span className="text-gray-500">Held</span> = days the name has been in that modeled window (it re-bases when the universe changes), and uPnL is the <span className="text-gray-500">modeled</span> return since the last rebalance ({p.last_rebalance}), not a realized fill. Daily P&L = position notional × latest-day return (hedge legs flip sign). Funding = a single venue snapshot, shown only where available. KRW-listed names (Samsung / SK Hynix / Hyundai) are converted to USD.</p>
     </div>
     <BuildupChart book={p.book} />
     </>
@@ -1138,7 +1165,7 @@ export function EquityPmsDashboard() {
       </nav>
       <main className="max-w-6xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold text-gray-100 mb-1">Equity PMS — Operational Dashboard</h1>
-        <p className="text-sm text-gray-500 mb-5">Paper-trade book, exposures, and risk gates. Research / pre-launch.</p>
+        <p className="text-sm text-gray-500 mb-5">Simulated track — the book is re-derived each day from a rolling {p?.days ?? 252}-day backtest on the <em>current</em> universe (it re-bases when the universe changes; not a held forward paper book). Research / pre-launch.</p>
         {err && <p className="text-gray-400">Paper state unavailable.</p>}
         {!err && !p && <p className="text-gray-500">Loading…</p>}
         {p && (
