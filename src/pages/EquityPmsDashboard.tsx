@@ -207,10 +207,11 @@ function DdLadder({ l }: { l: Paper["dd_ladder"] }) {
   );
 }
 
-function OverviewTab({ p }: { p: Paper }) {
+// the backtest analytics body (KPIs, NAV, P&L periods, attribution, layer mix, movers) — shared by
+// the Overview (combined) and Backtest (focused) tabs
+function BacktestBody({ p }: { p: Paper }) {
   return (
     <>
-      {p.paper_live && <PaperLiveSection pl={p.paper_live} />}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <Kpi label="NAV (index 100)" value={p.nav_index.toFixed(1)} sub={`over ${p.days}d window`} />
         <Kpi label="Cum return (NAV)" value={`${f1(p.cum_return_nav_pct)}%`} sub={`${p.days} trading days`} tone={p.cum_return_nav_pct >= 0 ? "green" : "red"} />
@@ -258,6 +259,32 @@ function OverviewTab({ p }: { p: Paper }) {
       </div>
     </>
   );
+}
+
+// Combined glance — both tracks stacked (live paper on top, backtest analytics below)
+function OverviewTab({ p }: { p: Paper }) {
+  return (
+    <>
+      {p.paper_live && <PaperLiveSection pl={p.paper_live} />}
+      <BacktestBody p={p} />
+    </>
+  );
+}
+
+// Focused: the real forward paper track (held since inception, never restated)
+function PaperTab({ p }: { p: Paper }) {
+  if (p.paper_live) return <PaperLiveSection pl={p.paper_live} />;
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-6 text-sm text-gray-400">
+      The live paper track initializes on the next nightly job — it needs live-data price bars past the
+      <span className="text-gray-200"> {p.inception}</span> inception (the static panel ends earlier). Check back after the 23:00 run.
+    </div>
+  );
+}
+
+// Focused: the rolling-window research backtest + its attribution/periods/layers
+function BacktestTab({ p }: { p: Paper }) {
+  return <BacktestBody p={p} />;
 }
 
 function BuildupChart({ book }: { book: Pos[] }) {
@@ -1186,7 +1213,7 @@ function ProcessTab() {
 export function EquityPmsDashboard() {
   const [p, setP] = useState<Paper | null>(null);
   const [err, setErr] = useState(false);
-  const [tab, setTab] = useState<"watchlist" | "overview" | "positions" | "research" | "smartmoney" | "regime" | "risk" | "hedge" | "process">("overview");
+  const [tab, setTab] = useState<"watchlist" | "overview" | "paper" | "backtest" | "positions" | "research" | "smartmoney" | "regime" | "risk" | "hedge" | "process">("overview");
   useEffect(() => {
     fetch("/equity-rv/paper_state.json").then((r) => (r.ok ? r.json() : Promise.reject())).then(setP).catch(() => setErr(true));
   }, []);
@@ -1209,7 +1236,7 @@ export function EquityPmsDashboard() {
         {p && (
           <>
             <div className="flex gap-1 mb-6 border-b border-[var(--border)]">
-              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["positions", "Positions"], ["research", "Research"], ["smartmoney", "Smart Money"], ["regime", "Regime"], ["risk", "Risk"], ["hedge", "Hedge"], ["process", "Investment Process"]] as const).map(([t, label]) => (
+              {([["watchlist", "Watchlist"], ["overview", "Overview"], ["paper", "Paper (live)"], ["backtest", "Backtest"], ["positions", "Positions"], ["research", "Research"], ["smartmoney", "Smart Money"], ["regime", "Regime"], ["risk", "Risk"], ["hedge", "Hedge"], ["process", "Investment Process"]] as const).map(([t, label]) => (
                 <button key={t} onClick={() => setTab(t)}
                   className={`px-4 py-2 text-sm border-b-2 -mb-px transition-colors ${tab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-gray-500 hover:text-gray-300"}`}>
                   {label}
@@ -1218,6 +1245,8 @@ export function EquityPmsDashboard() {
             </div>
             {tab === "watchlist" && <WatchlistTab />}
             {tab === "overview" && <OverviewTab p={p} />}
+            {tab === "paper" && <PaperTab p={p} />}
+            {tab === "backtest" && <BacktestTab p={p} />}
             {tab === "positions" && <PositionsTab p={p} />}
             {tab === "research" && <ResearchTab />}
             {tab === "smartmoney" && <SmartMoneyTab />}
