@@ -27,7 +27,16 @@ type Paper = {
   book: Pos[];
   layer_mix?: { layer: string; pct: number }[];
   nav_curve: { date: string; nav: number }[];
+  paper_live?: PaperLive | null;
   note: string;
+};
+// genuine forward paper track — held from inception, NAV indexed to 100, never restated
+type PaperLive = {
+  inception: string; as_of: string; days: number; nav_index: number;
+  cum_return_nav_pct: number; dd_nav_pct: number; max_dd_nav_pct: number;
+  sharpe: number | null; sortino: number | null; stats_ready: boolean;
+  n_longs: number; net_beta: number; last_rebalance: string;
+  nav_curve: { date: string; nav: number; dd: number }[];
 };
 
 const f1 = (n: number) => (n >= 0 ? "+" : "") + n.toFixed(1);
@@ -67,23 +76,48 @@ function Row({ k, v, ok }: { k: string; v: string; ok: boolean }) {
   );
 }
 
-function NavChart({ curve }: { curve: { date: string; nav: number }[] }) {
+function NavChart({ curve, color = "#22d3ee", gradId = "nav", height = 280 }:
+  { curve: { date: string; nav: number }[]; color?: string; gradId?: string; height?: number }) {
   return (
-    <ResponsiveContainer width="100%" height={280}>
+    <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={curve} margin={{ top: 5, right: 10, left: -8, bottom: 0 }}>
         <defs>
-          <linearGradient id="nav" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.4} />
-            <stop offset="100%" stopColor="#22d3ee" stopOpacity={0} />
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+            <stop offset="100%" stopColor={color} stopOpacity={0} />
           </linearGradient>
         </defs>
         <XAxis dataKey="date" tick={{ fontSize: 10, fill: "#64748b" }} minTickGap={50} />
         <YAxis domain={["dataMin - 2", "dataMax + 2"]} tick={{ fontSize: 10, fill: "#64748b" }} width={42} />
         <RTooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", fontSize: 12 }} />
         <ReferenceLine y={100} stroke="#475569" strokeDasharray="3 3" />
-        <Area type="monotone" dataKey="nav" stroke="#22d3ee" strokeWidth={2} fill="url(#nav)" />
+        <Area type="monotone" dataKey="nav" stroke={color} strokeWidth={2} fill={`url(#${gradId})`} />
       </AreaChart>
     </ResponsiveContainer>
+  );
+}
+
+// forward paper track (held from inception, never restated) — the real since-launch result
+function PaperLiveSection({ pl }: { pl: PaperLive }) {
+  const up = pl.cum_return_nav_pct >= 0;
+  return (
+    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.03] p-4 mb-6">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-sm font-medium text-gray-100">Paper trading — live since inception
+          <span className="ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-emerald-500/40 text-emerald-400">held · not restated</span>
+        </div>
+        <span className="text-[11px] text-gray-500">{pl.inception} → {pl.as_of}</span>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+        <Kpi label="NAV (index 100)" value={pl.nav_index.toFixed(2)} sub={`since ${pl.inception}`} tone={up ? "green" : "red"} />
+        <Kpi label="Return since launch" value={`${f1(pl.cum_return_nav_pct)}%`} sub={`${pl.days} trading day${pl.days === 1 ? "" : "s"}`} tone={up ? "green" : "red"} />
+        <Kpi label="Max drawdown" value={`${pl.max_dd_nav_pct.toFixed(1)}%`} sub="NAV basis" tone="amber" />
+        <Kpi label="Sharpe" value={pl.stats_ready && pl.sharpe != null ? pl.sharpe.toFixed(2) : "—"} sub={pl.stats_ready ? "since inception" : "≥15d to compute"} />
+        <Kpi label="Net beta" value={`${pl.net_beta >= 0 ? "+" : ""}${pl.net_beta.toFixed(2)}`} sub="market sensitivity" />
+      </div>
+      <NavChart curve={pl.nav_curve} color="#34d399" gradId="navlive" height={200} />
+      <p className="text-[11px] text-gray-600 mt-2">Real forward track: the book established on {pl.inception} (current open-universe strategy), marked to market each day and never restated. Monthly rebalances apply as paper turnover going forward. Distinct from the backtest below, which re-bases when the universe changes.</p>
+    </div>
   );
 }
 
@@ -176,15 +210,19 @@ function DdLadder({ l }: { l: Paper["dd_ladder"] }) {
 function OverviewTab({ p }: { p: Paper }) {
   return (
     <>
+      {p.paper_live && <PaperLiveSection pl={p.paper_live} />}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Kpi label="NAV (index 100)" value={p.nav_index.toFixed(1)} sub={`since ${p.inception}`} />
+        <Kpi label="NAV (index 100)" value={p.nav_index.toFixed(1)} sub={`over ${p.days}d window`} />
         <Kpi label="Cum return (NAV)" value={`${f1(p.cum_return_nav_pct)}%`} sub={`${p.days} trading days`} tone={p.cum_return_nav_pct >= 0 ? "green" : "red"} />
-        <Kpi label="Sharpe" value={p.sharpe.toFixed(2)} sub="since inception" />
-        <Kpi label="Sortino" value={p.sortino.toFixed(2)} sub="since inception" tone="green" />
+        <Kpi label="Sharpe" value={p.sharpe.toFixed(2)} sub="full window" />
+        <Kpi label="Sortino" value={p.sortino.toFixed(2)} sub="full window" tone="green" />
         <Kpi label="Net beta" value={`+${p.net_beta.toFixed(2)}`} sub="market sensitivity" />
       </div>
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-6">
-        <div className="text-sm font-medium text-gray-200 mb-3">Paper NAV (index 100 at inception)</div>
+        <div className="text-sm font-medium text-gray-200 mb-1">Backtest NAV
+          <span className="ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-cyan-500/30 text-cyan-400">rolling {p.days}d · re-bases on universe change</span>
+        </div>
+        <div className="text-[11px] text-gray-600 mb-3">Strategy simulated over the trailing {p.days}-trading-day window on the current universe — a research backtest, not the held paper book above.</div>
         <NavChart curve={p.nav_curve} />
       </div>
       <PnlPeriods p={p} />
@@ -1165,7 +1203,7 @@ export function EquityPmsDashboard() {
       </nav>
       <main className="max-w-6xl mx-auto px-6 py-8">
         <h1 className="text-2xl font-bold text-gray-100 mb-1">Equity PMS — Operational Dashboard</h1>
-        <p className="text-sm text-gray-500 mb-5">Simulated track — the book is re-derived each day from a rolling {p?.days ?? 252}-day backtest on the <em>current</em> universe (it re-bases when the universe changes; not a held forward paper book). Research / pre-launch.</p>
+        <p className="text-sm text-gray-500 mb-5">{p?.paper_live ? <>Live paper track since <span className="text-emerald-400">{p.paper_live.inception}</span> (held, never restated) plus a rolling {p?.days ?? 252}-day research backtest. </> : <>Rolling {p?.days ?? 252}-day research backtest. </>}Research / pre-launch.</p>
         {err && <p className="text-gray-400">Paper state unavailable.</p>}
         {!err && !p && <p className="text-gray-500">Loading…</p>}
         {p && (
