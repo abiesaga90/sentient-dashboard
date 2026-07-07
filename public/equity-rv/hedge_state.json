@@ -1,72 +1,72 @@
 {
-  "as_of": "2026-07-06",
-  "generated_at": "2026-07-06T19:01:46.334744Z",
+  "as_of": "2026-07-07",
+  "generated_at": "2026-07-07T19:04:37.467198Z",
   "hedges": [
     {
       "symbol": "QQQ",
       "name": "Invesco QQQ \u2014 Nasdaq-100",
-      "short_weight_pct": -3.9,
+      "short_weight_pct": -4.4,
       "desc": "Broad-market + mega-cap-tech beta hedge.",
       "source": "QQQ fund holdings (top 10 of ~100)",
       "holdings": [
         {
           "symbol": "NVDA",
           "name": "NVIDIA Corp",
-          "weight": 8.2,
+          "weight": 7.6,
           "in_book": true
         },
         {
           "symbol": "AAPL",
           "name": "Apple Inc",
-          "weight": 7.3,
-          "in_book": false
-        },
-        {
-          "symbol": "MSFT",
-          "name": "Microsoft Corp",
-          "weight": 5.3,
+          "weight": 6.7,
           "in_book": false
         },
         {
           "symbol": "MU",
           "name": "Micron Technology Inc",
-          "weight": 4.8,
+          "weight": 5.6,
           "in_book": true
         },
         {
-          "symbol": "AMZN",
-          "name": "Amazon.com Inc",
-          "weight": 4.6,
+          "symbol": "MSFT",
+          "name": "Microsoft Corp",
+          "weight": 4.3,
           "in_book": false
         },
         {
           "symbol": "AMD",
           "name": "Advanced Micro Devices Inc",
-          "weight": 3.7,
+          "weight": 4.1,
           "in_book": false
         },
         {
-          "symbol": "GOOGL",
-          "name": "Alphabet Inc Class A",
-          "weight": 3.5,
+          "symbol": "AMZN",
+          "name": "Amazon.com Inc",
+          "weight": 4.0,
           "in_book": false
         },
         {
           "symbol": "TSLA",
           "name": "Tesla Inc",
-          "weight": 3.5,
+          "weight": 3.3,
           "in_book": false
         },
         {
-          "symbol": "AVGO",
-          "name": "Broadcom Inc",
-          "weight": 3.4,
+          "symbol": "GOOGL",
+          "name": "Alphabet Inc Class A",
+          "weight": 3.3,
+          "in_book": false
+        },
+        {
+          "symbol": "INTC",
+          "name": "Intel Corp",
+          "weight": 3.0,
           "in_book": true
         },
         {
           "symbol": "GOOG",
           "name": "Alphabet Inc Class C",
-          "weight": 3.3,
+          "weight": 3.0,
           "in_book": false
         }
       ]
@@ -74,69 +74,69 @@
     {
       "symbol": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3\u00d7",
-      "short_weight_pct": -19.9,
+      "short_weight_pct": -18.9,
       "desc": "AI-compute / semiconductor-factor hedge (3\u00d7 leveraged).",
       "source": "ICE Semiconductor index (shown via SOXX) \u2014 SOXL delivers 3\u00d7 this basket via swaps",
       "holdings": [
         {
           "symbol": "MU",
           "name": "Micron Technology Inc",
-          "weight": 11.6,
+          "weight": 8.5,
           "in_book": true
         },
         {
           "symbol": "AMD",
           "name": "Advanced Micro Devices Inc",
-          "weight": 9.5,
+          "weight": 8.1,
           "in_book": false
         },
         {
-          "symbol": "AVGO",
-          "name": "Broadcom Inc",
-          "weight": 6.9,
+          "symbol": "NVDA",
+          "name": "NVIDIA Corp",
+          "weight": 6.8,
           "in_book": true
         },
         {
           "symbol": "INTC",
           "name": "Intel Corp",
-          "weight": 6.2,
+          "weight": 6.3,
           "in_book": true
         },
         {
-          "symbol": "MRVL",
-          "name": "Marvell Technology Inc",
-          "weight": 6.2,
-          "in_book": true
-        },
-        {
-          "symbol": "NVDA",
-          "name": "NVIDIA Corp",
-          "weight": 5.9,
+          "symbol": "AVGO",
+          "name": "Broadcom Inc",
+          "weight": 6.1,
           "in_book": true
         },
         {
           "symbol": "AMAT",
           "name": "Applied Materials Inc",
-          "weight": 4.4,
+          "weight": 5.8,
           "in_book": true
         },
         {
-          "symbol": "QCOM",
-          "name": "Qualcomm Inc",
-          "weight": 4.4,
-          "in_book": false
-        },
-        {
-          "symbol": "TXN",
-          "name": "Texas Instruments Inc",
-          "weight": 3.6,
+          "symbol": "KLAC",
+          "name": "KLA Corp",
+          "weight": 5.6,
           "in_book": true
         },
         {
-          "symbol": "NXPI",
-          "name": "NXP Semiconductors NV",
-          "weight": 3.5,
-          "in_book": false
+          "symbol": "LRCX",
+          "name": "Lam Research Corp",
+          "weight": 4.9,
+          "in_book": true
+        },
+        {
+          "symbol": "MRVL",
+          "name": "Marvell Technology Inc",
+          "weight": 4.9,
+          "in_book": true
+        },
+        {
+          "symbol": "TSM",
+          "name": "Taiwan Semiconductor Manufacturing Co Ltd ADR",
+          "weight": 4.3,
+          "in_book": true
         }
       ]
     }
