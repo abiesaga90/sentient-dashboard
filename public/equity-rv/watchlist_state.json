@@ -1,10 +1,10 @@
 {
-  "as_of": "2026-07-15 19:04 UTC",
-  "generated_at": "2026-07-15T19:04:46.870985Z",
+  "as_of": "2026-07-16 19:01 UTC",
+  "generated_at": "2026-07-16T19:01:54.430653Z",
   "venues": {
     "binance": {
       "ok": true,
-      "count": 121
+      "count": 124
     },
     "hyperliquid": {
       "ok": true,
@@ -16,7 +16,7 @@
       "count": 122
     }
   },
-  "n": 184,
+  "n": 187,
   "n_both": 59,
   "rows": [
     {
@@ -30,27 +30,27 @@
         "hyperliquid"
       ],
       "in_universe": true,
-      "in_book": false,
-      "last": 1606.06,
-      "chg_24h": -8.909,
-      "funding_apr": 2.7,
-      "ann_vol": 120,
-      "vol": 2804766544.372,
+      "in_book": true,
+      "last": 1417.14,
+      "chg_24h": -11.705,
+      "funding_apr": 21.6,
+      "ann_vol": 123,
+      "vol": 3210172590.087,
       "binance": {
-        "last": 1606.06,
-        "chg": -8.909,
-        "vol": 2804766544.372,
-        "funding": 2.7,
-        "ann_vol": 120,
+        "last": 1417.14,
+        "chg": -11.705,
+        "vol": 3210172590.087,
+        "funding": 21.6,
+        "ann_vol": 123,
         "subtype": "TradFi"
       },
       "hyperliquid": {
         "dexes": [
           "xyz"
         ],
-        "last": 1624.3,
-        "chg": -7.81,
-        "funding": 23.0
+        "last": 1406.5,
+        "chg": -12.35,
+        "funding": 21.4
       }
     },
     {
@@ -64,54 +64,20 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 160.66,
-      "chg_24h": -10.421,
-      "funding_apr": 15.8,
-      "ann_vol": 205,
-      "vol": 1804870421.5311,
+      "last": 140.52,
+      "chg_24h": -12.568,
+      "funding_apr": 10.4,
+      "ann_vol": 207,
+      "vol": 2127315286.1262,
       "binance": {
-        "last": 160.66,
-        "chg": -10.421,
-        "vol": 1804870421.5311,
-        "funding": 15.8,
-        "ann_vol": 205,
+        "last": 140.52,
+        "chg": -12.568,
+        "vol": 2127315286.1262,
+        "funding": 10.4,
+        "ann_vol": 207,
         "subtype": "TradFi"
       },
       "hyperliquid": null
-    },
-    {
-      "ticker": "SKHY",
-      "name": "SKHY",
-      "asset_class": "Equity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 175.5,
-      "chg_24h": -5.345,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 1521274920.3763,
-      "binance": {
-        "last": 175.5,
-        "chg": -5.345,
-        "vol": 1521274920.3763,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 176.78,
-        "chg": -5.07,
-        "funding": -21.8
-      }
     },
     {
       "ticker": "MU",
@@ -125,26 +91,26 @@
       ],
       "in_universe": true,
       "in_book": true,
-      "last": 901.96,
-      "chg_24h": -7.904,
-      "funding_apr": 33.8,
-      "ann_vol": 107,
-      "vol": 1139853555.9396,
+      "last": 848.7,
+      "chg_24h": -5.946,
+      "funding_apr": 0.0,
+      "ann_vol": 108,
+      "vol": 1326025922.0034,
       "binance": {
-        "last": 901.96,
-        "chg": -7.904,
-        "vol": 1139853555.9396,
-        "funding": 33.8,
-        "ann_vol": 107,
+        "last": 848.7,
+        "chg": -5.946,
+        "vol": 1326025922.0034,
+        "funding": 0.0,
+        "ann_vol": 108,
         "subtype": "TradFi"
       },
       "hyperliquid": {
         "dexes": [
           "xyz"
         ],
-        "last": 907.01,
-        "chg": -7.49,
-        "funding": 31.1
+        "last": 847.69,
+        "chg": -6.03,
+        "funding": 17.9
       }
     },
     {
@@ -159,16 +125,16 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 134.61,
-      "chg_24h": -3.082,
-      "funding_apr": 13.7,
+      "last": 131.54,
+      "chg_24h": -2.353,
+      "funding_apr": 0.0,
       "ann_vol": 80,
-      "vol": 856763243.3014,
+      "vol": 965532773.3827,
       "binance": {
-        "last": 134.61,
-        "chg": -3.082,
-        "vol": 856763243.3014,
-        "funding": 13.7,
+        "last": 131.54,
+        "chg": -2.353,
+        "vol": 965532773.3827,
+        "funding": 0.0,
         "ann_vol": 80,
         "subtype": "TradFi"
       },
@@ -176,9 +142,43 @@
         "dexes": [
           "xyz"
         ],
-        "last": 134.44,
-        "chg": -3.16,
-        "funding": 20.0
+        "last": 131.6,
+        "chg": -2.27,
+        "funding": 36.1
+      }
+    },
+    {
+      "ticker": "SKHY",
+      "name": "SKHY",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 157.15,
+      "chg_24h": -10.405,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 802265173.5253,
+      "binance": {
+        "last": 157.15,
+        "chg": -10.405,
+        "vol": 802265173.5253,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 156.79,
+        "chg": -10.58,
+        "funding": -0.4
       }
     },
     {
@@ -192,20 +192,54 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 21.22,
-      "chg_24h": -95.511,
-      "funding_apr": 33.3,
-      "ann_vol": 1266,
-      "vol": 574664785.7101,
+      "last": 18.61,
+      "chg_24h": -12.382,
+      "funding_apr": 0.0,
+      "ann_vol": 1240,
+      "vol": 689652447.1077,
       "binance": {
-        "last": 21.22,
-        "chg": -95.511,
-        "vol": 574664785.7101,
-        "funding": 33.3,
-        "ann_vol": 1266,
+        "last": 18.61,
+        "chg": -12.382,
+        "vol": 689652447.1077,
+        "funding": 0.0,
+        "ann_vol": 1240,
         "subtype": "TradFi"
       },
       "hyperliquid": null
+    },
+    {
+      "ticker": "DRAM",
+      "name": "DRAM",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 52.27,
+      "chg_24h": -8.298,
+      "funding_apr": 0.0,
+      "ann_vol": 115,
+      "vol": 257865601.0569,
+      "binance": {
+        "last": 52.27,
+        "chg": -8.298,
+        "vol": 257865601.0569,
+        "funding": 0.0,
+        "ann_vol": 115,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 52.16,
+        "chg": -8.51,
+        "funding": 28.3
+      }
     },
     {
       "ticker": "EWY",
@@ -219,15 +253,15 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 170.05,
-      "chg_24h": -3.133,
+      "last": 163.31,
+      "chg_24h": -4.02,
       "funding_apr": 0.0,
       "ann_vol": 74,
-      "vol": 255715284.4742,
+      "vol": 192258098.3763,
       "binance": {
-        "last": 170.05,
-        "chg": -3.133,
-        "vol": 255715284.4742,
+        "last": 163.31,
+        "chg": -4.02,
+        "vol": 192258098.3763,
         "funding": 0.0,
         "ann_vol": 74,
         "subtype": "TradFi"
@@ -243,40 +277,6 @@
       }
     },
     {
-      "ticker": "DRAM",
-      "name": "DRAM",
-      "asset_class": "Equity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 56.98,
-      "chg_24h": -6.605,
-      "funding_apr": 24.1,
-      "ann_vol": 113,
-      "vol": 218893465.1805,
-      "binance": {
-        "last": 56.98,
-        "chg": -6.605,
-        "vol": 218893465.1805,
-        "funding": 24.1,
-        "ann_vol": 113,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 57.323,
-        "chg": -6.08,
-        "funding": 28.2
-      }
-    },
-    {
       "ticker": "QQQ",
       "name": "Invesco QQQ (Nasdaq-100)",
       "asset_class": "ETF",
@@ -287,88 +287,20 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 715.76,
-      "chg_24h": -0.738,
+      "last": 706.71,
+      "chg_24h": -1.27,
       "funding_apr": 0.0,
       "ann_vol": 23,
-      "vol": 142245201.5725,
+      "vol": 165783916.2803,
       "binance": {
-        "last": 715.76,
-        "chg": -0.738,
-        "vol": 142245201.5725,
+        "last": 706.71,
+        "chg": -1.27,
+        "vol": 165783916.2803,
         "funding": 0.0,
         "ann_vol": 23,
         "subtype": "TradFi"
       },
       "hyperliquid": null
-    },
-    {
-      "ticker": "MSTR",
-      "name": "MicroStrategy",
-      "asset_class": "Equity",
-      "sector": "Crypto Equity",
-      "ai_role": "neutral",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 97.05,
-      "chg_24h": -0.696,
-      "funding_apr": 4.3,
-      "ann_vol": 85,
-      "vol": 142226363.0657,
-      "binance": {
-        "last": 97.05,
-        "chg": -0.696,
-        "vol": 142226363.0657,
-        "funding": 4.3,
-        "ann_vol": 85,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 97.274,
-        "chg": -0.3,
-        "funding": 30.6
-      }
-    },
-    {
-      "ticker": "CRCL",
-      "name": "Circle",
-      "asset_class": "Equity",
-      "sector": "Crypto Equity",
-      "ai_role": "neutral",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 65.06,
-      "chg_24h": 3.533,
-      "funding_apr": 0.0,
-      "ann_vol": 98,
-      "vol": 132474229.0469,
-      "binance": {
-        "last": 65.06,
-        "chg": 3.533,
-        "vol": 132474229.0469,
-        "funding": 0.0,
-        "ann_vol": 98,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 65.259,
-        "chg": 4.18,
-        "funding": 16.0
-      }
     },
     {
       "ticker": "INTC",
@@ -382,15 +314,15 @@
       ],
       "in_universe": true,
       "in_book": true,
-      "last": 101.29,
-      "chg_24h": -6.619,
+      "last": 96.61,
+      "chg_24h": -4.724,
       "funding_apr": 0.0,
       "ann_vol": 103,
-      "vol": 131733327.0325,
+      "vol": 127600738.5883,
       "binance": {
-        "last": 101.29,
-        "chg": -6.619,
-        "vol": 131733327.0325,
+        "last": 96.61,
+        "chg": -4.724,
+        "vol": 127600738.5883,
         "funding": 0.0,
         "ann_vol": 103,
         "subtype": "TradFi"
@@ -416,27 +348,61 @@
         "hyperliquid"
       ],
       "in_universe": true,
-      "in_book": false,
-      "last": 205.38,
-      "chg_24h": -7.736,
-      "funding_apr": 9.7,
-      "ann_vol": 138,
-      "vol": 103753233.1626,
+      "in_book": true,
+      "last": 187.99,
+      "chg_24h": -8.836,
+      "funding_apr": 0.0,
+      "ann_vol": 139,
+      "vol": 97632361.6806,
       "binance": {
-        "last": 205.38,
-        "chg": -7.736,
-        "vol": 103753233.1626,
-        "funding": 9.7,
-        "ann_vol": 138,
+        "last": 187.99,
+        "chg": -8.836,
+        "vol": 97632361.6806,
+        "funding": 0.0,
+        "ann_vol": 139,
         "subtype": "TradFi"
       },
       "hyperliquid": {
         "dexes": [
           "xyz"
         ],
-        "last": 207.25,
-        "chg": -6.9,
-        "funding": 33.0
+        "last": 187.99,
+        "chg": -8.89,
+        "funding": 36.3
+      }
+    },
+    {
+      "ticker": "MSTR",
+      "name": "MicroStrategy",
+      "asset_class": "Equity",
+      "sector": "Crypto Equity",
+      "ai_role": "neutral",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 95.33,
+      "chg_24h": -1.681,
+      "funding_apr": 0.0,
+      "ann_vol": 85,
+      "vol": 93375111.9282,
+      "binance": {
+        "last": 95.33,
+        "chg": -1.681,
+        "vol": 93375111.9282,
+        "funding": 0.0,
+        "ann_vol": 85,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 95.257,
+        "chg": -1.75,
+        "funding": 15.1
       }
     },
     {
@@ -451,15 +417,15 @@
       ],
       "in_universe": true,
       "in_book": true,
-      "last": 210.53,
-      "chg_24h": -0.843,
+      "last": 207.22,
+      "chg_24h": -1.474,
       "funding_apr": 0.0,
       "ann_vol": 42,
-      "vol": 101902955.1628,
+      "vol": 92864139.1173,
       "binance": {
-        "last": 210.53,
-        "chg": -0.843,
-        "vol": 101902955.1628,
+        "last": 207.22,
+        "chg": -1.474,
+        "vol": 92864139.1173,
         "funding": 0.0,
         "ann_vol": 42,
         "subtype": "TradFi"
@@ -475,6 +441,66 @@
       }
     },
     {
+      "ticker": "CRCL",
+      "name": "Circle",
+      "asset_class": "Equity",
+      "sector": "Crypto Equity",
+      "ai_role": "neutral",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 61.77,
+      "chg_24h": -5.159,
+      "funding_apr": 0.0,
+      "ann_vol": 99,
+      "vol": 85342119.3069,
+      "binance": {
+        "last": 61.77,
+        "chg": -5.159,
+        "vol": 85342119.3069,
+        "funding": 0.0,
+        "ann_vol": 99,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 61.703,
+        "chg": -5.29,
+        "funding": 43.6
+      }
+    },
+    {
+      "ticker": "MANTRA",
+      "name": "MANTRA",
+      "asset_class": "Metal / Commodity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 0.007047,
+      "chg_24h": 11.982,
+      "funding_apr": -358.7,
+      "ann_vol": 69,
+      "vol": 74688814.810107,
+      "binance": {
+        "last": 0.007047,
+        "chg": 11.982,
+        "vol": 74688814.810107,
+        "funding": -358.7,
+        "ann_vol": 69,
+        "subtype": "RWA"
+      },
+      "hyperliquid": null
+    },
+    {
       "ticker": "PAXG",
       "name": "PAXG",
       "asset_class": "Metal / Commodity",
@@ -485,54 +511,46 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 4052.43,
-      "chg_24h": 0.104,
-      "funding_apr": 5.5,
-      "ann_vol": 23,
-      "vol": 62327542.178,
+      "last": 3979.6,
+      "chg_24h": -1.769,
+      "funding_apr": 3.9,
+      "ann_vol": 24,
+      "vol": 74485198.0989,
       "binance": {
-        "last": 4052.43,
-        "chg": 0.104,
-        "vol": 62327542.178,
-        "funding": 5.5,
-        "ann_vol": 23,
+        "last": 3979.6,
+        "chg": -1.769,
+        "vol": 74485198.0989,
+        "funding": 3.9,
+        "ann_vol": 24,
         "subtype": "RWA"
       },
       "hyperliquid": null
     },
     {
-      "ticker": "IBM",
-      "name": "IBM",
+      "ticker": "SNXX",
+      "name": "SNXX",
       "asset_class": "Equity",
-      "sector": "Software",
+      "sector": null,
       "ai_role": null,
       "venues": [
-        "binance",
-        "hyperliquid"
+        "binance"
       ],
-      "in_universe": true,
+      "in_universe": false,
       "in_book": false,
-      "last": 213.02,
-      "chg_24h": -3.041,
-      "funding_apr": 22.5,
-      "ann_vol": 92,
-      "vol": 61786119.277,
+      "last": 14.52,
+      "chg_24h": -23.619,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 65204723.429,
       "binance": {
-        "last": 213.02,
-        "chg": -3.041,
-        "vol": 61786119.277,
-        "funding": 22.5,
-        "ann_vol": 92,
+        "last": 14.52,
+        "chg": -23.619,
+        "vol": 65204723.429,
+        "funding": 0.0,
+        "ann_vol": null,
         "subtype": "TradFi"
       },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 212.95,
-        "chg": -3.15,
-        "funding": 36.3
-      }
+      "hyperliquid": null
     },
     {
       "ticker": "AMD",
@@ -546,25 +564,128 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 525.75,
-      "chg_24h": -4.754,
+      "last": 495.93,
+      "chg_24h": -5.733,
       "funding_apr": 0.0,
-      "ann_vol": 77,
-      "vol": 54763292.9511,
+      "ann_vol": 78,
+      "vol": 54552727.6779,
       "binance": {
-        "last": 525.75,
-        "chg": -4.754,
-        "vol": 54763292.9511,
+        "last": 495.93,
+        "chg": -5.733,
+        "vol": 54552727.6779,
         "funding": 0.0,
-        "ann_vol": 77,
+        "ann_vol": 78,
         "subtype": "TradFi"
       },
       "hyperliquid": {
         "dexes": [
           "xyz"
         ],
-        "last": 528.06,
-        "chg": -4.29,
+        "last": 495.33,
+        "chg": -5.93,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "TSM",
+      "name": "Taiwan Semiconductor",
+      "asset_class": "Equity",
+      "sector": "Semis",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 405.83,
+      "chg_24h": -2.932,
+      "funding_apr": 0.0,
+      "ann_vol": 47,
+      "vol": 50988149.2514,
+      "binance": {
+        "last": 405.83,
+        "chg": -2.932,
+        "vol": 50988149.2514,
+        "funding": 0.0,
+        "ann_vol": 47,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 406.4,
+        "chg": -2.85,
+        "funding": 20.1
+      }
+    },
+    {
+      "ticker": "META",
+      "name": "Meta",
+      "asset_class": "Equity",
+      "sector": "Hyperscaler",
+      "ai_role": "spender",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 667.6,
+      "chg_24h": -1.269,
+      "funding_apr": -56.7,
+      "ann_vol": 41,
+      "vol": 50839617.0085,
+      "binance": {
+        "last": 667.6,
+        "chg": -1.269,
+        "vol": 50839617.0085,
+        "funding": -56.7,
+        "ann_vol": 41,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "cash",
+          "xyz"
+        ],
+        "last": 622.67,
+        "chg": -0.3,
+        "funding": 0.0
+      }
+    },
+    {
+      "ticker": "IBM",
+      "name": "IBM",
+      "asset_class": "Equity",
+      "sector": "Software",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 219.42,
+      "chg_24h": 3.053,
+      "funding_apr": 0.0,
+      "ann_vol": 92,
+      "vol": 47450059.7647,
+      "binance": {
+        "last": 219.42,
+        "chg": 3.053,
+        "vol": 47450059.7647,
+        "funding": 0.0,
+        "ann_vol": 92,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 219.44,
+        "chg": 3.07,
         "funding": 5.5
       }
     },
@@ -580,15 +701,15 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 395.03,
-      "chg_24h": -0.526,
+      "last": 390.9,
+      "chg_24h": -1.05,
       "funding_apr": 0.0,
       "ann_vol": 46,
-      "vol": 54087210.5882,
+      "vol": 47029105.5981,
       "binance": {
-        "last": 395.03,
-        "chg": -0.526,
-        "vol": 54087210.5882,
+        "last": 390.9,
+        "chg": -1.05,
+        "vol": 47029105.5981,
         "funding": 0.0,
         "ann_vol": 46,
         "subtype": "TradFi"
@@ -599,452 +720,6 @@
           "xyz"
         ],
         "last": 400.21,
-        "chg": 0.0,
-        "funding": 0.0
-      }
-    },
-    {
-      "ticker": "NBIS",
-      "name": "Nebius",
-      "asset_class": "Equity",
-      "sector": "AI Compute",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 196.47,
-      "chg_24h": -0.868,
-      "funding_apr": 0.0,
-      "ann_vol": 121,
-      "vol": 44355092.2666,
-      "binance": {
-        "last": 196.47,
-        "chg": -0.868,
-        "vol": 44355092.2666,
-        "funding": 0.0,
-        "ann_vol": 121,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 197.4,
-        "chg": -0.5,
-        "funding": 45.5
-      }
-    },
-    {
-      "ticker": "META",
-      "name": "Meta",
-      "asset_class": "Equity",
-      "sector": "Hyperscaler",
-      "ai_role": "spender",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 677.13,
-      "chg_24h": 2.662,
-      "funding_apr": 0.0,
-      "ann_vol": 41,
-      "vol": 43798812.2534,
-      "binance": {
-        "last": 677.13,
-        "chg": 2.662,
-        "vol": 43798812.2534,
-        "funding": 0.0,
-        "ann_vol": 41,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "cash",
-          "xyz"
-        ],
-        "last": 622.67,
-        "chg": -0.3,
-        "funding": 0.0
-      }
-    },
-    {
-      "ticker": "COIN",
-      "name": "Coinbase",
-      "asset_class": "Equity",
-      "sector": "Crypto Equity",
-      "ai_role": "neutral",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 166.09,
-      "chg_24h": 3.264,
-      "funding_apr": 0.0,
-      "ann_vol": 66,
-      "vol": 38006125.2345,
-      "binance": {
-        "last": 166.09,
-        "chg": 3.264,
-        "vol": 38006125.2345,
-        "funding": 0.0,
-        "ann_vol": 66,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 166.55,
-        "chg": 3.65,
-        "funding": 31.0
-      }
-    },
-    {
-      "ticker": "BABA",
-      "name": "Alibaba",
-      "asset_class": "Equity",
-      "sector": "eCommerce",
-      "ai_role": "neutral",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 117.96,
-      "chg_24h": 4.649,
-      "funding_apr": 0.0,
-      "ann_vol": 48,
-      "vol": 37153276.8907,
-      "binance": {
-        "last": 117.96,
-        "chg": 4.649,
-        "vol": 37153276.8907,
-        "funding": 0.0,
-        "ann_vol": 48,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 117.94,
-        "chg": 4.85,
-        "funding": 5.5
-      }
-    },
-    {
-      "ticker": "SNXX",
-      "name": "SNXX",
-      "asset_class": "Equity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 19.04,
-      "chg_24h": -17.86,
-      "funding_apr": 45.0,
-      "ann_vol": null,
-      "vol": 37054610.19,
-      "binance": {
-        "last": 19.04,
-        "chg": -17.86,
-        "vol": 37054610.19,
-        "funding": 45.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "SPY",
-      "name": "SPDR S&P 500 ETF",
-      "asset_class": "ETF",
-      "sector": "Broad Index",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 753.56,
-      "chg_24h": 0.116,
-      "funding_apr": 0.0,
-      "ann_vol": 13,
-      "vol": 32500269.5084,
-      "binance": {
-        "last": 753.56,
-        "chg": 0.116,
-        "vol": 32500269.5084,
-        "funding": 0.0,
-        "ann_vol": 13,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "ORCL",
-      "name": "Oracle",
-      "asset_class": "Equity",
-      "sector": "Software",
-      "ai_role": "spender",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 132.61,
-      "chg_24h": 2.204,
-      "funding_apr": 4.1,
-      "ann_vol": 70,
-      "vol": 29362732.3088,
-      "binance": {
-        "last": 132.61,
-        "chg": 2.204,
-        "vol": 29362732.3088,
-        "funding": 4.1,
-        "ann_vol": 70,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 132.58,
-        "chg": 2.2,
-        "funding": 29.6
-      }
-    },
-    {
-      "ticker": "CBRS",
-      "name": "CBRS",
-      "asset_class": "Equity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 184.45,
-      "chg_24h": -6.089,
-      "funding_apr": 0.0,
-      "ann_vol": 120,
-      "vol": 26673448.7015,
-      "binance": {
-        "last": 184.45,
-        "chg": -6.089,
-        "vol": 26673448.7015,
-        "funding": 0.0,
-        "ann_vol": 120,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 185.0,
-        "chg": -5.86,
-        "funding": -17.2
-      }
-    },
-    {
-      "ticker": "LITE",
-      "name": "Lumentum",
-      "asset_class": "Equity",
-      "sector": "AI Compute",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 747.13,
-      "chg_24h": -7.535,
-      "funding_apr": 0.0,
-      "ann_vol": 100,
-      "vol": 26567095.4166,
-      "binance": {
-        "last": 747.13,
-        "chg": -7.535,
-        "vol": 26567095.4166,
-        "funding": 0.0,
-        "ann_vol": 100,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 749.68,
-        "chg": -7.26,
-        "funding": 22.5
-      }
-    },
-    {
-      "ticker": "AAOI",
-      "name": "Applied Optoelectronics",
-      "asset_class": "Equity",
-      "sector": "AI Compute",
-      "ai_role": "supplier",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 109.34,
-      "chg_24h": -12.849,
-      "funding_apr": 0.0,
-      "ann_vol": 132,
-      "vol": 26127776.4374,
-      "binance": {
-        "last": 109.34,
-        "chg": -12.849,
-        "vol": 26127776.4374,
-        "funding": 0.0,
-        "ann_vol": 132,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "XAUT",
-      "name": "XAUT",
-      "asset_class": "Metal / Commodity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 4053.52,
-      "chg_24h": 0.098,
-      "funding_apr": 1.1,
-      "ann_vol": 23,
-      "vol": 25565926.61,
-      "binance": {
-        "last": 4053.52,
-        "chg": 0.098,
-        "vol": 25565926.61,
-        "funding": 1.1,
-        "ann_vol": 23,
-        "subtype": "RWA"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "ARM",
-      "name": "Arm Holdings",
-      "asset_class": "Equity",
-      "sector": "Semis",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 273.12,
-      "chg_24h": -3.814,
-      "funding_apr": 0.0,
-      "ann_vol": 115,
-      "vol": 25553429.431,
-      "binance": {
-        "last": 273.12,
-        "chg": -3.814,
-        "vol": 25553429.431,
-        "funding": 0.0,
-        "ann_vol": 115,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 274.08,
-        "chg": -3.49,
-        "funding": 22.2
-      }
-    },
-    {
-      "ticker": "AAPL",
-      "name": "Apple",
-      "asset_class": "Equity",
-      "sector": "Consumer Tech",
-      "ai_role": "neutral",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 327.3,
-      "chg_24h": 3.76,
-      "funding_apr": 0.0,
-      "ann_vol": 26,
-      "vol": 24277651.4635,
-      "binance": {
-        "last": 327.3,
-        "chg": 3.76,
-        "vol": 24277651.4635,
-        "funding": 0.0,
-        "ann_vol": 26,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 328.16,
-        "chg": 4.07,
-        "funding": -15.8
-      }
-    },
-    {
-      "ticker": "HOOD",
-      "name": "Robinhood",
-      "asset_class": "Equity",
-      "sector": "Finance",
-      "ai_role": "neutral",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 114.52,
-      "chg_24h": 2.031,
-      "funding_apr": 0.0,
-      "ann_vol": 73,
-      "vol": 23397629.8848,
-      "binance": {
-        "last": 114.52,
-        "chg": 2.031,
-        "vol": 23397629.8848,
-        "funding": 0.0,
-        "ann_vol": 73,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "cash",
-          "xyz"
-        ],
-        "last": 113.27,
         "chg": 0.0,
         "funding": 0.0
       }
@@ -1061,17 +736,17 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 370.63,
-      "chg_24h": 3.257,
+      "last": 356.53,
+      "chg_24h": -3.732,
       "funding_apr": 0.0,
-      "ann_vol": 30,
-      "vol": 23252956.802,
+      "ann_vol": 32,
+      "vol": 44671148.491,
       "binance": {
-        "last": 370.63,
-        "chg": 3.257,
-        "vol": 23252956.802,
+        "last": 356.53,
+        "chg": -3.732,
+        "vol": 44671148.491,
         "funding": 0.0,
-        "ann_vol": 30,
+        "ann_vol": 32,
         "subtype": "TradFi"
       },
       "hyperliquid": {
@@ -1085,6 +760,451 @@
       }
     },
     {
+      "ticker": "NBIS",
+      "name": "Nebius",
+      "asset_class": "Equity",
+      "sector": "AI Compute",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 174.71,
+      "chg_24h": -11.148,
+      "funding_apr": 0.0,
+      "ann_vol": 124,
+      "vol": 38908107.287,
+      "binance": {
+        "last": 174.71,
+        "chg": -11.148,
+        "vol": 38908107.287,
+        "funding": 0.0,
+        "ann_vol": 124,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 174.33,
+        "chg": -11.49,
+        "funding": 31.0
+      }
+    },
+    {
+      "ticker": "XAUT",
+      "name": "XAUT",
+      "asset_class": "Metal / Commodity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 3983.24,
+      "chg_24h": -1.697,
+      "funding_apr": 0.8,
+      "ann_vol": 23,
+      "vol": 33545129.34,
+      "binance": {
+        "last": 3983.24,
+        "chg": -1.697,
+        "vol": 33545129.34,
+        "funding": 0.8,
+        "ann_vol": 23,
+        "subtype": "RWA"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "CBRS",
+      "name": "CBRS",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 177.82,
+      "chg_24h": -3.553,
+      "funding_apr": -2.0,
+      "ann_vol": 119,
+      "vol": 30153340.7538,
+      "binance": {
+        "last": 177.82,
+        "chg": -3.553,
+        "vol": 30153340.7538,
+        "funding": -2.0,
+        "ann_vol": 119,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 177.97,
+        "chg": -3.29,
+        "funding": -39.2
+      }
+    },
+    {
+      "ticker": "AAPL",
+      "name": "Apple",
+      "asset_class": "Equity",
+      "sector": "Consumer Tech",
+      "ai_role": "neutral",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 333.14,
+      "chg_24h": 1.825,
+      "funding_apr": -37.0,
+      "ann_vol": 26,
+      "vol": 29890818.5632,
+      "binance": {
+        "last": 333.14,
+        "chg": 1.825,
+        "vol": 29890818.5632,
+        "funding": -37.0,
+        "ann_vol": 26,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 332.95,
+        "chg": 1.73,
+        "funding": -24.1
+      }
+    },
+    {
+      "ticker": "COIN",
+      "name": "Coinbase",
+      "asset_class": "Equity",
+      "sector": "Crypto Equity",
+      "ai_role": "neutral",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 163.16,
+      "chg_24h": -1.794,
+      "funding_apr": 0.0,
+      "ann_vol": 67,
+      "vol": 28458415.4185,
+      "binance": {
+        "last": 163.16,
+        "chg": -1.794,
+        "vol": 28458415.4185,
+        "funding": 0.0,
+        "ann_vol": 67,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 162.77,
+        "chg": -2.06,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "LITE",
+      "name": "Lumentum",
+      "asset_class": "Equity",
+      "sector": "AI Compute",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 698.52,
+      "chg_24h": -6.558,
+      "funding_apr": 0.0,
+      "ann_vol": 101,
+      "vol": 27715354.8773,
+      "binance": {
+        "last": 698.52,
+        "chg": -6.558,
+        "vol": 27715354.8773,
+        "funding": 0.0,
+        "ann_vol": 101,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 698.5,
+        "chg": -6.83,
+        "funding": 20.0
+      }
+    },
+    {
+      "ticker": "ORCL",
+      "name": "Oracle",
+      "asset_class": "Equity",
+      "sector": "Software",
+      "ai_role": "spender",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 125.94,
+      "chg_24h": -4.764,
+      "funding_apr": 0.0,
+      "ann_vol": 71,
+      "vol": 27390862.0014,
+      "binance": {
+        "last": 125.94,
+        "chg": -4.764,
+        "vol": 27390862.0014,
+        "funding": 0.0,
+        "ann_vol": 71,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 125.85,
+        "chg": -4.8,
+        "funding": 23.2
+      }
+    },
+    {
+      "ticker": "WDC",
+      "name": "Western Digital",
+      "asset_class": "Equity",
+      "sector": "Memory",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 459.5,
+      "chg_24h": -10.164,
+      "funding_apr": 0.0,
+      "ann_vol": 111,
+      "vol": 26952402.4128,
+      "binance": {
+        "last": 459.5,
+        "chg": -10.164,
+        "vol": 26952402.4128,
+        "funding": 0.0,
+        "ann_vol": 111,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 459.23,
+        "chg": -10.35,
+        "funding": 20.2
+      }
+    },
+    {
+      "ticker": "SPY",
+      "name": "SPDR S&P 500 ETF",
+      "asset_class": "ETF",
+      "sector": "Broad Index",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 750.65,
+      "chg_24h": -0.382,
+      "funding_apr": 0.0,
+      "ann_vol": 13,
+      "vol": 26643933.5491,
+      "binance": {
+        "last": 750.65,
+        "chg": -0.382,
+        "vol": 26643933.5491,
+        "funding": 0.0,
+        "ann_vol": 13,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "AAOI",
+      "name": "Applied Optoelectronics",
+      "asset_class": "Equity",
+      "sector": "AI Compute",
+      "ai_role": "supplier",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 99.23,
+      "chg_24h": -9.313,
+      "funding_apr": 0.0,
+      "ann_vol": 134,
+      "vol": 25723163.1508,
+      "binance": {
+        "last": 99.23,
+        "chg": -9.313,
+        "vol": 25723163.1508,
+        "funding": 0.0,
+        "ann_vol": 134,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "RKLB",
+      "name": "Rocket Lab",
+      "asset_class": "Equity",
+      "sector": "Aerospace",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 67.07,
+      "chg_24h": -12.224,
+      "funding_apr": 0.0,
+      "ann_vol": 113,
+      "vol": 23029577.8096,
+      "binance": {
+        "last": 67.07,
+        "chg": -12.224,
+        "vol": 23029577.8096,
+        "funding": 0.0,
+        "ann_vol": 113,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 67.106,
+        "chg": -12.18,
+        "funding": 27.7
+      }
+    },
+    {
+      "ticker": "HOOD",
+      "name": "Robinhood",
+      "asset_class": "Equity",
+      "sector": "Finance",
+      "ai_role": "neutral",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 107.04,
+      "chg_24h": -6.572,
+      "funding_apr": 0.0,
+      "ann_vol": 75,
+      "vol": 21511607.0181,
+      "binance": {
+        "last": 107.04,
+        "chg": -6.572,
+        "vol": 21511607.0181,
+        "funding": 0.0,
+        "ann_vol": 75,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "cash",
+          "xyz"
+        ],
+        "last": 113.27,
+        "chg": 0.0,
+        "funding": 0.0
+      }
+    },
+    {
+      "ticker": "BE",
+      "name": "Bloom Energy",
+      "asset_class": "Equity",
+      "sector": "Energy Infra",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 207.02,
+      "chg_24h": -11.662,
+      "funding_apr": 0.0,
+      "ann_vol": 129,
+      "vol": 21237079.0455,
+      "binance": {
+        "last": 207.02,
+        "chg": -11.662,
+        "vol": 21237079.0455,
+        "funding": 0.0,
+        "ann_vol": 129,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 207.1,
+        "chg": -11.87,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "GLW",
+      "name": "Corning",
+      "asset_class": "Equity",
+      "sector": "Hardware",
+      "ai_role": "supplier",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 156.14,
+      "chg_24h": -9.928,
+      "funding_apr": 0.0,
+      "ann_vol": 113,
+      "vol": 20402565.7531,
+      "binance": {
+        "last": 156.14,
+        "chg": -9.928,
+        "vol": 20402565.7531,
+        "funding": 0.0,
+        "ann_vol": 113,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
       "ticker": "MSFT",
       "name": "Microsoft",
       "asset_class": "Equity",
@@ -1096,15 +1216,15 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 396.07,
-      "chg_24h": 2.707,
+      "last": 405.83,
+      "chg_24h": 2.506,
       "funding_apr": 0.0,
       "ann_vol": 31,
-      "vol": 21657479.8866,
+      "vol": 19426493.0406,
       "binance": {
-        "last": 396.07,
-        "chg": 2.707,
-        "vol": 21657479.8866,
+        "last": 405.83,
+        "chg": 2.506,
+        "vol": 19426493.0406,
         "funding": 0.0,
         "ann_vol": 31,
         "subtype": "TradFi"
@@ -1120,100 +1240,6 @@
       }
     },
     {
-      "ticker": "GLW",
-      "name": "Corning",
-      "asset_class": "Equity",
-      "sector": "Hardware",
-      "ai_role": "supplier",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 173.18,
-      "chg_24h": -7.883,
-      "funding_apr": 13.1,
-      "ann_vol": 109,
-      "vol": 21470795.5338,
-      "binance": {
-        "last": 173.18,
-        "chg": -7.883,
-        "vol": 21470795.5338,
-        "funding": 13.1,
-        "ann_vol": 109,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "TSM",
-      "name": "Taiwan Semiconductor",
-      "asset_class": "Equity",
-      "sector": "Semis",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 418.44,
-      "chg_24h": -1.199,
-      "funding_apr": 9.1,
-      "ann_vol": 46,
-      "vol": 20236443.8589,
-      "binance": {
-        "last": 418.44,
-        "chg": -1.199,
-        "vol": 20236443.8589,
-        "funding": 9.1,
-        "ann_vol": 46,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 419.26,
-        "chg": -0.95,
-        "funding": 31.6
-      }
-    },
-    {
-      "ticker": "ASML",
-      "name": "ASML",
-      "asset_class": "Equity",
-      "sector": "Semis",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 1781.08,
-      "chg_24h": -0.151,
-      "funding_apr": 0.0,
-      "ann_vol": 62,
-      "vol": 19328494.1904,
-      "binance": {
-        "last": 1781.08,
-        "chg": -0.151,
-        "vol": 19328494.1904,
-        "funding": 0.0,
-        "ann_vol": 62,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 1788.1,
-        "chg": 0.44,
-        "funding": 12.3
-      }
-    },
-    {
       "ticker": "TQQQ",
       "name": "TQQQ",
       "asset_class": "ETF",
@@ -1224,15 +1250,264 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 73.77,
-      "chg_24h": -2.058,
+      "last": 70.97,
+      "chg_24h": -3.769,
       "funding_apr": 0.0,
       "ann_vol": null,
-      "vol": 19029438.6077,
+      "vol": 19352509.5957,
       "binance": {
-        "last": 73.77,
-        "chg": -2.058,
-        "vol": 19029438.6077,
+        "last": 70.97,
+        "chg": -3.769,
+        "vol": 19352509.5957,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "ARM",
+      "name": "Arm Holdings",
+      "asset_class": "Equity",
+      "sector": "Semis",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 256.63,
+      "chg_24h": -6.034,
+      "funding_apr": 0.0,
+      "ann_vol": 115,
+      "vol": 17198193.1069,
+      "binance": {
+        "last": 256.63,
+        "chg": -6.034,
+        "vol": 17198193.1069,
+        "funding": 0.0,
+        "ann_vol": 115,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 256.33,
+        "chg": -6.32,
+        "funding": 28.8
+      }
+    },
+    {
+      "ticker": "BABA",
+      "name": "Alibaba",
+      "asset_class": "Equity",
+      "sector": "eCommerce",
+      "ai_role": "neutral",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 118.32,
+      "chg_24h": 0.407,
+      "funding_apr": 0.0,
+      "ann_vol": 48,
+      "vol": 16602661.8686,
+      "binance": {
+        "last": 118.32,
+        "chg": 0.407,
+        "vol": 16602661.8686,
+        "funding": 0.0,
+        "ann_vol": 48,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 118.3,
+        "chg": 0.23,
+        "funding": 22.7
+      }
+    },
+    {
+      "ticker": "PLTR",
+      "name": "Palantir",
+      "asset_class": "Equity",
+      "sector": "Software",
+      "ai_role": "neutral",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 133.9,
+      "chg_24h": 0.518,
+      "funding_apr": 0.0,
+      "ann_vol": 52,
+      "vol": 13950388.1609,
+      "binance": {
+        "last": 133.9,
+        "chg": 0.518,
+        "vol": 13950388.1609,
+        "funding": 0.0,
+        "ann_vol": 52,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 133.91,
+        "chg": 0.47,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Amazon",
+      "asset_class": "Equity",
+      "sector": "Hyperscaler",
+      "ai_role": "spender",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 253.45,
+      "chg_24h": -0.413,
+      "funding_apr": 0.0,
+      "ann_vol": 30,
+      "vol": 13301803.4511,
+      "binance": {
+        "last": 253.45,
+        "chg": -0.413,
+        "vol": 13301803.4511,
+        "funding": 0.0,
+        "ann_vol": 30,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "cash",
+          "xyz"
+        ],
+        "last": 241.75,
+        "chg": -0.02,
+        "funding": 0.0
+      }
+    },
+    {
+      "ticker": "MVLL",
+      "name": "MVLL",
+      "asset_class": "ETF",
+      "sector": "Other",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 21.46,
+      "chg_24h": -17.62,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 11883775.8679,
+      "binance": {
+        "last": 21.46,
+        "chg": -17.62,
+        "vol": 11883775.8679,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "AVGO",
+      "name": "Broadcom",
+      "asset_class": "Equity",
+      "sector": "Semis",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 376.25,
+      "chg_24h": -4.108,
+      "funding_apr": 0.0,
+      "ann_vol": 60,
+      "vol": 11776988.9928,
+      "binance": {
+        "last": 376.25,
+        "chg": -4.108,
+        "vol": 11776988.9928,
+        "funding": 0.0,
+        "ann_vol": 60,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 376.25,
+        "chg": -4.38,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "ASTS",
+      "name": "AST SpaceMobile",
+      "asset_class": "Equity",
+      "sector": "Aerospace",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 54.73,
+      "chg_24h": -17.872,
+      "funding_apr": 0.0,
+      "ann_vol": 143,
+      "vol": 11501830.5612,
+      "binance": {
+        "last": 54.73,
+        "chg": -17.872,
+        "vol": 11501830.5612,
+        "funding": 0.0,
+        "ann_vol": 143,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "MUU",
+      "name": "MUU",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 27.28,
+      "chg_24h": -6.894,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 9560105.4616,
+      "binance": {
+        "last": 27.28,
+        "chg": -6.894,
+        "vol": 9560105.4616,
         "funding": 0.0,
         "ann_vol": null,
         "subtype": "TradFi"
@@ -1250,16 +1525,16 @@
         "hyperliquid"
       ],
       "in_universe": true,
-      "in_book": false,
-      "last": 404.05,
-      "chg_24h": -10.753,
+      "in_book": true,
+      "last": 395.25,
+      "chg_24h": -2.168,
       "funding_apr": 0.0,
       "ann_vol": 79,
-      "vol": 19001341.5178,
+      "vol": 9324627.9775,
       "binance": {
-        "last": 404.05,
-        "chg": -10.753,
-        "vol": 19001341.5178,
+        "last": 395.25,
+        "chg": -2.168,
+        "vol": 9324627.9775,
         "funding": 0.0,
         "ann_vol": 79,
         "subtype": "TradFi"
@@ -1268,50 +1543,16 @@
         "dexes": [
           "xyz"
         ],
-        "last": 407.87,
-        "chg": -9.7,
-        "funding": 66.0
+        "last": 395.16,
+        "chg": -2.51,
+        "funding": 45.2
       }
     },
     {
-      "ticker": "WDC",
-      "name": "Western Digital",
+      "ticker": "NOK",
+      "name": "Nokia",
       "asset_class": "Equity",
-      "sector": "Memory",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 510.8,
-      "chg_24h": -9.244,
-      "funding_apr": 0.0,
-      "ann_vol": 108,
-      "vol": 18230939.7788,
-      "binance": {
-        "last": 510.8,
-        "chg": -9.244,
-        "vol": 18230939.7788,
-        "funding": 0.0,
-        "ann_vol": 108,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 512.78,
-        "chg": -8.84,
-        "funding": 24.5
-      }
-    },
-    {
-      "ticker": "RKLB",
-      "name": "Rocket Lab",
-      "asset_class": "Equity",
-      "sector": "Aerospace",
+      "sector": "Networking",
       "ai_role": null,
       "venues": [
         "binance",
@@ -1319,93 +1560,25 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 76.33,
-      "chg_24h": -3.159,
-      "funding_apr": 0.4,
-      "ann_vol": 110,
-      "vol": 17054415.0585,
-      "binance": {
-        "last": 76.33,
-        "chg": -3.159,
-        "vol": 17054415.0585,
-        "funding": 0.4,
-        "ann_vol": 110,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 76.374,
-        "chg": -3.09,
-        "funding": 5.5
-      }
-    },
-    {
-      "ticker": "BE",
-      "name": "Bloom Energy",
-      "asset_class": "Equity",
-      "sector": "Energy Infra",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 234.63,
-      "chg_24h": -1.304,
+      "last": 10.36,
+      "chg_24h": -6.835,
       "funding_apr": 0.0,
-      "ann_vol": 125,
-      "vol": 16632729.2861,
+      "ann_vol": 85,
+      "vol": 9166910.662,
       "binance": {
-        "last": 234.63,
-        "chg": -1.304,
-        "vol": 16632729.2861,
+        "last": 10.36,
+        "chg": -6.835,
+        "vol": 9166910.662,
         "funding": 0.0,
-        "ann_vol": 125,
+        "ann_vol": 85,
         "subtype": "TradFi"
       },
       "hyperliquid": {
         "dexes": [
           "xyz"
         ],
-        "last": 234.99,
-        "chg": -1.19,
-        "funding": -50.9
-      }
-    },
-    {
-      "ticker": "PLTR",
-      "name": "Palantir",
-      "asset_class": "Equity",
-      "sector": "Software",
-      "ai_role": "neutral",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 133.28,
-      "chg_24h": -1.12,
-      "funding_apr": 0.0,
-      "ann_vol": 52,
-      "vol": 15189887.5321,
-      "binance": {
-        "last": 133.28,
-        "chg": -1.12,
-        "vol": 15189887.5321,
-        "funding": 0.0,
-        "ann_vol": 52,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 133.53,
-        "chg": -0.88,
+        "last": 10.348,
+        "chg": -7.15,
         "funding": 5.5
       }
     },
@@ -1420,524 +1593,17 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 15.83,
-      "chg_24h": -2.525,
-      "funding_apr": 77.9,
-      "ann_vol": 72,
-      "vol": 11648894.0782,
-      "binance": {
-        "last": 15.83,
-        "chg": -2.525,
-        "vol": 11648894.0782,
-        "funding": 77.9,
-        "ann_vol": 72,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "NOK",
-      "name": "Nokia",
-      "asset_class": "Equity",
-      "sector": "Networking",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 11.11,
-      "chg_24h": -3.976,
-      "funding_apr": 3.0,
-      "ann_vol": 83,
-      "vol": 11206855.9476,
-      "binance": {
-        "last": 11.11,
-        "chg": -3.976,
-        "vol": 11206855.9476,
-        "funding": 3.0,
-        "ann_vol": 83,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 11.137,
-        "chg": -3.69,
-        "funding": 5.5
-      }
-    },
-    {
-      "ticker": "AMAT",
-      "name": "Applied Materials",
-      "asset_class": "Equity",
-      "sector": "Semis",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 574.0,
-      "chg_24h": -4.034,
+      "last": 15.62,
+      "chg_24h": -1.327,
       "funding_apr": 0.0,
-      "ann_vol": 96,
-      "vol": 9314666.8018,
+      "ann_vol": 71,
+      "vol": 8282504.7753,
       "binance": {
-        "last": 574.0,
-        "chg": -4.034,
-        "vol": 9314666.8018,
+        "last": 15.62,
+        "chg": -1.327,
+        "vol": 8282504.7753,
         "funding": 0.0,
-        "ann_vol": 96,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 575.91,
-        "chg": -3.58,
-        "funding": 17.7
-      }
-    },
-    {
-      "ticker": "AXTI",
-      "name": "AXT Inc",
-      "asset_class": "Equity",
-      "sector": "Semis",
-      "ai_role": "supplier",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 53.26,
-      "chg_24h": -7.551,
-      "funding_apr": 0.0,
-      "ann_vol": 142,
-      "vol": 8630018.2327,
-      "binance": {
-        "last": 53.26,
-        "chg": -7.551,
-        "vol": 8630018.2327,
-        "funding": 0.0,
-        "ann_vol": 142,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "QCOM",
-      "name": "Qualcomm",
-      "asset_class": "Equity",
-      "sector": "Semis",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 177.84,
-      "chg_24h": -0.781,
-      "funding_apr": 5.1,
-      "ann_vol": 92,
-      "vol": 8393851.4751,
-      "binance": {
-        "last": 177.84,
-        "chg": -0.781,
-        "vol": 8393851.4751,
-        "funding": 5.1,
-        "ann_vol": 92,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 178.71,
-        "chg": -0.12,
-        "funding": 15.2
-      }
-    },
-    {
-      "ticker": "AMZN",
-      "name": "Amazon",
-      "asset_class": "Equity",
-      "sector": "Hyperscaler",
-      "ai_role": "spender",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 254.81,
-      "chg_24h": 3.22,
-      "funding_apr": 0.0,
-      "ann_vol": 30,
-      "vol": 8113573.4942,
-      "binance": {
-        "last": 254.81,
-        "chg": 3.22,
-        "vol": 8113573.4942,
-        "funding": 0.0,
-        "ann_vol": 30,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "cash",
-          "xyz"
-        ],
-        "last": 241.75,
-        "chg": -0.02,
-        "funding": 0.0
-      }
-    },
-    {
-      "ticker": "AVGO",
-      "name": "Broadcom",
-      "asset_class": "Equity",
-      "sector": "Semis",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 392.65,
-      "chg_24h": -0.3,
-      "funding_apr": 0.0,
-      "ann_vol": 60,
-      "vol": 6732584.8467,
-      "binance": {
-        "last": 392.65,
-        "chg": -0.3,
-        "vol": 6732584.8467,
-        "funding": 0.0,
-        "ann_vol": 60,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 393.92,
-        "chg": 0.11,
-        "funding": 5.5
-      }
-    },
-    {
-      "ticker": "BOT",
-      "name": "BOT",
-      "asset_class": "Equity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 31.52,
-      "chg_24h": -12.396,
-      "funding_apr": -32.5,
-      "ann_vol": null,
-      "vol": 5362355.1611,
-      "binance": {
-        "last": 31.52,
-        "chg": -12.396,
-        "vol": 5362355.1611,
-        "funding": -32.5,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 31.644,
-        "chg": -12.01,
-        "funding": 133.9
-      }
-    },
-    {
-      "ticker": "SQQQ",
-      "name": "SQQQ",
-      "asset_class": "ETF",
-      "sector": "Other",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 39.38,
-      "chg_24h": 2.392,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 5303581.7942,
-      "binance": {
-        "last": 39.38,
-        "chg": 2.392,
-        "vol": 5303581.7942,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "MVLL",
-      "name": "MVLL",
-      "asset_class": "ETF",
-      "sector": "Other",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 25.82,
-      "chg_24h": -15.621,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 5194029.0577,
-      "binance": {
-        "last": 25.82,
-        "chg": -15.621,
-        "vol": 5194029.0577,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "INTW",
-      "name": "INTW",
-      "asset_class": "ETF",
-      "sector": "Other",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 25.61,
-      "chg_24h": -12.772,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 4956595.526,
-      "binance": {
-        "last": 25.61,
-        "chg": -12.772,
-        "vol": 4956595.526,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "CRWD",
-      "name": "CrowdStrike",
-      "asset_class": "Equity",
-      "sector": "Software",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 207.74,
-      "chg_24h": -0.312,
-      "funding_apr": 0.0,
-      "ann_vol": 439,
-      "vol": 4821046.7832,
-      "binance": {
-        "last": 207.74,
-        "chg": -0.312,
-        "vol": 4821046.7832,
-        "funding": 0.0,
-        "ann_vol": 439,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "COHR",
-      "name": "Coherent",
-      "asset_class": "Equity",
-      "sector": "AI Compute",
-      "ai_role": "supplier",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 293.11,
-      "chg_24h": -5.332,
-      "funding_apr": 0.0,
-      "ann_vol": 103,
-      "vol": 4236560.6361,
-      "binance": {
-        "last": 293.11,
-        "chg": -5.332,
-        "vol": 4236560.6361,
-        "funding": 0.0,
-        "ann_vol": 103,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "IREN",
-      "name": "IREN",
-      "asset_class": "Equity",
-      "sector": "AI Compute",
-      "ai_role": "supplier",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 38.71,
-      "chg_24h": 0.781,
-      "funding_apr": 0.0,
-      "ann_vol": 101,
-      "vol": 3804001.1245,
-      "binance": {
-        "last": 38.71,
-        "chg": 0.781,
-        "vol": 3804001.1245,
-        "funding": 0.0,
-        "ann_vol": 101,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "FLNC",
-      "name": "Fluence Energy",
-      "asset_class": "Equity",
-      "sector": "Energy Infra",
-      "ai_role": "supplier",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 15.12,
-      "chg_24h": -2.073,
-      "funding_apr": 0.0,
-      "ann_vol": 157,
-      "vol": 3718224.9459,
-      "binance": {
-        "last": 15.12,
-        "chg": -2.073,
-        "vol": 3718224.9459,
-        "funding": 0.0,
-        "ann_vol": 157,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "CRWV",
-      "name": "CoreWeave",
-      "asset_class": "Equity",
-      "sector": "AI Compute",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 77.0,
-      "chg_24h": -3.666,
-      "funding_apr": 0.0,
-      "ann_vol": 90,
-      "vol": 3450790.0092,
-      "binance": {
-        "last": 77.0,
-        "chg": -3.666,
-        "vol": 3450790.0092,
-        "funding": 0.0,
-        "ann_vol": 90,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 77.219,
-        "chg": -3.66,
-        "funding": 12.1
-      }
-    },
-    {
-      "ticker": "STRC",
-      "name": "STRC",
-      "asset_class": "Equity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 88.37,
-      "chg_24h": -0.383,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 3183454.0021,
-      "binance": {
-        "last": 88.37,
-        "chg": -0.383,
-        "vol": 3183454.0021,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 88.264,
-        "chg": -0.39,
-        "funding": 17.5
-      }
-    },
-    {
-      "ticker": "KLAC",
-      "name": "KLAC",
-      "asset_class": "Equity",
-      "sector": "Semis",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 222.11,
-      "chg_24h": -4.333,
-      "funding_apr": 0.0,
-      "ann_vol": 118,
-      "vol": 2937789.6918,
-      "binance": {
-        "last": 222.11,
-        "chg": -4.333,
-        "vol": 2937789.6918,
-        "funding": 0.0,
-        "ann_vol": 118,
+        "ann_vol": 71,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -1953,50 +1619,58 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 0.1758,
-      "chg_24h": -1.623,
-      "funding_apr": 5.5,
-      "ann_vol": 104,
-      "vol": 2441481.2433,
+      "last": 0.191,
+      "chg_24h": 8.646,
+      "funding_apr": 1.1,
+      "ann_vol": 101,
+      "vol": 7780451.5922,
       "binance": {
-        "last": 0.1758,
-        "chg": -1.623,
-        "vol": 2441481.2433,
-        "funding": 5.5,
-        "ann_vol": 104,
+        "last": 0.191,
+        "chg": 8.646,
+        "vol": 7780451.5922,
+        "funding": 1.1,
+        "ann_vol": 101,
         "subtype": "RWA"
       },
       "hyperliquid": null
     },
     {
-      "ticker": "LRCX",
-      "name": "LRCX",
+      "ticker": "AMAT",
+      "name": "Applied Materials",
       "asset_class": "Equity",
       "sector": "Semis",
-      "ai_role": null,
+      "ai_role": "supplier",
       "venues": [
-        "binance"
+        "binance",
+        "hyperliquid"
       ],
       "in_universe": true,
       "in_book": true,
-      "last": 330.38,
-      "chg_24h": -4.929,
+      "last": 560.84,
+      "chg_24h": -2.226,
       "funding_apr": 0.0,
-      "ann_vol": 106,
-      "vol": 2421267.9665,
+      "ann_vol": 95,
+      "vol": 7292279.8237,
       "binance": {
-        "last": 330.38,
-        "chg": -4.929,
-        "vol": 2421267.9665,
+        "last": 560.84,
+        "chg": -2.226,
+        "vol": 7292279.8237,
         "funding": 0.0,
-        "ann_vol": 106,
+        "ann_vol": 95,
         "subtype": "TradFi"
       },
-      "hyperliquid": null
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 560.17,
+        "chg": -2.37,
+        "funding": 32.3
+      }
     },
     {
-      "ticker": "QNTX",
-      "name": "QNTX",
+      "ticker": "SOXS",
+      "name": "SOXS",
       "asset_class": "Equity",
       "sector": null,
       "ai_role": null,
@@ -2005,20 +1679,260 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 59.42,
-      "chg_24h": -10.526,
-      "funding_apr": 0.0,
-      "ann_vol": 174,
-      "vol": 2413138.6494,
+      "last": 52.45,
+      "chg_24h": 8.727,
+      "funding_apr": -152.4,
+      "ann_vol": null,
+      "vol": 7106233.4609,
       "binance": {
-        "last": 59.42,
-        "chg": -10.526,
-        "vol": 2413138.6494,
-        "funding": 0.0,
-        "ann_vol": 174,
+        "last": 52.45,
+        "chg": 8.727,
+        "vol": 7106233.4609,
+        "funding": -152.4,
+        "ann_vol": null,
         "subtype": "TradFi"
       },
       "hyperliquid": null
+    },
+    {
+      "ticker": "ASML",
+      "name": "ASML",
+      "asset_class": "Equity",
+      "sector": "Semis",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 1796.46,
+      "chg_24h": 0.851,
+      "funding_apr": 0.0,
+      "ann_vol": 61,
+      "vol": 6784724.8089,
+      "binance": {
+        "last": 1796.46,
+        "chg": 0.851,
+        "vol": 6784724.8089,
+        "funding": 0.0,
+        "ann_vol": 61,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 1794.0,
+        "chg": 0.46,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "QCOM",
+      "name": "Qualcomm",
+      "asset_class": "Equity",
+      "sector": "Semis",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 170.7,
+      "chg_24h": -3.961,
+      "funding_apr": 0.0,
+      "ann_vol": 91,
+      "vol": 6751959.0653,
+      "binance": {
+        "last": 170.7,
+        "chg": -3.961,
+        "vol": 6751959.0653,
+        "funding": 0.0,
+        "ann_vol": 91,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 170.54,
+        "chg": -3.98,
+        "funding": 23.9
+      }
+    },
+    {
+      "ticker": "SQQQ",
+      "name": "SQQQ",
+      "asset_class": "ETF",
+      "sector": "Other",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 40.92,
+      "chg_24h": 3.963,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 6003167.7367,
+      "binance": {
+        "last": 40.92,
+        "chg": 3.963,
+        "vol": 6003167.7367,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "AXTI",
+      "name": "AXT Inc",
+      "asset_class": "Equity",
+      "sector": "Semis",
+      "ai_role": "supplier",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 45.57,
+      "chg_24h": -14.567,
+      "funding_apr": 0.0,
+      "ann_vol": 147,
+      "vol": 4678576.0106,
+      "binance": {
+        "last": 45.57,
+        "chg": -14.567,
+        "vol": 4678576.0106,
+        "funding": 0.0,
+        "ann_vol": 147,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "BOT",
+      "name": "BOT",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 29.66,
+      "chg_24h": -5.811,
+      "funding_apr": -1.3,
+      "ann_vol": null,
+      "vol": 4117360.3371,
+      "binance": {
+        "last": 29.66,
+        "chg": -5.811,
+        "vol": 4117360.3371,
+        "funding": -1.3,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 29.816,
+        "chg": -5.23,
+        "funding": -232.4
+      }
+    },
+    {
+      "ticker": "FLNC",
+      "name": "Fluence Energy",
+      "asset_class": "Equity",
+      "sector": "Energy Infra",
+      "ai_role": "supplier",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 14.19,
+      "chg_24h": -6.337,
+      "funding_apr": 0.0,
+      "ann_vol": 156,
+      "vol": 3713193.3682,
+      "binance": {
+        "last": 14.19,
+        "chg": -6.337,
+        "vol": 3713193.3682,
+        "funding": 0.0,
+        "ann_vol": 156,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "COHR",
+      "name": "Coherent",
+      "asset_class": "Equity",
+      "sector": "AI Compute",
+      "ai_role": "supplier",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 275.59,
+      "chg_24h": -6.019,
+      "funding_apr": 0.0,
+      "ann_vol": 103,
+      "vol": 3668307.7347,
+      "binance": {
+        "last": 275.59,
+        "chg": -6.019,
+        "vol": 3668307.7347,
+        "funding": 0.0,
+        "ann_vol": 103,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "CRWV",
+      "name": "CoreWeave",
+      "asset_class": "Equity",
+      "sector": "AI Compute",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 73.21,
+      "chg_24h": -4.971,
+      "funding_apr": 0.0,
+      "ann_vol": 90,
+      "vol": 3315641.0266,
+      "binance": {
+        "last": 73.21,
+        "chg": -4.971,
+        "vol": 3315641.0266,
+        "funding": 0.0,
+        "ann_vol": 90,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 73.137,
+        "chg": -5.11,
+        "funding": 25.2
+      }
     },
     {
       "ticker": "ALAB",
@@ -2031,178 +1945,24 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 345.24,
-      "chg_24h": -6.055,
+      "last": 318.14,
+      "chg_24h": -7.972,
       "funding_apr": 0.0,
-      "ann_vol": 132,
-      "vol": 2392992.1172,
+      "ann_vol": 133,
+      "vol": 3186468.4364,
       "binance": {
-        "last": 345.24,
-        "chg": -6.055,
-        "vol": 2392992.1172,
+        "last": 318.14,
+        "chg": -7.972,
+        "vol": 3186468.4364,
         "funding": 0.0,
-        "ann_vol": 132,
+        "ann_vol": 133,
         "subtype": "TradFi"
       },
       "hyperliquid": null
     },
     {
-      "ticker": "BBX",
-      "name": "BBX",
-      "asset_class": "Equity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 10.62,
-      "chg_24h": -3.279,
-      "funding_apr": 1.4,
-      "ann_vol": 111,
-      "vol": 2203249.6687,
-      "binance": {
-        "last": 10.62,
-        "chg": -3.279,
-        "vol": 2203249.6687,
-        "funding": 1.4,
-        "ann_vol": 111,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "KSTR",
-      "name": "KSTR",
-      "asset_class": "ETF",
-      "sector": "Other",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 27.38,
-      "chg_24h": -5.521,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 2180613.7178,
-      "binance": {
-        "last": 27.38,
-        "chg": -5.521,
-        "vol": 2180613.7178,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 27.369,
-        "chg": 0.14,
-        "funding": 0.0
-      }
-    },
-    {
-      "ticker": "NFLX",
-      "name": "NFLX",
-      "asset_class": "Equity",
-      "sector": "Communication Services",
-      "ai_role": "neutral",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 73.86,
-      "chg_24h": 0.258,
-      "funding_apr": 0.0,
-      "ann_vol": 35,
-      "vol": 2146359.3518,
-      "binance": {
-        "last": 73.86,
-        "chg": 0.258,
-        "vol": 2146359.3518,
-        "funding": 0.0,
-        "ann_vol": 35,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 73.712,
-        "chg": 0.07,
-        "funding": 17.3
-      }
-    },
-    {
-      "ticker": "ASTS",
-      "name": "AST SpaceMobile",
-      "asset_class": "Equity",
-      "sector": "Aerospace",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 66.56,
-      "chg_24h": -4.092,
-      "funding_apr": 0.0,
-      "ann_vol": 136,
-      "vol": 2010818.2734,
-      "binance": {
-        "last": 66.56,
-        "chg": -4.092,
-        "vol": 2010818.2734,
-        "funding": 0.0,
-        "ann_vol": 136,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "USAR",
-      "name": "USA Rare Earth",
-      "asset_class": "Equity",
-      "sector": "Mining",
-      "ai_role": "supplier",
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 17.19,
-      "chg_24h": -4.817,
-      "funding_apr": 0.0,
-      "ann_vol": 102,
-      "vol": 1938675.8745,
-      "binance": {
-        "last": 17.19,
-        "chg": -4.817,
-        "vol": 1938675.8745,
-        "funding": 0.0,
-        "ann_vol": 102,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 17.221,
-        "chg": -4.59,
-        "funding": 27.2
-      }
-    },
-    {
-      "ticker": "CRDO",
-      "name": "Credo",
+      "ticker": "IREN",
+      "name": "IREN",
       "asset_class": "Equity",
       "sector": "AI Compute",
       "ai_role": "supplier",
@@ -2211,17 +1971,17 @@
       ],
       "in_universe": true,
       "in_book": true,
-      "last": 224.85,
-      "chg_24h": -5.605,
+      "last": 35.52,
+      "chg_24h": -8.501,
       "funding_apr": 0.0,
-      "ann_vol": 118,
-      "vol": 1852604.3694,
+      "ann_vol": 101,
+      "vol": 3173717.9875,
       "binance": {
-        "last": 224.85,
-        "chg": -5.605,
-        "vol": 1852604.3694,
+        "last": 35.52,
+        "chg": -8.501,
+        "vol": 3173717.9875,
         "funding": 0.0,
-        "ann_vol": 118,
+        "ann_vol": 101,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -2237,58 +1997,58 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 814.88,
-      "chg_24h": -7.076,
-      "funding_apr": 0.0,
-      "ann_vol": 90,
-      "vol": 1438409.1637,
+      "last": 741.43,
+      "chg_24h": -9.151,
+      "funding_apr": -20.6,
+      "ann_vol": 94,
+      "vol": 3089344.6131,
       "binance": {
-        "last": 814.88,
-        "chg": -7.076,
-        "vol": 1438409.1637,
-        "funding": 0.0,
-        "ann_vol": 90,
+        "last": 741.43,
+        "chg": -9.151,
+        "vol": 3089344.6131,
+        "funding": -20.6,
+        "ann_vol": 94,
         "subtype": "TradFi"
       },
       "hyperliquid": null
     },
     {
-      "ticker": "LLY",
-      "name": "Eli Lilly",
+      "ticker": "NFLX",
+      "name": "NFLX",
       "asset_class": "Equity",
-      "sector": "Healthcare",
-      "ai_role": null,
+      "sector": "Communication Services",
+      "ai_role": "neutral",
       "venues": [
         "binance",
         "hyperliquid"
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 1158.01,
-      "chg_24h": 0.242,
+      "last": 74.45,
+      "chg_24h": 0.812,
       "funding_apr": 0.0,
-      "ann_vol": 33,
-      "vol": 1295764.1099,
+      "ann_vol": 35,
+      "vol": 3089330.3666,
       "binance": {
-        "last": 1158.01,
-        "chg": 0.242,
-        "vol": 1295764.1099,
+        "last": 74.45,
+        "chg": 0.812,
+        "vol": 3089330.3666,
         "funding": 0.0,
-        "ann_vol": 33,
+        "ann_vol": 35,
         "subtype": "TradFi"
       },
       "hyperliquid": {
         "dexes": [
           "xyz"
         ],
-        "last": 1157.2,
-        "chg": 0.18,
-        "funding": 8.6
+        "last": 74.417,
+        "chg": 0.88,
+        "funding": 17.3
       }
     },
     {
-      "ticker": "BSP",
-      "name": "BSP",
+      "ticker": "BBX",
+      "name": "BBX",
       "asset_class": "Equity",
       "sector": null,
       "ai_role": null,
@@ -2297,43 +2057,17 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 33.27,
-      "chg_24h": 1.681,
+      "last": 9.22,
+      "chg_24h": -13.183,
       "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 1123239.9142,
+      "ann_vol": 117,
+      "vol": 3038198.3622,
       "binance": {
-        "last": 33.27,
-        "chg": 1.681,
-        "vol": 1123239.9142,
+        "last": 9.22,
+        "chg": -13.183,
+        "vol": 3038198.3622,
         "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "UVXY",
-      "name": "ProShares VIX 1.5x",
-      "asset_class": "ETF",
-      "sector": "Volatility",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 23.07,
-      "chg_24h": -2.617,
-      "funding_apr": 0.0,
-      "ann_vol": 55,
-      "vol": 1057875.9678,
-      "binance": {
-        "last": 23.07,
-        "chg": -2.617,
-        "vol": 1057875.9678,
-        "funding": 0.0,
-        "ann_vol": 55,
+        "ann_vol": 117,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -2350,50 +2084,522 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 37.13,
-      "chg_24h": 6.757,
+      "last": 34.13,
+      "chg_24h": -8.104,
       "funding_apr": 0.0,
-      "ann_vol": 75,
-      "vol": 1020212.5332,
+      "ann_vol": 79,
+      "vol": 2975168.2169,
       "binance": {
-        "last": 37.13,
-        "chg": 6.757,
-        "vol": 1020212.5332,
+        "last": 34.13,
+        "chg": -8.104,
+        "vol": 2975168.2169,
         "funding": 0.0,
-        "ann_vol": 75,
+        "ann_vol": 79,
         "subtype": "TradFi"
       },
       "hyperliquid": {
         "dexes": [
           "xyz"
         ],
-        "last": 37.349,
-        "chg": 7.59,
-        "funding": 5.5
+        "last": 34.17,
+        "chg": -8.06,
+        "funding": 14.9
       }
     },
     {
-      "ticker": "JPM",
-      "name": "JPMorgan",
+      "ticker": "USAR",
+      "name": "USA Rare Earth",
       "asset_class": "Equity",
-      "sector": "Finance",
-      "ai_role": "neutral",
+      "sector": "Mining",
+      "ai_role": "supplier",
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 15.89,
+      "chg_24h": -7.724,
+      "funding_apr": 0.0,
+      "ann_vol": 103,
+      "vol": 2334776.4738,
+      "binance": {
+        "last": 15.89,
+        "chg": -7.724,
+        "vol": 2334776.4738,
+        "funding": 0.0,
+        "ann_vol": 103,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 15.866,
+        "chg": -7.73,
+        "funding": 35.4
+      }
+    },
+    {
+      "ticker": "INTW",
+      "name": "INTW",
+      "asset_class": "ETF",
+      "sector": "Other",
+      "ai_role": null,
       "venues": [
         "binance"
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 346.56,
-      "chg_24h": 1.547,
+      "last": 23.14,
+      "chg_24h": -9.786,
       "funding_apr": 0.0,
-      "ann_vol": 28,
-      "vol": 977641.1099,
+      "ann_vol": null,
+      "vol": 2297508.8959,
       "binance": {
-        "last": 346.56,
-        "chg": 1.547,
-        "vol": 977641.1099,
+        "last": 23.14,
+        "chg": -9.786,
+        "vol": 2297508.8959,
         "funding": 0.0,
-        "ann_vol": 28,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "QNTX",
+      "name": "QNTX",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 57.45,
+      "chg_24h": -3.022,
+      "funding_apr": 0.0,
+      "ann_vol": 172,
+      "vol": 2271494.7,
+      "binance": {
+        "last": 57.45,
+        "chg": -3.022,
+        "vol": 2271494.7,
+        "funding": 0.0,
+        "ann_vol": 172,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "KSTR",
+      "name": "KSTR",
+      "asset_class": "ETF",
+      "sector": "Other",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 26.04,
+      "chg_24h": -4.825,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 2217894.8547,
+      "binance": {
+        "last": 26.04,
+        "chg": -4.825,
+        "vol": 2217894.8547,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 26.01,
+        "chg": 0.04,
+        "funding": 0.0
+      }
+    },
+    {
+      "ticker": "LRCX",
+      "name": "LRCX",
+      "asset_class": "Equity",
+      "sector": "Semis",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 318.15,
+      "chg_24h": -3.541,
+      "funding_apr": 0.0,
+      "ann_vol": 104,
+      "vol": 2207637.8975,
+      "binance": {
+        "last": 318.15,
+        "chg": -3.541,
+        "vol": 2207637.8975,
+        "funding": 0.0,
+        "ann_vol": 104,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "CRDO",
+      "name": "Credo",
+      "asset_class": "Equity",
+      "sector": "AI Compute",
+      "ai_role": "supplier",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 205.78,
+      "chg_24h": -8.636,
+      "funding_apr": 0.0,
+      "ann_vol": 121,
+      "vol": 2172854.0072,
+      "binance": {
+        "last": 205.78,
+        "chg": -8.636,
+        "vol": 2172854.0072,
+        "funding": 0.0,
+        "ann_vol": 121,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "EWJ",
+      "name": "iShares MSCI Japan",
+      "asset_class": "ETF",
+      "sector": "Country Index",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 91.95,
+      "chg_24h": -1.721,
+      "funding_apr": 0.0,
+      "ann_vol": 27,
+      "vol": 1654355.361,
+      "binance": {
+        "last": 91.95,
+        "chg": -1.721,
+        "vol": 1654355.361,
+        "funding": 0.0,
+        "ann_vol": 27,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 91.869,
+        "chg": -1.84,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "KLAC",
+      "name": "KLAC",
+      "asset_class": "Equity",
+      "sector": "Semis",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 218.96,
+      "chg_24h": -1.325,
+      "funding_apr": 0.0,
+      "ann_vol": 116,
+      "vol": 1397947.9778,
+      "binance": {
+        "last": 218.96,
+        "chg": -1.325,
+        "vol": 1397947.9778,
+        "funding": 0.0,
+        "ann_vol": 116,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "CRWD",
+      "name": "CrowdStrike",
+      "asset_class": "Equity",
+      "sector": "Software",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 203.88,
+      "chg_24h": -1.801,
+      "funding_apr": 0.0,
+      "ann_vol": 433,
+      "vol": 1382458.1237,
+      "binance": {
+        "last": 203.88,
+        "chg": -1.801,
+        "vol": 1382458.1237,
+        "funding": 0.0,
+        "ann_vol": 433,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "LLY",
+      "name": "Eli Lilly",
+      "asset_class": "Equity",
+      "sector": "Healthcare",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 1168.84,
+      "chg_24h": 0.879,
+      "funding_apr": 0.0,
+      "ann_vol": 33,
+      "vol": 1240403.953,
+      "binance": {
+        "last": 1168.84,
+        "chg": 0.879,
+        "vol": 1240403.953,
+        "funding": 0.0,
+        "ann_vol": 33,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 1169.9,
+        "chg": 1.12,
+        "funding": 15.5
+      }
+    },
+    {
+      "ticker": "NOW",
+      "name": "ServiceNow",
+      "asset_class": "Equity",
+      "sector": "Software",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 104.98,
+      "chg_24h": 0.057,
+      "funding_apr": 0.0,
+      "ann_vol": 57,
+      "vol": 1186979.2166,
+      "binance": {
+        "last": 104.98,
+        "chg": 0.057,
+        "vol": 1186979.2166,
+        "funding": 0.0,
+        "ann_vol": 57,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 104.77,
+        "chg": -0.2,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "EWT",
+      "name": "iShares MSCI Taiwan",
+      "asset_class": "ETF",
+      "sector": "Country Index",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 100.06,
+      "chg_24h": -1.95,
+      "funding_apr": 0.0,
+      "ann_vol": 50,
+      "vol": 1084755.8896,
+      "binance": {
+        "last": 100.06,
+        "chg": -1.95,
+        "vol": 1084755.8896,
+        "funding": 0.0,
+        "ann_vol": 50,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 99.995,
+        "chg": -2.25,
+        "funding": 2.2
+      }
+    },
+    {
+      "ticker": "UVXY",
+      "name": "ProShares VIX 1.5x",
+      "asset_class": "ETF",
+      "sector": "Volatility",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 23.67,
+      "chg_24h": 2.645,
+      "funding_apr": 0.0,
+      "ann_vol": 56,
+      "vol": 974241.1364,
+      "binance": {
+        "last": 23.67,
+        "chg": 2.645,
+        "vol": 974241.1364,
+        "funding": 0.0,
+        "ann_vol": 56,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "STRC",
+      "name": "STRC",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 86.02,
+      "chg_24h": -2.714,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 938888.7531,
+      "binance": {
+        "last": 86.02,
+        "chg": -2.714,
+        "vol": 938888.7531,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 85.965,
+        "chg": -2.69,
+        "funding": 55.9
+      }
+    },
+    {
+      "ticker": "TZA",
+      "name": "TZA",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 40.1,
+      "chg_24h": -1.788,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 900935.0704,
+      "binance": {
+        "last": 40.1,
+        "chg": -1.788,
+        "vol": 900935.0704,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "NVO",
+      "name": "Novo Nordisk",
+      "asset_class": "Equity",
+      "sector": "Healthcare",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 51.52,
+      "chg_24h": 2.222,
+      "funding_apr": 0.0,
+      "ann_vol": 41,
+      "vol": 898205.1437,
+      "binance": {
+        "last": 51.52,
+        "chg": 2.222,
+        "vol": 898205.1437,
+        "funding": 0.0,
+        "ann_vol": 41,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "BSP",
+      "name": "BSP",
+      "asset_class": "Equity",
+      "sector": null,
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": false,
+      "in_book": false,
+      "last": 32.2,
+      "chg_24h": -3.39,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 831338.1694,
+      "binance": {
+        "last": 32.2,
+        "chg": -3.39,
+        "vol": 831338.1694,
+        "funding": 0.0,
+        "ann_vol": null,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -2410,16 +2616,16 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 126.89,
-      "chg_24h": 1.789,
-      "funding_apr": 0.0,
+      "last": 128.21,
+      "chg_24h": 1.04,
+      "funding_apr": -111.2,
       "ann_vol": 37,
-      "vol": 971380.7603,
+      "vol": 803219.9069,
       "binance": {
-        "last": 126.89,
-        "chg": 1.789,
-        "vol": 971380.7603,
-        "funding": 0.0,
+        "last": 128.21,
+        "chg": 1.04,
+        "vol": 803219.9069,
+        "funding": -111.2,
         "ann_vol": 37,
         "subtype": "TradFi"
       },
@@ -2427,9 +2633,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 126.82,
-        "chg": 1.58,
-        "funding": 5.5
+        "last": 128.2,
+        "chg": 0.97,
+        "funding": -20.3
       }
     },
     {
@@ -2443,75 +2649,15 @@
       ],
       "in_universe": true,
       "in_book": true,
-      "last": 337.47,
-      "chg_24h": -5.0,
+      "last": 323.15,
+      "chg_24h": -4.594,
       "funding_apr": 0.0,
       "ann_vol": null,
-      "vol": 947841.4614,
+      "vol": 762687.2619,
       "binance": {
-        "last": 337.47,
-        "chg": -5.0,
-        "vol": 947841.4614,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "NOW",
-      "name": "ServiceNow",
-      "asset_class": "Equity",
-      "sector": "Software",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 105.0,
-      "chg_24h": -0.181,
-      "funding_apr": 0.0,
-      "ann_vol": 58,
-      "vol": 935413.2272,
-      "binance": {
-        "last": 105.0,
-        "chg": -0.181,
-        "vol": 935413.2272,
-        "funding": 0.0,
-        "ann_vol": 58,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 105.14,
-        "chg": 0.03,
-        "funding": 5.5
-      }
-    },
-    {
-      "ticker": "BNC",
-      "name": "BNC",
-      "asset_class": "Equity",
-      "sector": "Industrials",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 2.964,
-      "chg_24h": 1.961,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 796203.75451,
-      "binance": {
-        "last": 2.964,
-        "chg": 1.961,
-        "vol": 796203.75451,
+        "last": 323.15,
+        "chg": -4.594,
+        "vol": 762687.2619,
         "funding": 0.0,
         "ann_vol": null,
         "subtype": "TradFi"
@@ -2529,15 +2675,15 @@
       ],
       "in_universe": true,
       "in_book": true,
-      "last": 47.12,
-      "chg_24h": -4.383,
+      "last": 45.01,
+      "chg_24h": -4.376,
       "funding_apr": 0.0,
       "ann_vol": 73,
-      "vol": 781453.7253,
+      "vol": 750976.9078,
       "binance": {
-        "last": 47.12,
-        "chg": -4.383,
-        "vol": 781453.7253,
+        "last": 45.01,
+        "chg": -4.376,
+        "vol": 750976.9078,
         "funding": 0.0,
         "ann_vol": 73,
         "subtype": "TradFi"
@@ -2545,8 +2691,8 @@
       "hyperliquid": null
     },
     {
-      "ticker": "ADBE",
-      "name": "Adobe",
+      "ticker": "SNOW",
+      "name": "SNOW",
       "asset_class": "Equity",
       "sector": "Software",
       "ai_role": null,
@@ -2555,95 +2701,17 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 224.28,
-      "chg_24h": 1.47,
+      "last": 270.94,
+      "chg_24h": 0.148,
       "funding_apr": 0.0,
-      "ann_vol": 36,
-      "vol": 754200.0242,
+      "ann_vol": null,
+      "vol": 703039.2698,
       "binance": {
-        "last": 224.28,
-        "chg": 1.47,
-        "vol": 754200.0242,
+        "last": 270.94,
+        "chg": 0.148,
+        "vol": 703039.2698,
         "funding": 0.0,
-        "ann_vol": 36,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "CIEN",
-      "name": "CIEN",
-      "asset_class": "Equity",
-      "sector": "Networking",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 422.03,
-      "chg_24h": -6.015,
-      "funding_apr": 0.0,
-      "ann_vol": 68,
-      "vol": 748773.5885,
-      "binance": {
-        "last": 422.03,
-        "chg": -6.015,
-        "vol": 748773.5885,
-        "funding": 0.0,
-        "ann_vol": 68,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "MANTRA",
-      "name": "MANTRA",
-      "asset_class": "Metal / Commodity",
-      "sector": null,
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": false,
-      "in_book": false,
-      "last": 0.006294,
-      "chg_24h": -0.616,
-      "funding_apr": -1.8,
-      "ann_vol": 65,
-      "vol": 692376.980272,
-      "binance": {
-        "last": 0.006294,
-        "chg": -0.616,
-        "vol": 692376.980272,
-        "funding": -1.8,
-        "ann_vol": 65,
-        "subtype": "RWA"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "CSCO",
-      "name": "Cisco",
-      "asset_class": "Equity",
-      "sector": "Networking",
-      "ai_role": "supplier",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 111.84,
-      "chg_24h": -4.14,
-      "funding_apr": 0.0,
-      "ann_vol": 41,
-      "vol": 674348.209,
-      "binance": {
-        "last": 111.84,
-        "chg": -4.14,
-        "vol": 674348.209,
-        "funding": 0.0,
-        "ann_vol": 41,
+        "ann_vol": null,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -2659,69 +2727,17 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 4.283,
-      "chg_24h": -6.033,
-      "funding_apr": 0.0,
+      "last": 4.196,
+      "chg_24h": -2.031,
+      "funding_apr": 45.4,
       "ann_vol": null,
-      "vol": 623499.54305,
+      "vol": 698427.36549,
       "binance": {
-        "last": 4.283,
-        "chg": -6.033,
-        "vol": 623499.54305,
-        "funding": 0.0,
+        "last": 4.196,
+        "chg": -2.031,
+        "vol": 698427.36549,
+        "funding": 45.4,
         "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "SMCI",
-      "name": "SMCI",
-      "asset_class": "Equity",
-      "sector": "Hardware",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 26.93,
-      "chg_24h": -3.129,
-      "funding_apr": 0.0,
-      "ann_vol": 67,
-      "vol": 620116.8536,
-      "binance": {
-        "last": 26.93,
-        "chg": -3.129,
-        "vol": 620116.8536,
-        "funding": 0.0,
-        "ann_vol": 67,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "ONDS",
-      "name": "Ondas",
-      "asset_class": "Equity",
-      "sector": "Aerospace",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 6.94,
-      "chg_24h": -5.45,
-      "funding_apr": 0.0,
-      "ann_vol": 84,
-      "vol": 596932.6743,
-      "binance": {
-        "last": 6.94,
-        "chg": -5.45,
-        "vol": 596932.6743,
-        "funding": 0.0,
-        "ann_vol": 84,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -2737,17 +2753,69 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 455.56,
-      "chg_24h": 1.572,
-      "funding_apr": 18.7,
+      "last": 441.01,
+      "chg_24h": -3.194,
+      "funding_apr": 0.0,
       "ann_vol": null,
-      "vol": 561487.7882,
+      "vol": 669004.572,
       "binance": {
-        "last": 455.56,
-        "chg": 1.572,
-        "vol": 561487.7882,
-        "funding": 18.7,
+        "last": 441.01,
+        "chg": -3.194,
+        "vol": 669004.572,
+        "funding": 0.0,
         "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "VRT",
+      "name": "VRT",
+      "asset_class": "Equity",
+      "sector": "Industrials",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 289.26,
+      "chg_24h": -4.117,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 647962.9652,
+      "binance": {
+        "last": 289.26,
+        "chg": -4.117,
+        "vol": 647962.9652,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "ADBE",
+      "name": "Adobe",
+      "asset_class": "Equity",
+      "sector": "Software",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 235.16,
+      "chg_24h": 4.86,
+      "funding_apr": 0.0,
+      "ann_vol": 38,
+      "vol": 644528.4099,
+      "binance": {
+        "last": 235.16,
+        "chg": 4.86,
+        "vol": 644528.4099,
+        "funding": 0.0,
+        "ann_vol": 38,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -2764,14 +2832,14 @@
       "in_universe": false,
       "in_book": false,
       "last": 490.32,
-      "chg_24h": -0.889,
+      "chg_24h": 0.0,
       "funding_apr": 0.0,
       "ann_vol": 16,
-      "vol": 541642.5673,
+      "vol": 641489.44,
       "binance": {
         "last": 490.32,
-        "chg": -0.889,
-        "vol": 541642.5673,
+        "chg": 0.0,
+        "vol": 641489.44,
         "funding": 0.0,
         "ann_vol": 16,
         "subtype": "TradFi"
@@ -2779,102 +2847,8 @@
       "hyperliquid": null
     },
     {
-      "ticker": "NVO",
-      "name": "Novo Nordisk",
-      "asset_class": "Equity",
-      "sector": "Healthcare",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 50.42,
-      "chg_24h": 2.376,
-      "funding_apr": 0.0,
-      "ann_vol": 41,
-      "vol": 507941.8513,
-      "binance": {
-        "last": 50.42,
-        "chg": 2.376,
-        "vol": 507941.8513,
-        "funding": 0.0,
-        "ann_vol": 41,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "EWJ",
-      "name": "iShares MSCI Japan",
-      "asset_class": "ETF",
-      "sector": "Country Index",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 93.55,
-      "chg_24h": -0.415,
-      "funding_apr": 0.0,
-      "ann_vol": 27,
-      "vol": 496853.7645,
-      "binance": {
-        "last": 93.55,
-        "chg": -0.415,
-        "vol": 496853.7645,
-        "funding": 0.0,
-        "ann_vol": 27,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 93.574,
-        "chg": -0.27,
-        "funding": 5.5
-      }
-    },
-    {
-      "ticker": "EWT",
-      "name": "iShares MSCI Taiwan",
-      "asset_class": "ETF",
-      "sector": "Country Index",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 102.12,
-      "chg_24h": 0.088,
-      "funding_apr": 0.0,
-      "ann_vol": 50,
-      "vol": 493862.445,
-      "binance": {
-        "last": 102.12,
-        "chg": 0.088,
-        "vol": 493862.445,
-        "funding": 0.0,
-        "ann_vol": 50,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 102.28,
-        "chg": 0.37,
-        "funding": -6.6
-      }
-    },
-    {
-      "ticker": "VRT",
-      "name": "VRT",
+      "ticker": "BNC",
+      "name": "BNC",
       "asset_class": "Equity",
       "sector": "Industrials",
       "ai_role": null,
@@ -2883,46 +2857,184 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 301.68,
-      "chg_24h": -0.9,
-      "funding_apr": 0.0,
+      "last": 2.937,
+      "chg_24h": -0.911,
+      "funding_apr": -50.5,
       "ann_vol": null,
-      "vol": 477269.4397,
+      "vol": 639017.90508,
       "binance": {
-        "last": 301.68,
-        "chg": -0.9,
-        "vol": 477269.4397,
-        "funding": 0.0,
+        "last": 2.937,
+        "chg": -0.911,
+        "vol": 639017.90508,
+        "funding": -50.5,
         "ann_vol": null,
         "subtype": "TradFi"
       },
       "hyperliquid": null
     },
     {
-      "ticker": "XBI",
-      "name": "XBI",
-      "asset_class": "ETF",
-      "sector": "Other",
+      "ticker": "CIEN",
+      "name": "CIEN",
+      "asset_class": "Equity",
+      "sector": "Networking",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 387.7,
+      "chg_24h": -7.894,
+      "funding_apr": 0.0,
+      "ann_vol": 73,
+      "vol": 624153.2927,
+      "binance": {
+        "last": 387.7,
+        "chg": -7.894,
+        "vol": 624153.2927,
+        "funding": 0.0,
+        "ann_vol": 73,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "SMCI",
+      "name": "SMCI",
+      "asset_class": "Equity",
+      "sector": "Hardware",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 25.05,
+      "chg_24h": -6.981,
+      "funding_apr": 0.0,
+      "ann_vol": 70,
+      "vol": 554115.0018,
+      "binance": {
+        "last": 25.05,
+        "chg": -6.981,
+        "vol": 554115.0018,
+        "funding": 0.0,
+        "ann_vol": 70,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "ONDS",
+      "name": "Ondas",
+      "asset_class": "Equity",
+      "sector": "Aerospace",
       "ai_role": null,
       "venues": [
         "binance"
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 156.37,
-      "chg_24h": 0.566,
+      "last": 6.6,
+      "chg_24h": -4.899,
       "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 448087.9752,
+      "ann_vol": 84,
+      "vol": 547374.9916,
       "binance": {
-        "last": 156.37,
-        "chg": 0.566,
-        "vol": 448087.9752,
+        "last": 6.6,
+        "chg": -4.899,
+        "vol": 547374.9916,
         "funding": 0.0,
-        "ann_vol": null,
+        "ann_vol": 84,
         "subtype": "TradFi"
       },
       "hyperliquid": null
+    },
+    {
+      "ticker": "JPM",
+      "name": "JPMorgan",
+      "asset_class": "Equity",
+      "sector": "Finance",
+      "ai_role": "neutral",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 343.6,
+      "chg_24h": -0.825,
+      "funding_apr": 0.0,
+      "ann_vol": 28,
+      "vol": 537542.918,
+      "binance": {
+        "last": 343.6,
+        "chg": -0.825,
+        "vol": 537542.918,
+        "funding": 0.0,
+        "ann_vol": 28,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "CSCO",
+      "name": "Cisco",
+      "asset_class": "Equity",
+      "sector": "Networking",
+      "ai_role": "supplier",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": true,
+      "last": 108.99,
+      "chg_24h": -2.583,
+      "funding_apr": 0.0,
+      "ann_vol": 41,
+      "vol": 512796.871,
+      "binance": {
+        "last": 108.99,
+        "chg": -2.583,
+        "vol": 512796.871,
+        "funding": 0.0,
+        "ann_vol": 41,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "COST",
+      "name": "Costco",
+      "asset_class": "Equity",
+      "sector": "Retail",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 942.5,
+      "chg_24h": 2.406,
+      "funding_apr": 0.0,
+      "ann_vol": 20,
+      "vol": 502227.7371,
+      "binance": {
+        "last": 942.5,
+        "chg": 2.406,
+        "vol": 502227.7371,
+        "funding": 0.0,
+        "ann_vol": 20,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 942.99,
+        "chg": 2.61,
+        "funding": 4.7
+      }
     },
     {
       "ticker": "PAYP",
@@ -2935,80 +3047,20 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 15.42,
-      "chg_24h": 2.937,
+      "last": 15.39,
+      "chg_24h": -0.259,
       "funding_apr": 0.0,
       "ann_vol": 61,
-      "vol": 434060.935,
+      "vol": 470944.869,
       "binance": {
-        "last": 15.42,
-        "chg": 2.937,
-        "vol": 434060.935,
+        "last": 15.39,
+        "chg": -0.259,
+        "vol": 470944.869,
         "funding": 0.0,
         "ann_vol": 61,
         "subtype": "TradFi"
       },
       "hyperliquid": null
-    },
-    {
-      "ticker": "GEV",
-      "name": "GEV",
-      "asset_class": "Equity",
-      "sector": "Industrials",
-      "ai_role": "supplier",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": true,
-      "last": 1055.7,
-      "chg_24h": -0.624,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 430419.2505,
-      "binance": {
-        "last": 1055.7,
-        "chg": -0.624,
-        "vol": 430419.2505,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "RIVN",
-      "name": "Rivian",
-      "asset_class": "Equity",
-      "sector": "Auto",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 17.75,
-      "chg_24h": 3.018,
-      "funding_apr": 0.0,
-      "ann_vol": 83,
-      "vol": 426156.8823,
-      "binance": {
-        "last": 17.75,
-        "chg": 3.018,
-        "vol": 426156.8823,
-        "funding": 0.0,
-        "ann_vol": 83,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 17.778,
-        "chg": 2.64,
-        "funding": 5.5
-      }
     },
     {
       "ticker": "CRM",
@@ -3021,46 +3073,54 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 167.6,
-      "chg_24h": -0.922,
+      "last": 172.63,
+      "chg_24h": 3.217,
       "funding_apr": 0.0,
-      "ann_vol": 45,
-      "vol": 411740.2629,
+      "ann_vol": 46,
+      "vol": 443085.7365,
       "binance": {
-        "last": 167.6,
-        "chg": -0.922,
-        "vol": 411740.2629,
+        "last": 172.63,
+        "chg": 3.217,
+        "vol": 443085.7365,
         "funding": 0.0,
-        "ann_vol": 45,
+        "ann_vol": 46,
         "subtype": "TradFi"
       },
       "hyperliquid": null
     },
     {
-      "ticker": "V",
-      "name": "Visa",
+      "ticker": "ZM",
+      "name": "Zoom",
       "asset_class": "Equity",
-      "sector": "Payments",
-      "ai_role": "neutral",
+      "sector": "Software",
+      "ai_role": null,
       "venues": [
-        "binance"
+        "binance",
+        "hyperliquid"
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 357.36,
-      "chg_24h": 0.149,
+      "last": 93.59,
+      "chg_24h": 1.2,
       "funding_apr": 0.0,
-      "ann_vol": 25,
-      "vol": 410775.1987,
+      "ann_vol": 39,
+      "vol": 440126.4428,
       "binance": {
-        "last": 357.36,
-        "chg": 0.149,
-        "vol": 410775.1987,
+        "last": 93.59,
+        "chg": 1.2,
+        "vol": 440126.4428,
         "funding": 0.0,
-        "ann_vol": 25,
+        "ann_vol": 39,
         "subtype": "TradFi"
       },
-      "hyperliquid": null
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 93.589,
+        "chg": 1.16,
+        "funding": 15.2
+      }
     },
     {
       "ticker": "FLEX",
@@ -3073,17 +3133,43 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 126.93,
-      "chg_24h": -2.81,
+      "last": 121.2,
+      "chg_24h": -4.642,
       "funding_apr": 0.0,
       "ann_vol": null,
-      "vol": 373207.1687,
+      "vol": 414336.2981,
       "binance": {
-        "last": 126.93,
-        "chg": -2.81,
-        "vol": 373207.1687,
+        "last": 121.2,
+        "chg": -4.642,
+        "vol": 414336.2981,
         "funding": 0.0,
         "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "UBER",
+      "name": "Uber",
+      "asset_class": "Equity",
+      "sector": "Mobility",
+      "ai_role": "neutral",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 73.5,
+      "chg_24h": 0.726,
+      "funding_apr": 0.0,
+      "ann_vol": 35,
+      "vol": 407744.789,
+      "binance": {
+        "last": 73.5,
+        "chg": 0.726,
+        "vol": 407744.789,
+        "funding": 0.0,
+        "ann_vol": 35,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -3099,93 +3185,15 @@
       ],
       "in_universe": true,
       "in_book": true,
-      "last": 298.64,
-      "chg_24h": -2.622,
+      "last": 290.22,
+      "chg_24h": -3.079,
       "funding_apr": 0.0,
       "ann_vol": null,
-      "vol": 360867.6253,
+      "vol": 388455.2342,
       "binance": {
-        "last": 298.64,
-        "chg": -2.622,
-        "vol": 360867.6253,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "SNOW",
-      "name": "SNOW",
-      "asset_class": "Equity",
-      "sector": "Software",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 270.58,
-      "chg_24h": -2.581,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 351433.0496,
-      "binance": {
-        "last": 270.58,
-        "chg": -2.581,
-        "vol": 351433.0496,
-        "funding": 0.0,
-        "ann_vol": null,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "IWM",
-      "name": "iShares Russell 2000",
-      "asset_class": "ETF",
-      "sector": "Broad Index",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 295.27,
-      "chg_24h": 0.224,
-      "funding_apr": 0.0,
-      "ann_vol": 18,
-      "vol": 324730.7667,
-      "binance": {
-        "last": 295.27,
-        "chg": 0.224,
-        "vol": 324730.7667,
-        "funding": 0.0,
-        "ann_vol": 18,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "WEN",
-      "name": "WEN",
-      "asset_class": "Equity",
-      "sector": "Consumer Cyclical",
-      "ai_role": null,
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 7.38,
-      "chg_24h": -1.205,
-      "funding_apr": 0.0,
-      "ann_vol": null,
-      "vol": 322435.6344,
-      "binance": {
-        "last": 7.38,
-        "chg": -1.205,
-        "vol": 322435.6344,
+        "last": 290.22,
+        "chg": -3.079,
+        "vol": 388455.2342,
         "funding": 0.0,
         "ann_vol": null,
         "subtype": "TradFi"
@@ -3204,15 +3212,15 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 113.24,
-      "chg_24h": 0.631,
+      "last": 111.3,
+      "chg_24h": -1.478,
       "funding_apr": 0.0,
       "ann_vol": 27,
-      "vol": 317445.1849,
+      "vol": 385011.633,
       "binance": {
-        "last": 113.24,
-        "chg": 0.631,
-        "vol": 317445.1849,
+        "last": 111.3,
+        "chg": -1.478,
+        "vol": 385011.633,
         "funding": 0.0,
         "ann_vol": 27,
         "subtype": "TradFi"
@@ -3221,65 +3229,31 @@
         "dexes": [
           "xyz"
         ],
-        "last": 113.26,
-        "chg": 0.25,
-        "funding": -3.8
+        "last": 111.27,
+        "chg": -1.77,
+        "funding": -15.0
       }
     },
     {
-      "ticker": "COST",
-      "name": "Costco",
-      "asset_class": "Equity",
-      "sector": "Retail",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 920.72,
-      "chg_24h": 0.135,
-      "funding_apr": 0.0,
-      "ann_vol": 18,
-      "vol": 314211.7275,
-      "binance": {
-        "last": 920.72,
-        "chg": 0.135,
-        "vol": 314211.7275,
-        "funding": 0.0,
-        "ann_vol": 18,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 918.33,
-        "chg": -0.13,
-        "funding": -0.8
-      }
-    },
-    {
-      "ticker": "CAT",
-      "name": "CAT",
+      "ticker": "GEV",
+      "name": "GEV",
       "asset_class": "Equity",
       "sector": "Industrials",
-      "ai_role": null,
+      "ai_role": "supplier",
       "venues": [
         "binance"
       ],
       "in_universe": true,
-      "in_book": false,
-      "last": 906.67,
-      "chg_24h": -2.436,
+      "in_book": true,
+      "last": 1022.48,
+      "chg_24h": -3.18,
       "funding_apr": 0.0,
       "ann_vol": null,
-      "vol": 307691.1956,
+      "vol": 375772.1514,
       "binance": {
-        "last": 906.67,
-        "chg": -2.436,
-        "vol": 307691.1956,
+        "last": 1022.48,
+        "chg": -3.18,
+        "vol": 375772.1514,
         "funding": 0.0,
         "ann_vol": null,
         "subtype": "TradFi"
@@ -3287,87 +3261,27 @@
       "hyperliquid": null
     },
     {
-      "ticker": "UBER",
-      "name": "Uber",
+      "ticker": "WEN",
+      "name": "WEN",
       "asset_class": "Equity",
-      "sector": "Mobility",
-      "ai_role": "neutral",
-      "venues": [
-        "binance"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 72.97,
-      "chg_24h": 1.249,
-      "funding_apr": 0.0,
-      "ann_vol": 35,
-      "vol": 285277.6882,
-      "binance": {
-        "last": 72.97,
-        "chg": 1.249,
-        "vol": 285277.6882,
-        "funding": 0.0,
-        "ann_vol": 35,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": null
-    },
-    {
-      "ticker": "ZM",
-      "name": "Zoom",
-      "asset_class": "Equity",
-      "sector": "Software",
+      "sector": "Consumer Cyclical",
       "ai_role": null,
       "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 92.51,
-      "chg_24h": 2.187,
-      "funding_apr": 0.0,
-      "ann_vol": 40,
-      "vol": 278228.4826,
-      "binance": {
-        "last": 92.51,
-        "chg": 2.187,
-        "vol": 278228.4826,
-        "funding": 0.0,
-        "ann_vol": 40,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 92.555,
-        "chg": 2.21,
-        "funding": 5.5
-      }
-    },
-    {
-      "ticker": "HD",
-      "name": "Home Depot",
-      "asset_class": "Equity",
-      "sector": "Retail",
-      "ai_role": "neutral",
-      "venues": [
         "binance"
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 341.77,
-      "chg_24h": 0.906,
-      "funding_apr": 0.0,
-      "ann_vol": 29,
-      "vol": 247454.6889,
+      "last": 7.69,
+      "chg_24h": 4.201,
+      "funding_apr": -16.6,
+      "ann_vol": null,
+      "vol": 364672.6537,
       "binance": {
-        "last": 341.77,
-        "chg": 0.906,
-        "vol": 247454.6889,
-        "funding": 0.0,
-        "ann_vol": 29,
+        "last": 7.69,
+        "chg": 4.201,
+        "vol": 364672.6537,
+        "funding": -16.6,
+        "ann_vol": null,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -3383,17 +3297,155 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 113.69,
-      "chg_24h": -0.044,
+      "last": 115.07,
+      "chg_24h": 1.178,
       "funding_apr": 0.0,
       "ann_vol": 32,
-      "vol": 244464.0503,
+      "vol": 346897.3377,
       "binance": {
-        "last": 113.69,
-        "chg": -0.044,
-        "vol": 244464.0503,
+        "last": 115.07,
+        "chg": 1.178,
+        "vol": 346897.3377,
         "funding": 0.0,
         "ann_vol": 32,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "XBI",
+      "name": "XBI",
+      "asset_class": "ETF",
+      "sector": "Other",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 151.77,
+      "chg_24h": -2.985,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 337364.5905,
+      "binance": {
+        "last": 151.77,
+        "chg": -2.985,
+        "vol": 337364.5905,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "EWZ",
+      "name": "iShares MSCI Brazil",
+      "asset_class": "ETF",
+      "sector": "Country Index",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 35.37,
+      "chg_24h": -1.723,
+      "funding_apr": 0.0,
+      "ann_vol": 25,
+      "vol": 337194.0503,
+      "binance": {
+        "last": 35.37,
+        "chg": -1.723,
+        "vol": 337194.0503,
+        "funding": 0.0,
+        "ann_vol": 25,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 35.325,
+        "chg": -1.77,
+        "funding": 19.6
+      }
+    },
+    {
+      "ticker": "DIS",
+      "name": "Disney",
+      "asset_class": "Equity",
+      "sector": "Media",
+      "ai_role": "neutral",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 99.2,
+      "chg_24h": 2.152,
+      "funding_apr": 0.0,
+      "ann_vol": 23,
+      "vol": 289448.5414,
+      "binance": {
+        "last": 99.2,
+        "chg": 2.152,
+        "vol": 289448.5414,
+        "funding": 0.0,
+        "ann_vol": 23,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "CAT",
+      "name": "CAT",
+      "asset_class": "Equity",
+      "sector": "Industrials",
+      "ai_role": null,
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 875.54,
+      "chg_24h": -3.218,
+      "funding_apr": 0.0,
+      "ann_vol": null,
+      "vol": 280570.761,
+      "binance": {
+        "last": 875.54,
+        "chg": -3.218,
+        "vol": 280570.761,
+        "funding": 0.0,
+        "ann_vol": null,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "V",
+      "name": "Visa",
+      "asset_class": "Equity",
+      "sector": "Payments",
+      "ai_role": "neutral",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 362.59,
+      "chg_24h": 1.54,
+      "funding_apr": 0.0,
+      "ann_vol": 25,
+      "vol": 278564.633,
+      "binance": {
+        "last": 362.59,
+        "chg": 1.54,
+        "vol": 278564.633,
+        "funding": 0.0,
+        "ann_vol": 25,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -3410,50 +3462,84 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 50.65,
-      "chg_24h": -1.765,
+      "last": 48.77,
+      "chg_24h": -3.826,
       "funding_apr": 0.0,
-      "ann_vol": 51,
-      "vol": 222391.9414,
+      "ann_vol": 52,
+      "vol": 251413.7178,
       "binance": {
-        "last": 50.65,
-        "chg": -1.765,
-        "vol": 222391.9414,
+        "last": 48.77,
+        "chg": -3.826,
+        "vol": 251413.7178,
         "funding": 0.0,
-        "ann_vol": 51,
+        "ann_vol": 52,
         "subtype": "TradFi"
       },
       "hyperliquid": {
         "dexes": [
           "xyz"
         ],
-        "last": 50.63,
-        "chg": -1.79,
-        "funding": 56.8
+        "last": 48.76,
+        "chg": -3.66,
+        "funding": 5.5
       }
     },
     {
-      "ticker": "DIS",
-      "name": "Disney",
+      "ticker": "RIVN",
+      "name": "Rivian",
       "asset_class": "Equity",
-      "sector": "Media",
-      "ai_role": "neutral",
+      "sector": "Auto",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 16.81,
+      "chg_24h": -5.296,
+      "funding_apr": 0.0,
+      "ann_vol": 84,
+      "vol": 241005.7564,
+      "binance": {
+        "last": 16.81,
+        "chg": -5.296,
+        "vol": 241005.7564,
+        "funding": 0.0,
+        "ann_vol": 84,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 16.826,
+        "chg": -5.33,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "IWM",
+      "name": "iShares Russell 2000",
+      "asset_class": "ETF",
+      "sector": "Broad Index",
+      "ai_role": null,
       "venues": [
         "binance"
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 97.12,
-      "chg_24h": 0.695,
+      "last": 295.01,
+      "chg_24h": -0.166,
       "funding_apr": 0.0,
-      "ann_vol": 23,
-      "vol": 221295.3207,
+      "ann_vol": 18,
+      "vol": 234641.1195,
       "binance": {
-        "last": 97.12,
-        "chg": 0.695,
-        "vol": 221295.3207,
+        "last": 295.01,
+        "chg": -0.166,
+        "vol": 234641.1195,
         "funding": 0.0,
-        "ann_vol": 23,
+        "ann_vol": 18,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -3469,88 +3555,20 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 242.83,
-      "chg_24h": 1.892,
+      "last": 243.33,
+      "chg_24h": 0.185,
       "funding_apr": 0.0,
       "ann_vol": null,
-      "vol": 213039.6626,
+      "vol": 217517.0159,
       "binance": {
-        "last": 242.83,
-        "chg": 1.892,
-        "vol": 213039.6626,
+        "last": 243.33,
+        "chg": 0.185,
+        "vol": 217517.0159,
         "funding": 0.0,
         "ann_vol": null,
         "subtype": "TradFi"
       },
       "hyperliquid": null
-    },
-    {
-      "ticker": "DKNG",
-      "name": "DraftKings",
-      "asset_class": "Equity",
-      "sector": "Gaming",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 25.26,
-      "chg_24h": 0.517,
-      "funding_apr": 0.0,
-      "ann_vol": 59,
-      "vol": 188677.3093,
-      "binance": {
-        "last": 25.26,
-        "chg": 0.517,
-        "vol": 188677.3093,
-        "funding": 0.0,
-        "ann_vol": 59,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 25.285,
-        "chg": 0.38,
-        "funding": 5.5
-      }
-    },
-    {
-      "ticker": "EWZ",
-      "name": "iShares MSCI Brazil",
-      "asset_class": "ETF",
-      "sector": "Country Index",
-      "ai_role": null,
-      "venues": [
-        "binance",
-        "hyperliquid"
-      ],
-      "in_universe": true,
-      "in_book": false,
-      "last": 35.97,
-      "chg_24h": -0.25,
-      "funding_apr": 0.0,
-      "ann_vol": 25,
-      "vol": 159128.7172,
-      "binance": {
-        "last": 35.97,
-        "chg": -0.25,
-        "vol": 159128.7172,
-        "funding": 0.0,
-        "ann_vol": 25,
-        "subtype": "TradFi"
-      },
-      "hyperliquid": {
-        "dexes": [
-          "xyz"
-        ],
-        "last": 35.954,
-        "chg": -0.18,
-        "funding": 8.4
-      }
     },
     {
       "ticker": "GME",
@@ -3564,15 +3582,15 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 22.2,
-      "chg_24h": -1.202,
+      "last": 22.05,
+      "chg_24h": -0.765,
       "funding_apr": 0.0,
       "ann_vol": 33,
-      "vol": 133164.9169,
+      "vol": 188708.3771,
       "binance": {
-        "last": 22.2,
-        "chg": -1.202,
-        "vol": 133164.9169,
+        "last": 22.05,
+        "chg": -0.765,
+        "vol": 188708.3771,
         "funding": 0.0,
         "ann_vol": 33,
         "subtype": "TradFi"
@@ -3581,8 +3599,42 @@
         "dexes": [
           "xyz"
         ],
-        "last": 22.181,
-        "chg": -1.37,
+        "last": 22.037,
+        "chg": -0.64,
+        "funding": 5.5
+      }
+    },
+    {
+      "ticker": "DKNG",
+      "name": "DraftKings",
+      "asset_class": "Equity",
+      "sector": "Gaming",
+      "ai_role": null,
+      "venues": [
+        "binance",
+        "hyperliquid"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 25.32,
+      "chg_24h": 0.476,
+      "funding_apr": 0.0,
+      "ann_vol": 58,
+      "vol": 180426.6067,
+      "binance": {
+        "last": 25.32,
+        "chg": 0.476,
+        "vol": 180426.6067,
+        "funding": 0.0,
+        "ann_vol": 58,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": {
+        "dexes": [
+          "xyz"
+        ],
+        "last": 25.27,
+        "chg": 0.08,
         "funding": 5.5
       }
     },
@@ -3598,15 +3650,15 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 56.31,
-      "chg_24h": -0.985,
+      "last": 57.1,
+      "chg_24h": 1.367,
       "funding_apr": 0.0,
       "ann_vol": 26,
-      "vol": 115727.2013,
+      "vol": 176091.2446,
       "binance": {
-        "last": 56.31,
-        "chg": -0.985,
-        "vol": 115727.2013,
+        "last": 57.1,
+        "chg": 1.367,
+        "vol": 176091.2446,
         "funding": 0.0,
         "ann_vol": 26,
         "subtype": "TradFi"
@@ -3615,9 +3667,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 56.274,
-        "chg": -1.04,
-        "funding": 34.8
+        "last": 57.131,
+        "chg": 1.4,
+        "funding": 68.4
       }
     },
     {
@@ -3631,17 +3683,43 @@
       ],
       "in_universe": true,
       "in_book": false,
-      "last": 20.74,
-      "chg_24h": -0.813,
+      "last": 21.32,
+      "chg_24h": 2.896,
       "funding_apr": 0.0,
-      "ann_vol": 27,
-      "vol": 84459.1096,
+      "ann_vol": 29,
+      "vol": 168656.1754,
       "binance": {
-        "last": 20.74,
-        "chg": -0.813,
-        "vol": 84459.1096,
+        "last": 21.32,
+        "chg": 2.896,
+        "vol": 168656.1754,
         "funding": 0.0,
-        "ann_vol": 27,
+        "ann_vol": 29,
+        "subtype": "TradFi"
+      },
+      "hyperliquid": null
+    },
+    {
+      "ticker": "HD",
+      "name": "Home Depot",
+      "asset_class": "Equity",
+      "sector": "Retail",
+      "ai_role": "neutral",
+      "venues": [
+        "binance"
+      ],
+      "in_universe": true,
+      "in_book": false,
+      "last": 346.1,
+      "chg_24h": 1.172,
+      "funding_apr": 0.0,
+      "ann_vol": 29,
+      "vol": 136590.5053,
+      "binance": {
+        "last": 346.1,
+        "chg": 1.172,
+        "vol": 136590.5053,
+        "funding": 0.0,
+        "ann_vol": 29,
         "subtype": "TradFi"
       },
       "hyperliquid": null
@@ -3709,9 +3787,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 10.664,
-      "chg_24h": -2.81,
-      "funding_apr": 42.8,
+      "last": 9.2267,
+      "chg_24h": -13.15,
+      "funding_apr": 58.3,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -3719,9 +3797,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 10.664,
-        "chg": -2.81,
-        "funding": 42.8
+        "last": 9.2267,
+        "chg": -13.15,
+        "funding": 58.3
       }
     },
     {
@@ -3761,9 +3839,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 2.9858,
-      "chg_24h": 0.74,
-      "funding_apr": 40.6,
+      "last": 2.8922,
+      "chg_24h": -3.56,
+      "funding_apr": 5.5,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -3771,9 +3849,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 2.9858,
-        "chg": 0.74,
-        "funding": 40.6
+        "last": 2.8922,
+        "chg": -3.56,
+        "funding": 5.5
       }
     },
     {
@@ -3787,9 +3865,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 83.687,
-      "chg_24h": -0.14,
-      "funding_apr": 29.9,
+      "last": 83.112,
+      "chg_24h": -0.72,
+      "funding_apr": 24.4,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -3797,9 +3875,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 83.687,
-        "chg": -0.14,
-        "funding": 29.9
+        "last": 83.112,
+        "chg": -0.72,
+        "funding": 24.4
       }
     },
     {
@@ -3865,9 +3943,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 79.229,
-      "chg_24h": 0.37,
-      "funding_apr": 5.5,
+      "last": 78.45,
+      "chg_24h": -1.05,
+      "funding_apr": 33.3,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -3875,9 +3953,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 79.229,
-        "chg": 0.37,
-        "funding": 5.5
+        "last": 78.45,
+        "chg": -1.05,
+        "funding": 33.3
       }
     },
     {
@@ -3891,9 +3969,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 6.3901,
-      "chg_24h": 0.36,
-      "funding_apr": 20.2,
+      "last": 6.3004,
+      "chg_24h": -1.3,
+      "funding_apr": 17.0,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -3901,9 +3979,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 6.3901,
-        "chg": 0.36,
-        "funding": 20.2
+        "last": 6.3004,
+        "chg": -1.3,
+        "funding": 17.0
       }
     },
     {
@@ -3943,9 +4021,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 7.5917,
-      "chg_24h": 26.53,
-      "funding_apr": 0.1,
+      "last": 7.0296,
+      "chg_24h": -7.43,
+      "funding_apr": -1.0,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -3953,9 +4031,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 7.5917,
-        "chg": 26.53,
-        "funding": 0.1
+        "last": 7.0296,
+        "chg": -7.43,
+        "funding": -1.0
       }
     },
     {
@@ -4073,8 +4151,8 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 1.1472,
-      "chg_24h": 0.41,
+      "last": 1.144,
+      "chg_24h": -0.31,
       "funding_apr": 0.0,
       "ann_vol": null,
       "vol": null,
@@ -4083,8 +4161,8 @@
         "dexes": [
           "xyz"
         ],
-        "last": 1.1472,
-        "chg": 0.41,
+        "last": 1.144,
+        "chg": -0.31,
         "funding": 0.0
       }
     },
@@ -4099,8 +4177,8 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 1.3537,
-      "chg_24h": 1.03,
+      "last": 1.3472,
+      "chg_24h": -0.52,
       "funding_apr": 0.0,
       "ann_vol": null,
       "vol": null,
@@ -4109,8 +4187,8 @@
         "dexes": [
           "xyz"
         ],
-        "last": 1.3537,
-        "chg": 1.03,
+        "last": 1.3472,
+        "chg": -0.52,
         "funding": 0.0
       }
     },
@@ -4230,9 +4308,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 287.98,
-      "chg_24h": -1.28,
-      "funding_apr": -127.3,
+      "last": 279.84,
+      "chg_24h": -2.64,
+      "funding_apr": -27.3,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4240,9 +4318,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 287.98,
-        "chg": -1.28,
-        "funding": -127.3
+        "last": 279.84,
+        "chg": -2.64,
+        "funding": -27.3
       }
     },
     {
@@ -4256,7 +4334,7 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 113.9,
+      "last": 103.44,
       "chg_24h": 0.0,
       "funding_apr": 0.0,
       "ann_vol": null,
@@ -4266,7 +4344,7 @@
         "dexes": [
           "xyz"
         ],
-        "last": 113.9,
+        "last": 103.44,
         "chg": 0.0,
         "funding": 0.0
       }
@@ -4334,9 +4412,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 67634.0,
-      "chg_24h": -0.65,
-      "funding_apr": 20.9,
+      "last": 65864.0,
+      "chg_24h": -2.54,
+      "funding_apr": 39.0,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4344,9 +4422,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 67634.0,
-        "chg": -0.65,
-        "funding": 20.9
+        "last": 65864.0,
+        "chg": -2.54,
+        "funding": 39.0
       }
     },
     {
@@ -4360,8 +4438,8 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 162.0,
-      "chg_24h": -0.11,
+      "last": 162.43,
+      "chg_24h": 0.26,
       "funding_apr": 0.0,
       "ann_vol": null,
       "vol": null,
@@ -4370,8 +4448,8 @@
         "dexes": [
           "xyz"
         ],
-        "last": 162.0,
-        "chg": -0.11,
+        "last": 162.43,
+        "chg": 0.26,
         "funding": 0.0
       }
     },
@@ -4386,9 +4464,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 417.83,
-      "chg_24h": -5.25,
-      "funding_apr": 161.6,
+      "last": 356.88,
+      "chg_24h": -14.31,
+      "funding_apr": -91.8,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4396,9 +4474,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 417.83,
-        "chg": -5.25,
-        "funding": 161.6
+        "last": 356.88,
+        "chg": -14.31,
+        "funding": -91.8
       }
     },
     {
@@ -4412,9 +4490,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 1113.6,
-      "chg_24h": -2.85,
-      "funding_apr": 405.8,
+      "last": 1043.1,
+      "chg_24h": -6.0,
+      "funding_apr": 229.5,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4422,9 +4500,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 1113.6,
-        "chg": -2.85,
-        "funding": 405.8
+        "last": 1043.1,
+        "chg": -6.0,
+        "funding": 229.5
       }
     },
     {
@@ -4438,8 +4516,8 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 1486.6,
-      "chg_24h": -0.01,
+      "last": 1480.2,
+      "chg_24h": 0.01,
       "funding_apr": 0.0,
       "ann_vol": null,
       "vol": null,
@@ -4448,8 +4526,8 @@
         "dexes": [
           "xyz"
         ],
-        "last": 1486.6,
-        "chg": -0.01,
+        "last": 1480.2,
+        "chg": 0.01,
         "funding": 0.0
       }
     },
@@ -4516,9 +4594,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 33.784,
-      "chg_24h": 10.29,
-      "funding_apr": 522.0,
+      "last": 33.411,
+      "chg_24h": -2.08,
+      "funding_apr": -18.7,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4526,9 +4604,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 33.784,
-        "chg": 10.29,
-        "funding": 522.0
+        "last": 33.411,
+        "chg": -2.08,
+        "funding": -18.7
       }
     },
     {
@@ -4542,8 +4620,8 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 2.894,
-      "chg_24h": 0.69,
+      "last": 2.8529,
+      "chg_24h": -1.3,
       "funding_apr": 5.5,
       "ann_vol": null,
       "vol": null,
@@ -4552,8 +4630,8 @@
         "dexes": [
           "xyz"
         ],
-        "last": 2.894,
-        "chg": 0.69,
+        "last": 2.8529,
+        "chg": -1.3,
         "funding": 5.5
       }
     },
@@ -4646,9 +4724,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 1318.4,
-      "chg_24h": 1.1,
-      "funding_apr": 5.9,
+      "last": 1267.3,
+      "chg_24h": -4.17,
+      "funding_apr": 171.1,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4656,9 +4734,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 1318.4,
-        "chg": 1.1,
-        "funding": 5.9
+        "last": 1267.3,
+        "chg": -4.17,
+        "funding": 171.1
       }
     },
     {
@@ -4672,9 +4750,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 1685.6,
-      "chg_24h": 3.23,
-      "funding_apr": 22.9,
+      "last": 1626.2,
+      "chg_24h": -3.21,
+      "funding_apr": 5.5,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4682,9 +4760,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 1685.6,
-        "chg": 3.23,
-        "funding": 22.9
+        "last": 1626.2,
+        "chg": -3.21,
+        "funding": 5.5
       }
     },
     {
@@ -4698,9 +4776,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 7.558,
-      "chg_24h": 2.38,
-      "funding_apr": 21.6,
+      "last": 6.903,
+      "chg_24h": -8.54,
+      "funding_apr": 51.4,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4708,9 +4786,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 7.558,
-        "chg": 2.38,
-        "funding": 21.6
+        "last": 6.903,
+        "chg": -8.54,
+        "funding": 51.4
       }
     },
     {
@@ -4724,9 +4802,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 59.64,
-      "chg_24h": -10.22,
-      "funding_apr": -18.7,
+      "last": 57.433,
+      "chg_24h": -3.15,
+      "funding_apr": 14.0,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4734,9 +4812,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 59.64,
-        "chg": -10.22,
-        "funding": -18.7
+        "last": 57.433,
+        "chg": -3.15,
+        "funding": 14.0
       }
     },
     {
@@ -4802,9 +4880,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 69.768,
-      "chg_24h": -1.5,
-      "funding_apr": -25.4,
+      "last": 65.518,
+      "chg_24h": -5.78,
+      "funding_apr": 20.6,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4812,9 +4890,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 69.768,
-        "chg": -1.5,
-        "funding": -25.4
+        "last": 65.518,
+        "chg": -5.78,
+        "funding": 20.6
       }
     },
     {
@@ -4881,9 +4959,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 1306.6,
-      "chg_24h": -3.46,
-      "funding_apr": -153.4,
+      "last": 1191.9,
+      "chg_24h": -8.41,
+      "funding_apr": -126.6,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4891,9 +4969,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 1306.6,
-        "chg": -3.46,
-        "funding": -153.4
+        "last": 1191.9,
+        "chg": -8.41,
+        "funding": -126.6
       }
     },
     {
@@ -4907,9 +4985,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 588.15,
-      "chg_24h": -2.41,
-      "funding_apr": 5.5,
+      "last": 566.73,
+      "chg_24h": -3.56,
+      "funding_apr": -38.4,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4917,9 +4995,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 588.15,
-        "chg": -2.41,
-        "funding": 5.5
+        "last": 566.73,
+        "chg": -3.56,
+        "funding": -38.4
       }
     },
     {
@@ -4933,9 +5011,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 175.95,
-      "chg_24h": -5.37,
-      "funding_apr": -16.0,
+      "last": 165.27,
+      "chg_24h": -5.94,
+      "funding_apr": -62.2,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4943,9 +5021,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 175.95,
-        "chg": -5.37,
-        "funding": -16.0
+        "last": 165.27,
+        "chg": -5.94,
+        "funding": -62.2
       }
     },
     {
@@ -4959,9 +5037,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 38.457,
-      "chg_24h": -1.74,
-      "funding_apr": 516.9,
+      "last": 35.496,
+      "chg_24h": -7.3,
+      "funding_apr": 59.2,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -4969,9 +5047,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 38.457,
-        "chg": -1.74,
-        "funding": 516.9
+        "last": 35.496,
+        "chg": -7.3,
+        "funding": 59.2
       }
     },
     {
@@ -5011,9 +5089,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 7558.6,
-      "chg_24h": 0.19,
-      "funding_apr": -14.3,
+      "last": 7524.7,
+      "chg_24h": -0.38,
+      "funding_apr": -9.3,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -5021,9 +5099,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 7558.6,
-        "chg": 0.19,
-        "funding": -14.3
+        "last": 7524.7,
+        "chg": -0.38,
+        "funding": -9.3
       }
     },
     {
@@ -5246,8 +5324,8 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 29463.0,
-      "chg_24h": -0.58,
+      "last": 29024.0,
+      "chg_24h": -1.34,
       "funding_apr": 5.5,
       "ann_vol": null,
       "vol": null,
@@ -5256,8 +5334,8 @@
         "dexes": [
           "xyz"
         ],
-        "last": 29463.0,
-        "chg": -0.58,
+        "last": 29024.0,
+        "chg": -1.34,
         "funding": 5.5
       }
     },
@@ -5272,9 +5350,9 @@
       ],
       "in_universe": false,
       "in_book": false,
-      "last": 212.03,
-      "chg_24h": -0.42,
-      "funding_apr": -541.0,
+      "last": 198.41,
+      "chg_24h": -6.9,
+      "funding_apr": -161.7,
       "ann_vol": null,
       "vol": null,
       "binance": null,
@@ -5282,9 +5360,9 @@
         "dexes": [
           "xyz"
         ],
-        "last": 212.03,
-        "chg": -0.42,
-        "funding": -541.0
+        "last": 198.41,
+        "chg": -6.9,
+        "funding": -161.7
       }
     }
   ],
