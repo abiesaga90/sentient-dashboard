@@ -1,6 +1,6 @@
 {
   "as_of": "2026-07-10",
-  "generated_at": "2026-07-20T07:24:56.695341Z",
+  "generated_at": "2026-07-20T19:03:51.824446Z",
   "state": "GREEN",
   "headline": "Trade ON \u2014 sellers leading, the raise intact, bid on the accelerator. Full book.",
   "signals": [
@@ -46,6 +46,25 @@
     "Operator/power layer stays signal-sized; keep the watch-list (Astera/ALAB, Arista/ANET, GE Vernova/GEV, Constellation/CEG) ready to onboard.",
     "Monitor the spread's 2nd derivative + seller revisions + the memory tell each refresh."
   ],
+  "beta_readd": {
+    "enabled": true,
+    "target": 0.1,
+    "net_beta_target_now": 0.0,
+    "already_applied": false,
+    "cond_spread_pace_1mo": {
+      "ok": false,
+      "value_pp_per_mo": -3.2
+    },
+    "cond_soxx_20d_high": {
+      "ok": false,
+      "close": 526.25,
+      "prior_high": 655.010009765625,
+      "window": 20,
+      "source": "SOXX"
+    },
+    "triggered": false,
+    "rule": "NET_BETA_TARGET 0\u2192+0.1 only when 1mo spread pace > 0 AND SOXX > prior 20d high. Alert-only; operator applies via env + rebalance."
+  },
   "spread": {
     "1mo": {
       "sellers": -3.8,
