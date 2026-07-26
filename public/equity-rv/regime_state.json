@@ -1,14 +1,14 @@
 {
-  "as_of": "2026-07-10",
-  "generated_at": "2026-07-25T19:03:31.706507Z",
+  "as_of": "2026-07-24",
+  "generated_at": "2026-07-26T19:08:05.600998Z",
   "state": "GREEN",
   "headline": "Trade ON \u2014 sellers leading, the raise intact, bid on the accelerator. Full book.",
   "signals": [
     {
       "name": "Sellers\u2212Buyers spread",
-      "value": "+45pp (3mo)",
-      "trend": "pace 20\u219215\u2192-3 pp/mo \u2014 decelerating",
-      "state": "amber",
+      "value": "+nanpp (3mo)",
+      "trend": "pace nan\u2192nan\u2192nan pp/mo",
+      "state": "green",
       "desc": "Coatue gauge \u2014 sellers vs buyers of the shortage"
     },
     {
@@ -20,7 +20,7 @@
     },
     {
       "name": "Layer leadership",
-      "value": "systems \u00b7 memory \u00b7 compute-die",
+      "value": "compute-die \u00b7 memory \u00b7 custom-silicon/net",
       "trend": "bid on the accelerator",
       "state": "green",
       "desc": "which slice is the marginal bid"
@@ -53,7 +53,7 @@
     "already_applied": false,
     "cond_spread_pace_1mo": {
       "ok": false,
-      "value_pp_per_mo": -3.2
+      "value_pp_per_mo": NaN
     },
     "cond_soxx_20d_high": {
       "ok": false,
@@ -67,116 +67,112 @@
   },
   "spread": {
     "1mo": {
-      "sellers": -3.8,
-      "buyers": -0.5,
-      "spread_pp": -3.2
+      "sellers": -35.1,
+      "buyers": NaN,
+      "spread_pp": NaN
     },
     "3mo": {
-      "sellers": 49.1,
-      "buyers": 4.3,
-      "spread_pp": 44.8
+      "sellers": 23.7,
+      "buyers": NaN,
+      "spread_pp": NaN
     },
     "6mo": {
-      "sellers": 110.8,
-      "buyers": -7.1,
-      "spread_pp": 117.9
+      "sellers": 88.5,
+      "buyers": NaN,
+      "spread_pp": NaN
     }
   },
   "spread_pace_pp_per_mo": {
-    "1mo": -3.2,
-    "3mo": 14.9,
-    "6mo": 19.7
+    "1mo": NaN,
+    "3mo": NaN,
+    "6mo": NaN
   },
   "spread_history": [
     {
-      "date": "2025-07-17",
-      "spread_pp": 35.6
+      "date": "2025-07-31",
+      "spread_pp": 25.4
     },
     {
-      "date": "2025-08-15",
-      "spread_pp": 15.8
+      "date": "2025-08-29",
+      "spread_pp": 21.5
     },
     {
-      "date": "2025-09-15",
-      "spread_pp": 22.1
+      "date": "2025-09-29",
+      "spread_pp": 27.1
     },
     {
-      "date": "2025-10-14",
-      "spread_pp": 40.1
+      "date": "2025-10-28",
+      "spread_pp": 51.5
     },
     {
-      "date": "2025-11-12",
-      "spread_pp": 64.1
+      "date": "2025-11-26",
+      "spread_pp": 45.8
     },
     {
-      "date": "2025-12-11",
-      "spread_pp": 53.1
+      "date": "2025-12-26",
+      "spread_pp": 30.9
     },
     {
-      "date": "2026-01-13",
-      "spread_pp": 35.4
+      "date": "2026-01-27",
+      "spread_pp": 33.3
     },
     {
-      "date": "2026-02-11",
-      "spread_pp": 37.7
+      "date": "2026-02-26",
+      "spread_pp": 54.2
     },
     {
-      "date": "2026-03-13",
-      "spread_pp": 38.8
+      "date": "2026-03-27",
+      "spread_pp": 53.2
     },
     {
-      "date": "2026-04-13",
-      "spread_pp": 59.6
+      "date": "2026-04-27",
+      "spread_pp": 58.4
     },
     {
-      "date": "2026-05-12",
-      "spread_pp": 64.1
+      "date": "2026-05-27",
+      "spread_pp": 68.6
     },
     {
-      "date": "2026-06-11",
-      "spread_pp": 80.2
-    },
-    {
-      "date": "2026-07-10",
-      "spread_pp": 44.8
+      "date": "2026-06-25",
+      "spread_pp": 94.6
     }
   ],
   "layer_momentum": [
     {
-      "layer": "systems",
-      "mom_3mo": 113.0
+      "layer": "compute-die",
+      "mom_3mo": NaN
     },
     {
       "layer": "memory",
-      "mom_3mo": 90.0
-    },
-    {
-      "layer": "compute-die",
-      "mom_3mo": 71.0
+      "mom_3mo": 24.0
     },
     {
       "layer": "custom-silicon/net",
-      "mom_3mo": 65.0
-    },
-    {
-      "layer": "power/grid",
-      "mom_3mo": 22.0
-    },
-    {
-      "layer": "foundry/equip",
-      "mom_3mo": 19.0
-    },
-    {
-      "layer": "materials",
-      "mom_3mo": 10.0
-    },
-    {
-      "layer": "neocloud",
-      "mom_3mo": 6.0
+      "mom_3mo": NaN
     },
     {
       "layer": "optical",
-      "mom_3mo": -4.0
+      "mom_3mo": NaN
+    },
+    {
+      "layer": "foundry/equip",
+      "mom_3mo": NaN
+    },
+    {
+      "layer": "neocloud",
+      "mom_3mo": NaN
+    },
+    {
+      "layer": "power/grid",
+      "mom_3mo": NaN
+    },
+    {
+      "layer": "systems",
+      "mom_3mo": NaN
+    },
+    {
+      "layer": "materials",
+      "mom_3mo": NaN
     }
   ],
   "smart_money_rotation": {
@@ -197,7 +193,7 @@
       "takeaway": "Sellers of the shortage win (Coatue)",
       "mechanism": "thesis tilt W_THESIS + exclude spenders",
       "status": "LIVE",
-      "live": "spread +45pp (3mo)"
+      "live": "spread +nanpp (3mo)"
     },
     {
       "takeaway": "The 'raise' drives (Coatue/Aletheia/MRVL)",
@@ -233,7 +229,7 @@
       "takeaway": "Follow the gigawatts (operator/power forward)",
       "mechanism": "W_OPERATOR_TILT layer tilt",
       "status": "ARMED",
-      "live": "tilt 0.0 \u00b7 systems"
+      "live": "tilt 0.0 \u00b7 compute-die"
     },
     {
       "takeaway": "Bottleneck trade maturing (Gavin Baker)",
