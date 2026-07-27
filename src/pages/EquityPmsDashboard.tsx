@@ -34,8 +34,13 @@ type Paper = {
   layer_mix?: { layer: string; pct: number }[];
   nav_curve: { date: string; nav: number; net_pct?: number | null; net_beta?: number | null }[];
   backtest_variants?: Record<string, BtVariant> | null;
+  risk_policy?: RiskPolicy | null;
   paper_live?: PaperLive | null;
   note: string;
+};
+type RiskPolicy = {
+  policy: string; policy_date: string; assessed: string; strategy_notional: number; basis: string;
+  items: { name: string; ref: string; limit: string; measured: string; status: string; note?: string }[];
 };
 // genuine forward paper track — held from inception, NAV indexed to 100, never restated
 type PaperLive = {
@@ -543,6 +548,44 @@ function FrontierCard({ fr }: { fr: Frontier }) {
   );
 }
 
+const POLICY_PILL: Record<string, string> = {
+  pass: "bg-emerald-500/10 text-emerald-400 border-emerald-500/40",
+  amber: "bg-amber-500/10 text-amber-400 border-amber-500/40",
+  fail: "bg-red-500/10 text-red-400 border-red-500/40",
+  na: "bg-gray-500/10 text-gray-500 border-gray-500/40",
+};
+
+// conformance vs the Layer One Fund Risk Policy (Part 3, Quantitative Strategies) — policy basis:
+// limits are % of the STRATEGY NOTIONAL (allocated risk capital), not the engine's 2x trading notional
+function PolicyPanel({ rp }: { rp: RiskPolicy }) {
+  return (
+    <div className="rounded-xl border border-cyan-500/30 bg-[var(--bg-card)] p-5 mb-6">
+      <div className="text-sm font-medium text-gray-200 mb-1">Risk-policy conformance
+        <span className="ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-cyan-500/30 text-cyan-400">{rp.policy}</span>
+      </div>
+      <p className="text-[11px] text-gray-500 mb-3">{rp.basis} Assessed {rp.assessed} against the {rp.policy_date} draft; measured on the live paper track.</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-[13px]">
+          <thead className="text-[11px] uppercase tracking-wider text-gray-500 border-b border-[var(--border)]">
+            <tr><th className="text-left py-2 pr-3">Policy limit</th><th className="text-left py-2 pr-3">Ref</th><th className="text-left py-2 pr-3">Measured</th><th className="text-left py-2">Status</th></tr>
+          </thead>
+          <tbody>
+            {rp.items.map((it) => (
+              <tr key={it.name} className="border-b border-[var(--border)]/40 align-top">
+                <td className="py-2 pr-3"><div className="text-gray-200">{it.name}</div><div className="text-[11px] text-gray-600">{it.limit}</div></td>
+                <td className="py-2 pr-3 text-gray-500 whitespace-nowrap text-xs">{it.ref}</td>
+                <td className="py-2 pr-3 text-gray-400">{it.measured}{it.note && <div className="text-[11px] text-gray-600 mt-0.5">{it.note}</div>}</td>
+                <td className="py-2"><span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${POLICY_PILL[it.status] ?? POLICY_PILL.na}`}>{it.status === "na" ? "n/a" : it.status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[11px] text-gray-600 mt-3">Amber = policy-review item (conformance gap, cap utilization above 90%, or a pending go-live control), per the §1.9 breach taxonomy — reported with a remediation plan, not necessarily a live breach. Where engine limits are stricter than the policy schedule, the stricter provision applies (§1.1).</p>
+    </div>
+  );
+}
+
 function RiskTab({ p }: { p: Paper }) {
   const sortino = p.gates.roll4wk_sortino;
   const [fr, setFr] = useState<Frontier | null>(null);
@@ -551,9 +594,10 @@ function RiskTab({ p }: { p: Paper }) {
   }, []);
   return (
     <>
+    {p.risk_policy && <PolicyPanel rp={p.risk_policy} />}
     <div className="grid md:grid-cols-2 gap-6">
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
-        <div className="text-sm font-medium text-gray-200 mb-4">Exposure vs Nickel limits</div>
+        <div className="text-sm font-medium text-gray-200 mb-4">Exposure vs engine limits <span className="text-[10px] uppercase tracking-wider text-gray-600">(Nickel DAL convention — notional = 2x strategy capital)</span></div>
         <ExposureBar label="Gross" value={p.gross_pct} cap={p.limits.gross_cap_pct} capLabel={`${p.limits.gross_cap_pct}% cap`} />
         <ExposureBar label="Net (long)" value={p.net_pct} cap={p.limits.net_cap_pct} capLabel={`±${p.limits.net_cap_pct}% cap`} />
         <ExposureBar label="Drawdown" value={Math.abs(p.dd_nav_pct)} cap={p.limits.dd_hard_nav_pct} capLabel={`${p.limits.dd_hard_nav_pct}% stop`} />
