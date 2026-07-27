@@ -12,6 +12,12 @@ type Pos = {
   held_days: number | null; name: string | null; sector: string | null; market_cap: number | null;
   beta: number | null; beta_contrib: number | null; ann_vol: number | null;
 };
+type BtVariant = {
+  key: string; venue: string; window_days: number; n_universe: number;
+  nav_curve: { date: string; nav: number }[]; nav_index: number; cum_return_nav_pct: number;
+  sharpe: number | null; sortino: number | null; max_dd_nav_pct: number; net_beta: number;
+  gross_pct: number; net_pct: number; n_longs: number;
+};
 const mcap = (n: number | null) => (n == null ? "—" : n >= 1e12 ? `$${(n / 1e12).toFixed(2)}T` : n >= 1e9 ? `$${(n / 1e9).toFixed(0)}B` : `$${(n / 1e6).toFixed(0)}M`);
 type Paper = {
   mode: string; venue: string; inception: string; as_of: string; days: number;
@@ -27,6 +33,7 @@ type Paper = {
   book: Pos[];
   layer_mix?: { layer: string; pct: number }[];
   nav_curve: { date: string; nav: number }[];
+  backtest_variants?: Record<string, BtVariant> | null;
   paper_live?: PaperLive | null;
   note: string;
 };
@@ -210,21 +217,44 @@ function DdLadder({ l }: { l: Paper["dd_ladder"] }) {
 // the backtest analytics body (KPIs, NAV, P&L periods, attribution, layer mix, movers) — shared by
 // the Overview (combined) and Backtest (focused) tabs
 function BacktestBody({ p }: { p: Paper }) {
+  // window (1y/2y) x universe (Binance/Hyperliquid) variant toggles — data from backtest_variants;
+  // hidden when the state file predates them. Non-default selections drive the KPIs + NAV chart;
+  // the deeper analytics below always describe the primary Binance 1y run.
+  const [win, setWin] = useState<"1y" | "2y">("1y");
+  const [uni, setUni] = useState<"binance" | "hl">("binance");
+  const vars = p.backtest_variants;
+  const has2y = !!vars?.binance_2y, hasHl = !!vars?.hl_1y;
+  const v = vars?.[`${uni}_${win}`];
+  const days = v?.window_days ?? p.days;
+  const isDefault = uni === "binance" && win === "1y";
+  const tbtn = (on: boolean) => `px-2.5 py-1 rounded-lg border text-xs ${on ? "border-cyan-500 text-cyan-400" : "border-[var(--border)] text-gray-500 hover:text-gray-300"}`;
   return (
     <>
+      {(has2y || hasHl) && (
+        <div className="flex flex-wrap items-center gap-2 mb-4 text-xs">
+          <span className="text-gray-500">Window</span>
+          <button onClick={() => setWin("1y")} className={tbtn(win === "1y")}>1y</button>
+          {has2y && <button onClick={() => setWin("2y")} className={tbtn(win === "2y")}>2y</button>}
+          <span className="text-gray-500 ml-3">Universe</span>
+          <button onClick={() => setUni("binance")} className={tbtn(uni === "binance")}>Binance</button>
+          {hasHl && <button onClick={() => setUni("hl")} className={tbtn(uni === "hl")}>Hyperliquid</button>}
+          {v && <span className="text-gray-600 ml-2">{v.n_universe} names scored · {v.n_longs} longs</span>}
+          {!v && !isDefault && <span className="text-amber-400 ml-2">variant unavailable — showing primary run</span>}
+        </div>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <Kpi label="NAV (index 100)" value={p.nav_index.toFixed(1)} sub={`over ${p.days}d window`} />
-        <Kpi label="Cum return (NAV)" value={`${f1(p.cum_return_nav_pct)}%`} sub={`${p.days} trading days`} tone={p.cum_return_nav_pct >= 0 ? "green" : "red"} />
-        <Kpi label="Sharpe" value={p.sharpe.toFixed(2)} sub="full window" />
-        <Kpi label="Sortino" value={p.sortino.toFixed(2)} sub="full window" tone="green" />
-        <Kpi label="Net beta" value={`+${p.net_beta.toFixed(2)}`} sub="market sensitivity" />
+        <Kpi label="NAV (index 100)" value={(v?.nav_index ?? p.nav_index).toFixed(1)} sub={`over ${days}d window`} />
+        <Kpi label="Cum return (NAV)" value={`${f1(v?.cum_return_nav_pct ?? p.cum_return_nav_pct)}%`} sub={`${days} trading days`} tone={(v?.cum_return_nav_pct ?? p.cum_return_nav_pct) >= 0 ? "green" : "red"} />
+        <Kpi label="Sharpe" value={(v?.sharpe ?? p.sharpe)?.toFixed(2) ?? "—"} sub="full window" />
+        <Kpi label="Sortino" value={(v?.sortino ?? p.sortino)?.toFixed(2) ?? "—"} sub="full window" tone="green" />
+        <Kpi label="Net beta" value={`+${(v?.net_beta ?? p.net_beta).toFixed(2)}`} sub="market sensitivity" />
       </div>
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-6">
         <div className="text-sm font-medium text-gray-200 mb-1">Backtest NAV
-          <span className="ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-cyan-500/30 text-cyan-400">rolling {p.days}d · re-bases on universe change</span>
+          <span className="ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-cyan-500/30 text-cyan-400">rolling {days}d · {uni === "hl" ? "HL universe" : "re-bases on universe change"}</span>
         </div>
-        <div className="text-[11px] text-gray-600 mb-3">Strategy simulated over the trailing {p.days}-trading-day window on the current universe — a research backtest, not the held paper book above.</div>
-        <NavChart curve={p.nav_curve} />
+        <div className="text-[11px] text-gray-600 mb-3">Strategy simulated over the trailing {days}-trading-day window on the current universe{uni === "hl" ? " restricted to names also tradeable on Hyperliquid's RWA dexs (xyz/cash/vntl)" : ""} — a research backtest, not the held paper book above.{!isDefault && <span className="text-gray-500"> Attribution / layers / movers below always describe the primary Binance 1y run.</span>}</div>
+        <NavChart curve={v?.nav_curve ?? p.nav_curve} />
       </div>
       <PnlPeriods p={p} />
       <AttributionPanel a={p.attribution} />
