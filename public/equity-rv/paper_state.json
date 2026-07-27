@@ -2,46 +2,46 @@
   "mode": "paper",
   "venue": "binance",
   "data_source": "live",
-  "inception": "2025-07-31",
-  "as_of": "2026-07-23",
+  "inception": "2025-08-01",
+  "as_of": "2026-07-24",
   "days": 252,
-  "nav_index": 201.79,
-  "cum_return_nav_pct": 101.79,
-  "dd_nav_pct": -0.48,
-  "gross_pct": 122.5,
-  "net_pct": 35.1,
-  "net_beta": 0.018,
+  "nav_index": 169.91,
+  "cum_return_nav_pct": 69.91000000000001,
+  "dd_nav_pct": -6.68,
+  "gross_pct": 122.1,
+  "net_pct": 34.9,
+  "net_beta": 0.013,
   "n_longs": 31,
   "gates": {
     "scaling_ok": false,
-    "roll4wk_sortino": -0.41,
-    "dd_notional": 0.0024,
-    "dd_nav": 0.0048,
-    "dd_gross_mult": 1.0,
+    "roll4wk_sortino": -2.02,
+    "dd_notional": 0.0334,
+    "dd_nav": 0.0668,
+    "dd_gross_mult": 0.75,
     "hard_stop_breached": false
   },
-  "sharpe": 3.61,
-  "sortino": 6.99,
-  "max_dd_nav_pct": -7.59,
-  "gross_pct_nav": 245.0,
-  "net_pct_nav": 70.1,
-  "unimmr": 68.63,
+  "sharpe": 2.62,
+  "sortino": 4.92,
+  "max_dd_nav_pct": -10.31,
+  "gross_pct_nav": 244.2,
+  "net_pct_nav": 69.9,
+  "unimmr": 57.98,
   "unimmr_est": true,
   "pnl_periods": {
-    "wtd": 4.94,
-    "mtd": 0.43,
-    "qtd": 0.43,
-    "ytd": 44.67,
-    "all_time": 99.18
+    "wtd": 2.86,
+    "mtd": -2.45,
+    "qtd": -2.45,
+    "ytd": 30.42,
+    "all_time": 71.99
   },
-  "last_rebalance": "2026-06-25",
+  "last_rebalance": "2026-06-26",
   "rebalance_days": 21,
   "attribution": {
-    "total_nav": 83.7,
-    "beta_nav": 1.4,
-    "selection_nav": 82.3,
-    "long_nav": 175.8,
-    "hedge_nav": -91.9,
+    "total_nav": 61.3,
+    "beta_nav": 1.5,
+    "selection_nav": 59.9,
+    "long_nav": 170.6,
+    "hedge_nav": -88.5,
     "beta": 0.04
   },
   "dd_ladder": {
@@ -60,18 +60,18 @@
       }
     ],
     "hard_stop_nav_pct": 20.0,
-    "current_dd_nav_pct": -0.5,
-    "current_mult": 1.0
+    "current_dd_nav_pct": -6.7,
+    "current_mult": 0.75
   },
   "compute_exposure": {
-    "compute_die_long": 8834.0,
-    "foundry_equip_long": 10549.0,
-    "semi_long_total": 19383.0,
-    "soxl_face": -19371.0,
-    "soxl_semi_short_3x": 58113.0,
-    "net_semi_notional": -38730.0,
-    "net_semi_pct_notional": -38.7,
-    "compute_die_pct_notional": 8.8
+    "compute_die_long": 8862.0,
+    "foundry_equip_long": 10327.0,
+    "semi_long_total": 19189.0,
+    "soxl_face": -19231.0,
+    "soxl_semi_short_3x": 57692.0,
+    "net_semi_notional": -38503.0,
+    "net_semi_pct_notional": -38.5,
+    "compute_die_pct_notional": 8.9
   },
   "limits": {
     "gross_cap_pct": 200.0,
@@ -85,20 +85,21 @@
       "side": "long",
       "name": "Nvidia",
       "sector": "AI Compute",
-      "market_cap": 5141197488128,
+      "market_cap": 5009871640000,
       "beta": 1.91,
       "beta_contrib": 0.089,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 4653.6,
-      "pct": 4.7,
-      "upnl": 291.27,
-      "upnl_pct": 6.26,
-      "dpnl": -72.42,
-      "dpnl_pct": -1.56,
+      "ann_vol": 39.6,
+      "qty": 22.47,
+      "entry": 193.24,
+      "mark": 206.84,
+      "notional": 4647.9,
+      "pct": 4.6,
+      "upnl": 327.08,
+      "upnl_pct": 7.04,
+      "dpnl": -42.75,
+      "dpnl_pct": -0.92,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "compute-die"
     },
     {
@@ -106,20 +107,21 @@
       "side": "long",
       "name": "Cisco",
       "sector": "Networking",
-      "market_cap": 477110665216,
+      "market_cap": 449993595703,
       "beta": 1.2,
       "beta_contrib": 0.054,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 4516.63,
+      "ann_vol": 41.6,
+      "qty": 39.6,
+      "entry": 115.07,
+      "mark": 114.17,
+      "notional": 4521.08,
       "pct": 4.5,
-      "upnl": -284.21,
-      "upnl_pct": -6.29,
-      "dpnl": 22.14,
-      "dpnl_pct": 0.49,
+      "upnl": -35.45,
+      "upnl_pct": -0.78,
+      "dpnl": 56.53,
+      "dpnl_pct": 1.25,
       "held_days": 239,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "custom-silicon/net"
     },
     {
@@ -127,41 +129,43 @@
       "side": "long",
       "name": "Taiwan Semiconductor",
       "sector": "Semis",
-      "market_cap": 2288739155968,
-      "beta": 2.33,
+      "market_cap": 2092275481584,
+      "beta": 2.32,
       "beta_contrib": 0.095,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 4097.99,
+      "ann_vol": 45.8,
+      "qty": 10.16,
+      "entry": 449.91,
+      "mark": 403.41,
+      "notional": 4099.5,
       "pct": 4.1,
-      "upnl": -335.64,
-      "upnl_pct": -8.19,
-      "dpnl": -54.77,
-      "dpnl_pct": -1.34,
+      "upnl": -423.67,
+      "upnl_pct": -10.33,
+      "dpnl": -120.05,
+      "dpnl_pct": -2.93,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "foundry/equip"
     },
     {
       "symbol": "GEV",
       "side": "long",
-      "name": "GEV",
+      "name": "GE Vernova",
       "sector": "Industrials",
-      "market_cap": null,
-      "beta": 1.95,
+      "market_cap": 270262001320,
+      "beta": 1.93,
       "beta_contrib": 0.068,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 3494.71,
+      "ann_vol": 53.1,
+      "qty": 3.45,
+      "entry": 1081.72,
+      "mark": 1014.75,
+      "notional": 3504.64,
       "pct": 3.5,
-      "upnl": -286.95,
-      "upnl_pct": -8.21,
-      "dpnl": 163.77,
-      "dpnl_pct": 4.69,
-      "held_days": 209,
-      "funding_apr": 0.0,
+      "upnl": -216.99,
+      "upnl_pct": -6.19,
+      "dpnl": -55.87,
+      "dpnl_pct": -1.59,
+      "held_days": 207,
+      "funding_apr": 2.65,
       "layer": "power/grid"
     },
     {
@@ -169,20 +173,21 @@
       "side": "long",
       "name": "Broadcom",
       "sector": "Semis",
-      "market_cap": 1873630330880,
-      "beta": 2.02,
+      "market_cap": 1817015029220,
+      "beta": 2.01,
       "beta_contrib": 0.068,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 3385.33,
+      "ann_vol": 48.4,
+      "qty": 8.89,
+      "entry": 378.64,
+      "mark": 381.92,
+      "notional": 3394.07,
       "pct": 3.4,
-      "upnl": -4.99,
-      "upnl_pct": -0.15,
-      "dpnl": -37.03,
-      "dpnl_pct": -1.09,
+      "upnl": 29.4,
+      "upnl_pct": 0.87,
+      "dpnl": -91.24,
+      "dpnl_pct": -2.69,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "custom-silicon/net"
     },
     {
@@ -190,125 +195,109 @@
       "side": "long",
       "name": "ASML",
       "sector": "Semis",
-      "market_cap": 732875522048,
-      "beta": 2.55,
-      "beta_contrib": 0.085,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 3336.47,
+      "market_cap": 674898269000,
+      "beta": 2.54,
+      "beta_contrib": 0.084,
+      "ann_vol": 52.0,
+      "qty": 1.89,
+      "entry": 1851.17,
+      "mark": 1757.09,
+      "notional": 3326.33,
       "pct": 3.3,
-      "upnl": -168.99,
-      "upnl_pct": -5.07,
-      "dpnl": 2.11,
-      "dpnl_pct": 0.06,
+      "upnl": -169.05,
+      "upnl_pct": -5.08,
+      "dpnl": -84.7,
+      "dpnl_pct": -2.55,
       "held_days": 239,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "foundry/equip"
     },
     {
       "symbol": "TXN",
       "side": "long",
-      "name": "TXN",
+      "name": "Texas Instruments",
       "sector": "Semis",
-      "market_cap": null,
+      "market_cap": 255282482508,
       "beta": 1.65,
       "beta_contrib": 0.053,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 3217.98,
+      "ann_vol": 50.7,
+      "qty": 11.52,
+      "entry": 295.58,
+      "mark": 279.58,
+      "notional": 3219.37,
       "pct": 3.2,
-      "upnl": -377.77,
-      "upnl_pct": -11.74,
-      "dpnl": -100.63,
-      "dpnl_pct": -3.13,
-      "held_days": 147,
-      "funding_apr": 0.0,
+      "upnl": -174.25,
+      "upnl_pct": -5.41,
+      "dpnl": -61.11,
+      "dpnl_pct": -1.9,
+      "held_days": 357,
+      "funding_apr": null,
       "layer": null
+    },
+    {
+      "symbol": "ANTHROPIC",
+      "side": "long",
+      "name": "Anthropic",
+      "sector": "Frontier AI (private)",
+      "market_cap": null,
+      "beta": 0.06,
+      "beta_contrib": 0.002,
+      "ann_vol": 56.1,
+      "qty": 1.94,
+      "entry": 1683.23,
+      "mark": 1547.01,
+      "notional": 3000.0,
+      "pct": 3.0,
+      "upnl": -242.77,
+      "upnl_pct": -8.09,
+      "dpnl": -77.31,
+      "dpnl_pct": -2.58,
+      "held_days": 357,
+      "funding_apr": 5.48,
+      "layer": "frontier-lab"
     },
     {
       "symbol": "AMAT",
       "side": "long",
       "name": "Applied Materials",
       "sector": "Semis",
-      "market_cap": null,
-      "beta": 2.91,
-      "beta_contrib": 0.09,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 3114.2,
-      "pct": 3.1,
-      "upnl": -445.07,
-      "upnl_pct": -14.29,
-      "dpnl": 49.92,
-      "dpnl_pct": 1.6,
-      "held_days": 268,
-      "funding_apr": 0.0,
-      "layer": "foundry/equip"
-    },
-    {
-      "symbol": "ANTHROPIC",
-      "side": "long",
-      "name": "ANTHROPIC",
-      "sector": "Frontier AI (private)",
-      "market_cap": null,
-      "beta": 0.06,
-      "beta_contrib": 0.002,
-      "qty": 1.96,
-      "entry": 1640.35,
-      "mark": 1533.84,
-      "notional": 3000.0,
-      "pct": 3.0,
-      "upnl": -194.8,
-      "upnl_pct": -6.49,
-      "dpnl": 237.26,
-      "dpnl_pct": 7.91,
+      "market_cap": 425760744338,
+      "beta": 2.89,
+      "beta_contrib": 0.084,
+      "ann_vol": 67.0,
+      "qty": 5.41,
+      "entry": 616.19,
+      "mark": 536.25,
+      "notional": 2901.11,
+      "pct": 2.9,
+      "upnl": -376.35,
+      "upnl_pct": -12.97,
+      "dpnl": -136.86,
+      "dpnl_pct": -4.72,
       "held_days": 357,
-      "funding_apr": 5.48,
-      "layer": "frontier-lab"
+      "funding_apr": null,
+      "layer": "foundry/equip"
     },
     {
       "symbol": "LRCX",
       "side": "long",
-      "name": "LRCX",
+      "name": "Lam Research",
       "sector": "Semis",
-      "market_cap": null,
-      "beta": 3.39,
-      "beta_contrib": 0.098,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2875.04,
-      "pct": 2.9,
-      "upnl": -579.09,
-      "upnl_pct": -20.14,
-      "dpnl": 4.41,
-      "dpnl_pct": 0.15,
-      "held_days": 357,
-      "funding_apr": 0.0,
-      "layer": null
-    },
-    {
-      "symbol": "KLAC",
-      "side": "long",
-      "name": "KLAC",
-      "sector": "Semis",
-      "market_cap": null,
-      "beta": 2.97,
-      "beta_contrib": 0.084,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2830.57,
+      "market_cap": 381686774910,
+      "beta": 3.37,
+      "beta_contrib": 0.096,
+      "ann_vol": 69.9,
+      "qty": 9.31,
+      "entry": 377.78,
+      "mark": 305.21,
+      "notional": 2842.69,
       "pct": 2.8,
-      "upnl": -415.29,
-      "upnl_pct": -14.67,
-      "dpnl": 53.27,
-      "dpnl_pct": 1.88,
+      "upnl": -546.1,
+      "upnl_pct": -19.21,
+      "dpnl": -129.52,
+      "dpnl_pct": -4.56,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": null
     },
     {
@@ -316,41 +305,65 @@
       "side": "long",
       "name": "HP Enterprise",
       "sector": "Hardware",
-      "market_cap": null,
+      "market_cap": 63151265916,
       "beta": 1.89,
       "beta_contrib": 0.053,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2822.85,
+      "ann_vol": 62.2,
+      "qty": 58.51,
+      "entry": 45.75,
+      "mark": 47.69,
+      "notional": 2790.36,
       "pct": 2.8,
-      "upnl": -72.49,
-      "upnl_pct": -2.57,
-      "dpnl": -28.74,
-      "dpnl_pct": -1.02,
+      "upnl": 118.61,
+      "upnl_pct": 4.25,
+      "dpnl": 2.93,
+      "dpnl_pct": 0.1,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "systems"
+    },
+    {
+      "symbol": "KLAC",
+      "side": "long",
+      "name": "KLA",
+      "sector": "Semis",
+      "market_cap": 274997057209,
+      "beta": 2.96,
+      "beta_contrib": 0.082,
+      "ann_vol": 71.9,
+      "qty": 13.24,
+      "entry": 246.28,
+      "mark": 210.52,
+      "notional": 2787.5,
+      "pct": 2.8,
+      "upnl": -404.7,
+      "upnl_pct": -14.52,
+      "dpnl": -104.63,
+      "dpnl_pct": -3.75,
+      "held_days": 357,
+      "funding_apr": null,
+      "layer": null
     },
     {
       "symbol": "WDC",
       "side": "long",
       "name": "Western Digital",
       "sector": "Memory",
-      "market_cap": null,
-      "beta": 3.32,
-      "beta_contrib": 0.087,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2609.93,
-      "pct": 2.6,
-      "upnl": -596.17,
-      "upnl_pct": -22.84,
-      "dpnl": 7.64,
-      "dpnl_pct": 0.29,
+      "market_cap": 179165771694,
+      "beta": 3.3,
+      "beta_contrib": 0.089,
+      "ann_vol": 86.3,
+      "qty": 5.16,
+      "entry": 628.3,
+      "mark": 519.8,
+      "notional": 2683.36,
+      "pct": 2.7,
+      "upnl": -463.37,
+      "upnl_pct": -17.27,
+      "dpnl": -185.04,
+      "dpnl_pct": -6.9,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "memory"
     },
     {
@@ -358,20 +371,21 @@
       "side": "long",
       "name": "Samsung Electronics",
       "sector": "Memory",
-      "market_cap": 985436568290,
-      "beta": 0.73,
-      "beta_contrib": 0.017,
-      "qty": 13.92,
-      "entry": 217.2,
-      "mark": 170.96,
-      "notional": 2379.72,
-      "pct": 2.4,
-      "upnl": -506.66,
-      "upnl_pct": -21.29,
-      "dpnl": 86.78,
-      "dpnl_pct": 3.65,
+      "market_cap": 980090961450,
+      "beta": 0.71,
+      "beta_contrib": 0.018,
+      "ann_vol": 83.0,
+      "qty": 14.71,
+      "entry": 221.38,
+      "mark": 170.03,
+      "notional": 2501.0,
+      "pct": 2.5,
+      "upnl": -580.14,
+      "upnl_pct": -23.2,
+      "dpnl": -189.89,
+      "dpnl_pct": -7.59,
       "held_days": 268,
-      "funding_apr": 0.0,
+      "funding_apr": 181.76,
       "layer": "memory"
     },
     {
@@ -379,20 +393,21 @@
       "side": "long",
       "name": "Corning",
       "sector": "Hardware",
-      "market_cap": null,
-      "beta": 3.37,
-      "beta_contrib": 0.077,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2282.9,
-      "pct": 2.3,
-      "upnl": -704.42,
-      "upnl_pct": -30.86,
-      "dpnl": 29.64,
-      "dpnl_pct": 1.3,
+      "market_cap": 126212537036,
+      "beta": 3.32,
+      "beta_contrib": 0.074,
+      "ann_vol": 85.7,
+      "qty": 15.24,
+      "entry": 218.81,
+      "mark": 146.65,
+      "notional": 2234.56,
+      "pct": 2.2,
+      "upnl": -736.95,
+      "upnl_pct": -32.98,
+      "dpnl": -134.74,
+      "dpnl_pct": -6.03,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "optical"
     },
     {
@@ -400,20 +415,21 @@
       "side": "long",
       "name": "Qualcomm",
       "sector": "Semis",
-      "market_cap": 233113174016,
-      "beta": 2.19,
+      "market_cap": 175986380000,
+      "beta": 2.2,
       "beta_contrib": 0.048,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2201.06,
+      "ann_vol": 64.7,
+      "qty": 13.21,
+      "entry": 200.38,
+      "mark": 166.97,
+      "notional": 2205.47,
       "pct": 2.2,
-      "upnl": -463.81,
-      "upnl_pct": -21.07,
-      "dpnl": -56.65,
-      "dpnl_pct": -2.57,
+      "upnl": -367.75,
+      "upnl_pct": -16.67,
+      "dpnl": -53.36,
+      "dpnl_pct": -2.42,
       "held_days": 28,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "compute-die"
     },
     {
@@ -421,41 +437,65 @@
       "side": "long",
       "name": "SK Hynix",
       "sector": "Memory",
-      "market_cap": 855569140940,
-      "beta": 1.39,
-      "beta_contrib": 0.03,
-      "qty": 1.77,
-      "entry": 1754.51,
-      "mark": 1205.27,
-      "notional": 2137.54,
+      "market_cap": 850928013953,
+      "beta": 1.36,
+      "beta_contrib": 0.029,
+      "ann_vol": 99.1,
+      "qty": 1.79,
+      "entry": 1744.48,
+      "mark": 1198.74,
+      "notional": 2143.06,
       "pct": 2.1,
-      "upnl": -669.14,
-      "upnl_pct": -31.3,
-      "dpnl": 103.96,
-      "dpnl_pct": 4.86,
+      "upnl": -670.43,
+      "upnl_pct": -31.28,
+      "dpnl": -178.68,
+      "dpnl_pct": -8.34,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": 165.83,
       "layer": "memory"
+    },
+    {
+      "symbol": "LITE",
+      "side": "long",
+      "name": "Lumentum",
+      "sector": "AI Compute",
+      "market_cap": 59360622000,
+      "beta": 2.59,
+      "beta_contrib": 0.054,
+      "ann_vol": 97.4,
+      "qty": 2.72,
+      "entry": 820.27,
+      "mark": 762.99,
+      "notional": 2077.03,
+      "pct": 2.1,
+      "upnl": -145.03,
+      "upnl_pct": -6.98,
+      "dpnl": -176.03,
+      "dpnl_pct": -8.47,
+      "held_days": 357,
+      "funding_apr": null,
+      "layer": "optical"
     },
     {
       "symbol": "TER",
       "side": "long",
-      "name": "TER",
+      "name": "Teradyne",
       "sector": "Semis",
-      "market_cap": null,
-      "beta": 3.7,
-      "beta_contrib": 0.077,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2084.86,
+      "market_cap": 54777233327,
+      "beta": 3.69,
+      "beta_contrib": 0.076,
+      "ann_vol": 89.4,
+      "qty": 5.87,
+      "entry": 449.21,
+      "mark": 349.92,
+      "notional": 2053.83,
       "pct": 2.1,
-      "upnl": -479.21,
-      "upnl_pct": -22.99,
-      "dpnl": 24.21,
-      "dpnl_pct": 1.16,
+      "upnl": -453.95,
+      "upnl_pct": -22.1,
+      "dpnl": -130.95,
+      "dpnl_pct": -6.38,
       "held_days": 297,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": null
     },
     {
@@ -463,62 +503,43 @@
       "side": "long",
       "name": "Dell",
       "sector": "Hardware",
-      "market_cap": 267299110912,
-      "beta": 1.83,
+      "market_cap": 142207928188,
+      "beta": 1.84,
       "beta_contrib": 0.038,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2068.77,
-      "pct": 2.1,
-      "upnl": 60.31,
-      "upnl_pct": 2.92,
-      "dpnl": -11.52,
-      "dpnl_pct": -0.56,
-      "held_days": 357,
-      "funding_apr": 0.0,
-      "layer": "systems"
-    },
-    {
-      "symbol": "LITE",
-      "side": "long",
-      "name": "Lumentum",
-      "sector": "AI Compute",
-      "market_cap": 74483384320,
-      "beta": 2.63,
-      "beta_contrib": 0.053,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 2035.81,
+      "ann_vol": 82.8,
+      "qty": 4.68,
+      "entry": 416.51,
+      "mark": 437.5,
+      "notional": 2045.77,
       "pct": 2.0,
-      "upnl": -74.8,
-      "upnl_pct": -3.67,
-      "dpnl": 9.67,
-      "dpnl_pct": 0.47,
+      "upnl": 103.09,
+      "upnl_pct": 5.04,
+      "dpnl": -8.57,
+      "dpnl_pct": -0.42,
       "held_days": 357,
-      "funding_apr": 0.0,
-      "layer": "optical"
+      "funding_apr": null,
+      "layer": "systems"
     },
     {
       "symbol": "INTC",
       "side": "long",
       "name": "Intel",
       "sector": "Semis",
-      "market_cap": 641166802944,
-      "beta": 3.23,
-      "beta_contrib": 0.064,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1979.57,
+      "market_cap": 465662080000,
+      "beta": 3.22,
+      "beta_contrib": 0.065,
+      "ann_vol": 84.7,
+      "qty": 21.75,
+      "entry": 130.29,
+      "mark": 92.32,
+      "notional": 2008.29,
       "pct": 2.0,
-      "upnl": -508.9,
-      "upnl_pct": -25.71,
-      "dpnl": -46.1,
-      "dpnl_pct": -2.33,
+      "upnl": -585.3,
+      "upnl_pct": -29.14,
+      "dpnl": -158.49,
+      "dpnl_pct": -7.89,
       "held_days": 268,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "compute-die"
     },
     {
@@ -526,104 +547,87 @@
       "side": "long",
       "name": "Nebius",
       "sector": "AI Compute",
-      "market_cap": null,
-      "beta": 3.42,
+      "market_cap": 41385693016,
+      "beta": 3.39,
       "beta_contrib": 0.066,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1937.88,
+      "ann_vol": 113.5,
+      "qty": 10.36,
+      "entry": 237.4,
+      "mark": 187.77,
+      "notional": 1945.89,
       "pct": 1.9,
-      "upnl": -248.91,
-      "upnl_pct": -12.84,
-      "dpnl": 24.96,
-      "dpnl_pct": 1.29,
+      "upnl": -406.82,
+      "upnl_pct": -20.91,
+      "dpnl": -292.36,
+      "dpnl_pct": -15.02,
       "held_days": 57,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "neocloud"
-    },
-    {
-      "symbol": "MU",
-      "side": "long",
-      "name": "Micron",
-      "sector": "Memory",
-      "market_cap": 1226162569216,
-      "beta": 3.43,
-      "beta_contrib": 0.066,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1924.69,
-      "pct": 1.9,
-      "upnl": -368.89,
-      "upnl_pct": -19.17,
-      "dpnl": 61.64,
-      "dpnl_pct": 3.2,
-      "held_days": 357,
-      "funding_apr": 0.0,
-      "layer": "memory"
-    },
-    {
-      "symbol": "SNDK",
-      "side": "long",
-      "name": "SanDisk",
-      "sector": "Memory",
-      "market_cap": 309211430912,
-      "beta": 3.63,
-      "beta_contrib": 0.069,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1902.17,
-      "pct": 1.9,
-      "upnl": -589.91,
-      "upnl_pct": -31.01,
-      "dpnl": 13.15,
-      "dpnl_pct": 0.69,
-      "held_days": 357,
-      "funding_apr": 0.0,
-      "layer": "memory"
     },
     {
       "symbol": "CRDO",
       "side": "long",
       "name": "Credo",
       "sector": "AI Compute",
-      "market_cap": null,
-      "beta": 3.11,
+      "market_cap": 39747763959,
+      "beta": 3.1,
       "beta_contrib": 0.059,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1887.52,
+      "ann_vol": 100.9,
+      "qty": 8.88,
+      "entry": 261.26,
+      "mark": 213.15,
+      "notional": 1892.06,
       "pct": 1.9,
-      "upnl": -370.31,
-      "upnl_pct": -19.62,
-      "dpnl": 68.05,
-      "dpnl_pct": 3.61,
+      "upnl": -348.4,
+      "upnl_pct": -18.41,
+      "dpnl": -186.81,
+      "dpnl_pct": -9.87,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "custom-silicon/net"
+    },
+    {
+      "symbol": "MU",
+      "side": "long",
+      "name": "Micron",
+      "sector": "Memory",
+      "market_cap": 1040114622413,
+      "beta": 3.41,
+      "beta_contrib": 0.064,
+      "ann_vol": 91.9,
+      "qty": 2.04,
+      "entry": 1143.0,
+      "mark": 920.95,
+      "notional": 1879.16,
+      "pct": 1.9,
+      "upnl": -365.06,
+      "upnl_pct": -19.43,
+      "dpnl": -131.44,
+      "dpnl_pct": -6.99,
+      "held_days": 357,
+      "funding_apr": null,
+      "layer": "memory"
     },
     {
       "symbol": "IREN",
       "side": "long",
       "name": "IREN",
       "sector": "AI Compute",
-      "market_cap": null,
-      "beta": 3.71,
-      "beta_contrib": 0.069,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1867.17,
+      "market_cap": 13248027445,
+      "beta": 3.65,
+      "beta_contrib": 0.068,
+      "ann_vol": 105.0,
+      "qty": 50.16,
+      "entry": 53.4,
+      "mark": 37.07,
+      "notional": 1859.35,
       "pct": 1.9,
-      "upnl": -464.02,
-      "upnl_pct": -24.85,
-      "dpnl": -31.66,
-      "dpnl_pct": -1.7,
+      "upnl": -568.6,
+      "upnl_pct": -30.58,
+      "dpnl": -160.83,
+      "dpnl_pct": -8.65,
       "held_days": 147,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "neocloud"
     },
     {
@@ -631,41 +635,65 @@
       "side": "long",
       "name": "Marvell",
       "sector": "Semis",
-      "market_cap": 269378650112,
+      "market_cap": 170100112339,
       "beta": 3.26,
       "beta_contrib": 0.06,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1826.11,
+      "ann_vol": 91.8,
+      "qty": 9.5,
+      "entry": 271.03,
+      "mark": 194.23,
+      "notional": 1844.83,
       "pct": 1.8,
-      "upnl": -488.45,
-      "upnl_pct": -26.75,
-      "dpnl": -14.45,
-      "dpnl_pct": -0.79,
+      "upnl": -522.77,
+      "upnl_pct": -28.34,
+      "dpnl": -132.99,
+      "dpnl_pct": -7.21,
       "held_days": 147,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "custom-silicon/net"
+    },
+    {
+      "symbol": "SNDK",
+      "side": "long",
+      "name": "SanDisk",
+      "sector": "Memory",
+      "market_cap": 212739822752,
+      "beta": 3.62,
+      "beta_contrib": 0.065,
+      "ann_vol": 113.7,
+      "qty": 1.25,
+      "entry": 2090.03,
+      "mark": 1436.56,
+      "notional": 1797.09,
+      "pct": 1.8,
+      "upnl": -561.88,
+      "upnl_pct": -31.27,
+      "dpnl": -193.92,
+      "dpnl_pct": -10.79,
+      "held_days": 357,
+      "funding_apr": null,
+      "layer": "memory"
     },
     {
       "symbol": "BE",
       "side": "long",
       "name": "Bloom Energy",
       "sector": "Energy Infra",
-      "market_cap": null,
-      "beta": 4.21,
-      "beta_contrib": 0.075,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1791.59,
+      "market_cap": 52590826755,
+      "beta": 4.17,
+      "beta_contrib": 0.074,
+      "ann_vol": 116.7,
+      "qty": 9.66,
+      "entry": 274.5,
+      "mark": 184.89,
+      "notional": 1785.55,
       "pct": 1.8,
-      "upnl": -635.52,
-      "upnl_pct": -35.47,
-      "dpnl": -7.55,
-      "dpnl_pct": -0.42,
+      "upnl": -582.88,
+      "upnl_pct": -32.64,
+      "dpnl": -266.31,
+      "dpnl_pct": -14.91,
       "held_days": 357,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "power/grid"
     },
     {
@@ -673,41 +701,43 @@
       "side": "long",
       "name": "Rocket Lab",
       "sector": "Aerospace",
-      "market_cap": 68199092224,
-      "beta": 3.71,
-      "beta_contrib": 0.063,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1690.75,
+      "market_cap": 36995420327,
+      "beta": 3.68,
+      "beta_contrib": 0.062,
+      "ann_vol": 103.5,
+      "qty": 26.36,
+      "entry": 78.34,
+      "mark": 63.91,
+      "notional": 1684.93,
       "pct": 1.7,
-      "upnl": -108.1,
-      "upnl_pct": -6.39,
-      "dpnl": 5.82,
-      "dpnl_pct": 0.34,
+      "upnl": -310.32,
+      "upnl_pct": -18.42,
+      "dpnl": -146.37,
+      "dpnl_pct": -8.69,
       "held_days": 57,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": null
     },
     {
       "symbol": "SMCI",
       "side": "long",
-      "name": "SMCI",
+      "name": "Super Micro Computer",
       "sector": "Hardware",
-      "market_cap": null,
-      "beta": 4.36,
+      "market_cap": 19470878113,
+      "beta": 4.35,
       "beta_contrib": 0.071,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1620.83,
+      "ann_vol": 115.3,
+      "qty": 53.97,
+      "entry": 30.6,
+      "mark": 30.1,
+      "notional": 1624.59,
       "pct": 1.6,
-      "upnl": -22.8,
-      "upnl_pct": -1.41,
-      "dpnl": 33.94,
-      "dpnl_pct": 2.09,
+      "upnl": -26.35,
+      "upnl_pct": -1.62,
+      "dpnl": -57.28,
+      "dpnl_pct": -3.53,
       "held_days": 147,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": null
     },
     {
@@ -715,20 +745,21 @@
       "side": "long",
       "name": "Fluence Energy",
       "sector": "Energy Infra",
-      "market_cap": 4438201344,
-      "beta": 3.88,
+      "market_cap": 1784986426,
+      "beta": 3.87,
       "beta_contrib": 0.047,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": 1211.64,
+      "ann_vol": 134.6,
+      "qty": 90.72,
+      "entry": 20.2,
+      "mark": 13.44,
+      "notional": 1219.23,
       "pct": 1.2,
-      "upnl": -351.58,
-      "upnl_pct": -29.02,
-      "dpnl": -19.84,
-      "dpnl_pct": -1.64,
+      "upnl": -408.0,
+      "upnl_pct": -33.46,
+      "dpnl": -82.86,
+      "dpnl_pct": -6.8,
       "held_days": 57,
-      "funding_apr": 0.0,
+      "funding_apr": null,
       "layer": "power/grid"
     },
     {
@@ -737,39 +768,41 @@
       "name": "Direxion 3x Semis Bull",
       "sector": "Sector Index",
       "market_cap": null,
-      "beta": 8.27,
-      "beta_contrib": -1.603,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": -19371.0,
-      "pct": -19.4,
-      "upnl": 8111.15,
-      "upnl_pct": -41.87,
-      "dpnl": 419.93,
-      "dpnl_pct": -2.17,
+      "beta": 8.25,
+      "beta_contrib": -1.587,
+      "ann_vol": 160.0,
+      "qty": -140.56,
+      "entry": 231.26,
+      "mark": 136.81,
+      "notional": -19230.56,
+      "pct": -19.2,
+      "upnl": 7853.99,
+      "upnl_pct": -40.84,
+      "dpnl": 2526.22,
+      "dpnl_pct": -13.14,
       "held_days": 357,
-      "funding_apr": 0.0
+      "funding_apr": null
     },
     {
       "symbol": "QQQ",
       "side": "hedge",
       "name": "Invesco QQQ (Nasdaq-100)",
       "sector": "Broad Index",
-      "market_cap": null,
+      "market_cap": 268970813000,
       "beta": 1.46,
-      "beta_contrib": -0.356,
-      "qty": null,
-      "entry": null,
-      "mark": null,
-      "notional": -24344.87,
+      "beta_contrib": -0.355,
+      "ann_vol": 22.5,
+      "qty": -35.58,
+      "entry": 716.65,
+      "mark": 684.23,
+      "notional": -24343.97,
       "pct": -24.3,
-      "upnl": 1162.35,
-      "upnl_pct": -4.77,
-      "dpnl": 462.15,
-      "dpnl_pct": -1.9,
+      "upnl": 1101.37,
+      "upnl_pct": -4.52,
+      "dpnl": 271.95,
+      "dpnl_pct": -1.12,
       "held_days": 357,
-      "funding_apr": 0.0
+      "funding_apr": null
     }
   ],
   "layer_mix": [
@@ -779,15 +812,15 @@
     },
     {
       "layer": "memory",
-      "pct": 10.9
+      "pct": 11.0
     },
     {
       "layer": "foundry/equip",
-      "pct": 10.5
+      "pct": 10.3
     },
     {
       "layer": "compute-die",
-      "pct": 8.9
+      "pct": 8.8
     },
     {
       "layer": "power/grid",
@@ -795,7 +828,7 @@
     },
     {
       "layer": "systems",
-      "pct": 4.9
+      "pct": 4.8
     },
     {
       "layer": "optical",
@@ -812,1264 +845,1264 @@
   ],
   "nav_curve": [
     {
-      "date": "2025-07-31",
-      "nav": 101.75,
-      "dd": 0.0
-    },
-    {
       "date": "2025-08-01",
-      "nav": 100.3,
-      "dd": -1.43
+      "nav": 98.47,
+      "dd": -1.53
     },
     {
       "date": "2025-08-04",
-      "nav": 101.15,
-      "dd": -0.59
+      "nav": 99.19,
+      "dd": -0.81
     },
     {
       "date": "2025-08-05",
-      "nav": 100.46,
-      "dd": -1.28
+      "nav": 98.44,
+      "dd": -1.56
     },
     {
       "date": "2025-08-06",
-      "nav": 99.96,
-      "dd": -1.77
+      "nav": 97.75,
+      "dd": -2.25
     },
     {
       "date": "2025-08-07",
-      "nav": 102.01,
-      "dd": 0.0
+      "nav": 99.76,
+      "dd": -0.24
     },
     {
       "date": "2025-08-08",
-      "nav": 102.51,
+      "nav": 100.12,
       "dd": 0.0
     },
     {
       "date": "2025-08-11",
-      "nav": 102.95,
+      "nav": 100.47,
       "dd": 0.0
     },
     {
       "date": "2025-08-12",
-      "nav": 103.41,
+      "nav": 100.87,
       "dd": 0.0
     },
     {
       "date": "2025-08-13",
-      "nav": 101.57,
-      "dd": -1.81
+      "nav": 99.02,
+      "dd": -1.84
     },
     {
       "date": "2025-08-14",
-      "nav": 100.91,
-      "dd": -2.45
+      "nav": 98.25,
+      "dd": -2.61
     },
     {
       "date": "2025-08-15",
-      "nav": 100.27,
-      "dd": -3.09
+      "nav": 97.5,
+      "dd": -3.36
     },
     {
       "date": "2025-08-18",
-      "nav": 102.25,
-      "dd": -1.14
+      "nav": 99.35,
+      "dd": -1.51
     },
     {
       "date": "2025-08-19",
-      "nav": 100.99,
-      "dd": -2.38
+      "nav": 97.98,
+      "dd": -2.89
     },
     {
       "date": "2025-08-20",
-      "nav": 100.96,
-      "dd": -2.4
+      "nav": 97.86,
+      "dd": -3.0
     },
     {
       "date": "2025-08-21",
-      "nav": 101.99,
-      "dd": -1.4
+      "nav": 98.83,
+      "dd": -2.04
     },
     {
       "date": "2025-08-22",
-      "nav": 102.56,
-      "dd": -0.83
+      "nav": 99.36,
+      "dd": -1.51
     },
     {
       "date": "2025-08-25",
-      "nav": 104.48,
+      "nav": 101.13,
       "dd": 0.0
     },
     {
       "date": "2025-08-26",
-      "nav": 105.17,
+      "nav": 101.7,
       "dd": 0.0
     },
     {
       "date": "2025-08-27",
-      "nav": 104.91,
-      "dd": -0.25
+      "nav": 101.32,
+      "dd": -0.38
     },
     {
       "date": "2025-08-28",
-      "nav": 107.14,
+      "nav": 103.4,
       "dd": 0.0
     },
     {
       "date": "2025-08-29",
-      "nav": 107.04,
-      "dd": -0.1
+      "nav": 103.65,
+      "dd": 0.0
     },
     {
       "date": "2025-09-01",
-      "nav": 106.47,
-      "dd": -0.65
+      "nav": 103.0,
+      "dd": -0.64
     },
     {
       "date": "2025-09-02",
-      "nav": 106.77,
-      "dd": -0.36
+      "nav": 103.21,
+      "dd": -0.44
     },
     {
       "date": "2025-09-03",
-      "nav": 107.13,
-      "dd": -0.01
+      "nav": 103.3,
+      "dd": -0.35
     },
     {
       "date": "2025-09-04",
-      "nav": 109.36,
+      "nav": 105.4,
       "dd": 0.0
     },
     {
       "date": "2025-09-05",
-      "nav": 111.91,
+      "nav": 107.63,
       "dd": 0.0
     },
     {
       "date": "2025-09-08",
-      "nav": 112.99,
+      "nav": 108.87,
       "dd": 0.0
     },
     {
       "date": "2025-09-09",
-      "nav": 116.39,
+      "nav": 111.95,
       "dd": 0.0
     },
     {
       "date": "2025-09-10",
-      "nav": 120.38,
+      "nav": 116.15,
       "dd": 0.0
     },
     {
       "date": "2025-09-11",
-      "nav": 122.25,
+      "nav": 117.83,
       "dd": 0.0
     },
     {
       "date": "2025-09-12",
-      "nav": 122.89,
+      "nav": 118.18,
       "dd": 0.0
     },
     {
       "date": "2025-09-15",
-      "nav": 124.77,
+      "nav": 119.39,
       "dd": 0.0
     },
     {
       "date": "2025-09-16",
-      "nav": 125.6,
+      "nav": 120.15,
       "dd": 0.0
     },
     {
       "date": "2025-09-17",
-      "nav": 125.62,
+      "nav": 120.24,
       "dd": 0.0
     },
     {
       "date": "2025-09-18",
-      "nav": 127.69,
+      "nav": 121.84,
       "dd": 0.0
     },
     {
       "date": "2025-09-19",
-      "nav": 128.74,
+      "nav": 122.56,
       "dd": 0.0
     },
     {
       "date": "2025-09-22",
-      "nav": 130.11,
+      "nav": 123.43,
       "dd": 0.0
     },
     {
       "date": "2025-09-23",
-      "nav": 130.71,
+      "nav": 123.78,
       "dd": 0.0
     },
     {
       "date": "2025-09-24",
-      "nav": 128.77,
-      "dd": -1.68
+      "nav": 121.64,
+      "dd": -1.92
     },
     {
       "date": "2025-09-25",
-      "nav": 127.69,
-      "dd": -2.62
+      "nav": 120.4,
+      "dd": -3.03
     },
     {
       "date": "2025-09-26",
-      "nav": 126.7,
-      "dd": -3.48
+      "nav": 119.3,
+      "dd": -4.01
     },
     {
       "date": "2025-09-29",
-      "nav": 131.07,
-      "dd": 0.0
+      "nav": 123.39,
+      "dd": -0.35
     },
     {
       "date": "2025-09-30",
-      "nav": 133.25,
+      "nav": 125.34,
       "dd": 0.0
     },
     {
       "date": "2025-10-01",
-      "nav": 136.9,
+      "nav": 128.83,
       "dd": 0.0
     },
     {
       "date": "2025-10-02",
-      "nav": 137.63,
+      "nav": 129.4,
       "dd": 0.0
     },
     {
       "date": "2025-10-03",
-      "nav": 138.5,
+      "nav": 129.92,
       "dd": 0.0
     },
     {
       "date": "2025-10-06",
-      "nav": 137.21,
-      "dd": -1.09
+      "nav": 128.88,
+      "dd": -0.9
     },
     {
       "date": "2025-10-07",
-      "nav": 137.61,
-      "dd": -0.75
+      "nav": 129.19,
+      "dd": -0.63
     },
     {
       "date": "2025-10-08",
-      "nav": 138.5,
-      "dd": -0.0
+      "nav": 130.32,
+      "dd": 0.0
     },
     {
       "date": "2025-10-09",
-      "nav": 138.59,
+      "nav": 130.55,
       "dd": 0.0
     },
     {
       "date": "2025-10-10",
-      "nav": 138.45,
-      "dd": -0.12
+      "nav": 130.46,
+      "dd": -0.08
     },
     {
       "date": "2025-10-13",
-      "nav": 140.12,
+      "nav": 131.87,
       "dd": 0.0
     },
     {
       "date": "2025-10-14",
-      "nav": 139.77,
-      "dd": -0.29
+      "nav": 131.55,
+      "dd": -0.27
     },
     {
       "date": "2025-10-15",
-      "nav": 140.37,
+      "nav": 132.08,
       "dd": 0.0
     },
     {
       "date": "2025-10-16",
-      "nav": 138.81,
-      "dd": -1.29
+      "nav": 130.37,
+      "dd": -1.47
     },
     {
       "date": "2025-10-17",
-      "nav": 137.16,
-      "dd": -2.67
+      "nav": 128.62,
+      "dd": -2.98
     },
     {
       "date": "2025-10-20",
-      "nav": 135.53,
-      "dd": -4.02
+      "nav": 127.03,
+      "dd": -4.35
     },
     {
       "date": "2025-10-21",
-      "nav": 134.38,
-      "dd": -4.98
+      "nav": 126.03,
+      "dd": -5.21
     },
     {
       "date": "2025-10-22",
-      "nav": 133.29,
-      "dd": -5.88
+      "nav": 124.95,
+      "dd": -6.14
     },
     {
       "date": "2025-10-23",
-      "nav": 135.38,
-      "dd": -4.15
+      "nav": 126.81,
+      "dd": -4.54
     },
     {
       "date": "2025-10-24",
-      "nav": 138.87,
-      "dd": -1.25
+      "nav": 130.0,
+      "dd": -1.79
     },
     {
       "date": "2025-10-27",
-      "nav": 136.77,
-      "dd": -2.99
+      "nav": 127.85,
+      "dd": -3.64
     },
     {
       "date": "2025-10-28",
-      "nav": 134.64,
-      "dd": -4.77
+      "nav": 126.55,
+      "dd": -4.76
     },
     {
       "date": "2025-10-29",
-      "nav": 139.14,
-      "dd": -1.02
+      "nav": 130.77,
+      "dd": -1.13
     },
     {
       "date": "2025-10-30",
-      "nav": 140.44,
-      "dd": 0.0
+      "nav": 131.85,
+      "dd": -0.2
     },
     {
       "date": "2025-10-31",
-      "nav": 142.89,
+      "nav": 134.13,
       "dd": 0.0
     },
     {
       "date": "2025-11-03",
-      "nav": 143.23,
+      "nav": 134.31,
       "dd": 0.0
     },
     {
       "date": "2025-11-04",
-      "nav": 141.01,
-      "dd": -1.82
+      "nav": 132.07,
+      "dd": -1.92
     },
     {
       "date": "2025-11-05",
-      "nav": 143.29,
-      "dd": 0.0
+      "nav": 134.17,
+      "dd": -0.12
     },
     {
       "date": "2025-11-06",
-      "nav": 144.72,
+      "nav": 135.41,
       "dd": 0.0
     },
     {
       "date": "2025-11-07",
-      "nav": 144.95,
+      "nav": 135.56,
       "dd": 0.0
     },
     {
       "date": "2025-11-10",
-      "nav": 145.0,
-      "dd": 0.0
-    },
-    {
-      "date": "2025-11-11",
-      "nav": 143.59,
-      "dd": -1.15
-    },
-    {
-      "date": "2025-11-12",
-      "nav": 141.96,
-      "dd": -2.48
-    },
-    {
-      "date": "2025-11-13",
-      "nav": 137.37,
-      "dd": -6.23
-    },
-    {
-      "date": "2025-11-14",
-      "nav": 137.11,
-      "dd": -6.44
-    },
-    {
-      "date": "2025-11-17",
-      "nav": 138.18,
-      "dd": -5.57
-    },
-    {
-      "date": "2025-11-18",
-      "nav": 139.76,
-      "dd": -4.28
-    },
-    {
-      "date": "2025-11-19",
-      "nav": 139.61,
-      "dd": -4.4
-    },
-    {
-      "date": "2025-11-20",
-      "nav": 137.9,
-      "dd": -5.79
-    },
-    {
-      "date": "2025-11-21",
-      "nav": 136.47,
-      "dd": -6.96
-    },
-    {
-      "date": "2025-11-24",
-      "nav": 138.55,
-      "dd": -5.26
-    },
-    {
-      "date": "2025-11-25",
-      "nav": 137.75,
-      "dd": -5.92
-    },
-    {
-      "date": "2025-11-26",
-      "nav": 138.4,
-      "dd": -5.38
-    },
-    {
-      "date": "2025-11-27",
-      "nav": 138.73,
-      "dd": -5.11
-    },
-    {
-      "date": "2025-11-28",
-      "nav": 138.23,
-      "dd": -5.53
-    },
-    {
-      "date": "2025-12-01",
-      "nav": 136.74,
-      "dd": -6.74
-    },
-    {
-      "date": "2025-12-02",
-      "nav": 137.21,
-      "dd": -6.35
-    },
-    {
-      "date": "2025-12-03",
-      "nav": 136.67,
-      "dd": -6.8
-    },
-    {
-      "date": "2025-12-04",
-      "nav": 140.91,
-      "dd": -3.34
-    },
-    {
-      "date": "2025-12-05",
-      "nav": 141.21,
-      "dd": -3.09
-    },
-    {
-      "date": "2025-12-08",
-      "nav": 143.45,
-      "dd": -1.27
-    },
-    {
-      "date": "2025-12-09",
-      "nav": 144.16,
-      "dd": -0.68
-    },
-    {
-      "date": "2025-12-10",
-      "nav": 144.47,
-      "dd": -0.43
-    },
-    {
-      "date": "2025-12-11",
-      "nav": 145.87,
-      "dd": 0.0
-    },
-    {
-      "date": "2025-12-12",
-      "nav": 144.31,
-      "dd": -1.27
-    },
-    {
-      "date": "2025-12-15",
-      "nav": 142.02,
-      "dd": -3.13
-    },
-    {
-      "date": "2025-12-16",
-      "nav": 141.07,
-      "dd": -3.91
-    },
-    {
-      "date": "2025-12-17",
-      "nav": 141.98,
-      "dd": -3.17
-    },
-    {
-      "date": "2025-12-18",
-      "nav": 142.12,
-      "dd": -3.05
-    },
-    {
-      "date": "2025-12-19",
-      "nav": 145.47,
-      "dd": -0.32
-    },
-    {
-      "date": "2025-12-22",
-      "nav": 146.78,
-      "dd": 0.0
-    },
-    {
-      "date": "2025-12-23",
-      "nav": 145.83,
-      "dd": -0.77
-    },
-    {
-      "date": "2025-12-24",
-      "nav": 145.65,
-      "dd": -0.92
-    },
-    {
-      "date": "2025-12-26",
-      "nav": 145.83,
-      "dd": -0.77
-    },
-    {
-      "date": "2025-12-29",
-      "nav": 146.15,
-      "dd": -0.51
-    },
-    {
-      "date": "2025-12-30",
-      "nav": 145.96,
-      "dd": -0.66
-    },
-    {
-      "date": "2025-12-31",
-      "nav": 146.69,
+      "nav": 135.48,
       "dd": -0.07
     },
     {
+      "date": "2025-11-11",
+      "nav": 134.01,
+      "dd": -1.32
+    },
+    {
+      "date": "2025-11-12",
+      "nav": 132.26,
+      "dd": -2.81
+    },
+    {
+      "date": "2025-11-13",
+      "nav": 127.7,
+      "dd": -6.68
+    },
+    {
+      "date": "2025-11-14",
+      "nav": 127.36,
+      "dd": -6.97
+    },
+    {
+      "date": "2025-11-17",
+      "nav": 128.25,
+      "dd": -6.21
+    },
+    {
+      "date": "2025-11-18",
+      "nav": 129.7,
+      "dd": -4.98
+    },
+    {
+      "date": "2025-11-19",
+      "nav": 129.41,
+      "dd": -5.22
+    },
+    {
+      "date": "2025-11-20",
+      "nav": 127.64,
+      "dd": -6.73
+    },
+    {
+      "date": "2025-11-21",
+      "nav": 126.17,
+      "dd": -7.98
+    },
+    {
+      "date": "2025-11-24",
+      "nav": 128.06,
+      "dd": -6.37
+    },
+    {
+      "date": "2025-11-25",
+      "nav": 127.17,
+      "dd": -7.12
+    },
+    {
+      "date": "2025-11-26",
+      "nav": 128.99,
+      "dd": -5.58
+    },
+    {
+      "date": "2025-11-27",
+      "nav": 129.19,
+      "dd": -5.41
+    },
+    {
+      "date": "2025-11-28",
+      "nav": 128.59,
+      "dd": -5.92
+    },
+    {
+      "date": "2025-12-01",
+      "nav": 127.04,
+      "dd": -7.24
+    },
+    {
+      "date": "2025-12-02",
+      "nav": 127.38,
+      "dd": -6.95
+    },
+    {
+      "date": "2025-12-03",
+      "nav": 126.77,
+      "dd": -7.47
+    },
+    {
+      "date": "2025-12-04",
+      "nav": 130.71,
+      "dd": -4.12
+    },
+    {
+      "date": "2025-12-05",
+      "nav": 130.88,
+      "dd": -3.97
+    },
+    {
+      "date": "2025-12-08",
+      "nav": 132.93,
+      "dd": -2.23
+    },
+    {
+      "date": "2025-12-09",
+      "nav": 133.51,
+      "dd": -1.74
+    },
+    {
+      "date": "2025-12-10",
+      "nav": 133.73,
+      "dd": -1.56
+    },
+    {
+      "date": "2025-12-11",
+      "nav": 134.97,
+      "dd": -0.5
+    },
+    {
+      "date": "2025-12-12",
+      "nav": 133.33,
+      "dd": -1.89
+    },
+    {
+      "date": "2025-12-15",
+      "nav": 131.01,
+      "dd": -3.87
+    },
+    {
+      "date": "2025-12-16",
+      "nav": 129.97,
+      "dd": -4.75
+    },
+    {
+      "date": "2025-12-17",
+      "nav": 130.71,
+      "dd": -4.12
+    },
+    {
+      "date": "2025-12-18",
+      "nav": 130.76,
+      "dd": -4.07
+    },
+    {
+      "date": "2025-12-19",
+      "nav": 133.88,
+      "dd": -1.43
+    },
+    {
+      "date": "2025-12-22",
+      "nav": 135.03,
+      "dd": -0.45
+    },
+    {
+      "date": "2025-12-23",
+      "nav": 134.0,
+      "dd": -1.33
+    },
+    {
+      "date": "2025-12-24",
+      "nav": 133.71,
+      "dd": -1.58
+    },
+    {
+      "date": "2025-12-26",
+      "nav": 133.79,
+      "dd": -1.51
+    },
+    {
+      "date": "2025-12-29",
+      "nav": 133.99,
+      "dd": -1.34
+    },
+    {
+      "date": "2025-12-30",
+      "nav": 133.7,
+      "dd": -1.58
+    },
+    {
+      "date": "2025-12-31",
+      "nav": 134.27,
+      "dd": -1.09
+    },
+    {
       "date": "2026-01-02",
-      "nav": 151.5,
+      "nav": 138.71,
       "dd": 0.0
     },
     {
       "date": "2026-01-05",
-      "nav": 150.34,
-      "dd": -0.93
+      "nav": 137.49,
+      "dd": -1.03
     },
     {
       "date": "2026-01-06",
-      "nav": 153.44,
+      "nav": 140.28,
       "dd": 0.0
     },
     {
       "date": "2026-01-07",
-      "nav": 151.91,
-      "dd": -1.21
+      "nav": 138.7,
+      "dd": -1.31
     },
     {
       "date": "2026-01-08",
-      "nav": 150.43,
-      "dd": -2.38
+      "nav": 137.21,
+      "dd": -2.55
     },
     {
       "date": "2026-01-09",
-      "nav": 151.13,
-      "dd": -1.82
+      "nav": 137.75,
+      "dd": -2.11
     },
     {
       "date": "2026-01-12",
-      "nav": 153.16,
-      "dd": -0.22
+      "nav": 139.53,
+      "dd": -0.62
     },
     {
       "date": "2026-01-13",
-      "nav": 153.63,
-      "dd": 0.0
+      "nav": 139.85,
+      "dd": -0.36
     },
     {
       "date": "2026-01-14",
-      "nav": 154.36,
+      "nav": 140.43,
       "dd": 0.0
     },
     {
       "date": "2026-01-15",
-      "nav": 155.36,
+      "nav": 141.2,
       "dd": 0.0
     },
     {
       "date": "2026-01-16",
-      "nav": 156.45,
+      "nav": 142.1,
       "dd": 0.0
     },
     {
       "date": "2026-01-19",
-      "nav": 156.56,
-      "dd": 0.0
+      "nav": 142.08,
+      "dd": -0.02
     },
     {
       "date": "2026-01-20",
-      "nav": 156.04,
-      "dd": -0.41
+      "nav": 141.45,
+      "dd": -0.53
     },
     {
       "date": "2026-01-21",
-      "nav": 153.5,
-      "dd": -2.39
+      "nav": 138.92,
+      "dd": -2.62
     },
     {
       "date": "2026-01-22",
-      "nav": 152.12,
-      "dd": -3.47
+      "nav": 137.49,
+      "dd": -3.81
     },
     {
       "date": "2026-01-23",
-      "nav": 150.58,
-      "dd": -4.67
+      "nav": 135.91,
+      "dd": -5.12
     },
     {
       "date": "2026-01-26",
-      "nav": 150.83,
-      "dd": -4.46
+      "nav": 136.01,
+      "dd": -5.03
     },
     {
       "date": "2026-01-27",
-      "nav": 155.28,
-      "dd": -1.0
+      "nav": 140.38,
+      "dd": -1.42
     },
     {
       "date": "2026-01-28",
-      "nav": 154.69,
-      "dd": -1.46
+      "nav": 140.73,
+      "dd": -1.13
     },
     {
       "date": "2026-01-29",
-      "nav": 154.8,
-      "dd": -1.37
+      "nav": 140.93,
+      "dd": -0.96
     },
     {
       "date": "2026-01-30",
-      "nav": 156.74,
+      "nav": 143.06,
       "dd": 0.0
     },
     {
       "date": "2026-02-02",
-      "nav": 156.3,
-      "dd": -0.34
+      "nav": 142.6,
+      "dd": -0.38
     },
     {
       "date": "2026-02-03",
-      "nav": 163.35,
+      "nav": 149.53,
       "dd": 0.0
     },
     {
       "date": "2026-02-04",
-      "nav": 164.13,
+      "nav": 150.82,
       "dd": 0.0
     },
     {
       "date": "2026-02-05",
-      "nav": 161.75,
-      "dd": -1.8
+      "nav": 147.6,
+      "dd": -2.57
     },
     {
       "date": "2026-02-06",
-      "nav": 165.47,
-      "dd": 0.0
+      "nav": 150.76,
+      "dd": -0.05
     },
     {
       "date": "2026-02-09",
-      "nav": 169.47,
+      "nav": 154.24,
       "dd": 0.0
     },
     {
       "date": "2026-02-10",
-      "nav": 168.36,
-      "dd": -0.82
+      "nav": 153.44,
+      "dd": -0.63
     },
     {
       "date": "2026-02-11",
-      "nav": 166.61,
-      "dd": -2.12
+      "nav": 151.69,
+      "dd": -2.0
     },
     {
       "date": "2026-02-12",
-      "nav": 166.44,
-      "dd": -2.25
+      "nav": 150.82,
+      "dd": -2.69
     },
     {
       "date": "2026-02-13",
-      "nav": 167.71,
-      "dd": -1.31
+      "nav": 152.16,
+      "dd": -1.64
     },
     {
       "date": "2026-02-17",
-      "nav": 168.25,
-      "dd": -0.91
+      "nav": 152.51,
+      "dd": -1.36
     },
     {
       "date": "2026-02-18",
-      "nav": 169.81,
-      "dd": 0.0
+      "nav": 153.91,
+      "dd": -0.26
     },
     {
       "date": "2026-02-19",
-      "nav": 172.0,
+      "nav": 155.38,
       "dd": 0.0
     },
     {
       "date": "2026-02-20",
-      "nav": 172.17,
-      "dd": 0.0
+      "nav": 154.98,
+      "dd": -0.31
     },
     {
       "date": "2026-02-23",
-      "nav": 173.27,
+      "nav": 155.66,
       "dd": 0.0
     },
     {
       "date": "2026-02-24",
-      "nav": 174.18,
+      "nav": 155.77,
       "dd": 0.0
     },
     {
       "date": "2026-02-25",
-      "nav": 177.37,
+      "nav": 158.67,
       "dd": 0.0
     },
     {
       "date": "2026-02-26",
-      "nav": 179.94,
+      "nav": 162.4,
       "dd": 0.0
     },
     {
       "date": "2026-02-27",
-      "nav": 183.5,
+      "nav": 165.62,
       "dd": 0.0
     },
     {
       "date": "2026-03-02",
-      "nav": 187.18,
+      "nav": 168.89,
       "dd": 0.0
     },
     {
       "date": "2026-03-03",
-      "nav": 187.38,
-      "dd": 0.0
+      "nav": 168.85,
+      "dd": -0.03
     },
     {
       "date": "2026-03-04",
-      "nav": 184.47,
-      "dd": -2.03
+      "nav": 166.09,
+      "dd": -2.09
     },
     {
       "date": "2026-03-05",
-      "nav": 184.25,
-      "dd": -2.18
+      "nav": 165.69,
+      "dd": -2.38
     },
     {
       "date": "2026-03-06",
-      "nav": 185.13,
-      "dd": -1.57
+      "nav": 166.36,
+      "dd": -1.88
     },
     {
       "date": "2026-03-09",
-      "nav": 185.53,
-      "dd": -1.29
+      "nav": 166.7,
+      "dd": -1.63
     },
     {
       "date": "2026-03-10",
-      "nav": 188.59,
+      "nav": 169.38,
       "dd": 0.0
     },
     {
       "date": "2026-03-11",
-      "nav": 188.83,
+      "nav": 169.49,
       "dd": 0.0
     },
     {
       "date": "2026-03-12",
-      "nav": 191.22,
+      "nav": 171.55,
       "dd": 0.0
     },
     {
       "date": "2026-03-13",
-      "nav": 191.6,
+      "nav": 171.8,
       "dd": 0.0
     },
     {
       "date": "2026-03-16",
-      "nav": 193.32,
+      "nav": 173.28,
       "dd": 0.0
     },
     {
       "date": "2026-03-17",
-      "nav": 192.72,
-      "dd": -0.41
+      "nav": 172.61,
+      "dd": -0.49
     },
     {
       "date": "2026-03-18",
-      "nav": 195.45,
+      "nav": 174.98,
       "dd": 0.0
     },
     {
       "date": "2026-03-19",
-      "nav": 199.09,
+      "nav": 178.27,
       "dd": 0.0
     },
     {
       "date": "2026-03-20",
-      "nav": 194.09,
-      "dd": -3.34
+      "nav": 173.48,
+      "dd": -3.45
     },
     {
       "date": "2026-03-23",
-      "nav": 194.05,
-      "dd": -3.37
+      "nav": 173.32,
+      "dd": -3.56
     },
     {
       "date": "2026-03-24",
-      "nav": 199.1,
-      "dd": 0.0
+      "nav": 177.88,
+      "dd": -0.28
     },
     {
       "date": "2026-03-25",
-      "nav": 200.08,
+      "nav": 178.68,
       "dd": 0.0
     },
     {
       "date": "2026-03-26",
-      "nav": 197.26,
-      "dd": -1.88
+      "nav": 175.91,
+      "dd": -1.99
     },
     {
       "date": "2026-03-27",
-      "nav": 198.82,
-      "dd": -0.84
+      "nav": 177.69,
+      "dd": -0.71
     },
     {
       "date": "2026-03-30",
-      "nav": 195.73,
-      "dd": -2.89
+      "nav": 174.79,
+      "dd": -2.79
     },
     {
       "date": "2026-03-31",
-      "nav": 194.61,
-      "dd": -3.64
+      "nav": 173.72,
+      "dd": -3.56
     },
     {
       "date": "2026-04-01",
-      "nav": 196.24,
-      "dd": -2.56
+      "nav": 175.17,
+      "dd": -2.52
     },
     {
       "date": "2026-04-02",
-      "nav": 197.13,
-      "dd": -1.97
+      "nav": 175.87,
+      "dd": -2.01
     },
     {
       "date": "2026-04-03",
-      "nav": 197.92,
-      "dd": -1.44
+      "nav": 176.51,
+      "dd": -1.56
     },
     {
       "date": "2026-04-06",
-      "nav": 198.33,
-      "dd": -1.17
+      "nav": 176.79,
+      "dd": -1.36
     },
     {
       "date": "2026-04-07",
-      "nav": 199.93,
-      "dd": -0.1
+      "nav": 178.14,
+      "dd": -0.39
     },
     {
       "date": "2026-04-08",
-      "nav": 201.14,
+      "nav": 179.24,
       "dd": 0.0
     },
     {
       "date": "2026-04-09",
-      "nav": 198.8,
-      "dd": -1.55
+      "nav": 176.93,
+      "dd": -1.65
     },
     {
       "date": "2026-04-10",
-      "nav": 199.91,
-      "dd": -0.81
+      "nav": 177.8,
+      "dd": -1.03
     },
     {
       "date": "2026-04-13",
-      "nav": 200.27,
-      "dd": -0.58
+      "nav": 178.04,
+      "dd": -0.86
     },
     {
       "date": "2026-04-14",
-      "nav": 200.38,
-      "dd": -0.5
+      "nav": 178.15,
+      "dd": -0.78
     },
     {
       "date": "2026-04-15",
-      "nav": 197.78,
-      "dd": -2.23
+      "nav": 175.73,
+      "dd": -2.51
     },
     {
       "date": "2026-04-16",
-      "nav": 197.84,
-      "dd": -2.19
+      "nav": 175.66,
+      "dd": -2.56
     },
     {
       "date": "2026-04-17",
-      "nav": 196.36,
-      "dd": -3.18
+      "nav": 174.2,
+      "dd": -3.61
     },
     {
       "date": "2026-04-20",
-      "nav": 197.96,
-      "dd": -2.11
+      "nav": 175.52,
+      "dd": -2.66
     },
     {
       "date": "2026-04-21",
-      "nav": 197.12,
-      "dd": -2.67
-    },
-    {
-      "date": "2026-04-22",
-      "nav": 197.53,
-      "dd": -2.4
-    },
-    {
-      "date": "2026-04-23",
-      "nav": 194.8,
-      "dd": -4.21
-    },
-    {
-      "date": "2026-04-24",
-      "nav": 191.5,
-      "dd": -6.4
-    },
-    {
-      "date": "2026-04-27",
-      "nav": 192.31,
-      "dd": -5.86
-    },
-    {
-      "date": "2026-04-28",
-      "nav": 192.48,
-      "dd": -5.75
-    },
-    {
-      "date": "2026-04-29",
-      "nav": 190.14,
-      "dd": -7.3
-    },
-    {
-      "date": "2026-04-30",
-      "nav": 191.43,
-      "dd": -6.45
-    },
-    {
-      "date": "2026-05-01",
-      "nav": 190.63,
-      "dd": -6.98
-    },
-    {
-      "date": "2026-05-04",
-      "nav": 193.12,
-      "dd": -5.32
-    },
-    {
-      "date": "2026-05-05",
-      "nav": 192.32,
-      "dd": -5.86
-    },
-    {
-      "date": "2026-05-06",
-      "nav": 191.07,
-      "dd": -6.69
-    },
-    {
-      "date": "2026-05-07",
-      "nav": 190.75,
-      "dd": -6.9
-    },
-    {
-      "date": "2026-05-08",
-      "nav": 189.7,
-      "dd": -7.59
-    },
-    {
-      "date": "2026-05-11",
-      "nav": 191.54,
-      "dd": -6.38
-    },
-    {
-      "date": "2026-05-12",
-      "nav": 191.76,
-      "dd": -6.23
-    },
-    {
-      "date": "2026-05-13",
-      "nav": 191.84,
-      "dd": -6.18
-    },
-    {
-      "date": "2026-05-14",
-      "nav": 194.5,
-      "dd": -4.41
-    },
-    {
-      "date": "2026-05-15",
-      "nav": 194.4,
-      "dd": -4.48
-    },
-    {
-      "date": "2026-05-18",
-      "nav": 193.79,
-      "dd": -4.88
-    },
-    {
-      "date": "2026-05-19",
-      "nav": 192.57,
-      "dd": -5.69
-    },
-    {
-      "date": "2026-05-20",
-      "nav": 190.56,
-      "dd": -7.02
-    },
-    {
-      "date": "2026-05-21",
-      "nav": 195.41,
-      "dd": -3.81
-    },
-    {
-      "date": "2026-05-22",
-      "nav": 195.68,
-      "dd": -3.62
-    },
-    {
-      "date": "2026-05-26",
-      "nav": 191.08,
-      "dd": -6.68
-    },
-    {
-      "date": "2026-05-27",
-      "nav": 192.46,
-      "dd": -5.77
-    },
-    {
-      "date": "2026-05-28",
-      "nav": 190.87,
-      "dd": -6.82
-    },
-    {
-      "date": "2026-05-29",
-      "nav": 193.61,
-      "dd": -5.0
-    },
-    {
-      "date": "2026-06-01",
-      "nav": 197.4,
-      "dd": -2.49
-    },
-    {
-      "date": "2026-06-02",
-      "nav": 198.07,
-      "dd": -2.04
-    },
-    {
-      "date": "2026-06-03",
-      "nav": 194.65,
-      "dd": -4.31
-    },
-    {
-      "date": "2026-06-04",
-      "nav": 196.1,
+      "nav": 174.57,
       "dd": -3.34
     },
     {
+      "date": "2026-04-22",
+      "nav": 174.9,
+      "dd": -3.11
+    },
+    {
+      "date": "2026-04-23",
+      "nav": 172.13,
+      "dd": -5.09
+    },
+    {
+      "date": "2026-04-24",
+      "nav": 168.97,
+      "dd": -7.35
+    },
+    {
+      "date": "2026-04-27",
+      "nav": 169.67,
+      "dd": -6.85
+    },
+    {
+      "date": "2026-04-28",
+      "nav": 169.74,
+      "dd": -6.8
+    },
+    {
+      "date": "2026-04-29",
+      "nav": 167.49,
+      "dd": -8.41
+    },
+    {
+      "date": "2026-04-30",
+      "nav": 168.52,
+      "dd": -7.68
+    },
+    {
+      "date": "2026-05-01",
+      "nav": 167.66,
+      "dd": -8.29
+    },
+    {
+      "date": "2026-05-04",
+      "nav": 169.9,
+      "dd": -6.68
+    },
+    {
+      "date": "2026-05-05",
+      "nav": 169.06,
+      "dd": -7.29
+    },
+    {
+      "date": "2026-05-06",
+      "nav": 167.83,
+      "dd": -8.17
+    },
+    {
+      "date": "2026-05-07",
+      "nav": 167.45,
+      "dd": -8.44
+    },
+    {
+      "date": "2026-05-08",
+      "nav": 166.42,
+      "dd": -9.18
+    },
+    {
+      "date": "2026-05-11",
+      "nav": 167.95,
+      "dd": -8.08
+    },
+    {
+      "date": "2026-05-12",
+      "nav": 168.1,
+      "dd": -7.97
+    },
+    {
+      "date": "2026-05-13",
+      "nav": 168.09,
+      "dd": -7.99
+    },
+    {
+      "date": "2026-05-14",
+      "nav": 170.48,
+      "dd": -6.27
+    },
+    {
+      "date": "2026-05-15",
+      "nav": 170.33,
+      "dd": -6.38
+    },
+    {
+      "date": "2026-05-18",
+      "nav": 169.69,
+      "dd": -6.84
+    },
+    {
+      "date": "2026-05-19",
+      "nav": 168.48,
+      "dd": -7.7
+    },
+    {
+      "date": "2026-05-20",
+      "nav": 166.58,
+      "dd": -9.07
+    },
+    {
+      "date": "2026-05-21",
+      "nav": 170.96,
+      "dd": -5.93
+    },
+    {
+      "date": "2026-05-22",
+      "nav": 171.14,
+      "dd": -5.8
+    },
+    {
+      "date": "2026-05-26",
+      "nav": 166.87,
+      "dd": -8.86
+    },
+    {
+      "date": "2026-05-27",
+      "nav": 167.38,
+      "dd": -8.49
+    },
+    {
+      "date": "2026-05-28",
+      "nav": 165.86,
+      "dd": -9.58
+    },
+    {
+      "date": "2026-05-29",
+      "nav": 168.33,
+      "dd": -7.81
+    },
+    {
+      "date": "2026-06-01",
+      "nav": 171.7,
+      "dd": -5.39
+    },
+    {
+      "date": "2026-06-02",
+      "nav": 172.23,
+      "dd": -5.01
+    },
+    {
+      "date": "2026-06-03",
+      "nav": 169.07,
+      "dd": -7.28
+    },
+    {
+      "date": "2026-06-04",
+      "nav": 170.33,
+      "dd": -6.38
+    },
+    {
       "date": "2026-06-05",
-      "nav": 200.15,
-      "dd": -0.66
+      "nav": 173.98,
+      "dd": -3.77
     },
     {
       "date": "2026-06-08",
-      "nav": 197.76,
-      "dd": -2.25
+      "nav": 171.76,
+      "dd": -5.35
     },
     {
       "date": "2026-06-09",
-      "nav": 198.69,
-      "dd": -1.63
+      "nav": 172.57,
+      "dd": -4.77
     },
     {
       "date": "2026-06-10",
-      "nav": 197.85,
-      "dd": -2.19
+      "nav": 171.79,
+      "dd": -5.34
     },
     {
       "date": "2026-06-11",
-      "nav": 196.81,
-      "dd": -2.87
+      "nav": 170.81,
+      "dd": -6.03
     },
     {
       "date": "2026-06-12",
-      "nav": 196.77,
-      "dd": -2.9
+      "nav": 170.71,
+      "dd": -6.11
     },
     {
       "date": "2026-06-15",
-      "nav": 195.36,
-      "dd": -3.84
+      "nav": 169.38,
+      "dd": -7.06
     },
     {
       "date": "2026-06-16",
-      "nav": 199.82,
-      "dd": -0.87
+      "nav": 173.37,
+      "dd": -4.2
     },
     {
       "date": "2026-06-17",
-      "nav": 201.36,
-      "dd": 0.0
+      "nav": 174.73,
+      "dd": -3.23
     },
     {
       "date": "2026-06-18",
-      "nav": 199.68,
-      "dd": -1.12
+      "nav": 173.15,
+      "dd": -4.36
     },
     {
       "date": "2026-06-19",
-      "nav": 199.67,
-      "dd": -1.12
+      "nav": 173.07,
+      "dd": -4.41
     },
     {
       "date": "2026-06-22",
-      "nav": 199.61,
-      "dd": -1.17
+      "nav": 172.95,
+      "dd": -4.5
     },
     {
       "date": "2026-06-23",
-      "nav": 202.2,
-      "dd": 0.0
+      "nav": 175.22,
+      "dd": -2.87
     },
     {
       "date": "2026-06-24",
-      "nav": 202.26,
-      "dd": 0.0
+      "nav": 175.23,
+      "dd": -2.87
     },
     {
       "date": "2026-06-25",
-      "nav": 202.51,
-      "dd": 0.0
+      "nav": 174.91,
+      "dd": -3.1
     },
     {
       "date": "2026-06-26",
-      "nav": 200.39,
-      "dd": -1.4
+      "nav": 172.87,
+      "dd": -4.56
     },
     {
       "date": "2026-06-29",
-      "nav": 202.25,
-      "dd": -0.17
+      "nav": 174.42,
+      "dd": -3.45
     },
     {
       "date": "2026-06-30",
-      "nav": 202.21,
-      "dd": -0.2
+      "nav": 174.28,
+      "dd": -3.55
     },
     {
       "date": "2026-07-01",
-      "nav": 201.14,
-      "dd": -0.91
+      "nav": 173.25,
+      "dd": -4.29
     },
     {
       "date": "2026-07-02",
-      "nav": 198.09,
-      "dd": -2.92
+      "nav": 170.4,
+      "dd": -6.33
     },
     {
       "date": "2026-07-03",
-      "nav": 199.32,
-      "dd": -2.11
+      "nav": 171.46,
+      "dd": -5.57
     },
     {
       "date": "2026-07-06",
-      "nav": 199.16,
-      "dd": -2.21
+      "nav": 171.24,
+      "dd": -5.73
     },
     {
       "date": "2026-07-07",
-      "nav": 198.3,
-      "dd": -2.78
+      "nav": 170.34,
+      "dd": -6.37
     },
     {
       "date": "2026-07-08",
-      "nav": 198.89,
-      "dd": -2.4
+      "nav": 170.75,
+      "dd": -6.08
     },
     {
       "date": "2026-07-09",
-      "nav": 198.91,
-      "dd": -2.38
+      "nav": 170.68,
+      "dd": -6.13
     },
     {
       "date": "2026-07-10",
-      "nav": 199.01,
-      "dd": -2.31
+      "nav": 170.67,
+      "dd": -6.13
     },
     {
       "date": "2026-07-13",
-      "nav": 197.55,
-      "dd": -3.28
+      "nav": 169.24,
+      "dd": -7.16
     },
     {
       "date": "2026-07-14",
-      "nav": 197.92,
-      "dd": -3.04
+      "nav": 169.46,
+      "dd": -7.0
     },
     {
       "date": "2026-07-15",
-      "nav": 196.64,
-      "dd": -3.88
+      "nav": 168.26,
+      "dd": -7.86
     },
     {
       "date": "2026-07-16",
-      "nav": 192.99,
-      "dd": -6.29
+      "nav": 164.84,
+      "dd": -10.31
     },
     {
       "date": "2026-07-17",
-      "nav": 195.2,
-      "dd": -4.84
+      "nav": 166.79,
+      "dd": -8.92
     },
     {
       "date": "2026-07-20",
-      "nav": 194.51,
-      "dd": -5.29
+      "nav": 166.1,
+      "dd": -9.41
     },
     {
       "date": "2026-07-21",
-      "nav": 198.19,
-      "dd": -2.85
+      "nav": 169.34,
+      "dd": -7.09
     },
     {
       "date": "2026-07-22",
-      "nav": 197.66,
-      "dd": -3.21
+      "nav": 168.79,
+      "dd": -7.48
     },
     {
       "date": "2026-07-23",
-      "nav": 201.79,
-      "dd": -0.48
+      "nav": 172.41,
+      "dd": -4.89
+    },
+    {
+      "date": "2026-07-24",
+      "nav": 169.91,
+      "dd": -6.68
     }
   ],
   "backtest_params": {
@@ -2112,42 +2145,42 @@
   },
   "paper_live": {
     "inception": "2026-07-16",
-    "as_of": "2026-07-23",
-    "days": 5,
-    "nav_index": 106.1,
-    "cum_return_nav_pct": 6.1,
-    "dd_nav_pct": 0.0,
-    "max_dd_nav_pct": -0.36,
+    "as_of": "2026-07-24",
+    "days": 6,
+    "nav_index": 103.98,
+    "cum_return_nav_pct": 3.98,
+    "dd_nav_pct": -1.77,
+    "max_dd_nav_pct": -1.77,
     "sharpe": null,
     "sortino": null,
     "stats_ready": false,
     "n_longs": 31,
-    "net_beta": 0.006,
+    "net_beta": 0.0,
     "gross_pct": 117.5,
     "net_pct": 35.3,
     "gross_pct_nav": 235.0,
     "net_pct_nav": 70.7,
-    "unimmr": 37.62,
+    "unimmr": 36.87,
     "pnl_periods": {
-      "wtd": 4.76,
-      "mtd": 6.1,
-      "qtd": 6.1,
-      "ytd": 6.1,
-      "all_time": 6.1
+      "wtd": 2.77,
+      "mtd": 3.98,
+      "qtd": 3.98,
+      "ytd": 3.98,
+      "all_time": 3.98
     },
     "attribution": {
-      "total_nav": 6.1,
-      "beta_nav": 0.4,
-      "selection_nav": 5.7,
-      "long_nav": 9.0,
-      "hedge_nav": -3.0,
-      "beta": -0.11
+      "total_nav": 4.0,
+      "beta_nav": 1.0,
+      "selection_nav": 3.0,
+      "long_nav": 1.4,
+      "hedge_nav": 2.9,
+      "beta": -0.33
     },
     "gates": {
       "scaling_ok": false,
       "roll4wk_sortino": 0.0,
-      "dd_notional": 0.0,
-      "dd_nav": 0.0,
+      "dd_notional": 0.0089,
+      "dd_nav": 0.0177,
       "dd_gross_mult": 1.0,
       "hard_stop_breached": false
     },
@@ -2201,36 +2234,36 @@
     ],
     "top_gainers": [
       {
-        "symbol": "NBIS",
-        "upnl": 516.17,
-        "upnl_pct": 28.64
-      },
-      {
         "symbol": "SMCI",
-        "upnl": 447.91,
-        "upnl_pct": 26.42
+        "upnl": 372.35,
+        "upnl_pct": 21.96
       },
       {
         "symbol": "WDC",
-        "upnl": 437.64,
-        "upnl_pct": 19.6
+        "upnl": 253.47,
+        "upnl_pct": 11.35
+      },
+      {
+        "symbol": "DELL",
+        "upnl": 248.88,
+        "upnl_pct": 11.97
       }
     ],
     "top_losers": [
       {
         "symbol": "ANTHROPIC",
-        "upnl": -122.67,
-        "upnl_pct": -4.09
+        "upnl": -196.82,
+        "upnl_pct": -6.56
       },
       {
-        "symbol": "TXN",
-        "upnl": -67.53,
-        "upnl_pct": -2.14
+        "symbol": "BE",
+        "upnl": -189.47,
+        "upnl_pct": -10.56
       },
       {
         "symbol": "GLW",
-        "upnl": -29.78,
-        "upnl_pct": -1.47
+        "upnl": -150.07,
+        "upnl_pct": -7.41
       }
     ],
     "last_rebalance": "2026-07-16",
@@ -2242,28 +2275,33 @@
       },
       {
         "date": "2026-07-17",
-        "nav": 101.49,
+        "nav": 101.44,
         "dd": 0.0
       },
       {
         "date": "2026-07-20",
-        "nav": 101.31,
-        "dd": -0.18
+        "nav": 101.19,
+        "dd": -0.24
       },
       {
         "date": "2026-07-21",
-        "nav": 103.85,
+        "nav": 103.67,
         "dd": 0.0
       },
       {
         "date": "2026-07-22",
-        "nav": 103.48,
-        "dd": -0.36
+        "nav": 103.24,
+        "dd": -0.42
       },
       {
         "date": "2026-07-23",
-        "nav": 106.1,
+        "nav": 105.81,
         "dd": 0.0
+      },
+      {
+        "date": "2026-07-24",
+        "nav": 103.98,
+        "dd": -1.77
       }
     ],
     "nav_ledger": [
@@ -2309,20 +2347,21 @@
         "side": "long",
         "name": "Nvidia",
         "sector": "AI Compute",
-        "market_cap": 5141197488128,
+        "market_cap": 5009871640000,
         "beta": 1.91,
         "beta_contrib": 0.089,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 39.6,
+        "qty": 22.48,
+        "entry": 207.4,
+        "mark": 206.84,
         "notional": 4648.75,
         "pct": 4.6,
-        "upnl": 30.48,
-        "upnl_pct": 0.66,
-        "dpnl": -72.34,
-        "dpnl_pct": -1.56,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -12.55,
+        "upnl_pct": -0.27,
+        "dpnl": -42.76,
+        "dpnl_pct": -0.92,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "compute-die"
       },
       {
@@ -2330,20 +2369,21 @@
         "side": "long",
         "name": "Cisco",
         "sector": "Networking",
-        "market_cap": 477110665216,
+        "market_cap": 449993595703,
         "beta": 1.2,
         "beta_contrib": 0.052,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 41.6,
+        "qty": 37.83,
+        "entry": 109.66,
+        "mark": 114.17,
         "notional": 4319.43,
         "pct": 4.3,
-        "upnl": 122.11,
-        "upnl_pct": 2.83,
-        "dpnl": 21.17,
-        "dpnl_pct": 0.49,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 177.65,
+        "upnl_pct": 4.11,
+        "dpnl": 54.01,
+        "dpnl_pct": 1.25,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "custom-silicon/net"
       },
       {
@@ -2351,20 +2391,21 @@
         "side": "long",
         "name": "Taiwan Semiconductor",
         "sector": "Semis",
-        "market_cap": 2288739155968,
-        "beta": 2.33,
+        "market_cap": 2092275481584,
+        "beta": 2.32,
         "beta_contrib": 0.093,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 45.8,
+        "qty": 9.89,
+        "entry": 409.74,
+        "mark": 403.41,
         "notional": 3991.01,
         "pct": 4.0,
-        "upnl": 56.88,
-        "upnl_pct": 1.43,
-        "dpnl": -53.34,
-        "dpnl_pct": -1.34,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -61.66,
+        "upnl_pct": -1.54,
+        "dpnl": -116.87,
+        "dpnl_pct": -2.93,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "foundry/equip"
       },
       {
@@ -2372,20 +2413,21 @@
         "side": "long",
         "name": "Broadcom",
         "sector": "Semis",
-        "market_cap": 1873630330880,
-        "beta": 2.02,
+        "market_cap": 1817015029220,
+        "beta": 2.01,
         "beta_contrib": 0.073,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 48.4,
+        "qty": 9.51,
+        "entry": 374.45,
+        "mark": 381.92,
         "notional": 3631.39,
         "pct": 3.6,
-        "upnl": 174.76,
-        "upnl_pct": 4.81,
-        "dpnl": -39.72,
-        "dpnl_pct": -1.09,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 72.44,
+        "upnl_pct": 1.99,
+        "dpnl": -97.62,
+        "dpnl_pct": -2.69,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "custom-silicon/net"
       },
       {
@@ -2393,82 +2435,86 @@
         "side": "long",
         "name": "ASML",
         "sector": "Semis",
-        "market_cap": 732875522048,
-        "beta": 2.55,
-        "beta_contrib": 0.086,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "market_cap": 674898269000,
+        "beta": 2.54,
+        "beta_contrib": 0.085,
+        "ann_vol": 52.0,
+        "qty": 1.92,
+        "entry": 1784.87,
+        "mark": 1757.09,
         "notional": 3364.98,
         "pct": 3.4,
-        "upnl": 34.18,
-        "upnl_pct": 1.02,
-        "dpnl": 2.13,
-        "dpnl_pct": 0.06,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -52.37,
+        "upnl_pct": -1.56,
+        "dpnl": -85.68,
+        "dpnl_pct": -2.55,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "foundry/equip"
       },
       {
         "symbol": "GEV",
         "side": "long",
-        "name": "GEV",
+        "name": "GE Vernova",
         "sector": "Industrials",
-        "market_cap": null,
-        "beta": 1.95,
+        "market_cap": 270262001320,
+        "beta": 1.93,
         "beta_contrib": 0.065,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 53.1,
+        "qty": 3.29,
+        "entry": 1036.22,
+        "mark": 1014.75,
         "notional": 3342.52,
         "pct": 3.3,
-        "upnl": -16.23,
-        "upnl_pct": -0.49,
-        "dpnl": 156.64,
-        "dpnl_pct": 4.69,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -69.26,
+        "upnl_pct": -2.07,
+        "dpnl": -53.29,
+        "dpnl_pct": -1.59,
+        "held_days": 8,
+        "funding_apr": 2.65,
         "layer": "power/grid"
       },
       {
         "symbol": "TXN",
         "side": "long",
-        "name": "TXN",
+        "name": "Texas Instruments",
         "sector": "Semis",
-        "market_cap": null,
+        "market_cap": 255282482508,
         "beta": 1.65,
         "beta_contrib": 0.052,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 50.7,
+        "qty": 11.29,
+        "entry": 291.22,
+        "mark": 279.58,
         "notional": 3156.53,
         "pct": 3.2,
-        "upnl": -67.53,
-        "upnl_pct": -2.14,
-        "dpnl": -98.71,
-        "dpnl_pct": -3.13,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -126.17,
+        "upnl_pct": -4.0,
+        "dpnl": -59.92,
+        "dpnl_pct": -1.9,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": null
       },
       {
         "symbol": "ANTHROPIC",
         "side": "long",
-        "name": "ANTHROPIC",
+        "name": "Anthropic",
         "sector": "Frontier AI (private)",
         "market_cap": null,
         "beta": 0.06,
         "beta_contrib": 0.002,
-        "qty": 1.96,
-        "entry": 1599.23,
-        "mark": 1533.84,
+        "ann_vol": 56.1,
+        "qty": 1.94,
+        "entry": 1656.19,
+        "mark": 1547.53,
         "notional": 3000.0,
         "pct": 3.0,
-        "upnl": -122.67,
-        "upnl_pct": -4.09,
-        "dpnl": 237.26,
-        "dpnl_pct": 7.91,
-        "held_days": 7,
+        "upnl": -196.82,
+        "upnl_pct": -6.56,
+        "dpnl": -77.31,
+        "dpnl_pct": -2.58,
+        "held_days": 8,
         "funding_apr": 5.48,
         "layer": "frontier-lab"
       },
@@ -2477,20 +2523,21 @@
         "side": "long",
         "name": "HP Enterprise",
         "sector": "Hardware",
-        "market_cap": null,
+        "market_cap": 63151265916,
         "beta": 1.89,
         "beta_contrib": 0.051,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 62.2,
+        "qty": 56.22,
+        "entry": 45.13,
+        "mark": 47.69,
         "notional": 2681.0,
         "pct": 2.7,
-        "upnl": 149.11,
-        "upnl_pct": 5.56,
-        "dpnl": -27.29,
-        "dpnl_pct": -1.02,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 152.08,
+        "upnl_pct": 5.67,
+        "dpnl": 2.81,
+        "dpnl_pct": 0.1,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "systems"
       },
       {
@@ -2498,62 +2545,65 @@
         "side": "long",
         "name": "Applied Materials",
         "sector": "Semis",
-        "market_cap": null,
-        "beta": 2.91,
+        "market_cap": 425760744338,
+        "beta": 2.89,
         "beta_contrib": 0.075,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 67.0,
+        "qty": 4.81,
+        "entry": 560.93,
+        "mark": 536.25,
         "notional": 2578.11,
         "pct": 2.6,
-        "upnl": 8.59,
-        "upnl_pct": 0.33,
-        "dpnl": 41.33,
-        "dpnl_pct": 1.6,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -113.43,
+        "upnl_pct": -4.4,
+        "dpnl": -121.62,
+        "dpnl_pct": -4.72,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "foundry/equip"
       },
       {
         "symbol": "LRCX",
         "side": "long",
-        "name": "LRCX",
+        "name": "Lam Research",
         "sector": "Semis",
-        "market_cap": null,
-        "beta": 3.39,
-        "beta_contrib": 0.086,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "market_cap": 381686774910,
+        "beta": 3.37,
+        "beta_contrib": 0.085,
+        "ann_vol": 69.9,
+        "qty": 8.28,
+        "entry": 320.96,
+        "mark": 305.21,
         "notional": 2527.99,
         "pct": 2.5,
-        "upnl": -9.29,
-        "upnl_pct": -0.37,
-        "dpnl": 3.88,
-        "dpnl_pct": 0.15,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -124.05,
+        "upnl_pct": -4.91,
+        "dpnl": -115.18,
+        "dpnl_pct": -4.56,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": null
       },
       {
         "symbol": "KLAC",
         "side": "long",
-        "name": "KLAC",
+        "name": "KLA",
         "sector": "Semis",
-        "market_cap": null,
-        "beta": 2.97,
+        "market_cap": 274997057209,
+        "beta": 2.96,
         "beta_contrib": 0.07,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 71.9,
+        "qty": 11.2,
+        "entry": 219.37,
+        "mark": 210.52,
         "notional": 2358.28,
         "pct": 2.4,
-        "upnl": -6.88,
-        "upnl_pct": -0.29,
-        "dpnl": 44.38,
-        "dpnl_pct": 1.88,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -95.14,
+        "upnl_pct": -4.03,
+        "dpnl": -88.52,
+        "dpnl_pct": -3.75,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": null
       },
       {
@@ -2561,20 +2611,21 @@
         "side": "long",
         "name": "Samsung Electronics",
         "sector": "Memory",
-        "market_cap": 985436568290,
-        "beta": 0.73,
-        "beta_contrib": 0.017,
-        "qty": 13.33,
-        "entry": 154.5,
-        "mark": 170.96,
+        "market_cap": 979823850368,
+        "beta": 0.71,
+        "beta_contrib": 0.016,
+        "ann_vol": 83.0,
+        "qty": 13.41,
+        "entry": 166.24,
+        "mark": 169.98,
         "notional": 2279.46,
         "pct": 2.3,
-        "upnl": 242.89,
-        "upnl_pct": 10.66,
-        "dpnl": 83.13,
-        "dpnl_pct": 3.65,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 51.38,
+        "upnl_pct": 2.25,
+        "dpnl": -173.07,
+        "dpnl_pct": -7.59,
+        "held_days": 8,
+        "funding_apr": 181.76,
         "layer": "memory"
       },
       {
@@ -2582,20 +2633,21 @@
         "side": "long",
         "name": "Coherent",
         "sector": "AI Compute",
-        "market_cap": null,
-        "beta": 3.37,
+        "market_cap": 55246587857,
+        "beta": 3.33,
         "beta_contrib": 0.076,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 87.8,
+        "qty": 8.03,
+        "entry": 276.96,
+        "mark": 282.39,
         "notional": 2268.1,
         "pct": 2.3,
-        "upnl": 296.94,
-        "upnl_pct": 13.09,
-        "dpnl": 7.48,
-        "dpnl_pct": 0.33,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 44.47,
+        "upnl_pct": 1.96,
+        "dpnl": -223.25,
+        "dpnl_pct": -9.84,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "optical"
       },
       {
@@ -2603,20 +2655,21 @@
         "side": "long",
         "name": "Qualcomm",
         "sector": "Semis",
-        "market_cap": 233113174016,
-        "beta": 2.19,
+        "market_cap": 175986380000,
+        "beta": 2.2,
         "beta_contrib": 0.049,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 64.7,
+        "qty": 13.44,
+        "entry": 170.61,
+        "mark": 166.97,
         "notional": 2243.92,
         "pct": 2.2,
-        "upnl": 6.58,
-        "upnl_pct": 0.29,
-        "dpnl": -57.75,
-        "dpnl_pct": -2.57,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -47.87,
+        "upnl_pct": -2.13,
+        "dpnl": -54.29,
+        "dpnl_pct": -2.42,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "compute-die"
       },
       {
@@ -2624,20 +2677,21 @@
         "side": "long",
         "name": "Western Digital",
         "sector": "Memory",
-        "market_cap": null,
-        "beta": 3.32,
+        "market_cap": 179165771694,
+        "beta": 3.3,
         "beta_contrib": 0.074,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 86.3,
+        "qty": 4.3,
+        "entry": 466.81,
+        "mark": 519.8,
         "notional": 2232.95,
         "pct": 2.2,
-        "upnl": 437.64,
-        "upnl_pct": 19.6,
-        "dpnl": 6.54,
-        "dpnl_pct": 0.29,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 253.47,
+        "upnl_pct": 11.35,
+        "dpnl": -153.98,
+        "dpnl_pct": -6.9,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "memory"
       },
       {
@@ -2645,20 +2699,21 @@
         "side": "long",
         "name": "Lumentum",
         "sector": "AI Compute",
-        "market_cap": 74483384320,
-        "beta": 2.63,
-        "beta_contrib": 0.056,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "market_cap": 59360622000,
+        "beta": 2.59,
+        "beta_contrib": 0.055,
+        "ann_vol": 97.4,
+        "qty": 2.78,
+        "entry": 706.23,
+        "mark": 762.99,
         "notional": 2120.63,
         "pct": 2.1,
-        "upnl": 382.58,
-        "upnl_pct": 18.04,
-        "dpnl": 10.07,
-        "dpnl_pct": 0.47,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 170.44,
+        "upnl_pct": 8.04,
+        "dpnl": -179.72,
+        "dpnl_pct": -8.47,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "optical"
       },
       {
@@ -2666,20 +2721,21 @@
         "side": "long",
         "name": "Dell",
         "sector": "Hardware",
-        "market_cap": 267299110912,
-        "beta": 1.83,
+        "market_cap": 142207928188,
+        "beta": 1.84,
         "beta_contrib": 0.038,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 82.8,
+        "qty": 4.75,
+        "entry": 390.73,
+        "mark": 437.5,
         "notional": 2079.46,
         "pct": 2.1,
-        "upnl": 258.68,
-        "upnl_pct": 12.44,
-        "dpnl": -11.58,
-        "dpnl_pct": -0.56,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 248.88,
+        "upnl_pct": 11.97,
+        "dpnl": -8.71,
+        "dpnl_pct": -0.42,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "systems"
       },
       {
@@ -2687,20 +2743,21 @@
         "side": "long",
         "name": "Credo",
         "sector": "AI Compute",
-        "market_cap": null,
-        "beta": 3.11,
-        "beta_contrib": 0.064,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "market_cap": 39747763959,
+        "beta": 3.1,
+        "beta_contrib": 0.063,
+        "ann_vol": 100.9,
+        "qty": 9.59,
+        "entry": 207.97,
+        "mark": 213.15,
         "notional": 2043.27,
         "pct": 2.0,
-        "upnl": 280.3,
-        "upnl_pct": 13.72,
-        "dpnl": 73.67,
-        "dpnl_pct": 3.61,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 50.89,
+        "upnl_pct": 2.49,
+        "dpnl": -201.74,
+        "dpnl_pct": -9.87,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "custom-silicon/net"
       },
       {
@@ -2708,20 +2765,21 @@
         "side": "long",
         "name": "Corning",
         "sector": "Hardware",
-        "market_cap": null,
-        "beta": 3.37,
-        "beta_contrib": 0.068,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "market_cap": 126212537036,
+        "beta": 3.32,
+        "beta_contrib": 0.067,
+        "ann_vol": 85.7,
+        "qty": 13.81,
+        "entry": 158.39,
+        "mark": 146.65,
         "notional": 2024.63,
         "pct": 2.0,
-        "upnl": -29.78,
-        "upnl_pct": -1.47,
-        "dpnl": 26.28,
-        "dpnl_pct": 1.3,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -150.07,
+        "upnl_pct": -7.41,
+        "dpnl": -122.08,
+        "dpnl_pct": -6.03,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "optical"
       },
       {
@@ -2729,20 +2787,21 @@
         "side": "long",
         "name": "Intel",
         "sector": "Semis",
-        "market_cap": 641166802944,
-        "beta": 3.23,
+        "market_cap": 465662080000,
+        "beta": 3.22,
         "beta_contrib": 0.064,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 84.7,
+        "qty": 21.62,
+        "entry": 96.98,
+        "mark": 92.32,
         "notional": 1995.67,
         "pct": 2.0,
-        "upnl": 66.88,
-        "upnl_pct": 3.35,
-        "dpnl": -46.48,
-        "dpnl_pct": -2.33,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -95.89,
+        "upnl_pct": -4.81,
+        "dpnl": -157.5,
+        "dpnl_pct": -7.89,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "compute-die"
       },
       {
@@ -2750,41 +2809,43 @@
         "side": "long",
         "name": "IREN",
         "sector": "AI Compute",
-        "market_cap": null,
-        "beta": 3.71,
-        "beta_contrib": 0.072,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "market_cap": 13248027445,
+        "beta": 3.65,
+        "beta_contrib": 0.071,
+        "ann_vol": 105.0,
+        "qty": 52.13,
+        "entry": 34.83,
+        "mark": 37.07,
         "notional": 1932.52,
         "pct": 1.9,
-        "upnl": 319.04,
-        "upnl_pct": 16.51,
-        "dpnl": -32.77,
-        "dpnl_pct": -1.7,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 124.28,
+        "upnl_pct": 6.43,
+        "dpnl": -167.15,
+        "dpnl_pct": -8.65,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "neocloud"
       },
       {
         "symbol": "TER",
         "side": "long",
-        "name": "TER",
+        "name": "Teradyne",
         "sector": "Semis",
-        "market_cap": null,
-        "beta": 3.7,
+        "market_cap": 54777233327,
+        "beta": 3.69,
         "beta_contrib": 0.071,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 89.4,
+        "qty": 5.49,
+        "entry": 322.3,
+        "mark": 349.92,
         "notional": 1919.65,
         "pct": 1.9,
-        "upnl": 306.44,
-        "upnl_pct": 15.96,
-        "dpnl": 22.29,
-        "dpnl_pct": 1.16,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 164.51,
+        "upnl_pct": 8.57,
+        "dpnl": -122.4,
+        "dpnl_pct": -6.38,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": null
       },
       {
@@ -2792,20 +2853,21 @@
         "side": "long",
         "name": "SK Hynix",
         "sector": "Memory",
-        "market_cap": 855569140940,
-        "beta": 1.39,
+        "market_cap": 850696104557,
+        "beta": 1.36,
         "beta_contrib": 0.026,
-        "qty": 1.56,
-        "entry": 1107.92,
-        "mark": 1205.27,
+        "ann_vol": 99.1,
+        "qty": 1.57,
+        "entry": 1201.81,
+        "mark": 1198.41,
         "notional": 1885.74,
         "pct": 1.9,
-        "upnl": 165.7,
-        "upnl_pct": 8.79,
-        "dpnl": 91.71,
-        "dpnl_pct": 4.86,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -5.35,
+        "upnl_pct": -0.28,
+        "dpnl": -157.23,
+        "dpnl_pct": -8.34,
+        "held_days": 8,
+        "funding_apr": 165.83,
         "layer": "memory"
       },
       {
@@ -2813,20 +2875,21 @@
         "side": "long",
         "name": "Micron",
         "sector": "Memory",
-        "market_cap": 1226162569216,
-        "beta": 3.43,
+        "market_cap": 1040114622413,
+        "beta": 3.41,
         "beta_contrib": 0.063,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 91.9,
+        "qty": 2.0,
+        "entry": 853.2,
+        "mark": 920.95,
         "notional": 1842.44,
         "pct": 1.8,
-        "upnl": 295.87,
-        "upnl_pct": 16.06,
-        "dpnl": 59.01,
-        "dpnl_pct": 3.2,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 146.3,
+        "upnl_pct": 7.94,
+        "dpnl": -128.87,
+        "dpnl_pct": -6.99,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "memory"
       },
       {
@@ -2834,20 +2897,21 @@
         "side": "long",
         "name": "Nebius",
         "sector": "AI Compute",
-        "market_cap": null,
-        "beta": 3.42,
-        "beta_contrib": 0.062,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "market_cap": 41385693016,
+        "beta": 3.39,
+        "beta_contrib": 0.061,
+        "ann_vol": 113.5,
+        "qty": 9.6,
+        "entry": 171.77,
+        "mark": 187.77,
         "notional": 1802.07,
         "pct": 1.8,
-        "upnl": 516.17,
-        "upnl_pct": 28.64,
-        "dpnl": 23.21,
-        "dpnl_pct": 1.29,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 167.86,
+        "upnl_pct": 9.31,
+        "dpnl": -270.75,
+        "dpnl_pct": -15.02,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "neocloud"
       },
       {
@@ -2855,20 +2919,21 @@
         "side": "long",
         "name": "Bloom Energy",
         "sector": "Energy Infra",
-        "market_cap": null,
-        "beta": 4.21,
+        "market_cap": 52590826755,
+        "beta": 4.17,
         "beta_contrib": 0.075,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 116.7,
+        "qty": 9.7,
+        "entry": 206.73,
+        "mark": 184.89,
         "notional": 1793.5,
         "pct": 1.8,
-        "upnl": 91.7,
-        "upnl_pct": 5.11,
-        "dpnl": -7.56,
-        "dpnl_pct": -0.42,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -189.47,
+        "upnl_pct": -10.56,
+        "dpnl": -267.5,
+        "dpnl_pct": -14.91,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "power/grid"
       },
       {
@@ -2876,41 +2941,43 @@
         "side": "long",
         "name": "Marvell",
         "sector": "Semis",
-        "market_cap": 269378650112,
+        "market_cap": 170100112339,
         "beta": 3.26,
         "beta_contrib": 0.058,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 91.8,
+        "qty": 9.11,
+        "entry": 188.3,
+        "mark": 194.23,
         "notional": 1769.14,
         "pct": 1.8,
-        "upnl": 197.49,
-        "upnl_pct": 11.16,
-        "dpnl": -14.0,
-        "dpnl_pct": -0.79,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 55.71,
+        "upnl_pct": 3.15,
+        "dpnl": -127.54,
+        "dpnl_pct": -7.21,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "custom-silicon/net"
       },
       {
         "symbol": "SMCI",
         "side": "long",
-        "name": "SMCI",
+        "name": "Super Micro Computer",
         "sector": "Hardware",
-        "market_cap": null,
-        "beta": 4.36,
+        "market_cap": 19470878113,
+        "beta": 4.35,
         "beta_contrib": 0.074,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 115.3,
+        "qty": 56.33,
+        "entry": 24.68,
+        "mark": 30.1,
         "notional": 1695.48,
         "pct": 1.7,
-        "upnl": 447.91,
-        "upnl_pct": 26.42,
-        "dpnl": 35.51,
-        "dpnl_pct": 2.09,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 372.35,
+        "upnl_pct": 21.96,
+        "dpnl": -59.78,
+        "dpnl_pct": -3.53,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": null
       },
       {
@@ -2918,20 +2985,21 @@
         "side": "long",
         "name": "SanDisk",
         "sector": "Memory",
-        "market_cap": 309211430912,
-        "beta": 3.63,
+        "market_cap": 212739822752,
+        "beta": 3.62,
         "beta_contrib": 0.059,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 113.7,
+        "qty": 1.13,
+        "entry": 1411.08,
+        "mark": 1436.56,
         "notional": 1627.99,
         "pct": 1.6,
-        "upnl": 229.88,
-        "upnl_pct": 14.12,
-        "dpnl": 11.26,
-        "dpnl_pct": 0.69,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": 29.4,
+        "upnl_pct": 1.81,
+        "dpnl": -175.68,
+        "dpnl_pct": -10.79,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "memory"
       },
       {
@@ -2939,20 +3007,21 @@
         "side": "long",
         "name": "Fluence Energy",
         "sector": "Energy Infra",
-        "market_cap": 4438201344,
-        "beta": 3.88,
+        "market_cap": 1784986426,
+        "beta": 3.87,
         "beta_contrib": 0.049,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 134.6,
+        "qty": 94.23,
+        "entry": 14.42,
+        "mark": 13.44,
         "notional": 1266.51,
         "pct": 1.3,
-        "upnl": -0.0,
-        "upnl_pct": -0.0,
-        "dpnl": -20.73,
-        "dpnl_pct": -1.64,
-        "held_days": 7,
-        "funding_apr": 0.0,
+        "upnl": -86.07,
+        "upnl_pct": -6.8,
+        "dpnl": -86.07,
+        "dpnl_pct": -6.8,
+        "held_days": 8,
+        "funding_apr": null,
         "layer": "power/grid"
       },
       {
@@ -2961,42 +3030,44 @@
         "name": "Direxion 3x Semis Bull",
         "sector": "Sector Index",
         "market_cap": null,
-        "beta": 8.27,
-        "beta_contrib": -1.582,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "beta": 8.25,
+        "beta_contrib": -1.578,
+        "ann_vol": 160.0,
+        "qty": -139.73,
+        "entry": 142.48,
+        "mark": 136.81,
         "notional": -19115.98,
         "pct": -19.1,
-        "upnl": -2015.17,
-        "upnl_pct": 10.54,
-        "dpnl": 414.4,
-        "dpnl_pct": -2.17,
-        "held_days": 7,
-        "funding_apr": 0.0
+        "upnl": 760.72,
+        "upnl_pct": -3.98,
+        "dpnl": 2511.17,
+        "dpnl_pct": -13.14,
+        "held_days": 8,
+        "funding_apr": null
       },
       {
         "symbol": "QQQ",
         "side": "hedge",
         "name": "Invesco QQQ (Nasdaq-100)",
         "sector": "Broad Index",
-        "market_cap": null,
+        "market_cap": 268970813000,
         "beta": 1.46,
         "beta_contrib": -0.321,
-        "qty": null,
-        "entry": null,
-        "mark": null,
+        "ann_vol": 22.5,
+        "qty": -32.1,
+        "entry": 705.94,
+        "mark": 684.23,
         "notional": -21967.19,
         "pct": -22.0,
-        "upnl": 435.02,
-        "upnl_pct": -1.98,
-        "dpnl": 417.01,
-        "dpnl_pct": -1.9,
-        "held_days": 7,
-        "funding_apr": 0.0
+        "upnl": 675.56,
+        "upnl_pct": -3.08,
+        "dpnl": 245.4,
+        "dpnl_pct": -1.12,
+        "held_days": 8,
+        "funding_apr": null
       }
     ]
   },
-  "generated_at": "2026-07-26T19:05:33.345703Z",
+  "generated_at": "2026-07-27T06:19:42.049904Z",
   "note": "Simulated track: the book is re-derived each day from a rolling 252-trading-day backtest on the CURRENT universe (it re-bases when the universe changes \u2014 not a held forward paper book). Held/uPnL describe that modeled window, not realized fills. Notional $100,000. Research, not investment advice or a performance representation."
 }

@@ -10,7 +10,7 @@ type Pos = {
   notional: number; pct: number; upnl: number; upnl_pct: number; funding_apr: number | null;
   dpnl?: number | null; dpnl_pct?: number | null;
   held_days: number | null; name: string | null; sector: string | null; market_cap: number | null;
-  beta: number | null; beta_contrib: number | null;
+  beta: number | null; beta_contrib: number | null; ann_vol: number | null;
 };
 const mcap = (n: number | null) => (n == null ? "—" : n >= 1e12 ? `$${(n / 1e12).toFixed(2)}T` : n >= 1e9 ? `$${(n / 1e9).toFixed(0)}B` : `$${(n / 1e6).toFixed(0)}M`);
 type Paper = {
@@ -363,6 +363,8 @@ const POS_COLS: Col[] = [
         {b.name && <div className="text-[11px] text-gray-600 max-w-[150px] truncate">{b.name}</div>}</div>) },
   { key: "sector", label: "Sector", align: "left", get: (b) => b.sector ?? "", cell: (b) => <span className="text-gray-500 text-xs">{b.sector ?? "—"}</span> },
   { key: "market_cap", label: "Mkt cap", align: "right", get: (b) => b.market_cap ?? -1, cell: (b) => <span className="text-gray-400">{mcap(b.market_cap)}</span> },
+  { key: "beta", label: "Beta", align: "right", get: (b) => b.beta ?? -9, cell: (b) => <span className="text-gray-400">{b.beta != null ? b.beta.toFixed(2) : "—"}</span> },
+  { key: "ann_vol", label: "Vol", align: "right", get: (b) => b.ann_vol ?? -1, cell: (b) => <span className="text-gray-400">{b.ann_vol != null ? `${b.ann_vol.toFixed(0)}%` : "—"}</span> },
   { key: "side", label: "Side", align: "left", get: (b) => b.side, cell: (b) => <span className={b.side === "hedge" ? "text-gray-500" : b.side === "long" ? "text-emerald-400" : "text-red-400"}>{b.side}</span> },
   { key: "held_days", label: "Held", align: "right", get: (b) => b.held_days ?? -1, cell: (b) => <span className="text-gray-400">{b.held_days != null ? `${b.held_days}d` : "—"}</span> },
   { key: "qty", label: "Size", align: "right", get: (b) => b.qty ?? -1, cell: (b) => <span className="text-gray-300">{b.qty?.toLocaleString() ?? "—"}</span> },
@@ -427,7 +429,7 @@ function PositionsTab({ p }: { p: Paper }) {
           ))}
         </tbody>
       </table>
-      <p className="text-[11px] text-gray-600 mt-3">Click any column header to sort. This book is recomputed daily from a fixed {p.days}-day lookback on the current universe — <span className="text-gray-500">Held</span> = days the name has been in that modeled window (it re-bases when the universe changes), and uPnL is the <span className="text-gray-500">modeled</span> return since the last rebalance ({p.last_rebalance}), not a realized fill. Daily P&L = position notional × latest-day return (hedge legs flip sign). Funding = a single venue snapshot, shown only where available. KRW-listed names (Samsung / SK Hynix / Hyundai) are converted to USD.</p>
+      <p className="text-[11px] text-gray-600 mt-3">Click any column header to sort. This book is recomputed daily from a fixed {p.days}-day lookback on the current universe — <span className="text-gray-500">Held</span> = days the name has been in that modeled window (it re-bases when the universe changes), and uPnL is the <span className="text-gray-500">modeled</span> return since the last rebalance ({p.last_rebalance}), not a realized fill. Daily P&L = position notional × latest-day return (hedge legs flip sign). Funding = a single venue snapshot, shown only where available. Beta = vs SPY over the trailing beta window; Vol = annualized daily volatility over the same window. KRW-listed names (Samsung / SK Hynix / Hyundai) are converted to USD.</p>
     </div>
     <BuildupChart book={p.book} />
     </>
