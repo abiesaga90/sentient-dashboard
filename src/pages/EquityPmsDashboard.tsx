@@ -14,7 +14,7 @@ type Pos = {
 };
 type BtVariant = {
   key: string; venue: string; window_days: number; n_universe: number;
-  nav_curve: { date: string; nav: number }[]; nav_index: number; cum_return_nav_pct: number;
+  nav_curve: { date: string; nav: number; net_pct?: number | null; net_beta?: number | null }[]; nav_index: number; cum_return_nav_pct: number;
   sharpe: number | null; sortino: number | null; max_dd_nav_pct: number; net_beta: number;
   gross_pct: number; net_pct: number; n_longs: number;
 };
@@ -32,7 +32,7 @@ type Paper = {
   limits: { gross_cap_pct: number; net_cap_pct: number; dd_hard_nav_pct: number; dd_pause_nav_pct: number };
   book: Pos[];
   layer_mix?: { layer: string; pct: number }[];
-  nav_curve: { date: string; nav: number }[];
+  nav_curve: { date: string; nav: number; net_pct?: number | null; net_beta?: number | null }[];
   backtest_variants?: Record<string, BtVariant> | null;
   paper_live?: PaperLive | null;
   note: string;
@@ -101,6 +101,47 @@ function NavChart({ curve, color = "#22d3ee", gradId = "nav", height = 280 }:
         <Area type="monotone" dataKey="nav" stroke={color} strokeWidth={2} fill={`url(#${gradId})`} />
       </AreaChart>
     </ResponsiveContainer>
+  );
+}
+
+// daily net-notional + net-beta series for the backtest window — two stacked panels (different
+// scales, so never one dual-axis chart)
+function ExposureChart({ curve }: { curve: { date: string; net_pct?: number | null; net_beta?: number | null }[] }) {
+  const rows = curve.filter((c) => c.net_pct != null && c.net_beta != null);
+  if (rows.length < 2) return null;
+  const axis = { fontSize: 10, fill: "#64748b" };
+  const tip = { background: "#0f172a", border: "1px solid #1e293b", fontSize: 12 };
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-4 mb-6">
+      <div className="text-sm font-medium text-gray-200 mb-1">Exposure through the window</div>
+      <div className="text-[11px] text-gray-600 mb-3">Net notional steps at rebalances and de-risk events; realized net beta (rolling vs SPY) drifts daily and is pulled back to target by the QQQ re-trim.</div>
+      <div className="text-[11px] uppercase tracking-wider text-gray-500">Net notional (% of capital)</div>
+      <ResponsiveContainer width="100%" height={110}>
+        <AreaChart data={rows} margin={{ top: 5, right: 10, left: -8, bottom: 0 }} syncId="exposure">
+          <defs>
+            <linearGradient id="expNet" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#22d3ee" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <XAxis dataKey="date" hide />
+          <YAxis domain={[0, "dataMax + 5"]} tick={axis} width={42} tickFormatter={(n: number) => `${n}%`} />
+          <RTooltip contentStyle={tip} formatter={(n) => [`${Number(n).toFixed(1)}%`, "net notional"]} />
+          <ReferenceLine y={30} stroke="#475569" strokeDasharray="3 3" label={{ value: "cap +30%", fontSize: 9, fill: "#64748b", position: "insideTopRight" }} />
+          <Area type="stepAfter" dataKey="net_pct" stroke="#22d3ee" strokeWidth={2} fill="url(#expNet)" />
+        </AreaChart>
+      </ResponsiveContainer>
+      <div className="text-[11px] uppercase tracking-wider text-gray-500 mt-3">Net beta (vs SPY)</div>
+      <ResponsiveContainer width="100%" height={110}>
+        <AreaChart data={rows} margin={{ top: 5, right: 10, left: -8, bottom: 0 }} syncId="exposure">
+          <XAxis dataKey="date" tick={axis} minTickGap={50} />
+          <YAxis domain={["auto", "auto"]} tick={axis} width={42} tickFormatter={(n: number) => n.toFixed(1)} />
+          <RTooltip contentStyle={tip} formatter={(n) => [Number(n).toFixed(2), "net beta"]} />
+          <ReferenceLine y={0} stroke="#475569" strokeDasharray="3 3" />
+          <Area type="monotone" dataKey="net_beta" stroke="#f59e0b" strokeWidth={2} fill="transparent" />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
 
@@ -256,6 +297,7 @@ function BacktestBody({ p }: { p: Paper }) {
         <div className="text-[11px] text-gray-600 mb-3">Strategy simulated over the trailing {days}-trading-day window on the current universe{uni === "hl" ? " restricted to names also tradeable on Hyperliquid's RWA dexs (xyz/cash/vntl)" : ""} — a research backtest, not the held paper book above.{!isDefault && <span className="text-gray-500"> Attribution / layers / movers below always describe the primary Binance 1y run.</span>}</div>
         <NavChart curve={v?.nav_curve ?? p.nav_curve} />
       </div>
+      <ExposureChart curve={v?.nav_curve ?? p.nav_curve} />
       <PnlPeriods p={p} />
       <AttributionPanel a={p.attribution} />
       {p.layer_mix && p.layer_mix.length > 0 && (
