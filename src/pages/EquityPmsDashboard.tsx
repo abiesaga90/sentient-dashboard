@@ -48,6 +48,7 @@ type PaperLive = {
   cum_return_nav_pct: number; dd_nav_pct: number; max_dd_nav_pct: number;
   sharpe: number | null; sortino: number | null; stats_ready: boolean;
   n_longs: number; net_beta: number; last_rebalance: string;
+  closed_positions?: { symbol: string; closed: string; entry_notional: number; realized_pnl: number; realized_pct: number; reason: string }[];
   nav_curve: { date: string; nav: number; dd: number }[];
 };
 
@@ -170,6 +171,9 @@ function PaperLiveSection({ pl }: { pl: PaperLive }) {
       </div>
       <NavChart curve={pl.nav_curve} color="#34d399" gradId="navlive" height={200} />
       <p className="text-[11px] text-gray-600 mt-2">Real forward track: the book established on {pl.inception} (current open-universe strategy), marked to market each day and never restated. Monthly rebalances apply as paper turnover going forward. Distinct from the backtest below, which re-bases when the universe changes.</p>
+      {pl.closed_positions && pl.closed_positions.length > 0 && (
+        <p className="text-[11px] mt-1 text-gray-600">Closed: {pl.closed_positions.map((c) => `${c.symbol} ${c.realized_pnl >= 0 ? "+" : "-"}$${Math.abs(c.realized_pnl).toFixed(0)} (${c.realized_pct >= 0 ? "+" : ""}${c.realized_pct.toFixed(1)}%) on ${c.closed}`).join(" · ")} — {pl.closed_positions[0].reason}. Realized P&L stays in the track.</p>
+      )}
     </div>
   );
 }
