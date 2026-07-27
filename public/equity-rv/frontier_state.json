@@ -127,5 +127,5 @@
       "chosen": false
     }
   ],
-  "note": "In-sample, one AI-bull regime. We govern DELTA (net beta ~0); leverage of a delta-neutral book PRESERVES Sharpe (~3.3-3.4 across the frontier) \u2014 return scales ~linearly with gross. Face net-notional rises with gross (a SOXL-3x artifact \u2014 a small hedge face delivers a large delta hedge; we stay delta-flat). DD on NOTIONAL basis (Nickel DAL: 10% notional = 20% NAV). Binding limits = the 200% gross + -10% notional DD ceilings + OOS prudence, NOT face net-notional."
+  "note": "In-sample, one AI-bull regime. We govern DELTA (net beta ~0); leverage of a delta-neutral book PRESERVES Sharpe (~3.3-3.4 across the frontier) \u2014 return scales ~linearly with gross. Face net-notional rises with gross (a SOXL-3x artifact \u2014 a small hedge face delivers a large delta hedge; we stay delta-flat). DD on the engine's trading-notional basis (10% notional = 20% of strategy capital, the risk-policy hard stop). Binding limits = the 400%-of-strategy-capital gross cap + the 20% DD stop + OOS prudence, NOT face net-notional."
 }

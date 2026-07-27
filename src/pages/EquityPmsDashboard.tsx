@@ -597,9 +597,9 @@ function RiskTab({ p }: { p: Paper }) {
     {p.risk_policy && <PolicyPanel rp={p.risk_policy} />}
     <div className="grid md:grid-cols-2 gap-6">
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
-        <div className="text-sm font-medium text-gray-200 mb-4">Exposure vs engine limits <span className="text-[10px] uppercase tracking-wider text-gray-600">(Nickel DAL convention — notional = 2x strategy capital)</span></div>
+        <div className="text-sm font-medium text-gray-200 mb-4">Exposure vs engine limits <span className="text-[10px] uppercase tracking-wider text-gray-600">(engine convention — trading notional = 2x strategy capital)</span></div>
         <ExposureBar label="Gross" value={p.gross_pct} cap={p.limits.gross_cap_pct} capLabel={`${p.limits.gross_cap_pct}% cap`} />
-        <ExposureBar label="Net (long)" value={p.net_pct} cap={p.limits.net_cap_pct} capLabel={`±${p.limits.net_cap_pct}% cap`} />
+        <ExposureBar label="Net (beta-adj)" value={Math.abs(100 * p.net_beta)} cap={20} capLabel="±20% policy cap" />
         <ExposureBar label="Drawdown" value={Math.abs(p.dd_nav_pct)} cap={p.limits.dd_hard_nav_pct} capLabel={`${p.limits.dd_hard_nav_pct}% stop`} />
         <div className="mt-3 pt-3 border-t border-[var(--border)] grid grid-cols-3 gap-y-1.5 text-xs">
           <div className="text-gray-600" /><div className="text-right text-gray-500">Notional</div><div className="text-right text-gray-500">NAV</div>
@@ -607,7 +607,7 @@ function RiskTab({ p }: { p: Paper }) {
           <div className="text-gray-400">Net</div><div className="text-right text-gray-300">{f1(p.net_pct)}%</div><div className="text-right text-gray-300">{f1(p.net_pct_nav)}%</div>
           <div className="text-gray-400">Net beta</div><div className="text-right text-cyan-400">+{p.net_beta.toFixed(2)}</div><div className="text-right text-gray-600">market</div>
         </div>
-        <div className="mt-2 text-[11px] text-gray-600">Nickel sizes on NOTIONAL (= 2× NAV). We govern <span className="text-gray-400">delta</span> (net β ≈ 0); face net-notional sits above the 30% face cap only because the 3×-levered SOXL hedge's small face belies a large delta hedge — the book is delta-flat (see the frontier below). Binding limits: 200% gross + −10% notional DD.</div>
+        <div className="mt-2 text-[11px] text-gray-600">The engine sizes on trading NOTIONAL (= 2× strategy capital). We govern <span className="text-gray-400">delta</span> (net β ≈ 0); face net-notional is not a policy limit (§3.4 limits net exposure beta-adjusted, at ±20% of strategy capital) and reads high only because the 3×-levered SOXL hedge's small face belies a large delta hedge — the book is delta-flat (see the frontier below). Binding limits: 400%-of-strategy-capital gross + the 20% drawdown stop (policy basis).</div>
       </div>
       <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
         <div className="text-sm font-medium text-gray-200 mb-4">Risk gates &amp; controls</div>
@@ -621,7 +621,7 @@ function RiskTab({ p }: { p: Paper }) {
           <Row k={`uniMMR — Binance PM${p.unimmr_est ? " (est)" : ""}`} v={p.unimmr != null ? `${p.unimmr}×` : "—"} ok={(p.unimmr ?? 99) > 1.3} />
           <Row k="Rebalance cadence" v={`${p.rebalance_days}d`} ok />
         </div>
-        <p className="text-[11px] text-gray-600 mt-3">The rolling-4wk Sortino is the live Nickel scaling-gate input; it is noisy (20-day window) and dips below 1.5 during normal drawdowns — that correctly pauses up-scaling. The track Sortino is the through-period record.</p>
+        <p className="text-[11px] text-gray-600 mt-3">The rolling-4wk Sortino is the risk-policy §3.3 scaling-gate input; it is noisy (20-day window) and dips below 1.5 during normal drawdowns — that correctly pauses up-scaling. The track Sortino is the through-period record.</p>
       </div>
       <div className="md:col-span-2"><DdLadder l={p.dd_ladder} /></div>
       {fr && <div className="md:col-span-2"><FrontierCard fr={fr} /></div>}
@@ -1266,7 +1266,7 @@ function ProcessTab() {
     <div className="max-w-3xl">
       <Sec title="What it is">
         <p>A systematic, market-neutral-to-lightly-net-long long/short book on <span className="text-gray-200">tokenized US-equity perpetual futures</span>. We own the AI supply-chain and mega-cap-tech companies that are beating earnings expectations — the systematic version of how the AI-frontier crossover funds (Coatue, Altimeter, Tiger, Atreides, Situational Awareness — the same investors backing OpenAI / Anthropic / SpaceX) pick their longs — and hedge the market and the AI-compute factor so the return is driven by <span className="text-gray-200">stock selection, not beta</span>. Engineered to a hard drawdown cap.</p>
-        <p className="text-xs text-gray-600">Open universe — all tradeable tokenized US-equity perps + new listings (auto-discovered) → investability screen → diversified top ~25 · Binance USDT-M (Nickel account) · monthly rebalance · maker execution.</p>
+        <p className="text-xs text-gray-600">Open universe — all tradeable tokenized US-equity perps + new listings (auto-discovered) → investability screen → diversified top ~25 · Binance USDT-M · monthly rebalance · maker execution.</p>
       </Sec>
 
       <Sec title="The edge — beat-and-raise, in the AI supply chain">
@@ -1281,7 +1281,7 @@ function ProcessTab() {
           <li>Long the <span className="text-gray-200">top ~25</span> by score — diversified across 6 sectors. <span className="text-gray-200">No single-name shorts</span> (they squeeze in an AI bull, no measured edge). Per-name cap controls concentration.</li>
           <li><span className="text-gray-200">Own the AI supply chain, not the spenders.</span> Hold the firms that <span className="text-gray-200">sell into</span> the buildout (semis, memory, networking, foundry, optics); exclude the hyperscalers that <span className="text-gray-200">spend</span> the capex — validated, and confirmed by Coatue.</li>
           <li>Hedge with <span className="text-gray-200">QQQ + SOXL</span> via a min-variance overlay — neutralizes the broad market and the AI-compute / semiconductor factor.</li>
-          <li>Run <span className="text-gray-200">beta-neutral</span> (net beta ~0); vol-target; size on notional within Nickel's limits; maker TWAP; rebalance monthly + around earnings.</li>
+          <li>Run <span className="text-gray-200">beta-neutral</span> (net beta ~0); vol-target; size on notional within the risk-policy limits; maker TWAP; rebalance monthly + around earnings.</li>
         </ul>
       </Sec>
 
@@ -1295,7 +1295,7 @@ function ProcessTab() {
 
       <Sec title="Risk management">
         <ul className="list-disc pl-5 space-y-1.5">
-          <li>Sized on <span className="text-gray-200">NOTIONAL</span> (Nickel's risk denominator), not margin. Notional = 2× NAV; gross cap 200% notional; net cap ±30% notional.</li>
+          <li>Sized on <span className="text-gray-200">NOTIONAL</span> (risk-policy §1.6: notional allocations, not margin). Trading notional = 2× strategy capital; gross cap 400% of strategy capital; net exposure governed beta-adjusted (±20%).</li>
           <li><span className="text-gray-200">Net-notional buffer.</span> Positions drift with price between monthly rebalances (+~4.5pp/cycle), so we clamp to a <span className="text-gray-200">25% target</span> — a 5pp buffer below the ±30% cap — and the live forward-loop re-clamps if drift still approaches it. Backtest breaches fell 60% → 2% of days.</li>
           <li><span className="text-gray-200">Hard drawdown stop</span> at 10% notional / 20% NAV; a de-risk ladder cuts gross before that.</li>
           <li>Capital scaling gated on rolling-4-week Sortino &gt; 1.5 and shallow drawdown.</li>
