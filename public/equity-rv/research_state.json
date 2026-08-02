@@ -6,6 +6,45 @@
   "n_excluded": 6,
   "n_screened": 15,
   "signal": "score = 1.0\u00b7z(EPS surprise) + 0.5\u00b7z(momentum) + 1.0\u00b7z(cheap P/E) + 1.0\u00b7z(AI-supply thesis) + 0.5\u00b7z(EPS revisions) \u2192 long the top 30 eligible names",
+  "score_weights": [
+    {
+      "key": "z_eps",
+      "weight": 1.0,
+      "label": "EPS surprise",
+      "role": "driver"
+    },
+    {
+      "key": "z_mom",
+      "weight": 0.5,
+      "label": "Momentum",
+      "role": "confirmer"
+    },
+    {
+      "key": "z_val",
+      "weight": 1.0,
+      "label": "Cheap P/E",
+      "role": "overlay"
+    },
+    {
+      "key": "z_thesis",
+      "weight": 1.0,
+      "label": "AI-supply thesis",
+      "role": "tilt"
+    },
+    {
+      "key": "z_rev",
+      "weight": 0.5,
+      "label": "EPS revisions",
+      "role": "driver"
+    }
+  ],
+  "sizing": {
+    "scheme": "inverse-vol",
+    "per_name_cap_pct": 15.0,
+    "target_vol_pct": 10.0,
+    "vol_window": 60,
+    "desc": "Rank picks WHAT we hold; it does not set size. The top-30 are inverse-vol weighted (60d window), clamped at the per-name cap, then the whole book is scaled to the 10% vol target, gross-capped, and multiplied by the DD ladder x regime brake."
+  },
   "mom_desc": "126-day momentum, skip last 21",
   "screen": {
     "min_coverage": 12,
@@ -75,7 +114,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": null,
+      "funding_apr": -8.48,
       "operating_margin": 0.088570006,
       "gross_margin": 0.19212,
       "roe": null,
@@ -157,7 +196,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": null,
+      "funding_apr": -8.16,
       "operating_margin": -0.3208,
       "gross_margin": 0.72058,
       "roe": 0.14136,
@@ -325,7 +364,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": -34.07,
+      "funding_apr": -14.27,
       "operating_margin": 0.71535003,
       "gross_margin": 0.68342,
       "roe": 0.61172,
@@ -405,7 +444,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": -18.68,
+      "funding_apr": -16.17,
       "operating_margin": 0.42751,
       "gross_margin": 0.47678003,
       "roe": 0.18855,
@@ -565,7 +604,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": 46.6,
+      "funding_apr": -15.25,
       "operating_margin": -0.64468,
       "gross_margin": 0.68397003,
       "roe": 0.07729,
@@ -1746,7 +1785,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": 58.91,
+      "funding_apr": -46.09,
       "operating_margin": 0.113649994,
       "gross_margin": 0.34101,
       "roe": 1.2088,
@@ -2924,7 +2963,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": -147.55,
+      "funding_apr": -1.64,
       "operating_margin": 0.06483,
       "gross_margin": 0.081070006,
       "roe": -0.029760001,
@@ -3860,6 +3899,6 @@
       "last_fiscal_period": "nan"
     }
   ],
-  "generated_at": "2026-08-01T19:01:44.985170Z",
+  "generated_at": "2026-08-02T15:20:08.851358Z",
   "note": "Single-name selection research on the validated signal. Valuation overlay & 13F are CONTEXT/validation, not live selection inputs. Research, not investment advice."
 }
