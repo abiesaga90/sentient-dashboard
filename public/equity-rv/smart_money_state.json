@@ -29,6 +29,258 @@
     ],
     "note": "These funds almost certainly run shorts; 13F-HR simply cannot show them, so puts are the only bearish expression that ever appears here. Read 'long-only' as a limit of the filing, not a fact about the fund."
   },
+  "thesis_stack": {
+    "updated": "2026-08-02",
+    "stack_note": "Chamath's six-layer AI stack (Aug 2026) is a different cut of the same territory as our 10-layer supply-chain taxonomy in ai_role.json. `our_layers` maps his layer onto ours; an empty list means the layer has NO tokenized perp and is therefore uninvestable for this book, which is worth showing rather than hiding.",
+    "stack": [
+      {
+        "key": "lps",
+        "label": "Land, power, shell",
+        "our_layers": [
+          "power/grid"
+        ],
+        "investable": true,
+        "our_stance": "LIGHT. Four names (BE, CEG, FLNC, GEV). The layer-mix panel already flags power as a forward bottleneck we are underweight.",
+        "our_weight_pct": 6.4,
+        "views": [
+          {
+            "author": "Chamath Palihapitiya",
+            "fund": "Social Capital / 8090 Solutions",
+            "stance": "bullish",
+            "note": "most bullish layer; ~6GW acquired",
+            "date": "2026-08-02"
+          },
+          {
+            "author": "Gavin Baker",
+            "fund": "Atreides Management",
+            "stance": "cautious",
+            "note": "energizing GPUs is the real bottleneck and the real risk",
+            "date": "2026-08-01"
+          }
+        ]
+      },
+      {
+        "key": "silicon",
+        "label": "Silicon",
+        "our_layers": [
+          "compute-die",
+          "custom-silicon/net",
+          "foundry/equip",
+          "memory",
+          "materials",
+          "optical"
+        ],
+        "investable": true,
+        "our_stance": "HEAVIEST. This is the core of the book and where the beat-and-raise signal concentrates.",
+        "our_weight_pct": 46.7,
+        "views": [
+          {
+            "author": "Chamath Palihapitiya",
+            "fund": "Social Capital / 8090 Solutions",
+            "stance": "avoid",
+            "note": "about STARTUPS competing with Nvidia, NOT a short on listed semis",
+            "date": "2026-08-02"
+          },
+          {
+            "author": "Gavin Baker",
+            "fund": "Atreides Management",
+            "stance": "open",
+            "note": "questions the BofA framing of FCF transferring to semis",
+            "date": "2026-08-01"
+          },
+          {
+            "author": "Coatue",
+            "fund": "Coatue Management",
+            "stance": "bullish",
+            "note": "the sellers; our long book",
+            "date": "2026-01-01"
+          }
+        ]
+      },
+      {
+        "key": "clouds",
+        "label": "Clouds",
+        "our_layers": [
+          "neocloud"
+        ],
+        "investable": true,
+        "our_stance": "LIGHT (~3.7%). Deliberately cut in the 2026-07-17 RV reset after the neocloud froth de-rated 30-40%.",
+        "our_weight_pct": 3.7,
+        "views": [
+          {
+            "author": "Chamath Palihapitiya",
+            "fund": "Social Capital / 8090 Solutions",
+            "stance": "cautious",
+            "note": "KYC / alignment liability skews risk:reward",
+            "date": "2026-08-02"
+          },
+          {
+            "author": "Gavin Baker",
+            "fund": "Atreides Management",
+            "stance": "bullish",
+            "note": "hyperscalers under-earning; OCF acceleration underestimated",
+            "date": "2026-08-01"
+          },
+          {
+            "author": "Coatue",
+            "fund": "Coatue Management",
+            "stance": "cautious",
+            "note": "the buyers; excluded from our universe",
+            "date": "2026-01-01"
+          }
+        ]
+      },
+      {
+        "key": "models",
+        "label": "Models",
+        "our_layers": [
+          "frontier-lab"
+        ],
+        "investable": false,
+        "our_stance": "PROHIBITED. Pre-IPO instruments are barred from this book (policy 1.3 / Part 4); ANTHROPIC was closed 2026-07-27.",
+        "our_weight_pct": 0.0,
+        "views": [
+          {
+            "author": "Chamath Palihapitiya",
+            "fund": "Social Capital / 8090 Solutions",
+            "stance": "open",
+            "note": "is revenue tokenmaxxing-inflated?",
+            "date": "2026-08-02"
+          }
+        ]
+      },
+      {
+        "key": "harnesses",
+        "label": "Harnesses",
+        "our_layers": [],
+        "investable": false,
+        "our_stance": "NOT INVESTABLE. Private companies, no tokenized perp. We cannot express a view here at any size.",
+        "our_weight_pct": 0,
+        "views": [
+          {
+            "author": "Chamath Palihapitiya",
+            "fund": "Social Capital / 8090 Solutions",
+            "stance": "bullish",
+            "note": "founded 8090 Solutions on this thesis",
+            "date": "2026-08-02"
+          }
+        ]
+      },
+      {
+        "key": "applications",
+        "label": "Applications",
+        "our_layers": [],
+        "investable": false,
+        "our_stance": "NOT INVESTABLE. Same limit: the winners named are private.",
+        "our_weight_pct": 0,
+        "views": [
+          {
+            "author": "Chamath Palihapitiya",
+            "fund": "Social Capital / 8090 Solutions",
+            "stance": "bullish",
+            "note": "custom replaces off-the-shelf",
+            "date": "2026-08-02"
+          }
+        ]
+      }
+    ],
+    "entries": [
+      {
+        "author": "Chamath Palihapitiya",
+        "fund": "Social Capital / 8090 Solutions",
+        "tracked_13f": false,
+        "date": "2026-08-02",
+        "venue": "X",
+        "title": "AI investing guide, by layer",
+        "claim": "Ranks the AI stack by expected cash-on-cash return. Land and power is the fastest path and energized land can explode in value as data centres face pushback; has acquired ~6GW coming online 2026-2029. Will not invest in silicon startups: performance demands, manufacturing precision and memory supply-chain access now foreclose new entrants. Clouds are lucrative but risk:reward is skewed by coming KYC and alignment obligations. Models are an open question because revenue may be inflated by tokenmaxxing. Harnesses and applications are where the durable value accrues.",
+        "layer_views": [
+          {
+            "key": "lps",
+            "stance": "bullish",
+            "note": "most bullish layer; ~6GW acquired"
+          },
+          {
+            "key": "silicon",
+            "stance": "avoid",
+            "note": "about STARTUPS competing with Nvidia, NOT a short on listed semis"
+          },
+          {
+            "key": "clouds",
+            "stance": "cautious",
+            "note": "KYC / alignment liability skews risk:reward"
+          },
+          {
+            "key": "models",
+            "stance": "open",
+            "note": "is revenue tokenmaxxing-inflated?"
+          },
+          {
+            "key": "harnesses",
+            "stance": "bullish",
+            "note": "founded 8090 Solutions on this thesis"
+          },
+          {
+            "key": "applications",
+            "stance": "bullish",
+            "note": "custom replaces off-the-shelf"
+          }
+        ],
+        "vs_our_book": "MIXED. He is most bullish precisely where we are lightest (power/grid), which corroborates our own layer-mix flag. His silicon caution is a venture-entry argument, not a short on listed semis, so it does NOT contradict our semi-heavy book. His two highest-conviction layers are ones we cannot access.",
+        "agrees": false
+      },
+      {
+        "author": "Gavin Baker",
+        "fund": "Atreides Management",
+        "tracked_13f": true,
+        "date": "2026-08-01",
+        "venue": "X",
+        "title": "Hyperscaler credit spreads are being misread",
+        "claim": "The selloff prices widening hyperscaler credit spreads as a solvency signal, but spot GPU rental prices run at least 2x contracted rates, so hyperscalers are currently UNDER-earning and will reprice higher as contracts roll off. Models hyperscaler operating cash flow growth accelerating from 31% in Q1 2026 to 50% in Q2, an acceleration absent from estimates that wrongly model a Q3 deceleration. At ~$60B per gigawatt, 25-35GW of CY28 capex implies $1.5-2.2T against $1.3-1.4T of consensus operating cash flow, and he expects that gap to close on upward revisions rather than debt. Notes CDS markets are easily manipulated (short the stock, buy the CDS) so he attaches little signal to them. Names power delivery, not funding, as the real risk.",
+        "layer_views": [
+          {
+            "key": "clouds",
+            "stance": "bullish",
+            "note": "hyperscalers under-earning; OCF acceleration underestimated"
+          },
+          {
+            "key": "lps",
+            "stance": "cautious",
+            "note": "energizing GPUs is the real bottleneck and the real risk"
+          },
+          {
+            "key": "silicon",
+            "stance": "open",
+            "note": "questions the BofA framing of FCF transferring to semis"
+          }
+        ],
+        "vs_our_book": "CHALLENGES US. Our universe EXCLUDES hyperscalers as capex spenders (buyers of the shortage) and the Coatue evidence below is the justification. Baker argues those same buyers are under-earning with an FCF inflection ahead, which is the bull case for the exact names our screen removes. Worth watching: if hyperscaler OCF does accelerate to 50%, the spender exclusion is the assumption most exposed.",
+        "agrees": false
+      },
+      {
+        "author": "Coatue",
+        "fund": "Coatue Management",
+        "tracked_13f": true,
+        "date": "2026-01-01",
+        "venue": "EMW deck",
+        "title": "The market is rewarding the sellers of the shortage",
+        "claim": "Splits the AI complex into sellers of the shortage (semis, memory, optics: pricing power, fixed cost base, large upward EPS revisions) and buyers of the shortage (hyperscaler capex, modest revisions). Sellers +107% YTD against buyers +4%.",
+        "layer_views": [
+          {
+            "key": "silicon",
+            "stance": "bullish",
+            "note": "the sellers; our long book"
+          },
+          {
+            "key": "clouds",
+            "stance": "cautious",
+            "note": "the buyers; excluded from our universe"
+          }
+        ],
+        "vs_our_book": "AGREES, and is load-bearing. This framing IS our supplier/spender split: suppliers are the long book, spenders are excluded. It is already cited as external validation on the Research tab.",
+        "agrees": true
+      }
+    ]
+  },
   "options_book": [
     {
       "fund": "SAA (Aschenbrenner)",
@@ -295,7 +547,7 @@
       "our_rank": null
     }
   ],
-  "generated_at": "2026-08-02T15:54:44.422860Z",
+  "generated_at": "2026-08-02T17:27:21.701819Z",
   "n_funds": 15,
   "thesis": "Trackable AI-frontier smart money \u2014 crossover funds that backed the private SpaceX / OpenAI / Anthropic rounds AND file 13F-HR, so their public books reveal their picks-and-shovels bets. Full books (not just our overlap) future-proof us: as Binance lists more tokenized stocks, we already know who backs each name.",
   "funds": [
