@@ -58,8 +58,9 @@
   "valuation_overlay": {
     "weight": 1.0,
     "metric": "cheap trailing P/E (cross-sectional)",
-    "status": "LIVE on binance",
-    "evidence": "Passed robustness: helps in 100%% of 18 param configs (median +0.40) + 2/3 sub-periods; rich tilt -0.57 (sign-consistent). Off on HL (33%% of configs)."
+    "status": "ON, every venue",
+    "venue_note": "Applied on every venue. Cheapness is a property of the SECURITY, not of the exchange listing it, so the leg is no longer venue-gated. The old 'off on Hyperliquid' rule rested on a confounded test: the HL universe scores ~40 names against a top-30 book, and at a 75% selection ratio no ranking signal can differentiate. The HL names are also a subset of the same Binance panel, so they are the same companies at the same multiples.",
+    "evidence": "Passed robustness: helps in 100% of 18 param configs (median +0.40) + 2/3 sub-periods; rich tilt -0.57 (sign-consistent)."
   },
   "smart_money": {
     "filing_period": "2026-03-31",
@@ -114,7 +115,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": -8.48,
+      "funding_apr": -1.49,
       "operating_margin": 0.088570006,
       "gross_margin": 0.19212,
       "roe": null,
@@ -604,7 +605,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": -15.25,
+      "funding_apr": -5.46,
       "operating_margin": -0.64468,
       "gross_margin": 0.68397003,
       "roe": 0.07729,
@@ -1785,7 +1786,7 @@
       "sm_count": 0,
       "sm_funds": null,
       "sm_note": null,
-      "funding_apr": -46.09,
+      "funding_apr": -54.97,
       "operating_margin": 0.113649994,
       "gross_margin": 0.34101,
       "roe": 1.2088,
@@ -3899,6 +3900,6 @@
       "last_fiscal_period": "nan"
     }
   ],
-  "generated_at": "2026-08-02T15:20:08.851358Z",
+  "generated_at": "2026-08-02T16:02:19.254961Z",
   "note": "Single-name selection research on the validated signal. Valuation overlay & 13F are CONTEXT/validation, not live selection inputs. Research, not investment advice."
 }

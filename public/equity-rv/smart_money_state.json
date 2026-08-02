@@ -14,7 +14,288 @@
     "funds_filed_next": [],
     "checked_at": "2026-08-02T15:30:07.506697Z"
   },
-  "generated_at": "2026-08-02T15:30:38.764663Z",
+  "disclosure_limits": {
+    "covers": [
+      "US-listed long equity positions",
+      "ETFs and ADRs",
+      "convertible bonds",
+      "listed options (puts and calls), as notional of the underlying"
+    ],
+    "excludes": [
+      "SHORT positions \u2014 no US rule requires a manager to disclose them",
+      "cash and fixed income",
+      "non-US-listed holdings",
+      "swaps and total-return exposure"
+    ],
+    "note": "These funds almost certainly run shorts; 13F-HR simply cannot show them, so puts are the only bearish expression that ever appears here. Read 'long-only' as a limit of the filing, not a fact about the fund."
+  },
+  "options_book": [
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "VANECK ETF TRUST",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 2042716860,
+      "call_usd": 0,
+      "share_usd": 10332630,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "NVIDIA CORPORATION",
+      "ticker": "NVDA",
+      "sector": "AI Compute",
+      "put_usd": 1568257120,
+      "call_usd": 0,
+      "share_usd": 497912,
+      "tradeable": true,
+      "our_rank": 18
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "ORACLE CORP",
+      "ticker": "ORCL",
+      "sector": "Software",
+      "put_usd": 1072873230,
+      "call_usd": 0,
+      "share_usd": 0,
+      "tradeable": true,
+      "our_rank": null
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "BROADCOM INC",
+      "ticker": "AVGO",
+      "sector": "Semis",
+      "put_usd": 1006247961,
+      "call_usd": 0,
+      "share_usd": 0,
+      "tradeable": true,
+      "our_rank": 25
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "MICRON TECHNOLOGY INC",
+      "ticker": "MU",
+      "sector": "Memory",
+      "put_usd": 583686168,
+      "call_usd": 422300000,
+      "share_usd": 5865578,
+      "tradeable": true,
+      "our_rank": 6
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "ADVANCED MICRO DEVICES INC",
+      "ticker": "AMD",
+      "sector": "Semis",
+      "put_usd": 969160863,
+      "call_usd": 0,
+      "share_usd": 20167643,
+      "tradeable": true,
+      "our_rank": null
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
+      "ticker": "TSM",
+      "sector": "Semis",
+      "put_usd": 535110030,
+      "call_usd": 354847500,
+      "share_usd": 7577853,
+      "tradeable": true,
+      "our_rank": 13
+    },
+    {
+      "fund": "Atreides",
+      "issuer": "INVESCO QQQ TR",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 808052000,
+      "call_usd": 0,
+      "share_usd": 0,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "ASML HLDG NV N Y REGISTRY",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 494122503,
+      "call_usd": 0,
+      "share_usd": 6119405,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "SANDISK CORP",
+      "ticker": "SNDK",
+      "sector": "Memory",
+      "put_usd": 0,
+      "call_usd": 388764546,
+      "share_usd": 724363205,
+      "tradeable": true,
+      "our_rank": 2
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "INTEL CORP",
+      "ticker": "INTC",
+      "sector": "Semis",
+      "put_usd": 159106302,
+      "call_usd": 0,
+      "share_usd": 8929441,
+      "tradeable": true,
+      "our_rank": 4
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "COREWEAVE INC",
+      "ticker": "CRWV",
+      "sector": "AI Compute",
+      "put_usd": 0,
+      "call_usd": 140569315,
+      "share_usd": 556073385,
+      "tradeable": true,
+      "our_rank": null
+    },
+    {
+      "fund": "Atreides",
+      "issuer": "ROBLOX CORP",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 0,
+      "call_usd": 56560000,
+      "share_usd": 78262242,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "BLOOM ENERGY CORP",
+      "ticker": "BE",
+      "sector": "Energy Infra",
+      "put_usd": 0,
+      "call_usd": 55347665,
+      "share_usd": 878707930,
+      "tradeable": true,
+      "our_rank": 16
+    },
+    {
+      "fund": "Light Street",
+      "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
+      "ticker": "TSM",
+      "sector": "Semis",
+      "put_usd": 36904140,
+      "call_usd": 0,
+      "share_usd": 76912351,
+      "tradeable": true,
+      "our_rank": 13
+    },
+    {
+      "fund": "Atreides",
+      "issuer": "UNITY SOFTWARE INC",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 0,
+      "call_usd": 32910000,
+      "share_usd": 271733965,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "CORNING INC",
+      "ticker": "GLW",
+      "sector": "Hardware",
+      "put_usd": 21020962,
+      "call_usd": 0,
+      "share_usd": 718330,
+      "tradeable": true,
+      "our_rank": 19
+    },
+    {
+      "fund": "SAA (Aschenbrenner)",
+      "issuer": "INFOSYS LTD",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 6755000,
+      "call_usd": 0,
+      "share_usd": 0,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "ARK Invest",
+      "issuer": "ARK Innovation ETF",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 0,
+      "call_usd": 608310,
+      "share_usd": 6464105,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "Duquesne (Druckenmiller)",
+      "issuer": "Ishares Inc",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 0,
+      "call_usd": 162313,
+      "share_usd": 131915,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "Duquesne (Druckenmiller)",
+      "issuer": "Invesco Exchange Traded Fd T",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 0,
+      "call_usd": 157566,
+      "share_usd": 0,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "Duquesne (Druckenmiller)",
+      "issuer": "State Str Spdr S&P 500 Etf T",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 0,
+      "call_usd": 58531,
+      "share_usd": 0,
+      "tradeable": false,
+      "our_rank": null
+    },
+    {
+      "fund": "Duquesne (Druckenmiller)",
+      "issuer": "Amazon Com Inc",
+      "ticker": "AMZN",
+      "sector": "Hyperscaler",
+      "put_usd": 0,
+      "call_usd": 41654,
+      "share_usd": 9539,
+      "tradeable": true,
+      "our_rank": null
+    },
+    {
+      "fund": "Duquesne (Druckenmiller)",
+      "issuer": "Ishares Tr",
+      "ticker": null,
+      "sector": null,
+      "put_usd": 0,
+      "call_usd": 19592,
+      "share_usd": 0,
+      "tradeable": false,
+      "our_rank": null
+    }
+  ],
+  "generated_at": "2026-08-02T15:54:44.422860Z",
   "n_funds": 15,
   "thesis": "Trackable AI-frontier smart money \u2014 crossover funds that backed the private SpaceX / OpenAI / Anthropic rounds AND file 13F-HR, so their public books reveal their picks-and-shovels bets. Full books (not just our overlap) future-proof us: as Binance lists more tokenized stocks, we already know who backs each name.",
   "funds": [
@@ -26,6 +307,9 @@
       "n_positions": 275,
       "n_tradeable": 19,
       "conc_top10": 42.5,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "NVIDIA",
@@ -35,7 +319,8 @@
           "value_usd": 7106567176,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Amazon.Com",
@@ -45,7 +330,8 @@
           "value_usd": 5850762287,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MercadoLibre",
@@ -55,7 +341,8 @@
           "value_usd": 5590369475,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Spotify Technology SA",
@@ -65,7 +352,8 @@
           "value_usd": 3985088817,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Nu Holdings Ltd.",
@@ -75,7 +363,8 @@
           "value_usd": 3543131204,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Shopify 'A'",
@@ -85,7 +374,8 @@
           "value_usd": 3442319661,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Cloudflare Inc",
@@ -95,7 +385,8 @@
           "value_usd": 3285845442,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Sea Ltd ADR",
@@ -105,7 +396,8 @@
           "value_usd": 3283753702,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "PDD Holdings Inc",
@@ -115,7 +407,8 @@
           "value_usd": 2897119656,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AppLovin",
@@ -125,7 +418,8 @@
           "value_usd": 2666652536,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Meta Platforms Inc",
@@ -135,7 +429,8 @@
           "value_usd": 2345058458,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Coupang",
@@ -145,7 +440,8 @@
           "value_usd": 2277989849,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Netflix Inc",
@@ -155,7 +451,8 @@
           "value_usd": 2096615075,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Samsara",
@@ -165,7 +462,8 @@
           "value_usd": 1822928968,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Microsoft",
@@ -175,7 +473,8 @@
           "value_usd": 1435529994,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -207,6 +506,9 @@
       "n_positions": 77,
       "n_tradeable": 10,
       "conc_top10": 34.9,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "VISA INC",
@@ -216,7 +518,8 @@
           "value_usd": 1912630634,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
@@ -226,7 +529,8 @@
           "value_usd": 1508989670,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SCHWAB CHARLES CORP",
@@ -236,7 +540,8 @@
           "value_usd": 1378212377,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "DISNEY WALT CO",
@@ -246,7 +551,8 @@
           "value_usd": 1281705768,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "FORTIVE CORP",
@@ -256,7 +562,8 @@
           "value_usd": 1242660569,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AIR PRODUCTS AND CHEMICALS I",
@@ -266,7 +573,8 @@
           "value_usd": 1192198557,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MCDONALDS CORP",
@@ -276,7 +584,8 @@
           "value_usd": 1126622763,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SHERWIN WILLIAMS CO",
@@ -286,7 +595,8 @@
           "value_usd": 997797462,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TESLA INC",
@@ -296,7 +606,8 @@
           "value_usd": 926981302,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "APPLE INC",
@@ -306,7 +617,8 @@
           "value_usd": 911881936,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BRIDGEBIO PHARMA INC",
@@ -316,7 +628,8 @@
           "value_usd": 879419149,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CARVANA CO",
@@ -326,7 +639,8 @@
           "value_usd": 873987403,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MICROSOFT CORP",
@@ -336,7 +650,8 @@
           "value_usd": 854887626,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "THERMO FISHER SCIENTIFIC INC",
@@ -346,7 +661,8 @@
           "value_usd": 819884328,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "JPMORGAN CHASE & CO",
@@ -356,7 +672,8 @@
           "value_usd": 795413935,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -388,6 +705,9 @@
       "n_positions": 62,
       "n_tradeable": 15,
       "conc_top10": 63.7,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
@@ -397,7 +717,8 @@
           "value_usd": 3137374709,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "GE VERNOVA INC",
@@ -407,7 +728,8 @@
           "value_usd": 2245411301,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "LAM RESEARCH CORP",
@@ -417,7 +739,8 @@
           "value_usd": 2145895279,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "APPLIED MATLS INC",
@@ -427,7 +750,8 @@
           "value_usd": 1793782961,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BROADCOM INC",
@@ -437,7 +761,8 @@
           "value_usd": 1703497233,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "EATON CORP PLC",
@@ -447,7 +772,8 @@
           "value_usd": 1698395280,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMAZON COM INC",
@@ -457,7 +783,8 @@
           "value_usd": 1651740634,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "META PLATFORMS INC",
@@ -467,7 +794,8 @@
           "value_usd": 1608861600,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CONSTELLATION ENERGY CORP",
@@ -477,7 +805,8 @@
           "value_usd": 1293618644,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ALPHABET INC",
@@ -487,7 +816,8 @@
           "value_usd": 1240368782,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NVIDIA CORPORATION",
@@ -497,7 +827,8 @@
           "value_usd": 1104234528,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "EQUINIX INC",
@@ -507,7 +838,8 @@
           "value_usd": 1069330093,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MICROSOFT CORP",
@@ -517,7 +849,8 @@
           "value_usd": 918027893,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NETFLIX INC.",
@@ -527,7 +860,8 @@
           "value_usd": 662815794,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ASML HLDG NV",
@@ -537,7 +871,8 @@
           "value_usd": 655440753,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -569,6 +904,9 @@
       "n_positions": 67,
       "n_tradeable": 17,
       "conc_top10": 52.4,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "NVIDIA CORPORATION",
@@ -578,7 +916,8 @@
           "value_usd": 3154153405,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
@@ -588,7 +927,8 @@
           "value_usd": 1981294396,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ALPHABET INC",
@@ -598,7 +938,8 @@
           "value_usd": 1473599495,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMAZON COM INC",
@@ -608,7 +949,8 @@
           "value_usd": 1399377585,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SHOPIFY INC",
@@ -618,7 +960,8 @@
           "value_usd": 1059948701,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NETFLIX INC.",
@@ -628,7 +971,8 @@
           "value_usd": 905220328,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SPOTIFY TECHNOLOGY S A",
@@ -638,7 +982,8 @@
           "value_usd": 870038130,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ASML HLDG NV",
@@ -648,7 +993,8 @@
           "value_usd": 845110621,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "VISA INC",
@@ -658,7 +1004,8 @@
           "value_usd": 837335065,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MERCADOLIBRE INC",
@@ -668,7 +1015,8 @@
           "value_usd": 822071204,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CLOUDFLARE INC",
@@ -678,7 +1026,8 @@
           "value_usd": 755565289,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "META PLATFORMS INC",
@@ -688,7 +1037,8 @@
           "value_usd": 731823498,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "INTERCONTINENTAL EXCHANGE IN",
@@ -698,7 +1048,8 @@
           "value_usd": 689562389,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CARVANA CO",
@@ -708,7 +1059,8 @@
           "value_usd": 665620426,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AXON ENTERPRISE INC",
@@ -718,7 +1070,8 @@
           "value_usd": 664429204,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -750,6 +1103,9 @@
       "n_positions": 54,
       "n_tradeable": 12,
       "conc_top10": 69.5,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "ALPHABET INC",
@@ -759,7 +1115,8 @@
           "value_usd": 3057165959,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NVIDIA CORPORATION",
@@ -769,7 +1126,8 @@
           "value_usd": 2094849549,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMAZON COM INC",
@@ -779,7 +1137,8 @@
           "value_usd": 2082700000,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
@@ -789,7 +1148,8 @@
           "value_usd": 1880716758,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "META PLATFORMS INC",
@@ -799,7 +1159,8 @@
           "value_usd": 1766087500,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SEA LTD",
@@ -809,7 +1170,8 @@
           "value_usd": 1276585296,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BROADCOM INC",
@@ -819,7 +1181,8 @@
           "value_usd": 1109535781,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MICROSOFT CORP",
@@ -829,7 +1192,8 @@
           "value_usd": 925425000,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "GE VERNOVA INC",
@@ -839,7 +1203,8 @@
           "value_usd": 849326463,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "LAM RESEARCH CORP",
@@ -849,7 +1214,8 @@
           "value_usd": 833367797,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SPOTIFY TECHNOLOGY S A",
@@ -859,7 +1225,8 @@
           "value_usd": 766526817,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "COUPANG INC",
@@ -869,7 +1236,8 @@
           "value_usd": 653161284,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "APPLIED MATLS INC",
@@ -879,7 +1247,8 @@
           "value_usd": 566311851,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CORPAY INC",
@@ -889,7 +1258,8 @@
           "value_usd": 509856965,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "APPLOVIN CORP",
@@ -899,7 +1269,8 @@
           "value_usd": 398000000,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -931,6 +1302,9 @@
       "n_positions": 181,
       "n_tradeable": 18,
       "conc_top10": 40.1,
+      "n_options": 1,
+      "put_usd": 0,
+      "call_usd": 608310,
       "top_holdings": [
         {
           "issuer": "Tesla Inc",
@@ -940,7 +1314,8 @@
           "value_usd": 1052546690,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Advanced Micro Devices Inc",
@@ -950,7 +1325,8 @@
           "value_usd": 551875889,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CRISPR Therapeutics AG",
@@ -960,7 +1336,8 @@
           "value_usd": 538189027,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Shopify Inc",
@@ -970,7 +1347,8 @@
           "value_usd": 495553074,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Palantir Technologies Inc",
@@ -980,7 +1358,8 @@
           "value_usd": 454913400,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Tempus AI Inc",
@@ -990,7 +1369,8 @@
           "value_usd": 434462230,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Circle Internet Group Inc",
@@ -1000,7 +1380,8 @@
           "value_usd": 430249668,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Robinhood Markets Inc",
@@ -1010,7 +1391,8 @@
           "value_usd": 416012113,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Coinbase Global Inc",
@@ -1020,7 +1402,8 @@
           "value_usd": 414329300,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Teradyne Inc",
@@ -1030,7 +1413,8 @@
           "value_usd": 369128978,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Roku Inc",
@@ -1040,7 +1424,8 @@
           "value_usd": 361486706,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ROBLOX Corp",
@@ -1050,7 +1435,8 @@
           "value_usd": 333483744,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Twist Bioscience Corp",
@@ -1060,7 +1446,8 @@
           "value_usd": 301406681,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Beam Therapeutics Inc",
@@ -1070,7 +1457,8 @@
           "value_usd": 289139697,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Amazon.com Inc",
@@ -1080,7 +1468,8 @@
           "value_usd": 282264888,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -1112,6 +1501,9 @@
       "n_positions": 44,
       "n_tradeable": 6,
       "conc_top10": 42.5,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "MAPLEBEAR INC",
@@ -1121,7 +1513,8 @@
           "value_usd": 845032232,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MERCADOLIBRE INC",
@@ -1131,7 +1524,8 @@
           "value_usd": 646091549,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "JAMES HARDIE INDS PLC",
@@ -1141,7 +1535,8 @@
           "value_usd": 536007360,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "DANAHER CORP DEL",
@@ -1151,7 +1546,8 @@
           "value_usd": 436866461,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "FLOWSERVE CORP",
@@ -1161,7 +1557,8 @@
           "value_usd": 431830158,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "US FOODS HLDG CORP",
@@ -1171,7 +1568,8 @@
           "value_usd": 394979138,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CLEAN HARBORS INC",
@@ -1181,7 +1579,8 @@
           "value_usd": 383725311,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMAZON COM INC",
@@ -1191,7 +1590,8 @@
           "value_usd": 376452815,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NU HLDGS LTD",
@@ -1201,7 +1601,8 @@
           "value_usd": 372049373,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "THERMO FISHER SCIENTIFIC INC",
@@ -1211,7 +1612,8 @@
           "value_usd": 356361708,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SOMNIGROUP INTERNATIONAL INC",
@@ -1221,7 +1623,8 @@
           "value_usd": 346568228,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TEXAS INSTRS INC",
@@ -1231,7 +1634,8 @@
           "value_usd": 340327614,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SEA LTD",
@@ -1241,7 +1645,8 @@
           "value_usd": 335557134,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "REDDIT INC",
@@ -1251,7 +1656,8 @@
           "value_usd": 331124682,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "KILROY REALTY CORP",
@@ -1261,7 +1667,8 @@
           "value_usd": 318069922,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -1293,6 +1700,9 @@
       "n_positions": 35,
       "n_tradeable": 16,
       "conc_top10": 51.4,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "ALPHABET INC",
@@ -1302,7 +1712,8 @@
           "value_usd": 768308847,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SANDISK CORP",
@@ -1312,7 +1723,8 @@
           "value_usd": 508009605,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CELESTICA INC",
@@ -1322,7 +1734,8 @@
           "value_usd": 427646858,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMAZON COM INC",
@@ -1332,7 +1745,8 @@
           "value_usd": 378934561,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TTM TECHNOLOGIES INC",
@@ -1342,7 +1756,8 @@
           "value_usd": 342388435,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ADVANCED ENERGY INDS",
@@ -1352,7 +1767,8 @@
           "value_usd": 329845764,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "FABRINET",
@@ -1362,7 +1778,8 @@
           "value_usd": 318787444,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CORNING INC",
@@ -1372,7 +1789,8 @@
           "value_usd": 312380741,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MKS INC.",
@@ -1382,7 +1800,8 @@
           "value_usd": 300298242,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "META PLATFORMS INC",
@@ -1392,7 +1811,8 @@
           "value_usd": 293256102,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "JFROG LTD",
@@ -1402,7 +1822,8 @@
           "value_usd": 282508885,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
@@ -1412,7 +1833,8 @@
           "value_usd": 276931438,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "APPLOVIN CORP",
@@ -1422,7 +1844,8 @@
           "value_usd": 276823726,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CARVANA CO",
@@ -1432,7 +1855,8 @@
           "value_usd": 275885427,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MACOM TECH SOLUTIONS HLDGS I",
@@ -1442,7 +1866,8 @@
           "value_usd": 260930251,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -1474,6 +1899,9 @@
       "n_positions": 31,
       "n_tradeable": 14,
       "conc_top10": 74.3,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "AMAZON COM INC",
@@ -1483,7 +1911,8 @@
           "value_usd": 899726400,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MICRON TECHNOLOGY INC",
@@ -1493,7 +1922,8 @@
           "value_usd": 562503600,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ALPHABET INC",
@@ -1503,7 +1933,8 @@
           "value_usd": 497042322,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "UBER TECHNOLOGIES INC",
@@ -1513,7 +1944,8 @@
           "value_usd": 455512550,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
@@ -1523,7 +1955,8 @@
           "value_usd": 448628625,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ALIBABA GROUP HLDG LTD",
@@ -1533,7 +1966,8 @@
           "value_usd": 434718900,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "VISTRA CORP",
@@ -1543,7 +1977,8 @@
           "value_usd": 304017170,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ISHARES INC",
@@ -1553,7 +1988,8 @@
           "value_usd": 295224000,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NVIDIA CORPORATION",
@@ -1563,7 +1999,8 @@
           "value_usd": 256629600,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NRG ENERGY INC",
@@ -1573,7 +2010,8 @@
           "value_usd": 253471354,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "META PLATFORMS INC",
@@ -1583,7 +2021,8 @@
           "value_usd": 249734745,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SANDISK CORP",
@@ -1593,7 +2032,8 @@
           "value_usd": 178689375,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CORNING INC",
@@ -1603,7 +2043,8 @@
           "value_usd": 153578115,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "WHIRLPOOL CORP",
@@ -1613,7 +2054,8 @@
           "value_usd": 105144000,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "PDD HOLDINGS INC",
@@ -1623,7 +2065,8 @@
           "value_usd": 91962000,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -1651,6 +2094,9 @@
       "n_positions": 13,
       "n_tradeable": 8,
       "conc_top10": 98.5,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "NVIDIA CORPORATION",
@@ -1660,7 +2106,8 @@
           "value_usd": 1628205202,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "META PLATFORMS INC",
@@ -1670,7 +2117,8 @@
           "value_usd": 1117583294,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "UBER TECHNOLOGIES INC",
@@ -1680,7 +2128,8 @@
           "value_usd": 573409561,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TAIWAN SEMICONDUCTOR MFG LTD",
@@ -1690,7 +2139,8 @@
           "value_usd": 461529866,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MICROSOFT CORP",
@@ -1700,7 +2150,8 @@
           "value_usd": 438145057,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMAZON COM INC",
@@ -1710,7 +2161,8 @@
           "value_usd": 435192245,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "COREWEAVE INC",
@@ -1720,7 +2172,8 @@
           "value_usd": 348543341,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SNOWFLAKE INC",
@@ -1730,7 +2183,8 @@
           "value_usd": 290517025,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ARM HOLDINGS PLC",
@@ -1740,7 +2194,8 @@
           "value_usd": 259511763,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AXON ENTERPRISE INC",
@@ -1750,7 +2205,8 @@
           "value_usd": 63272864,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ROBINHOOD MKTS INC",
@@ -1760,7 +2216,8 @@
           "value_usd": 62348586,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BROADCOM INC",
@@ -1770,7 +2227,8 @@
           "value_usd": 20766265,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "GRAB HOLDINGS LIMITED",
@@ -1780,7 +2238,8 @@
           "value_usd": 262650,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -1805,6 +2264,9 @@
       "n_positions": 51,
       "n_tradeable": 12,
       "conc_top10": 53.4,
+      "n_options": 3,
+      "put_usd": 808052000,
+      "call_usd": 89470000,
       "top_holdings": [
         {
           "issuer": "ASTERA LABS INC",
@@ -1814,7 +2276,8 @@
           "value_usd": 368890255,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "UNITY SOFTWARE INC",
@@ -1824,7 +2287,8 @@
           "value_usd": 271733965,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": true
         },
         {
           "issuer": "CIENA CORP",
@@ -1834,7 +2298,8 @@
           "value_usd": 262756782,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MICRON TECHNOLOGY INC",
@@ -1844,7 +2309,8 @@
           "value_usd": 256902320,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NVIDIA CORPORATION",
@@ -1854,7 +2320,8 @@
           "value_usd": 217754445,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMAZON COM INC",
@@ -1864,7 +2331,8 @@
           "value_usd": 198597941,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "LUMENTUM HLDGS INC",
@@ -1874,7 +2342,8 @@
           "value_usd": 187910294,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ALPHABET INC",
@@ -1884,7 +2353,8 @@
           "value_usd": 159602414,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "COHERENT CORP",
@@ -1894,7 +2364,8 @@
           "value_usd": 150348385,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ECHOSTAR CORP",
@@ -1904,7 +2375,8 @@
           "value_usd": 117110506,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "TWILIO INC",
@@ -1914,7 +2386,8 @@
           "value_usd": 115955964,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "WAYFAIR INC",
@@ -1924,7 +2397,8 @@
           "value_usd": 107625284,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ZOOM COMMUNICATIONS INC",
@@ -1934,7 +2408,8 @@
           "value_usd": 105761486,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CREDO TECHNOLOGY GROUP HOLDI",
@@ -1944,7 +2419,8 @@
           "value_usd": 102434042,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "PALO ALTO NETWORKS INC",
@@ -1954,7 +2430,8 @@
           "value_usd": 90067295,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -1986,6 +2463,9 @@
       "n_positions": 26,
       "n_tradeable": 10,
       "conc_top10": 93.9,
+      "n_options": 14,
+      "put_usd": 8459056999,
+      "call_usd": 1361829026,
       "top_holdings": [
         {
           "issuer": "BLOOM ENERGY CORP",
@@ -1995,7 +2475,8 @@
           "value_usd": 878707930,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": true
         },
         {
           "issuer": "SANDISK CORP",
@@ -2005,7 +2486,8 @@
           "value_usd": 724363205,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": true
         },
         {
           "issuer": "COREWEAVE INC",
@@ -2015,7 +2497,8 @@
           "value_usd": 556073385,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": true
         },
         {
           "issuer": "IREN LIMITED",
@@ -2025,7 +2508,8 @@
           "value_usd": 401036064,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CORE SCIENTIFIC INC NEW",
@@ -2035,7 +2519,8 @@
           "value_usd": 389086756,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "APPLIED DIGITAL CORP",
@@ -2045,7 +2530,8 @@
           "value_usd": 319978118,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "RIOT PLATFORMS INC",
@@ -2055,7 +2541,8 @@
           "value_usd": 142166413,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CLEANSPARK INC",
@@ -2065,7 +2552,8 @@
           "value_usd": 104469943,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SOLARIS ENERGY INFRAS INC",
@@ -2075,7 +2563,8 @@
           "value_usd": 62474687,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "T1 ENERGY INC",
@@ -2085,7 +2574,8 @@
           "value_usd": 43900000,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BITFARMS LTD",
@@ -2095,7 +2585,8 @@
           "value_usd": 38757888,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BITDEER TECHNOLOGIES GROUP",
@@ -2105,7 +2596,8 @@
           "value_usd": 29751243,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "POWER SOLUTIONS INTL INC",
@@ -2115,7 +2607,8 @@
           "value_usd": 26318424,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "WHITEFIBER INC",
@@ -2125,7 +2618,8 @@
           "value_usd": 20933016,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ADVANCED MICRO DEVICES INC",
@@ -2135,7 +2629,8 @@
           "value_usd": 20167643,
           "tradeable": true,
           "is_new": true,
-          "has_put": true
+          "has_put": true,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -2167,6 +2662,9 @@
       "n_positions": 17,
       "n_tradeable": 2,
       "conc_top10": 94.3,
+      "n_options": 0,
+      "put_usd": 0,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "NVIDIA CORPORATION",
@@ -2176,7 +2674,8 @@
           "value_usd": 650230693,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "COUPANG INC",
@@ -2186,7 +2685,8 @@
           "value_usd": 525861921,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "META PLATFORMS INC",
@@ -2196,7 +2696,8 @@
           "value_usd": 407814264,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CARVANA CO",
@@ -2206,7 +2707,8 @@
           "value_usd": 393905565,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "GLOBAL E ONLINE LTD",
@@ -2216,7 +2718,8 @@
           "value_usd": 342917155,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BLOCK INC",
@@ -2226,7 +2729,8 @@
           "value_usd": 175628831,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SAILPOINT INC",
@@ -2236,7 +2740,8 @@
           "value_usd": 105920000,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CHIME FINL INC",
@@ -2246,7 +2751,8 @@
           "value_usd": 80707551,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "KLARNA GROUP PLC",
@@ -2256,7 +2762,8 @@
           "value_usd": 75971268,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "NU HLDGS LTD",
@@ -2266,7 +2773,8 @@
           "value_usd": 71193277,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SERVICETITAN INC",
@@ -2276,7 +2784,8 @@
           "value_usd": 63516162,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CCC INTELLIGENT SOLUTIONS HL",
@@ -2286,7 +2795,8 @@
           "value_usd": 55177806,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "DATADOG INC",
@@ -2296,7 +2806,8 @@
           "value_usd": 32085990,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ROOT INC",
@@ -2306,7 +2817,8 @@
           "value_usd": 6816314,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "WEALTHFRONT CORP",
@@ -2316,7 +2828,8 @@
           "value_usd": 6052627,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -2341,6 +2854,9 @@
       "n_positions": 23,
       "n_tradeable": 9,
       "conc_top10": 77.3,
+      "n_options": 1,
+      "put_usd": 36904140,
+      "call_usd": 0,
       "top_holdings": [
         {
           "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
@@ -2350,7 +2866,8 @@
           "value_usd": 76912351,
           "tradeable": true,
           "is_new": true,
-          "has_put": true
+          "has_put": true,
+          "has_call": false
         },
         {
           "issuer": "NVIDIA CORPORATION",
@@ -2360,7 +2877,8 @@
           "value_usd": 47474122,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BROADCOM INC",
@@ -2370,7 +2888,8 @@
           "value_usd": 46364598,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ADVANCED MICRO DEVICES INC",
@@ -2380,7 +2899,8 @@
           "value_usd": 44602231,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "CHIME FINL INC",
@@ -2390,7 +2910,8 @@
           "value_usd": 38913729,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "MKS INC.",
@@ -2400,7 +2921,8 @@
           "value_usd": 28097490,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "JFROG LTD",
@@ -2410,7 +2932,8 @@
           "value_usd": 26984750,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMAZON COM INC",
@@ -2420,7 +2943,8 @@
           "value_usd": 25992096,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "GITLAB INC",
@@ -2430,7 +2954,8 @@
           "value_usd": 25318800,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "BILL HOLDINGS INC",
@@ -2440,7 +2965,8 @@
           "value_usd": 23937500,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "COUPANG INC",
@@ -2450,7 +2976,8 @@
           "value_usd": 19860948,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "AMKOR TECHNOLOGY INC",
@@ -2460,7 +2987,8 @@
           "value_usd": 18326760,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ASML HLDG NV",
@@ -2470,7 +2998,8 @@
           "value_usd": 14457805,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "ALPHABET INC",
@@ -2480,7 +3009,8 @@
           "value_usd": 12221300,
           "tradeable": true,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "SAMSARA INC",
@@ -2490,7 +3020,8 @@
           "value_usd": 12168960,
           "tradeable": false,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -2521,6 +3052,9 @@
       "n_positions": 65,
       "n_tradeable": 10,
       "conc_top10": 59.2,
+      "n_options": 5,
+      "put_usd": 0,
+      "call_usd": 439656,
       "top_holdings": [
         {
           "issuer": "Natera Inc",
@@ -2530,7 +3064,8 @@
           "value_usd": 612691,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Insmed Inc",
@@ -2540,7 +3075,8 @@
           "value_usd": 188717,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Taiwan Semiconductor Manufac",
@@ -2550,7 +3086,8 @@
           "value_usd": 167380,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Ypf Sociedad Anonima",
@@ -2560,7 +3097,8 @@
           "value_usd": 149566,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Ishares Inc",
@@ -2570,7 +3108,8 @@
           "value_usd": 131915,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": true
         },
         {
           "issuer": "Bbb Foods Inc",
@@ -2580,7 +3119,8 @@
           "value_usd": 109972,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Alcoa Corp",
@@ -2590,7 +3130,8 @@
           "value_usd": 99057,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Newamsterdam Pharma Company",
@@ -2600,7 +3141,8 @@
           "value_usd": 98275,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Sea Ltd",
@@ -2610,7 +3152,8 @@
           "value_usd": 91083,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Stmicroelectronics N V",
@@ -2620,7 +3163,8 @@
           "value_usd": 90275,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Woodward Inc",
@@ -2630,7 +3174,8 @@
           "value_usd": 75648,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Teva Pharmaceutical Inds Ltd",
@@ -2640,7 +3185,8 @@
           "value_usd": 71604,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Roku Inc",
@@ -2650,7 +3196,8 @@
           "value_usd": 70983,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Broadcom Inc",
@@ -2660,7 +3207,8 @@
           "value_usd": 60650,
           "tradeable": true,
           "is_new": true,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         },
         {
           "issuer": "Coupang Inc",
@@ -2670,7 +3218,8 @@
           "value_usd": 50362,
           "tradeable": false,
           "is_new": false,
-          "has_put": false
+          "has_put": false,
+          "has_call": false
         }
       ],
       "new_buys": [
@@ -3400,6 +3949,9 @@
       "ticker": "NVDA",
       "long_usd": 16896345087,
       "put_usd": 1568257120,
+      "call_usd": 0,
+      "net_opt_usd": -1568257120,
+      "two_sided": false,
       "net_usd": 15328087967,
       "put_funds": [
         "SAA (Aschenbrenner)"
@@ -3407,9 +3959,38 @@
       "our_rank": 18
     },
     {
+      "ticker": "ORCL",
+      "long_usd": 0,
+      "put_usd": 1072873230,
+      "call_usd": 0,
+      "net_opt_usd": -1072873230,
+      "two_sided": false,
+      "net_usd": -1072873230,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": null
+    },
+    {
+      "ticker": "AVGO",
+      "long_usd": 4002198586,
+      "put_usd": 1006247961,
+      "call_usd": 0,
+      "net_opt_usd": -1006247961,
+      "two_sided": false,
+      "net_usd": 2995950625,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 25
+    },
+    {
       "ticker": "AMD",
       "long_usd": 675764759,
       "put_usd": 969160863,
+      "call_usd": 0,
+      "net_opt_usd": -969160863,
+      "two_sided": false,
       "net_usd": -293396104,
       "put_funds": [
         "SAA (Aschenbrenner)"
@@ -3420,6 +4001,9 @@
       "ticker": "MU",
       "long_usd": 881337532,
       "put_usd": 583686168,
+      "call_usd": 422300000,
+      "net_opt_usd": -161386168,
+      "two_sided": true,
       "net_usd": 297651364,
       "put_funds": [
         "SAA (Aschenbrenner)"
@@ -3430,6 +4014,9 @@
       "ticker": "TSM",
       "long_usd": 9641776117,
       "put_usd": 572014170,
+      "call_usd": 354847500,
+      "net_opt_usd": -217166670,
+      "two_sided": true,
       "net_usd": 9069761947,
       "put_funds": [
         "Light Street",
@@ -3441,6 +4028,9 @@
       "ticker": "INTC",
       "long_usd": 110135965,
       "put_usd": 159106302,
+      "call_usd": 0,
+      "net_opt_usd": -159106302,
+      "two_sided": false,
       "net_usd": -48970337,
       "put_funds": [
         "SAA (Aschenbrenner)"
@@ -3451,6 +4041,9 @@
       "ticker": "GLW",
       "long_usd": 466677186,
       "put_usd": 21020962,
+      "call_usd": 0,
+      "net_opt_usd": -21020962,
+      "two_sided": false,
       "net_usd": 445656224,
       "put_funds": [
         "SAA (Aschenbrenner)"
@@ -3463,6 +4056,9 @@
       "ticker": "NVDA",
       "long_usd": 16896345087,
       "put_usd": 1568257120,
+      "call_usd": 0,
+      "net_opt_usd": -1568257120,
+      "two_sided": false,
       "net_usd": 15328087967,
       "put_funds": [
         "SAA (Aschenbrenner)"
@@ -3470,9 +4066,25 @@
       "our_rank": 18
     },
     {
+      "ticker": "AVGO",
+      "long_usd": 4002198586,
+      "put_usd": 1006247961,
+      "call_usd": 0,
+      "net_opt_usd": -1006247961,
+      "two_sided": false,
+      "net_usd": 2995950625,
+      "put_funds": [
+        "SAA (Aschenbrenner)"
+      ],
+      "our_rank": 25
+    },
+    {
       "ticker": "MU",
       "long_usd": 881337532,
       "put_usd": 583686168,
+      "call_usd": 422300000,
+      "net_opt_usd": -161386168,
+      "two_sided": true,
       "net_usd": 297651364,
       "put_funds": [
         "SAA (Aschenbrenner)"
@@ -3483,6 +4095,9 @@
       "ticker": "TSM",
       "long_usd": 9641776117,
       "put_usd": 572014170,
+      "call_usd": 354847500,
+      "net_opt_usd": -217166670,
+      "two_sided": true,
       "net_usd": 9069761947,
       "put_funds": [
         "Light Street",
@@ -3494,6 +4109,9 @@
       "ticker": "INTC",
       "long_usd": 110135965,
       "put_usd": 159106302,
+      "call_usd": 0,
+      "net_opt_usd": -159106302,
+      "two_sided": false,
       "net_usd": -48970337,
       "put_funds": [
         "SAA (Aschenbrenner)"
@@ -3504,6 +4122,9 @@
       "ticker": "GLW",
       "long_usd": 466677186,
       "put_usd": 21020962,
+      "call_usd": 0,
+      "net_opt_usd": -21020962,
+      "two_sided": false,
       "net_usd": 445656224,
       "put_funds": [
         "SAA (Aschenbrenner)"
