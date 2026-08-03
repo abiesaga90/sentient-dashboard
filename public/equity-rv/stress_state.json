@@ -1,0 +1,191 @@
+{
+  "as_of": "2026-07-31",
+  "generated_at": "2026-08-03T18:45:56.482589Z",
+  "nav": 50000.0,
+  "exposure_pct_notional": {
+    "TSMC_FABBED": 14.2,
+    "TAIWAN_DIRECT": 4.0,
+    "TAIWAN_EQUIP": 12.8,
+    "POWER": 6.4,
+    "TSMC_DEPENDENT": 6.5,
+    "KOREA_MEMORY": 4.2,
+    "MEMORY_OTHER": 5.6,
+    "NEOCLOUD": 3.7
+  },
+  "taiwan_total_pct": 37.5,
+  "limits": {
+    "ladder": [
+      [
+        6.0,
+        0.75
+      ],
+      [
+        10.0,
+        0.5
+      ],
+      [
+        16.0,
+        0.25
+      ]
+    ],
+    "hard_stop_nav_pct": 20.0
+  },
+  "scenarios": [
+    {
+      "key": "taiwan_blockade",
+      "name": "Taiwan blockade",
+      "narrative": "Military blockade halts TSMC output. Griffin: US GDP -8% in six months, Boeing/autos/consumer electronics stop inside six months. No substitute fab capacity exists at leading edge.",
+      "note": "Korea and non-Taiwan memory are shocked POSITIVE: they are the substitute supply and would re-rate on scarcity. That partial offset is real and worth seeing.",
+      "long_nav_pct": -38.47,
+      "hedge_nav_pct": 33.36,
+      "net_nav_pct": -5.11,
+      "usd_on_nav": -2554.0,
+      "ladder_mult": 1.0,
+      "hard_stop_breached": false,
+      "verdict": "inside limits",
+      "worst_names": [
+        {
+          "symbol": "TSM",
+          "nav_pct": -4.4
+        },
+        {
+          "symbol": "COHR",
+          "nav_pct": -3.91
+        },
+        {
+          "symbol": "GLW",
+          "nav_pct": -3.35
+        },
+        {
+          "symbol": "INTC",
+          "nav_pct": -3.31
+        }
+      ]
+    },
+    {
+      "key": "taiwan_tension",
+      "name": "Taiwan tension, no blockade",
+      "narrative": "Escalation short of blockade: exercises, shipping insurance spikes, export controls tighten. Output continues, risk premium re-prices.",
+      "note": "The more probable version. Tests whether the ladder would even trigger.",
+      "long_nav_pct": -13.74,
+      "hedge_nav_pct": 12.05,
+      "net_nav_pct": -1.69,
+      "usd_on_nav": -846.0,
+      "ladder_mult": 1.0,
+      "hard_stop_breached": false,
+      "verdict": "inside limits",
+      "worst_names": [
+        {
+          "symbol": "TSM",
+          "nav_pct": -1.6
+        },
+        {
+          "symbol": "COHR",
+          "nav_pct": -1.29
+        },
+        {
+          "symbol": "GLW",
+          "nav_pct": -1.07
+        },
+        {
+          "symbol": "INTC",
+          "nav_pct": -1.06
+        }
+      ]
+    },
+    {
+      "key": "ai_capex_pause",
+      "name": "AI capex pause",
+      "narrative": "Hyperscalers guide capex DOWN. The book is long the sellers of that capex, so this hits revenue expectations directly rather than through market beta.",
+      "note": "Hyperscalers shocked POSITIVE: cutting capex lifts their FCF. Now that GOOGL is in the book this is a genuine, if small, internal hedge we did not have before.",
+      "long_nav_pct": -37.83,
+      "hedge_nav_pct": 17.93,
+      "net_nav_pct": -19.9,
+      "usd_on_nav": -9949.0,
+      "ladder_mult": 0.25,
+      "hard_stop_breached": false,
+      "verdict": "ladder fires -> gross x0.25",
+      "worst_names": [
+        {
+          "symbol": "IREN",
+          "nav_pct": -1.9
+        },
+        {
+          "symbol": "LRCX",
+          "nav_pct": -1.72
+        },
+        {
+          "symbol": "ASML",
+          "nav_pct": -1.69
+        },
+        {
+          "symbol": "NBIS",
+          "nav_pct": -1.62
+        }
+      ]
+    },
+    {
+      "key": "memory_cycle_turn",
+      "name": "Memory cycle turns",
+      "narrative": "DRAM/NAND pricing rolls over. Memory is the second-largest layer and carries the strongest estimate revisions (MU +50% capped), so it is where the most optimism is priced.",
+      "note": "Tests concentration in the layer with the most estimate optimism embedded.",
+      "long_nav_pct": -17.37,
+      "hedge_nav_pct": 7.67,
+      "net_nav_pct": -9.7,
+      "usd_on_nav": -4849.0,
+      "ladder_mult": 0.75,
+      "hard_stop_breached": false,
+      "verdict": "ladder fires -> gross x0.75",
+      "worst_names": [
+        {
+          "symbol": "SKHYNIX",
+          "nav_pct": -1.88
+        },
+        {
+          "symbol": "WDC",
+          "nav_pct": -1.72
+        },
+        {
+          "symbol": "SAMSUNG",
+          "nav_pct": -1.61
+        },
+        {
+          "symbol": "MU",
+          "nav_pct": -1.47
+        }
+      ]
+    },
+    {
+      "key": "theme_unwind",
+      "name": "AI theme unwind",
+      "narrative": "Broad de-rating of the AI complex without a specific catalyst. This is the scenario the REGIME GROSS BRAKE was built for, and the sweep showed the theme IS the edge: W_THESIS=0 collapsed Sharpe 3.1 -> 1.7.",
+      "note": "Beta ~0 hedges the MARKET, not a theme unwind. That gap is the point of this row.",
+      "long_nav_pct": -34.98,
+      "hedge_nav_pct": 21.13,
+      "net_nav_pct": -13.85,
+      "usd_on_nav": -6923.0,
+      "ladder_mult": 0.5,
+      "hard_stop_breached": false,
+      "verdict": "ladder fires -> gross x0.50",
+      "worst_names": [
+        {
+          "symbol": "COHR",
+          "nav_pct": -1.93
+        },
+        {
+          "symbol": "BE",
+          "nav_pct": -1.88
+        },
+        {
+          "symbol": "IREN",
+          "nav_pct": -1.84
+        },
+        {
+          "symbol": "GEV",
+          "nav_pct": -1.66
+        }
+      ]
+    }
+  ],
+  "note": "Conditional loss estimates, NOT probabilities. Factor shocks are applied through MEASURED betas vs SPY and SOXL; the group overlay captures chokepoint damage that normal-times beta cannot. Hedge legs are shocked through the same model, so this reports what the hedge would actually offset rather than what its beta implies. Scenario magnitudes are judgement and are stated so they can be argued with."
+}
