@@ -1,11 +1,11 @@
 {
-  "as_of": "2026-08-02",
-  "generated_at": "2026-08-02T19:10:44.257483Z",
+  "as_of": "2026-08-03",
+  "generated_at": "2026-08-03T19:06:36.672427Z",
   "hedges": [
     {
       "symbol": "QQQ",
       "name": "Invesco QQQ \u2014 Nasdaq-100",
-      "short_weight_pct": -24.0,
+      "short_weight_pct": -48.9,
       "desc": "Broad-market + mega-cap-tech beta hedge.",
       "source": "QQQ fund holdings (top 10 of ~100)",
       "holdings": [
@@ -43,7 +43,7 @@
           "symbol": "AMZN",
           "name": "Amazon.com Inc",
           "weight": 4.0,
-          "in_book": false
+          "in_book": true
         },
         {
           "symbol": "TSLA",
@@ -55,7 +55,7 @@
           "symbol": "GOOGL",
           "name": "Alphabet Inc Class A",
           "weight": 3.3,
-          "in_book": false
+          "in_book": true
         },
         {
           "symbol": "INTC",
@@ -74,7 +74,7 @@
     {
       "symbol": "SOXL",
       "name": "Direxion Daily Semiconductor Bull 3\u00d7",
-      "short_weight_pct": -19.7,
+      "short_weight_pct": -17.3,
       "desc": "AI-compute / semiconductor-factor hedge (3\u00d7 leveraged).",
       "source": "ICE Semiconductor index (shown via SOXX) \u2014 SOXL delivers 3\u00d7 this basket via swaps",
       "holdings": [
@@ -106,7 +106,7 @@
           "symbol": "AVGO",
           "name": "Broadcom Inc",
           "weight": 6.1,
-          "in_book": true
+          "in_book": false
         },
         {
           "symbol": "AMAT",
