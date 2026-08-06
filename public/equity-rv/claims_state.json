@@ -1,6 +1,6 @@
 {
-  "updated": "2026-08-06",
-  "n_claims": 7,
+  "updated": "2026-08-07",
+  "n_claims": 9,
   "n_flipped": 0,
   "n_stale": 0,
   "claims": [
@@ -20,7 +20,7 @@
       "action_if_supported": "Lean the REVISIONS leg over the SURPRISE leg in memory: a raised contracted floor still shows up as a raised estimate even when it stops being a beat.",
       "verdict": "refuted",
       "verdict_detail": "memory trend +10.4 vs others +7.2 -> relative +3.2",
-      "last_checked": "2026-08-06",
+      "last_checked": "2026-08-07",
       "action_taken": "none"
     },
     {
@@ -96,7 +96,7 @@
       "action_if_supported": "Treat added power exposure as raising this tail, not only as adding a cheap layer.",
       "verdict": "supported",
       "verdict_detail": "-16.3% NAV, ladder fires -> gross x0.25",
-      "last_checked": "2026-08-06",
+      "last_checked": "2026-08-07",
       "action_taken": "scenario added to the daily stress test"
     },
     {
@@ -115,7 +115,7 @@
       "action_if_supported": "Decide the marking basis explicitly before capital; if perps, hedge sizing must move with it.",
       "verdict": "supported",
       "verdict_detail": "like-for-like basis +1.34% (4 days logged)",
-      "last_checked": "2026-08-06",
+      "last_checked": "2026-08-07",
       "action_taken": "perp mark panel shipped alongside the official track; go-live decision documented, engine unchanged"
     },
     {
@@ -136,6 +136,44 @@
       "verdict_detail": "monotonic degradation 3.62 -> 3.58 -> 3.48 -> 3.28 -> 2.98; equal weight far worse at 2.81, so inverse-vol is genuinely earning its keep. Vol is forecastable, a rank signal's return is not.",
       "last_checked": "2026-08-03",
       "action_taken": "W_SIZE_TILT ships at 0.0 (verified no-op)"
+    },
+    {
+      "id": "topk_stale_on_wider_universe",
+      "source": "internal (operator question)",
+      "date": "2026-08-04",
+      "venue": "review",
+      "claim": "TOP_K=30 was set on a much smaller panel with a coarse 25/30/35 grid, so it may be a stale round number rather than an optimum \u2014 and AMZN missing at rank 31 looks like a knife-edge artifact.",
+      "prediction": "A finer grid on the current 84-name universe finds a better K than 30.",
+      "why_it_matters": "TOP_K governs how selective the book is; a wrong value costs drawdown-adjusted return on every rebalance.",
+      "test": "research/topk_sweep.py",
+      "reads": "data/topk_sweep_results.json",
+      "metric": "Calmar by K, with sub-period thirds",
+      "threshold": "a K beating 30 on full-window Calmar AND 2 of 3 sub-periods",
+      "cadence": "semiannual",
+      "action_if_supported": "Change TOP_K to the winning value.",
+      "verdict": "refuted",
+      "verdict_detail": "30 is the PEAK on both Calmar (7.42) and Sharpe (3.56); no cell beats it even on the full window alone. Smooth hump 5.30/6.16/7.19/7.42/6.65 across 20-32. K=32 scores 6.65, so AMZN missing at rank 31 is correct rather than an artifact. K=50 collapses to Calmar 3.58.",
+      "last_checked": "2026-08-07",
+      "action_taken": "TOP_K stays 30"
+    },
+    {
+      "id": "beta_readd_after_july_selloff",
+      "source": "internal (operator intuition)",
+      "date": "2026-08-04",
+      "venue": "review",
+      "claim": "After the July selloff it makes sense to run a little net beta long.",
+      "prediction": "The two-condition re-add rule confirms: 1mo sellers-buyers spread pace turns positive AND SOXX closes above its prior 20d high.",
+      "why_it_matters": "The book made this exact call discretionarily in June (+0.20 target, +0.17 realized), carried it into the AI/semis correction, and lost 6.7%. The re-add rule exists so restoring beta is NOT a dip-call.",
+      "test": "research/regime_monitor.py",
+      "reads": "regime_state.json",
+      "metric": "beta_readd.triggered",
+      "threshold": "both conditions true",
+      "cadence": "daily",
+      "action_if_supported": "Set NET_BETA_TARGET=0.10 (operator approval required; cap <= +0.30).",
+      "verdict": "refuted",
+      "verdict_detail": "spread pace -11.0 pp/mo x \u00b7 SOXX 538 vs 20d high 582 (8.1% to reclaim) x",
+      "last_checked": "2026-08-07",
+      "action_taken": "none; NET_BETA_TARGET stays 0.00 pending confirmation"
     }
   ],
   "note": "CLAIMS REGISTER. Every external claim we have taken seriously enough to test, with the testable prediction it implies, the test that decides it, and the standing verdict. Run by research/claims_register.py. The point is that a refuted claim STAYS refuted without re-arguing it, an inconclusive one gets re-tested on a cadence instead of being forgotten, and a verdict that FLIPS raises an alert. Nothing here changes a weight; each entry records what we would do if the verdict changed, so that decision is made in advance rather than in the moment."
