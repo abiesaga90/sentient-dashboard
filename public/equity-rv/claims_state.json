@@ -1,6 +1,6 @@
 {
   "updated": "2026-08-07",
-  "n_claims": 9,
+  "n_claims": 10,
   "n_flipped": 0,
   "n_stale": 0,
   "claims": [
@@ -174,6 +174,25 @@
       "verdict_detail": "spread pace -11.0 pp/mo x \u00b7 SOXX 538 vs 20d high 582 (8.1% to reclaim) x",
       "last_checked": "2026-08-07",
       "action_taken": "none; NET_BETA_TARGET stays 0.00 pending confirmation"
+    },
+    {
+      "id": "investability_screen_too_hard",
+      "source": "internal (operator question)",
+      "date": "2026-08-07",
+      "venue": "review",
+      "claim": "The investability screen (>=10 analysts AND >=$0.5B revenue) is too hard a gate and should be loosened or dropped.",
+      "prediction": "Loosening improves drawdown-adjusted return; dropping entirely is at least as good.",
+      "why_it_matters": "The screen decides the universe the signal orders. Too tight discards real names; too loose feeds the driver noise.",
+      "test": "screen grid + sub-period thirds",
+      "reads": null,
+      "metric": "Calmar by (coverage floor, revenue floor), with thirds",
+      "threshold": "beats the incumbent on full-window Calmar AND 2 of 3 thirds",
+      "cadence": "semiannual",
+      "action_if_supported": "Adopt the winning screen.",
+      "verdict": "supported",
+      "verdict_detail": "PARTLY. The REVENUE half is pure cost and was dropped: it helps at every coverage level to remove it, and it blocked names for size not tradability (ASTS has 11 analysts and a $23B cap on $0.1B revenue). At $100k notional a 2% position is $2,000, so liquidity was never our binding constraint. COVERAGE is NOT pure cost: cov>=5 scores Calmar 8.22 vs 7.67 for NO screen (+0.55), which follows from the driver being EPS surprise \u2014 a name with no analysts has no consensus to beat. Adopted cov>=5 & no revenue gate: 8.22 vs 7.42 incumbent, beating it in the full window AND 2 of 3 thirds (11.5/9.2/15.7 vs 7.9/9.9/13.4).",
+      "last_checked": "2026-08-07",
+      "action_taken": "MIN_ANALYST_COVERAGE 10->5, MIN_REVENUE_USD 5e8->0. Admits AAOI, ALAB, AMD, AXTI, CIEN, LITE, PENG, USAR."
     }
   ],
   "note": "CLAIMS REGISTER. Every external claim we have taken seriously enough to test, with the testable prediction it implies, the test that decides it, and the standing verdict. Run by research/claims_register.py. The point is that a refuted claim STAYS refuted without re-arguing it, an inconclusive one gets re-tested on a cadence instead of being forgotten, and a verdict that FLIPS raises an alert. Nothing here changes a weight; each entry records what we would do if the verdict changed, so that decision is made in advance rather than in the moment."
