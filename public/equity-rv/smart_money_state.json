@@ -1,20 +1,18 @@
 {
-  "as_of": "2026-03-31",
+  "as_of": "2026-06-30",
   "filing_calendar": {
     "rule": "13F-HR is due 45 days after quarter end.",
-    "shown_period": "2026-03-31",
-    "shown_due": "2026-05-15",
-    "next_period": "2026-06-30",
-    "next_due": "2026-08-14",
-    "next_due_dow": "Friday",
-    "days_until_next_due": 8,
+    "shown_period": "2026-06-30",
+    "shown_due": "2026-08-14",
+    "next_period": "2026-09-30",
+    "next_due": "2026-11-14",
+    "next_due_dow": "Saturday",
+    "days_until_next_due": 99,
     "next_overdue": false,
-    "n_filed_next": 1,
+    "n_filed_next": 0,
     "n_funds": 15,
-    "funds_filed_next": [
-      "Baillie Gifford"
-    ],
-    "checked_at": "2026-08-06T19:00:19.519764Z"
+    "funds_filed_next": [],
+    "checked_at": "2026-08-07T21:15:47.545050Z"
   },
   "disclosure_limits": {
     "covers": [
@@ -304,7 +302,7 @@
       "call_usd": 0,
       "share_usd": 497912,
       "tradeable": true,
-      "our_rank": 28
+      "our_rank": null
     },
     {
       "fund": "SAA (Aschenbrenner)",
@@ -348,7 +346,7 @@
       "call_usd": 0,
       "share_usd": 20167643,
       "tradeable": true,
-      "our_rank": 14
+      "our_rank": 15
     },
     {
       "fund": "SAA (Aschenbrenner)",
@@ -359,7 +357,7 @@
       "call_usd": 354847500,
       "share_usd": 7577853,
       "tradeable": true,
-      "our_rank": 22
+      "our_rank": 26
     },
     {
       "fund": "Atreides",
@@ -392,7 +390,7 @@
       "call_usd": 388764546,
       "share_usd": 724363205,
       "tradeable": true,
-      "our_rank": 3
+      "our_rank": 2
     },
     {
       "fund": "SAA (Aschenbrenner)",
@@ -403,7 +401,7 @@
       "call_usd": 0,
       "share_usd": 8929441,
       "tradeable": true,
-      "our_rank": 2
+      "our_rank": 3
     },
     {
       "fund": "SAA (Aschenbrenner)",
@@ -447,7 +445,7 @@
       "call_usd": 0,
       "share_usd": 76912351,
       "tradeable": true,
-      "our_rank": 22
+      "our_rank": 26
     },
     {
       "fund": "Atreides",
@@ -469,7 +467,7 @@
       "call_usd": 0,
       "share_usd": 718330,
       "tradeable": true,
-      "our_rank": 26
+      "our_rank": null
     },
     {
       "fund": "SAA (Aschenbrenner)",
@@ -535,7 +533,7 @@
       "call_usd": 41654,
       "share_usd": 9539,
       "tradeable": true,
-      "our_rank": null
+      "our_rank": 28
     },
     {
       "fund": "Duquesne (Druckenmiller)",
@@ -549,28 +547,39 @@
       "our_rank": null
     }
   ],
-  "generated_at": "2026-08-06T19:00:19.900465Z",
+  "generated_at": "2026-08-07T21:15:47.857944Z",
   "n_funds": 15,
   "thesis": "Trackable AI-frontier smart money \u2014 crossover funds that backed the private SpaceX / OpenAI / Anthropic rounds AND file 13F-HR, so their public books reveal their picks-and-shovels bets. Full books (not just our overlap) future-proof us: as Binance lists more tokenized stocks, we already know who backs each name.",
   "funds": [
     {
       "fund": "Baillie Gifford",
       "note": "SpaceX + Anthropic",
-      "period": "2026-03-31",
-      "aum_usd": 97893043995,
-      "n_positions": 275,
-      "n_tradeable": 19,
-      "conc_top10": 42.5,
+      "period": "2026-06-30",
+      "aum_usd": 110225053010,
+      "n_positions": 277,
+      "n_tradeable": 29,
+      "conc_top10": 44.7,
       "n_options": 0,
       "put_usd": 0,
       "call_usd": 0,
       "top_holdings": [
         {
+          "issuer": "Space Exploration Technologies Corp",
+          "ticker": null,
+          "sector": null,
+          "pct_aum": 7.97,
+          "value_usd": 8781829133,
+          "tradeable": false,
+          "is_new": true,
+          "has_put": false,
+          "has_call": false
+        },
+        {
           "issuer": "NVIDIA",
           "ticker": "NVDA",
           "sector": "AI Compute",
-          "pct_aum": 7.26,
-          "value_usd": 7106567176,
+          "pct_aum": 7.6,
+          "value_usd": 8381531192,
           "tradeable": true,
           "is_new": false,
           "has_put": false,
@@ -580,8 +589,8 @@
           "issuer": "Amazon.Com",
           "ticker": "AMZN",
           "sector": "Hyperscaler",
-          "pct_aum": 5.98,
-          "value_usd": 5850762287,
+          "pct_aum": 5.82,
+          "value_usd": 6415604182,
           "tradeable": true,
           "is_new": false,
           "has_put": false,
@@ -591,52 +600,8 @@
           "issuer": "MercadoLibre",
           "ticker": null,
           "sector": null,
-          "pct_aum": 5.71,
-          "value_usd": 5590369475,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Spotify Technology SA",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 4.07,
-          "value_usd": 3985088817,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Nu Holdings Ltd.",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.62,
-          "value_usd": 3543131204,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Shopify 'A'",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.52,
-          "value_usd": 3442319661,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Cloudflare Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.36,
-          "value_usd": 3285845442,
+          "pct_aum": 4.68,
+          "value_usd": 5160761529,
           "tradeable": false,
           "is_new": false,
           "has_put": false,
@@ -646,19 +611,30 @@
           "issuer": "Sea Ltd ADR",
           "ticker": null,
           "sector": null,
-          "pct_aum": 3.35,
-          "value_usd": 3283753702,
+          "pct_aum": 3.34,
+          "value_usd": 3680771365,
           "tradeable": false,
           "is_new": false,
           "has_put": false,
           "has_call": false
         },
         {
-          "issuer": "PDD Holdings Inc",
+          "issuer": "Spotify Technology SA",
           "ticker": null,
           "sector": null,
-          "pct_aum": 2.96,
-          "value_usd": 2897119656,
+          "pct_aum": 3.3,
+          "value_usd": 3640189707,
+          "tradeable": false,
+          "is_new": false,
+          "has_put": false,
+          "has_call": false
+        },
+        {
+          "issuer": "Cloudflare Inc",
+          "ticker": null,
+          "sector": null,
+          "pct_aum": 3.25,
+          "value_usd": 3580743136,
           "tradeable": false,
           "is_new": false,
           "has_put": false,
@@ -668,8 +644,52 @@
           "issuer": "AppLovin",
           "ticker": null,
           "sector": null,
-          "pct_aum": 2.72,
-          "value_usd": 2666652536,
+          "pct_aum": 3.03,
+          "value_usd": 3334370197,
+          "tradeable": false,
+          "is_new": false,
+          "has_put": false,
+          "has_call": false
+        },
+        {
+          "issuer": "Shopify 'A'",
+          "ticker": null,
+          "sector": null,
+          "pct_aum": 2.94,
+          "value_usd": 3242871167,
+          "tradeable": false,
+          "is_new": false,
+          "has_put": false,
+          "has_call": false
+        },
+        {
+          "issuer": "Nu Holdings Ltd.",
+          "ticker": null,
+          "sector": null,
+          "pct_aum": 2.79,
+          "value_usd": 3071869222,
+          "tradeable": false,
+          "is_new": false,
+          "has_put": false,
+          "has_call": false
+        },
+        {
+          "issuer": "PDD Holdings Inc",
+          "ticker": null,
+          "sector": null,
+          "pct_aum": 1.84,
+          "value_usd": 2028631130,
+          "tradeable": false,
+          "is_new": false,
+          "has_put": false,
+          "has_call": false
+        },
+        {
+          "issuer": "Samsara",
+          "ticker": null,
+          "sector": null,
+          "pct_aum": 1.66,
+          "value_usd": 1827702068,
           "tradeable": false,
           "is_new": false,
           "has_put": false,
@@ -679,9 +699,20 @@
           "issuer": "Meta Platforms Inc",
           "ticker": "META",
           "sector": "Hyperscaler",
-          "pct_aum": 2.4,
-          "value_usd": 2345058458,
+          "pct_aum": 1.64,
+          "value_usd": 1803398847,
           "tradeable": true,
+          "is_new": false,
+          "has_put": false,
+          "has_call": false
+        },
+        {
+          "issuer": "Axon Enterprise Inc",
+          "ticker": null,
+          "sector": null,
+          "pct_aum": 1.56,
+          "value_usd": 1715179006,
+          "tradeable": false,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -690,66 +721,33 @@
           "issuer": "Coupang",
           "ticker": null,
           "sector": null,
-          "pct_aum": 2.33,
-          "value_usd": 2277989849,
+          "pct_aum": 1.24,
+          "value_usd": 1367777843,
           "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Netflix Inc",
-          "ticker": "NFLX",
-          "sector": null,
-          "pct_aum": 2.14,
-          "value_usd": 2096615075,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Samsara",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 1.86,
-          "value_usd": 1822928968,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Microsoft",
-          "ticker": "MSFT",
-          "sector": "Hyperscaler",
-          "pct_aum": 1.47,
-          "value_usd": 1435529994,
-          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
         }
       ],
       "new_buys": [
-        "Freeport-Mcmoran Copper",
-        "Sunbelt Rentals Holdings Inc",
-        "RBC Bearings",
-        "Vista Energy Sab De Cv ADR",
-        "Futu Hdgs ADR",
-        "Tidewater",
-        "Broadcom Inc",
-        "Merlin Inc"
+        "Space Exploration Technologies Corp",
+        "The Royal Bank of Canada",
+        "Cullen/Frost Bankers",
+        "KLA Corp",
+        "Vale SA ADR",
+        "Idexx Laboratories Inc",
+        "Vistra Energy",
+        "Hims & Hers Health"
       ],
       "exits": [
-        "Consolidated Edison",
-        "Epam Systems Inc",
-        "Eversource Energy",
-        "FTAI Aviation",
-        "Floor & Decor Holdings",
-        "KE Holdings ADR",
-        "Li Auto ADR",
-        "Salesforce.com"
+        "AXIA ENERGIA-ADR PREF",
+        "AptarGroup",
+        "Axia Energia- ADR Pref C",
+        "CME Group Inc",
+        "Cable One Convertible 1.125 2028",
+        "Cognex Corp",
+        "Freshpet Inc",
+        "Full Truck Alliance Co Ltd ADR"
       ]
     },
     {
@@ -3519,7 +3517,7 @@
         "Tiger Global",
         "Whale Rock"
       ],
-      "value_usd": 16896345087
+      "value_usd": 18171309103
     },
     {
       "ticker": "AMZN",
@@ -3541,7 +3539,7 @@
         "Viking Global",
         "Whale Rock"
       ],
-      "value_usd": 13830722781
+      "value_usd": 14395564676
     },
     {
       "ticker": "TSM",
@@ -3581,7 +3579,7 @@
         "Viking Global",
         "Whale Rock"
       ],
-      "value_usd": 9118738172
+      "value_usd": 9562539662
     },
     {
       "ticker": "META",
@@ -3600,7 +3598,7 @@
         "Viking Global",
         "Whale Rock"
       ],
-      "value_usd": 9216256153
+      "value_usd": 8674596542
     },
     {
       "ticker": "AVGO",
@@ -3619,7 +3617,7 @@
         "Tiger Global",
         "Whale Rock"
       ],
-      "value_usd": 4002198586
+      "value_usd": 4485538689
     },
     {
       "ticker": "MSFT",
@@ -3637,7 +3635,7 @@
         "Viking Global",
         "Whale Rock"
       ],
-      "value_usd": 5194039244
+      "value_usd": 4770769147
     },
     {
       "ticker": "NFLX",
@@ -3652,7 +3650,82 @@
         "Tiger Global",
         "Whale Rock"
       ],
-      "value_usd": 3932754030
+      "value_usd": 2990949917
+    },
+    {
+      "ticker": "BE",
+      "perp": "BEUSDT",
+      "sector": "Energy Infra",
+      "n_funds": 6,
+      "funds": [
+        "Baillie Gifford",
+        "Duquesne (Druckenmiller)",
+        "Light Street",
+        "SAA (Aschenbrenner)",
+        "Sands Capital",
+        "Whale Rock"
+      ],
+      "value_usd": 1350714916
+    },
+    {
+      "ticker": "CRWV",
+      "perp": "CRWVUSDT",
+      "sector": "AI Compute",
+      "n_funds": 6,
+      "funds": [
+        "ARK Invest",
+        "Altimeter",
+        "Atreides",
+        "Baillie Gifford",
+        "SAA (Aschenbrenner)",
+        "Viking Global"
+      ],
+      "value_usd": 1272301879
+    },
+    {
+      "ticker": "MU",
+      "perp": "MUUSDT",
+      "sector": "Memory",
+      "n_funds": 6,
+      "funds": [
+        "Appaloosa (Tepper)",
+        "Atreides",
+        "Baillie Gifford",
+        "Coatue",
+        "Duquesne (Druckenmiller)",
+        "SAA (Aschenbrenner)"
+      ],
+      "value_usd": 881429875
+    },
+    {
+      "ticker": "AMD",
+      "perp": "AMDUSDT",
+      "sector": "Semis",
+      "n_funds": 6,
+      "funds": [
+        "ARK Invest",
+        "Appaloosa (Tepper)",
+        "Baillie Gifford",
+        "Light Street",
+        "SAA (Aschenbrenner)",
+        "Whale Rock"
+      ],
+      "value_usd": 675812394
+    },
+    {
+      "ticker": "LITE",
+      "perp": "LITEUSDT",
+      "sector": "AI Compute",
+      "n_funds": 6,
+      "funds": [
+        "Atreides",
+        "Baillie Gifford",
+        "Duquesne (Druckenmiller)",
+        "Light Street",
+        "Sands Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 286309546
     },
     {
       "ticker": "TSLA",
@@ -3666,7 +3739,7 @@
         "Coatue",
         "Viking Global"
       ],
-      "value_usd": 2560120078
+      "value_usd": 2383354163
     },
     {
       "ticker": "ASML",
@@ -3683,76 +3756,6 @@
       "value_usd": 1589371908
     },
     {
-      "ticker": "BE",
-      "perp": "BEUSDT",
-      "sector": "Energy Infra",
-      "n_funds": 5,
-      "funds": [
-        "Duquesne (Druckenmiller)",
-        "Light Street",
-        "SAA (Aschenbrenner)",
-        "Sands Capital",
-        "Whale Rock"
-      ],
-      "value_usd": 1350699176
-    },
-    {
-      "ticker": "CRWV",
-      "perp": "CRWVUSDT",
-      "sector": "AI Compute",
-      "n_funds": 5,
-      "funds": [
-        "ARK Invest",
-        "Altimeter",
-        "Atreides",
-        "SAA (Aschenbrenner)",
-        "Viking Global"
-      ],
-      "value_usd": 1272296902
-    },
-    {
-      "ticker": "MU",
-      "perp": "MUUSDT",
-      "sector": "Memory",
-      "n_funds": 5,
-      "funds": [
-        "Appaloosa (Tepper)",
-        "Atreides",
-        "Coatue",
-        "Duquesne (Druckenmiller)",
-        "SAA (Aschenbrenner)"
-      ],
-      "value_usd": 881337532
-    },
-    {
-      "ticker": "AMD",
-      "perp": "AMDUSDT",
-      "sector": "Semis",
-      "n_funds": 5,
-      "funds": [
-        "ARK Invest",
-        "Appaloosa (Tepper)",
-        "Light Street",
-        "SAA (Aschenbrenner)",
-        "Whale Rock"
-      ],
-      "value_usd": 675764759
-    },
-    {
-      "ticker": "LITE",
-      "perp": "LITEUSDT",
-      "sector": "AI Compute",
-      "n_funds": 5,
-      "funds": [
-        "Atreides",
-        "Duquesne (Druckenmiller)",
-        "Light Street",
-        "Sands Capital",
-        "Tiger Global"
-      ],
-      "value_usd": 286304398
-    },
-    {
       "ticker": "INTC",
       "perp": "INTCUSDT",
       "sector": "Semis",
@@ -3764,7 +3767,7 @@
         "SAA (Aschenbrenner)",
         "Tiger Global"
       ],
-      "value_usd": 110135965
+      "value_usd": 120628709
     },
     {
       "ticker": "V",
@@ -3778,6 +3781,19 @@
         "Viking Global"
       ],
       "value_usd": 2988854382
+    },
+    {
+      "ticker": "AAPL",
+      "perp": "AAPLUSDT",
+      "sector": "Consumer Tech",
+      "n_funds": 4,
+      "funds": [
+        "Baillie Gifford",
+        "Sands Capital",
+        "Viking Global",
+        "Whale Rock"
+      ],
+      "value_usd": 1446662910
     },
     {
       "ticker": "SNDK",
@@ -3803,20 +3819,7 @@
         "Baillie Gifford",
         "Tiger Global"
       ],
-      "value_usd": 1304060044
-    },
-    {
-      "ticker": "AAPL",
-      "perp": "AAPLUSDT",
-      "sector": "Consumer Tech",
-      "n_funds": 4,
-      "funds": [
-        "Baillie Gifford",
-        "Sands Capital",
-        "Viking Global",
-        "Whale Rock"
-      ],
-      "value_usd": 1113879234
+      "value_usd": 1291188797
     },
     {
       "ticker": "GLW",
@@ -3829,6 +3832,18 @@
         "Whale Rock"
       ],
       "value_usd": 466677186
+    },
+    {
+      "ticker": "PLTR",
+      "perp": "PLTRUSDT",
+      "sector": "Software",
+      "n_funds": 3,
+      "funds": [
+        "ARK Invest",
+        "Baillie Gifford",
+        "Sands Capital"
+      ],
+      "value_usd": 458269258
     },
     {
       "ticker": "COHR",
@@ -3863,18 +3878,7 @@
         "ARK Invest",
         "Baillie Gifford"
       ],
-      "value_usd": 1327536509
-    },
-    {
-      "ticker": "PLTR",
-      "perp": "PLTRUSDT",
-      "sector": "Software",
-      "n_funds": 2,
-      "funds": [
-        "ARK Invest",
-        "Sands Capital"
-      ],
-      "value_usd": 458265991
+      "value_usd": 1199673233
     },
     {
       "ticker": "BABA",
@@ -3896,7 +3900,7 @@
         "Baillie Gifford",
         "SAA (Aschenbrenner)"
       ],
-      "value_usd": 429459704
+      "value_usd": 435185673
     },
     {
       "ticker": "QCOM",
@@ -3918,7 +3922,7 @@
         "Baillie Gifford",
         "Viking Global"
       ],
-      "value_usd": 215838997
+      "value_usd": 218067118
     },
     {
       "ticker": "DKNG",
@@ -3929,7 +3933,7 @@
         "ARK Invest",
         "Baillie Gifford"
       ],
-      "value_usd": 185204836
+      "value_usd": 210536450
     }
   ],
   "watch_when_listed": [
@@ -4058,7 +4062,7 @@
         "Baillie Gifford",
         "Duquesne (Druckenmiller)"
       ],
-      "value_usd": 3323749385
+      "value_usd": 3618647079
     },
     {
       "issuer": "MERCADOLIBRE INC",
@@ -4128,7 +4132,7 @@
         "Baillie Gifford",
         "Duquesne (Druckenmiller)"
       ],
-      "value_usd": 359160445
+      "value_usd": 413224293
     },
     {
       "issuer": "JFROG LTD",
@@ -4177,7 +4181,7 @@
         "ARK Invest",
         "Baillie Gifford"
       ],
-      "value_usd": 4017954921
+      "value_usd": 3673055811
     },
     {
       "issuer": "GE VERNOVA INC",
@@ -4201,16 +4205,16 @@
   "smart_money_puts": [
     {
       "ticker": "NVDA",
-      "long_usd": 16896345087,
+      "long_usd": 18171309103,
       "put_usd": 1568257120,
       "call_usd": 0,
       "net_opt_usd": -1568257120,
       "two_sided": false,
-      "net_usd": 15328087967,
+      "net_usd": 16603051983,
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
-      "our_rank": 28
+      "our_rank": null
     },
     {
       "ticker": "ORCL",
@@ -4227,12 +4231,12 @@
     },
     {
       "ticker": "AVGO",
-      "long_usd": 4002198586,
+      "long_usd": 4485538689,
       "put_usd": 1006247961,
       "call_usd": 0,
       "net_opt_usd": -1006247961,
       "two_sided": false,
-      "net_usd": 2995950625,
+      "net_usd": 3479290728,
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
@@ -4240,25 +4244,25 @@
     },
     {
       "ticker": "AMD",
-      "long_usd": 675764759,
+      "long_usd": 675812394,
       "put_usd": 969160863,
       "call_usd": 0,
       "net_opt_usd": -969160863,
       "two_sided": false,
-      "net_usd": -293396104,
+      "net_usd": -293348469,
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
-      "our_rank": 14
+      "our_rank": 15
     },
     {
       "ticker": "MU",
-      "long_usd": 881337532,
+      "long_usd": 881429875,
       "put_usd": 583686168,
       "call_usd": 422300000,
       "net_opt_usd": -161386168,
       "two_sided": true,
-      "net_usd": 297651364,
+      "net_usd": 297743707,
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
@@ -4276,20 +4280,20 @@
         "Light Street",
         "SAA (Aschenbrenner)"
       ],
-      "our_rank": 22
+      "our_rank": 26
     },
     {
       "ticker": "INTC",
-      "long_usd": 110135965,
+      "long_usd": 120628709,
       "put_usd": 159106302,
       "call_usd": 0,
       "net_opt_usd": -159106302,
       "two_sided": false,
-      "net_usd": -48970337,
+      "net_usd": -38477593,
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
-      "our_rank": 2
+      "our_rank": 3
     },
     {
       "ticker": "GLW",
@@ -4302,44 +4306,31 @@
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
-      "our_rank": 26
+      "our_rank": null
     }
   ],
   "crowded_risk": [
     {
-      "ticker": "NVDA",
-      "long_usd": 16896345087,
-      "put_usd": 1568257120,
-      "call_usd": 0,
-      "net_opt_usd": -1568257120,
-      "two_sided": false,
-      "net_usd": 15328087967,
-      "put_funds": [
-        "SAA (Aschenbrenner)"
-      ],
-      "our_rank": 28
-    },
-    {
       "ticker": "AMD",
-      "long_usd": 675764759,
+      "long_usd": 675812394,
       "put_usd": 969160863,
       "call_usd": 0,
       "net_opt_usd": -969160863,
       "two_sided": false,
-      "net_usd": -293396104,
+      "net_usd": -293348469,
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
-      "our_rank": 14
+      "our_rank": 15
     },
     {
       "ticker": "MU",
-      "long_usd": 881337532,
+      "long_usd": 881429875,
       "put_usd": 583686168,
       "call_usd": 422300000,
       "net_opt_usd": -161386168,
       "two_sided": true,
-      "net_usd": 297651364,
+      "net_usd": 297743707,
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
@@ -4357,33 +4348,20 @@
         "Light Street",
         "SAA (Aschenbrenner)"
       ],
-      "our_rank": 22
+      "our_rank": 26
     },
     {
       "ticker": "INTC",
-      "long_usd": 110135965,
+      "long_usd": 120628709,
       "put_usd": 159106302,
       "call_usd": 0,
       "net_opt_usd": -159106302,
       "two_sided": false,
-      "net_usd": -48970337,
+      "net_usd": -38477593,
       "put_funds": [
         "SAA (Aschenbrenner)"
       ],
-      "our_rank": 2
-    },
-    {
-      "ticker": "GLW",
-      "long_usd": 466677186,
-      "put_usd": 21020962,
-      "call_usd": 0,
-      "net_opt_usd": -21020962,
-      "two_sided": false,
-      "net_usd": 445656224,
-      "put_funds": [
-        "SAA (Aschenbrenner)"
-      ],
-      "our_rank": 26
+      "our_rank": 3
     }
   ],
   "note": "13F-HR, ~45-day lag, US long-equity + puts only. Context/idea-generation, not advice. Crowded-risk = names WE hold long that tracked funds are hedging/shorting via puts (e.g. SAA's chip puts)."

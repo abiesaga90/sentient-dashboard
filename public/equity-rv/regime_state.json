@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-07-31",
-  "generated_at": "2026-08-06T19:03:11.953117Z",
+  "as_of": "2026-08-07",
+  "generated_at": "2026-08-07T21:23:18.221877Z",
   "state": "GREEN",
   "headline": "Trade ON \u2014 sellers leading, the raise intact, bid on the accelerator. Full book.",
   "signals": [
     {
       "name": "Sellers\u2212Buyers spread",
-      "value": "+10pp (3mo)",
-      "trend": "pace 13\u21923\u2192-11 pp/mo \u2014 decelerating",
+      "value": "+11pp (3mo)",
+      "trend": "pace 13\u21924\u2192-7 pp/mo \u2014 decelerating",
       "state": "amber",
       "desc": "Coatue gauge \u2014 sellers vs buyers of the shortage"
     },
@@ -20,14 +20,14 @@
     },
     {
       "name": "Layer leadership",
-      "value": "systems \u00b7 memory \u00b7 custom-silicon/net",
+      "value": "systems \u00b7 custom-silicon/net \u00b7 foundry/equip",
       "trend": "bid on the accelerator",
       "state": "green",
       "desc": "which slice is the marginal bid"
     },
     {
       "name": "Smart-money rotation (13F)",
-      "value": "40% sellers / 3% operators",
+      "value": "40% sellers / 0% operators",
       "trend": "still seller-heavy",
       "state": "green",
       "desc": "cohort 13F QoQ \u2014 are the funds rotating?"
@@ -53,12 +53,12 @@
     "already_applied": false,
     "cond_spread_pace_1mo": {
       "ok": false,
-      "value_pp_per_mo": -11.0
+      "value_pp_per_mo": -6.7
     },
     "cond_soxx_20d_high": {
       "ok": false,
-      "close": 538.1099853515625,
-      "prior_high": 581.7000122070312,
+      "close": 543.27001953125,
+      "prior_high": 581.3400268554688,
       "window": 20,
       "source": "SOXX"
     },
@@ -67,128 +67,128 @@
   },
   "spread": {
     "1mo": {
-      "sellers": -11.4,
-      "buyers": -0.4,
-      "spread_pp": -11.0
+      "sellers": -3.9,
+      "buyers": 2.8,
+      "spread_pp": -6.7
     },
     "3mo": {
-      "sellers": 1.4,
-      "buyers": -8.9,
-      "spread_pp": 10.3
+      "sellers": 5.8,
+      "buyers": -4.9,
+      "spread_pp": 10.7
     },
     "6mo": {
-      "sellers": 76.4,
-      "buyers": 0.9,
-      "spread_pp": 75.5
+      "sellers": 86.3,
+      "buyers": 7.0,
+      "spread_pp": 79.3
     }
   },
   "spread_pace_pp_per_mo": {
-    "1mo": -11.0,
-    "3mo": 3.4,
-    "6mo": 12.6
+    "1mo": -6.7,
+    "3mo": 3.6,
+    "6mo": 13.2
   },
   "spread_history": [
     {
-      "date": "2025-08-12",
-      "spread_pp": 23.4
+      "date": "2025-08-19",
+      "spread_pp": 15.8
     },
     {
-      "date": "2025-09-10",
-      "spread_pp": 26.6
+      "date": "2025-09-17",
+      "spread_pp": 19.7
     },
     {
-      "date": "2025-10-09",
-      "spread_pp": 47.2
+      "date": "2025-10-16",
+      "spread_pp": 42.1
     },
     {
-      "date": "2025-11-07",
-      "spread_pp": 56.9
+      "date": "2025-11-14",
+      "spread_pp": 57.0
     },
     {
-      "date": "2025-12-08",
-      "spread_pp": 48.3
+      "date": "2025-12-15",
+      "spread_pp": 39.7
     },
     {
-      "date": "2026-01-07",
-      "spread_pp": 28.9
+      "date": "2026-01-14",
+      "spread_pp": 31.8
     },
     {
-      "date": "2026-02-05",
-      "spread_pp": 27.6
+      "date": "2026-02-12",
+      "spread_pp": 41.8
     },
     {
-      "date": "2026-03-06",
-      "spread_pp": 35.6
+      "date": "2026-03-13",
+      "spread_pp": 51.0
     },
     {
-      "date": "2026-04-06",
-      "spread_pp": 40.1
+      "date": "2026-04-13",
+      "spread_pp": 58.7
     },
     {
-      "date": "2026-05-05",
-      "spread_pp": 72.9
+      "date": "2026-05-12",
+      "spread_pp": 68.5
     },
     {
-      "date": "2026-06-03",
-      "spread_pp": 100.9
+      "date": "2026-06-10",
+      "spread_pp": 66.7
     },
     {
-      "date": "2026-07-02",
-      "spread_pp": 62.3
+      "date": "2026-07-09",
+      "spread_pp": 46.1
     },
     {
-      "date": "2026-07-31",
-      "spread_pp": 10.3
+      "date": "2026-08-07",
+      "spread_pp": 10.7
     }
   ],
   "layer_momentum": [
     {
       "layer": "systems",
-      "mom_3mo": 74.0
-    },
-    {
-      "layer": "memory",
-      "mom_3mo": 11.0
+      "mom_3mo": 83.0
     },
     {
       "layer": "custom-silicon/net",
-      "mom_3mo": 8.0
-    },
-    {
-      "layer": "compute-die",
-      "mom_3mo": 3.0
+      "mom_3mo": 20.0
     },
     {
       "layer": "foundry/equip",
-      "mom_3mo": -1.0
+      "mom_3mo": 4.0
     },
     {
-      "layer": "power/grid",
-      "mom_3mo": -10.0
+      "layer": "compute-die",
+      "mom_3mo": 2.0
     },
     {
-      "layer": "neocloud",
-      "mom_3mo": -23.0
+      "layer": "memory",
+      "mom_3mo": -4.0
     },
     {
       "layer": "optical",
-      "mom_3mo": -28.0
+      "mom_3mo": -13.0
+    },
+    {
+      "layer": "neocloud",
+      "mom_3mo": -13.0
+    },
+    {
+      "layer": "power/grid",
+      "mom_3mo": -22.0
     },
     {
       "layer": "materials",
-      "mom_3mo": -45.0
+      "mom_3mo": -24.0
     }
   ],
   "smart_money_rotation": {
-    "prior": "2025-12-31",
-    "latest": "2026-03-31",
-    "2025-12-31": {
-      "seller_pct": 30.8,
-      "operator_pct": 2.2
-    },
+    "prior": "2026-03-31",
+    "latest": "2026-06-30",
     "2026-03-31": {
       "seller_pct": 40.2,
       "operator_pct": 3.3
+    },
+    "2026-06-30": {
+      "seller_pct": 39.5,
+      "operator_pct": 0.1
     },
     "rotating_to_operators": false
   },
@@ -197,7 +197,7 @@
       "takeaway": "Sellers of the shortage win (Coatue)",
       "mechanism": "thesis tilt W_THESIS + exclude spenders",
       "status": "LIVE",
-      "live": "spread +10pp (3mo)"
+      "live": "spread +11pp (3mo)"
     },
     {
       "takeaway": "The 'raise' drives (Coatue/Aletheia/MRVL)",

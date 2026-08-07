@@ -1,6 +1,6 @@
 {
-  "updated": "2026-08-07",
-  "n_claims": 10,
+  "updated": "2026-08-08",
+  "n_claims": 13,
   "n_flipped": 0,
   "n_stale": 0,
   "claims": [
@@ -19,8 +19,8 @@
       "cadence": "quarterly",
       "action_if_supported": "Lean the REVISIONS leg over the SURPRISE leg in memory: a raised contracted floor still shows up as a raised estimate even when it stops being a beat.",
       "verdict": "refuted",
-      "verdict_detail": "memory trend +10.4 vs others +7.2 -> relative +3.2",
-      "last_checked": "2026-08-07",
+      "verdict_detail": "memory trend +9.7 vs others +6.1 -> relative +3.6",
+      "last_checked": "2026-08-08",
       "action_taken": "none"
     },
     {
@@ -95,8 +95,8 @@
       "cadence": "daily",
       "action_if_supported": "Treat added power exposure as raising this tail, not only as adding a cheap layer.",
       "verdict": "supported",
-      "verdict_detail": "-16.3% NAV, ladder fires -> gross x0.25",
-      "last_checked": "2026-08-07",
+      "verdict_detail": "-16.2% NAV, ladder fires -> gross x0.25",
+      "last_checked": "2026-08-08",
       "action_taken": "scenario added to the daily stress test"
     },
     {
@@ -114,8 +114,8 @@
       "cadence": "daily",
       "action_if_supported": "Decide the marking basis explicitly before capital; if perps, hedge sizing must move with it.",
       "verdict": "supported",
-      "verdict_detail": "like-for-like basis +1.34% (4 days logged)",
-      "last_checked": "2026-08-07",
+      "verdict_detail": "like-for-like basis +3.30% (5 days logged)",
+      "last_checked": "2026-08-08",
       "action_taken": "perp mark panel shipped alongside the official track; go-live decision documented, engine unchanged"
     },
     {
@@ -171,8 +171,8 @@
       "cadence": "daily",
       "action_if_supported": "Set NET_BETA_TARGET=0.10 (operator approval required; cap <= +0.30).",
       "verdict": "refuted",
-      "verdict_detail": "spread pace -11.0 pp/mo x \u00b7 SOXX 538 vs 20d high 582 (8.1% to reclaim) x",
-      "last_checked": "2026-08-07",
+      "verdict_detail": "spread pace -6.7 pp/mo x \u00b7 SOXX 543 vs 20d high 581 (7.0% to reclaim) x",
+      "last_checked": "2026-08-08",
       "action_taken": "none; NET_BETA_TARGET stays 0.00 pending confirmation"
     },
     {
@@ -193,6 +193,61 @@
       "verdict_detail": "PARTLY. The REVENUE half is pure cost and was dropped: it helps at every coverage level to remove it, and it blocked names for size not tradability (ASTS has 11 analysts and a $23B cap on $0.1B revenue). At $100k notional a 2% position is $2,000, so liquidity was never our binding constraint. COVERAGE is NOT pure cost: cov>=5 scores Calmar 8.22 vs 7.67 for NO screen (+0.55), which follows from the driver being EPS surprise \u2014 a name with no analysts has no consensus to beat. Adopted cov>=5 & no revenue gate: 8.22 vs 7.42 incumbent, beating it in the full window AND 2 of 3 thirds (11.5/9.2/15.7 vs 7.9/9.9/13.4).",
       "last_checked": "2026-08-07",
       "action_taken": "MIN_ANALYST_COVERAGE 10->5, MIN_REVENUE_USD 5e8->0. Admits AAOI, ALAB, AMD, AXTI, CIEN, LITE, PENG, USAR."
+    },
+    {
+      "id": "valuation_hard_gate",
+      "source": "internal (operator question)",
+      "date": "2026-08-07",
+      "venue": "review",
+      "claim": "valuation() drops names without a positive P/E, so compute_scores reads them as z_val 0.0 = AVERAGE valuation. That hard gate hits 21 of 96 names and 3 holdings at ranks 3/4/11 (INTC, SKHYNIX, SAMSUNG) on a leg weighted 1.0. It should be a fallback, not a gate.",
+      "prediction": "A fallback ladder (P/E where positive, else P/S) beats the hard gate.",
+      "why_it_matters": "A leg as heavily weighted as the EPS-surprise driver contributes nothing for three top-11 holdings, and the book cannot tell.",
+      "test": "VAL_METRIC=composite vs trailing_pe, full window + thirds",
+      "reads": null,
+      "metric": "Calmar",
+      "threshold": "beats the gate on full-window Calmar AND 2 of 3 thirds",
+      "cadence": "semiannual",
+      "action_if_supported": "Set VAL_METRIC=composite.",
+      "verdict": "refuted",
+      "verdict_detail": "THREE designs all fail, none winning a single third. trailing_pe hard gate 8.22 | composite scale-matched 6.40 | composite percentile+P/S 3.71 | percentile of P/E alone 3.55. TWO mechanisms: (1) ranking destroys the TAILS the leg runs on \u2014 z-scored raw P/E hammers ARM at 245x and rewards MU at 19x, while percentiles score the dearest name 1.0 whether it is 60x or 250x, costing 4.7 Calmar by itself; (2) imputation CONTAMINATES THE CROSS-SECTION \u2014 adding 20 fallback names moves the mean and sd the z-score is measured against, shifting z_val for all 75 names that never needed help. ARM entered the book without its own P/E changing. So z_val 0.0 is not a tolerated bug: 'I do not know' beats an imputed guess, because the guess pollutes the yardstick.",
+      "last_checked": "2026-08-07",
+      "action_taken": "none; VAL_METRIC stays trailing_pe. The composite ladder ships in signals.valuation() but is off by default and available for re-testing with a different design."
+    },
+    {
+      "id": "valuation_earnings_yield",
+      "source": "internal (operator question)",
+      "date": "2026-08-07",
+      "venue": "review",
+      "claim": "A hard gate on non-positive trailing P/E makes no sense for high-growth stocks: a pre-profit hypergrowth name is dropped rather than valued. E/P (earnings yield) is the standard fix, continuous and monotone through zero, so no gate and no imputation are needed.",
+      "prediction": "VAL_METRIC=earnings_yield beats trailing_pe.",
+      "why_it_matters": "The valuation leg is weighted 1.0, as heavy as the EPS-surprise driver, and it is the ONLY leg negatively correlated with the rest (eps -0.16, thesis -0.15, mom -0.33, rev -0.13). It is the book's sole diversifier, so how it is expressed matters more than its weight.",
+      "test": "research/valuation_transform_test.py",
+      "metric": "Calmar",
+      "threshold": "beats trailing_pe on full-window Calmar AND 2 of 3 thirds",
+      "cadence": "semiannual",
+      "action_if_supported": "Set VAL_METRIC=earnings_yield.",
+      "verdict": "refuted",
+      "verdict_detail": "E/P is far WORSE, and worse than having no valuation leg at all. trailing_pe 8.22 | leg OFF 5.49 | E/P w0.5 5.23 | E/P w1.0 2.23. The economics explain it: E/P sorts loss-making names as the most expensive and penalises them hard, but those are exactly the pre-profit hypergrowth names (CRWV, NBIS, IREN) this book wants to own on the AI-supply thesis. So the hard gate is not really 'we cannot value it' \u2014 functionally it is 'we decline to hold pre-profit AGAINST a name', which is the correct treatment for a growth book. The operator intuition was right about the economics and the current code accidentally implements the right answer. SEPARATELY this run refuted my own read that the leg was inert: removing it costs 2.73 Calmar (8.22 -> 5.49). Its -1% share of score VARIANCE is the signature of a NEGATIVELY-correlated diversifier, not of a dead leg. Variance share measures how much a leg moves the score, not whether it moves the right names at the rank-30 cut line.",
+      "last_checked": "2026-08-07",
+      "action_taken": "none; VAL_METRIC stays trailing_pe. earnings_yield ships in signals.valuation() as an off-by-default option."
+    },
+    {
+      "id": "valuation_leg_lookahead",
+      "source": "internal (data audit)",
+      "date": "2026-08-07",
+      "venue": "review",
+      "claim": "The valuation leg's measured 2.73 Calmar is partly foresight: panel_open's trailing_pe carries ONE value per symbol, so today's multiple is applied to every bar back to 2023-06-22, and a name that looks cheap today got there by earnings compounding faster than price.",
+      "prediction": "Rebuilding trailing P/E point-in-time from reported EPS keyed to report dates will cut the leg's contribution materially.",
+      "why_it_matters": "2.5 of the score's 4.0 weight units (valuation 1.0, thesis 1.0, revisions 0.5) are static. If the valuation leg's value is foresight, so is part of every backtest run this week.",
+      "test": "research/pit_valuation_test.py",
+      "metric": "Calmar over the no-leg baseline",
+      "threshold": "PIT leg retains >70% of the static leg's margin over W_VAL=0",
+      "cadence": "semiannual",
+      "action_if_supported": "Keep W_VAL 1.0 on PIT data.",
+      "verdict": "refuted",
+      "verdict_detail": "The leg is REAL, not foresight. Decomposed against the no-leg floor of 5.49: static-with-lookahead 8.22 (+2.73, NOT ACHIEVABLE LIVE), PIT with the old gate kept 7.73 (+2.24, the time-variation alone), PIT with adjusted EPS 8.31 (+2.82). 104% of the leg's value survives honest data, and PIT actually BEATS the lookahead version while cutting maxDD from -10.0% to -9.3%. Isolating the two axes: making the multiple time-varying is worth +2.24, and switching GAAP eps_ttm for analyst-basis reported EPS (which hands a positive multiple to the 15 names the old gate dropped as loss-making, INTC at rank 3 among them) adds a further +0.58. Against the only legitimate baseline (leg OFF, since a leg fed by unattainable data is not a real option) PIT wins the full window and all 3 thirds.",
+      "last_checked": "2026-08-07",
+      "action_taken": "SHIPPED: USE_PIT_VALUATION now defaults ON. 98 symbols carry a rebuilt series; 33 (ETFs and index proxies, which have no company EPS) keep static values and are unaffected since the valuation leg does not score them."
     }
   ],
   "note": "CLAIMS REGISTER. Every external claim we have taken seriously enough to test, with the testable prediction it implies, the test that decides it, and the standing verdict. Run by research/claims_register.py. The point is that a refuted claim STAYS refuted without re-arguing it, an inconclusive one gets re-tested on a cadence instead of being forgotten, and a verdict that FLIPS raises an alert. Nothing here changes a weight; each entry records what we would do if the verdict changed, so that decision is made in advance rather than in the moment."
