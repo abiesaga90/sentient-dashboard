@@ -1,13 +1,13 @@
 {
   "as_of": "2026-08-07",
-  "generated_at": "2026-08-07T21:23:18.221877Z",
+  "generated_at": "2026-08-08T21:08:39.958510Z",
   "state": "GREEN",
   "headline": "Trade ON \u2014 sellers leading, the raise intact, bid on the accelerator. Full book.",
   "signals": [
     {
       "name": "Sellers\u2212Buyers spread",
-      "value": "+11pp (3mo)",
-      "trend": "pace 13\u21924\u2192-7 pp/mo \u2014 decelerating",
+      "value": "+9pp (3mo)",
+      "trend": "pace 13\u21923\u2192-8 pp/mo \u2014 decelerating",
       "state": "amber",
       "desc": "Coatue gauge \u2014 sellers vs buyers of the shortage"
     },
@@ -53,7 +53,7 @@
     "already_applied": false,
     "cond_spread_pace_1mo": {
       "ok": false,
-      "value_pp_per_mo": -6.7
+      "value_pp_per_mo": -8.1
     },
     "cond_soxx_20d_high": {
       "ok": false,
@@ -67,25 +67,25 @@
   },
   "spread": {
     "1mo": {
-      "sellers": -3.9,
+      "sellers": -5.3,
       "buyers": 2.8,
-      "spread_pp": -6.7
+      "spread_pp": -8.1
     },
     "3mo": {
-      "sellers": 5.8,
+      "sellers": 4.1,
       "buyers": -4.9,
-      "spread_pp": 10.7
+      "spread_pp": 9.0
     },
     "6mo": {
-      "sellers": 86.3,
+      "sellers": 83.6,
       "buyers": 7.0,
-      "spread_pp": 79.3
+      "spread_pp": 76.6
     }
   },
   "spread_pace_pp_per_mo": {
-    "1mo": -6.7,
-    "3mo": 3.6,
-    "6mo": 13.2
+    "1mo": -8.1,
+    "3mo": 3.0,
+    "6mo": 12.8
   },
   "spread_history": [
     {
@@ -138,7 +138,7 @@
     },
     {
       "date": "2026-08-07",
-      "spread_pp": 10.7
+      "spread_pp": 9.0
     }
   ],
   "layer_momentum": [
@@ -160,7 +160,7 @@
     },
     {
       "layer": "memory",
-      "mom_3mo": -4.0
+      "mom_3mo": -11.0
     },
     {
       "layer": "optical",
@@ -197,7 +197,7 @@
       "takeaway": "Sellers of the shortage win (Coatue)",
       "mechanism": "thesis tilt W_THESIS + exclude spenders",
       "status": "LIVE",
-      "live": "spread +11pp (3mo)"
+      "live": "spread +9pp (3mo)"
     },
     {
       "takeaway": "The 'raise' drives (Coatue/Aletheia/MRVL)",

@@ -1,6 +1,6 @@
 {
-  "updated": "2026-08-08",
-  "n_claims": 13,
+  "updated": "2026-08-09",
+  "n_claims": 15,
   "n_flipped": 0,
   "n_stale": 0,
   "claims": [
@@ -20,7 +20,7 @@
       "action_if_supported": "Lean the REVISIONS leg over the SURPRISE leg in memory: a raised contracted floor still shows up as a raised estimate even when it stops being a beat.",
       "verdict": "refuted",
       "verdict_detail": "memory trend +9.7 vs others +6.1 -> relative +3.6",
-      "last_checked": "2026-08-08",
+      "last_checked": "2026-08-09",
       "action_taken": "none"
     },
     {
@@ -96,7 +96,7 @@
       "action_if_supported": "Treat added power exposure as raising this tail, not only as adding a cheap layer.",
       "verdict": "supported",
       "verdict_detail": "-16.2% NAV, ladder fires -> gross x0.25",
-      "last_checked": "2026-08-08",
+      "last_checked": "2026-08-09",
       "action_taken": "scenario added to the daily stress test"
     },
     {
@@ -114,8 +114,8 @@
       "cadence": "daily",
       "action_if_supported": "Decide the marking basis explicitly before capital; if perps, hedge sizing must move with it.",
       "verdict": "supported",
-      "verdict_detail": "like-for-like basis +3.30% (5 days logged)",
-      "last_checked": "2026-08-08",
+      "verdict_detail": "like-for-like basis +2.32% (5 days logged)",
+      "last_checked": "2026-08-09",
       "action_taken": "perp mark panel shipped alongside the official track; go-live decision documented, engine unchanged"
     },
     {
@@ -171,8 +171,8 @@
       "cadence": "daily",
       "action_if_supported": "Set NET_BETA_TARGET=0.10 (operator approval required; cap <= +0.30).",
       "verdict": "refuted",
-      "verdict_detail": "spread pace -6.7 pp/mo x \u00b7 SOXX 543 vs 20d high 581 (7.0% to reclaim) x",
-      "last_checked": "2026-08-08",
+      "verdict_detail": "spread pace -8.1 pp/mo x \u00b7 SOXX 543 vs 20d high 581 (7.0% to reclaim) x",
+      "last_checked": "2026-08-09",
       "action_taken": "none; NET_BETA_TARGET stays 0.00 pending confirmation"
     },
     {
@@ -248,6 +248,42 @@
       "verdict_detail": "The leg is REAL, not foresight. Decomposed against the no-leg floor of 5.49: static-with-lookahead 8.22 (+2.73, NOT ACHIEVABLE LIVE), PIT with the old gate kept 7.73 (+2.24, the time-variation alone), PIT with adjusted EPS 8.31 (+2.82). 104% of the leg's value survives honest data, and PIT actually BEATS the lookahead version while cutting maxDD from -10.0% to -9.3%. Isolating the two axes: making the multiple time-varying is worth +2.24, and switching GAAP eps_ttm for analyst-basis reported EPS (which hands a positive multiple to the 15 names the old gate dropped as loss-making, INTC at rank 3 among them) adds a further +0.58. Against the only legitimate baseline (leg OFF, since a leg fed by unattainable data is not a real option) PIT wins the full window and all 3 thirds.",
       "last_checked": "2026-08-07",
       "action_taken": "SHIPPED: USE_PIT_VALUATION now defaults ON. 98 symbols carry a rebuilt series; 33 (ETFs and index proxies, which have no company EPS) keep static values and are unaffected since the valuation leg does not score them."
+    },
+    {
+      "id": "thesis_leg_hindsight",
+      "source": "internal (data audit)",
+      "date": "2026-08-08",
+      "venue": "review",
+      "claim": "The 42-name AI-supply thesis list is STATIC and was written in 2026, so replaying it from 2023 asks the book to already know which names became AI winners. CLAUDE.md's most load-bearing finding ('the edge IS the theme', W_THESIS=0 collapsing Sharpe 3.1 to 1.7) was measured on that basis and never re-run.",
+      "prediction": "The thesis leg performs like a hindsight winner-picker; its measured value is largely foresight.",
+      "why_it_matters": "Weight 1.0, equal to the EPS-surprise driver, and BINARY, so membership is worth a fixed ~2.0 score points against a rank-1-to-30 spread of ~3.3. It decides the book more than any other input.",
+      "test": "research/thesis_hindsight_test.py",
+      "metric": "Calmar, bounded between a random-list floor and a realised-winners ceiling",
+      "threshold": "REAL near the HINDSIGHT ceiling implies foresight; REAL near RANDOM implies no information",
+      "cadence": "semiannual",
+      "action_if_supported": "Cut W_THESIS and rebuild membership point-in-time.",
+      "verdict": "refuted",
+      "verdict_detail": "REAL 5.48 BEATS the perfect-foresight ceiling of 4.66, so the leg cannot be winner-picking: a winner-picker scores at most what the actual winners score. RANDOM (1.11, sd 0.26, n=6) is BELOW the no-leg baseline of 1.49, which also kills the rival 'its value is structural, a binary flag perturbing selection near the rank-30 cut' hypothesis; a random list actively HURTS. So the leg's value is entirely informational. The likely mechanism: a realised-top-performers list is an ex-post selection of one-off pops with no common driver and does not cohere as a FACTOR, whereas an economically coherent supply-chain list co-moves and interacts with the EPS-surprise and momentum legs. Overlap between the two lists is 28 of 42 (67%), so the 14 names that differ carry the gap. NOTE the pre-registered bands assumed the ceiling was a ceiling and had no branch for REAL > HINDSIGHT; the script's printed verdict was wrong and the logic has been corrected. RESIDUAL, not addressed by this test: it shows the list is not selecting winners, but not that anyone would have chosen the AI-supply CATEGORY in 2023.",
+      "last_checked": "2026-08-08",
+      "action_taken": "none; W_THESIS stays 1.0. 'The edge IS the theme' survives on stronger evidence than it was originally made on."
+    },
+    {
+      "id": "confirmer_legs_redundant",
+      "source": "internal (correlation audit)",
+      "date": "2026-08-08",
+      "venue": "review",
+      "claim": "Momentum, thesis and revisions intercorrelate 0.45-0.56 and carry 2.0 of the 4.0 score weight, so half the score is substantially one factor. The nominal weights overstate what the confirmer legs independently contribute.",
+      "prediction": "Removing or decorrelating the redundant confirmer weight improves the book.",
+      "why_it_matters": "Two of five legs, 1.0 of 4.0 weight. Revisions is also the LAST lookahead leg (a dict with no date axis), so if it can go, the score becomes free of static-data contamination apart from thesis membership, which the hindsight bounding test already cleared.",
+      "test": "research/leg_redundancy_test.py + research/confirmer_robustness_test.py",
+      "metric": "Calmar",
+      "threshold": "beat live on full-window Calmar AND 2 of 3 thirds, then win a MAJORITY of neighbouring configs",
+      "cadence": "quarterly",
+      "action_if_supported": "Set W_MOM=0 and W_REV=0; score becomes eps + val + thesis at 1.0 each.",
+      "verdict": "supported",
+      "verdict_detail": "Dropping BOTH confirmers gives Calmar 6.49 vs 5.48 live and wins 6 of 6 neighbouring configs (TOP_K 20/30/40 x rebal 21/42), median +1.02, worst +0.13, never negative. An orthogonalised blend with confirmers at 0.25 independently lands at 6.46, so two routes to 'less confirmer weight' agree. THE 2x2 IS NON-ADDITIVE and remains unexplained: mom .5/rev .5 = 5.48, mom 0/rev .5 = 5.49 (momentum earns NOTHING), mom .5/rev 0 = 3.85 (removing revisions COSTS 1.63), mom 0/rev 0 = 6.49. The coherent reading is that MOMENTUM is actively harmful in this sample and revisions was partly offsetting it; remove momentum and revisions becomes redundant. CAVEAT: the win is concentrated in the later sub-periods (drop-both thirds 6.6/11.3/15.2 vs live 9.5/6.7/9.5), so it LOSES the first third, which is a regime-dependence flag. NOTE this contradicts the founding research ('EPS surprise ADDS to momentum, blend Sharpe 2.37 vs 1.87 mom-alone'), measured on the 34-name curated panel at TOP_K=8, a universe and config that no longer exist.",
+      "last_checked": "2026-08-08",
+      "action_taken": "NOT YET SHIPPED - awaiting operator decision; removing 2 of 5 legs is a structural change and the first-third loss is unexplained."
     }
   ],
   "note": "CLAIMS REGISTER. Every external claim we have taken seriously enough to test, with the testable prediction it implies, the test that decides it, and the standing verdict. Run by research/claims_register.py. The point is that a refuted claim STAYS refuted without re-arguing it, an inconclusive one gets re-tested on a cadence instead of being forgotten, and a verdict that FLIPS raises an alert. Nothing here changes a weight; each entry records what we would do if the verdict changed, so that decision is made in advance rather than in the moment."
