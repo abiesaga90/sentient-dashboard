@@ -13756,78 +13756,78 @@
       },
       {
         "date": "2026-07-17",
-        "nav": 102.15,
+        "nav": 101.44,
         "dd": 0.0
       },
       {
         "date": "2026-07-20",
-        "nav": 101.31,
-        "dd": -0.19
+        "nav": 101.19,
+        "dd": -0.24
       },
       {
         "date": "2026-07-21",
-        "nav": 102.71,
+        "nav": 103.67,
         "dd": 0.0
       },
       {
         "date": "2026-07-22",
-        "nav": 104.1,
-        "dd": 0.0
+        "nav": 103.24,
+        "dd": -0.42
       },
       {
         "date": "2026-07-23",
-        "nav": 106.74,
+        "nav": 105.81,
         "dd": 0.0
       },
       {
         "date": "2026-07-24",
-        "nav": 105.26,
-        "dd": -0.93
+        "nav": 103.98,
+        "dd": -1.77
       },
       {
         "date": "2026-07-27",
-        "nav": 104.01,
-        "dd": -2.08
+        "nav": 103.52,
+        "dd": -2.22
       },
       {
         "date": "2026-07-28",
-        "nav": 100.35,
-        "dd": -5.63
+        "nav": 100.88,
+        "dd": -4.78
       },
       {
         "date": "2026-07-29",
-        "nav": 100.34,
-        "dd": -5.35
+        "nav": 100.27,
+        "dd": -5.37
       },
       {
         "date": "2026-07-30",
-        "nav": 103.19,
-        "dd": -2.58
+        "nav": 103.58,
+        "dd": -2.16
       },
       {
         "date": "2026-07-31",
-        "nav": 106.32,
+        "nav": 106.17,
         "dd": 0.0
       },
       {
         "date": "2026-08-03",
-        "nav": 108.47,
+        "nav": 107.57,
         "dd": 0.0
       },
       {
         "date": "2026-08-04",
-        "nav": 108.74,
+        "nav": 107.65,
         "dd": 0.0
       },
       {
         "date": "2026-08-05",
-        "nav": 110.63,
+        "nav": 108.42,
         "dd": 0.0
       },
       {
         "date": "2026-08-06",
-        "nav": 107.39,
-        "dd": -2.37
+        "nav": 105.64,
+        "dd": -2.66
       },
       {
         "date": "2026-08-07",
@@ -14548,7 +14548,8 @@
         "realized_pct": -6.56,
         "reason": "pre-IPO excluded from the quant book \u2014 risk policy \u00a71.3 / Part 4 (Pre-IPO is the Fund's sole venture-style mandate)"
       }
-    ]
+    ],
+    "nav_ledger_note": "The launchd job ran at 23:00 Dubai = 19:00 UTC, ONE HOUR BEFORE the 20:00 UTC US cash close, so every ledger row in this window recorded a mid-session price as if it were the close. These are the same book on the same days, remarked on the SETTLED close; no config, universe or position change is involved. Return since launch is UNCHANGED at +5.62% (the 2026-08-07 row was already written post-close). The fake day-to-day jumps inflated drawdown and depressed Sharpe, so the correction moves both in the strategy's favour: max DD -6.00% -> -5.24%, Sharpe 2.77 -> 3.16. Archived verbatim at nav_ledger_pre_2026-08-08.json so the restatement is auditable rather than silent."
   },
   "risk_policy": {
     "policy": "EMCD / Layer One Fund Risk Policy v1.9 \u2014 Part 3 (Quantitative Strategies)",
