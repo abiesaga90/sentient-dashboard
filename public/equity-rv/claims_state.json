@@ -1,6 +1,6 @@
 {
-  "updated": "2026-08-09",
-  "n_claims": 15,
+  "updated": "2026-08-10",
+  "n_claims": 16,
   "n_flipped": 0,
   "n_stale": 0,
   "claims": [
@@ -20,7 +20,7 @@
       "action_if_supported": "Lean the REVISIONS leg over the SURPRISE leg in memory: a raised contracted floor still shows up as a raised estimate even when it stops being a beat.",
       "verdict": "refuted",
       "verdict_detail": "memory trend +9.7 vs others +6.1 -> relative +3.6",
-      "last_checked": "2026-08-09",
+      "last_checked": "2026-08-10",
       "action_taken": "none"
     },
     {
@@ -96,7 +96,7 @@
       "action_if_supported": "Treat added power exposure as raising this tail, not only as adding a cheap layer.",
       "verdict": "supported",
       "verdict_detail": "-16.2% NAV, ladder fires -> gross x0.25",
-      "last_checked": "2026-08-09",
+      "last_checked": "2026-08-10",
       "action_taken": "scenario added to the daily stress test"
     },
     {
@@ -114,8 +114,8 @@
       "cadence": "daily",
       "action_if_supported": "Decide the marking basis explicitly before capital; if perps, hedge sizing must move with it.",
       "verdict": "supported",
-      "verdict_detail": "like-for-like basis +2.32% (5 days logged)",
-      "last_checked": "2026-08-09",
+      "verdict_detail": "like-for-like basis +3.63% (5 days logged)",
+      "last_checked": "2026-08-10",
       "action_taken": "perp mark panel shipped alongside the official track; go-live decision documented, engine unchanged"
     },
     {
@@ -172,7 +172,7 @@
       "action_if_supported": "Set NET_BETA_TARGET=0.10 (operator approval required; cap <= +0.30).",
       "verdict": "refuted",
       "verdict_detail": "spread pace -8.1 pp/mo x \u00b7 SOXX 543 vs 20d high 581 (7.0% to reclaim) x",
-      "last_checked": "2026-08-09",
+      "last_checked": "2026-08-10",
       "action_taken": "none; NET_BETA_TARGET stays 0.00 pending confirmation"
     },
     {
@@ -284,6 +284,24 @@
       "verdict_detail": "Dropping BOTH confirmers gives Calmar 6.49 vs 5.48 live and wins 6 of 6 neighbouring configs (TOP_K 20/30/40 x rebal 21/42), median +1.02, worst +0.13, never negative. An orthogonalised blend with confirmers at 0.25 independently lands at 6.46, so two routes to 'less confirmer weight' agree. THE 2x2 IS NON-ADDITIVE and remains unexplained: mom .5/rev .5 = 5.48, mom 0/rev .5 = 5.49 (momentum earns NOTHING), mom .5/rev 0 = 3.85 (removing revisions COSTS 1.63), mom 0/rev 0 = 6.49. The coherent reading is that MOMENTUM is actively harmful in this sample and revisions was partly offsetting it; remove momentum and revisions becomes redundant. CAVEAT: the win is concentrated in the later sub-periods (drop-both thirds 6.6/11.3/15.2 vs live 9.5/6.7/9.5), so it LOSES the first third, which is a regime-dependence flag. NOTE this contradicts the founding research ('EPS surprise ADDS to momentum, blend Sharpe 2.37 vs 1.87 mom-alone'), measured on the 34-name curated panel at TOP_K=8, a universe and config that no longer exist.",
       "last_checked": "2026-08-08",
       "action_taken": "NOT YET SHIPPED - awaiting operator decision; removing 2 of 5 legs is a structural change and the first-third loss is unexplained."
+    },
+    {
+      "id": "deep_drawdown_value_recent_ipo",
+      "source": "internal (operator proposal)",
+      "date": "2026-08-09",
+      "venue": "review",
+      "claim": "For recent IPOs, a meaningful drop against the IPO price or all-time high (~50%) marks entry into value territory and is a reason to go long.",
+      "prediction": "Deeper drawdown predicts higher forward return, especially for recent listings.",
+      "why_it_matters": "Fills a REAL gap: the valuation leg runs on trailing P/E and 15 universe names are loss-making, so they score z_val = 0.00 (AVERAGE, not unknown). Recent IPOs sit disproportionately in that bucket, so the book currently has NO cheapness input for exactly these names.",
+      "test": "research/drawdown_value_test.py",
+      "metric": "date-controlled excess forward return (63d) by drawdown bucket",
+      "threshold": "positive excess in a majority of sub-periods, not concentrated in a few names",
+      "cadence": "quarterly",
+      "action_if_supported": "Add a drawdown-based cheapness proxy for names without a positive P/E.",
+      "verdict": "refuted",
+      "verdict_detail": "THE THRESHOLD IS REAL AND THE OPERATOR NAMED IT CORRECTLY, but the effect fails our own robustness bar. Date-controlled excess fwd63: drawdown <25% -0.15%, 25-50% -2.35% (the FALLING-KNIFE zone), >50% +4.55%, and RECENT listings >50% +10.90%. The relationship is NON-MONOTONIC, which is why a rank IC read it as noise or slightly wrong-signed (+0.057 for recent): a Spearman correlation across a U-shape sees nothing. THREE CHECKS WEAKEN IT: (1) sub-periods +9.01%, +11.61%, -4.32% \u2014 NEGATIVE in the most recent third, so it fails the 2-of-3 bar; (2) excess falls from +4.55% to +1.48% excluding just ASTS, CRDO and ALAB, so two thirds of it is three names; (3) SURVIVORSHIP is decisive \u2014 the panel is today's tradeable perps replayed backward, so any name that fell >50% and then delisted or collapsed is ABSENT ENTIRELY, and that bias lands hardest in precisely this bucket. The measured effect is an UPPER BOUND, not an estimate. Deep-drawdown value is exactly the hypothesis a survivorship-biased sample manufactures. || SENSITIVITY BOUND (2026-08-09) SETTLES IT WITHOUT NEW DATA. The bias has one shape \u2014 names that fell >50% then died are missing \u2014 so the question inverts to: how many missing failures would erase the edge? BREAKEVEN FAILURE RATES: all names >50% down (edge +4.55%) needs only 4.4% at a -100% delisting return, 7.1% at -60%, 13.5% at -30%. The strongest version, recent listings >50% down (edge +10.90%), needs 9.9% at -100% and 15.4% at -60%. Against a base rate of roughly 1 in 5 US IPOs from the 2020-21 cohort delisting or falling below $1 within three years \u2014 and failure CONCENTRATES in names already down >50%, so the conditional rate is higher still \u2014 every breakeven sits BELOW the plausible failure rate. The effect does not survive its own worst case. || MEASURED, NOT ESTIMATED (2026-08-09). The Alpha Vantage key was already provisioned on the nickel Render service. LISTING_STATUS returns 9,412 delisted securities with IPO and delisting dates, plus a true point-in-time active universe. Survivorship-FREE cohort of US common stock that IPO'd 2020-01-01..2024-06-30: 2,646 still listed, 2,524 DELISTED, FAILURE RATE 48.8%, median life to delisting 680 days. Every breakeven in the sensitivity table is destroyed: the most generous was 26.8% (recent listings, -30% delisting return) against an actual 48.8%, and that is the UNCONDITIONAL rate, a lower bound on the rate conditional on being down >50%. NOTE MY OWN PRIOR WAS WRONG BY MORE THAN 2x \u2014 I estimated 'roughly 1 in 5' and reasoned from it; the truth is nearly 1 in 2. ONE HONEST COUNTER: AV 'delisted' includes acquisitions and mergers, which delist at a PREMIUM rather than a loss, so 48.8% overstates failures specifically. It does not overstate ABSENCE, which is what the survivorship bias is made of \u2014 an acquired name is just as missing from a yfinance-built panel. And even the -30% column, generous enough to cover soft landings, breaks at 26.8%.",
+      "last_checked": "2026-08-09",
+      "action_taken": "REFUTED and closed. Not shipped. The AV listing data is kept at data/survivorship/ because it fixes something much larger than this one claim: it enables a point-in-time, survivorship-free universe, which is the caveat sitting on EVERY backtest number in this project."
     }
   ],
   "note": "CLAIMS REGISTER. Every external claim we have taken seriously enough to test, with the testable prediction it implies, the test that decides it, and the standing verdict. Run by research/claims_register.py. The point is that a refuted claim STAYS refuted without re-arguing it, an inconclusive one gets re-tested on a cadence instead of being forgotten, and a verdict that FLIPS raises an alert. Nothing here changes a weight; each entry records what we would do if the verdict changed, so that decision is made in advance rather than in the moment."
