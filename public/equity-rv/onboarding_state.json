@@ -1,0 +1,123 @@
+{
+  "updated": "2026-08-08 21:00:30",
+  "n_tradeable_equity": 133,
+  "n_in_panel": 124,
+  "history_gate_bars": 126,
+  "premarket_excluded": [
+    "ANTHROPIC",
+    "OPENAI"
+  ],
+  "not_in_panel": [
+    {
+      "perp": "BBXUSDT",
+      "base": "BBX",
+      "name": "",
+      "type": "-",
+      "market_cap": null,
+      "bars": 0,
+      "why": "no public data",
+      "ai_language": []
+    },
+    {
+      "perp": "BSPUSDT",
+      "base": "BSP",
+      "name": "Bending Spoons S.p.A.",
+      "type": "EQUITY",
+      "market_cap": 28235499520,
+      "bars": 27,
+      "why": "history 27/126 bars",
+      "ai_language": []
+    },
+    {
+      "perp": "CBRSUSDT",
+      "base": "CBRS",
+      "name": "Cerebras Systems Inc.",
+      "type": "EQUITY",
+      "market_cap": 50526908416,
+      "bars": 59,
+      "why": "history 59/126 bars",
+      "ai_language": [
+        "artificial intelligence",
+        "ai",
+        "data center",
+        "gpu",
+        "inference",
+        "hyperscaler",
+        "semiconductor"
+      ]
+    },
+    {
+      "perp": "DRAMUSDT",
+      "base": "DRAM",
+      "name": "Roundhill Memory ETF",
+      "type": "ETF",
+      "market_cap": null,
+      "bars": 88,
+      "why": "history 88/126 bars",
+      "ai_language": []
+    },
+    {
+      "perp": "QNTXUSDT",
+      "base": "QNTX",
+      "name": "",
+      "type": "MUTUALFUND",
+      "market_cap": null,
+      "bars": 0,
+      "why": "no public data",
+      "ai_language": []
+    },
+    {
+      "perp": "SKHYUSDT",
+      "base": "SKHY",
+      "name": "SK hynix Inc.",
+      "type": "EQUITY",
+      "market_cap": 978960908288,
+      "bars": 21,
+      "why": "possible duplicate",
+      "ai_language": [
+        "semiconductor",
+        "foundry"
+      ]
+    },
+    {
+      "perp": "SPCXUSD1",
+      "base": "SPCX",
+      "name": "Space Exploration Technologies Corp.",
+      "type": "EQUITY",
+      "market_cap": 1754626785280,
+      "bars": 39,
+      "why": "duplicate quote ccy",
+      "ai_language": [
+        "ai"
+      ]
+    },
+    {
+      "perp": "SPCXUSDT",
+      "base": "SPCX",
+      "name": "Space Exploration Technologies Corp.",
+      "type": "EQUITY",
+      "market_cap": 1754626785280,
+      "bars": 39,
+      "why": "history 39/126 bars",
+      "ai_language": [
+        "ai"
+      ]
+    },
+    {
+      "perp": "STXXUSDT",
+      "base": "STXX",
+      "name": "Tradr 2X Long STX Daily ETF",
+      "type": "ETF",
+      "market_cap": null,
+      "bars": 73,
+      "why": "history 73/126 bars",
+      "ai_language": []
+    }
+  ],
+  "work_list": [
+    "SPCX",
+    "SPCX",
+    "SKHY",
+    "CBRS"
+  ]
+}
