@@ -1,7 +1,7 @@
 {
-  "updated": "2026-08-12 21:00:26",
+  "updated": "2026-08-13 21:00:16",
   "n_tradeable_equity": 147,
-  "n_in_panel": 127,
+  "n_in_panel": 136,
   "history_gate_bars": 126,
   "premarket_excluded": [
     "ANTHROPIC",
@@ -18,36 +18,6 @@
       "bars": 0,
       "why": "no public data",
       "ai_language": []
-    },
-    {
-      "perp": "BSPUSDT",
-      "base": "BSP",
-      "yahoo": "BSP",
-      "name": "Bending Spoons S.p.A.",
-      "type": "EQUITY",
-      "market_cap": 31113041920,
-      "bars": 30,
-      "why": "history 30/126 bars",
-      "ai_language": []
-    },
-    {
-      "perp": "CBRSUSDT",
-      "base": "CBRS",
-      "yahoo": "CBRS",
-      "name": "Cerebras Systems Inc.",
-      "type": "EQUITY",
-      "market_cap": 58400219136,
-      "bars": 62,
-      "why": "history 62/126 bars",
-      "ai_language": [
-        "artificial intelligence",
-        "ai",
-        "data center",
-        "gpu",
-        "inference",
-        "hyperscaler",
-        "semiconductor"
-      ]
     },
     {
       "perp": "CSOPSAMSUNG2LUSDT",
@@ -78,22 +48,9 @@
       "name": "Roundhill Memory ETF",
       "type": "ETF",
       "market_cap": null,
-      "bars": 91,
-      "why": "history 91/126 bars",
+      "bars": 92,
+      "why": "history 92/126 bars",
       "ai_language": []
-    },
-    {
-      "perp": "GIGADEVUSDT",
-      "base": "GIGADEV",
-      "yahoo": "603986.SS",
-      "name": "GigaDevice Semiconductor Inc.",
-      "type": "EQUITY",
-      "market_cap": 289940013056,
-      "bars": 2420,
-      "why": "possible duplicate",
-      "ai_language": [
-        "semiconductor"
-      ]
     },
     {
       "perp": "HK0700USDT",
@@ -104,17 +61,6 @@
       "market_cap": null,
       "bars": 0,
       "why": "no public data",
-      "ai_language": []
-    },
-    {
-      "perp": "HK1810USDT",
-      "base": "HK1810",
-      "yahoo": "1810.HK",
-      "name": "Xiaomi Corporation",
-      "type": "EQUITY",
-      "market_cap": 678609485824,
-      "bars": 1991,
-      "why": "NOT GATED \u2014 investigate",
       "ai_language": []
     },
     {
@@ -151,17 +97,6 @@
       "ai_language": []
     },
     {
-      "perp": "POPMARTUSDT",
-      "base": "POPMART",
-      "yahoo": "9992.HK",
-      "name": "Pop Mart International Group Limited",
-      "type": "EQUITY",
-      "market_cap": 198033391616,
-      "bars": 1390,
-      "why": "NOT GATED \u2014 investigate",
-      "ai_language": []
-    },
-    {
       "perp": "QNTXUSDT",
       "base": "QNTX",
       "yahoo": "QNTX",
@@ -171,20 +106,6 @@
       "bars": 0,
       "why": "no public data",
       "ai_language": []
-    },
-    {
-      "perp": "SKHYUSDT",
-      "base": "SKHY",
-      "yahoo": "SKHY",
-      "name": "SK hynix Inc.",
-      "type": "EQUITY",
-      "market_cap": 1096086913024,
-      "bars": 24,
-      "why": "possible duplicate",
-      "ai_language": [
-        "semiconductor",
-        "foundry"
-      ]
     },
     {
       "perp": "SPCXUSD1",
@@ -198,63 +119,16 @@
       "ai_language": []
     },
     {
-      "perp": "SPCXUSDT",
-      "base": "SPCX",
-      "yahoo": "SPCX",
-      "name": "Space Exploration Technologies Corp.",
-      "type": "EQUITY",
-      "market_cap": 1926517096448,
-      "bars": 42,
-      "why": "history 42/126 bars",
-      "ai_language": [
-        "ai"
-      ]
-    },
-    {
       "perp": "STXXUSDT",
       "base": "STXX",
       "yahoo": "STXX",
       "name": "Tradr 2X Long STX Daily ETF",
       "type": "ETF",
       "market_cap": null,
-      "bars": 76,
-      "why": "history 76/126 bars",
+      "bars": 77,
+      "why": "history 77/126 bars",
       "ai_language": []
-    },
-    {
-      "perp": "TENCENTUSDT",
-      "base": "TENCENT",
-      "yahoo": "0700.HK",
-      "name": "Tencent Holdings Limited",
-      "type": "EQUITY",
-      "market_cap": 4155151745024,
-      "bars": 5469,
-      "why": "NOT GATED \u2014 investigate",
-      "ai_language": [
-        "artificial intelligence",
-        "cloud services"
-      ]
-    },
-    {
-      "perp": "ZHIPUUSDT",
-      "base": "ZHIPU",
-      "yahoo": "2513.HK",
-      "name": "Z.AI Co., Ltd.",
-      "type": "EQUITY",
-      "market_cap": 538578485248,
-      "bars": 144,
-      "why": "NOT GATED \u2014 investigate",
-      "ai_language": [
-        "training"
-      ]
     }
   ],
-  "work_list": [
-    "TENCENT",
-    "SPCX",
-    "SKHY",
-    "ZHIPU",
-    "GIGADEV",
-    "CBRS"
-  ]
+  "work_list": []
 }

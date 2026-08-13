@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-08-12",
-  "generated_at": "2026-08-12T21:02:32.349001Z",
+  "as_of": "2026-08-13",
+  "generated_at": "2026-08-13T21:02:21.795652Z",
   "nav": 50000.0,
   "exposure_pct_notional": {
     "TSMC_FABBED": 14.2,
@@ -36,10 +36,10 @@
       "name": "Taiwan blockade",
       "narrative": "Military blockade halts TSMC output. Griffin: US GDP -8% in six months, Boeing/autos/consumer electronics stop inside six months. No substitute fab capacity exists at leading edge.",
       "note": "Korea and non-Taiwan memory are shocked POSITIVE: they are the substitute supply and would re-rate on scarcity. That partial offset is real and worth seeing.",
-      "long_nav_pct": -38.55,
+      "long_nav_pct": -38.6,
       "hedge_nav_pct": 33.68,
-      "net_nav_pct": -4.88,
-      "usd_on_nav": -2438.0,
+      "net_nav_pct": -4.92,
+      "usd_on_nav": -2458.0,
       "ladder_mult": 1.0,
       "hard_stop_breached": false,
       "verdict": "inside limits",
@@ -58,7 +58,7 @@
         },
         {
           "symbol": "INTC",
-          "nav_pct": -3.37
+          "nav_pct": -3.39
         }
       ]
     },
@@ -67,10 +67,10 @@
       "name": "Taiwan tension, no blockade",
       "narrative": "Escalation short of blockade: exercises, shipping insurance spikes, export controls tighten. Output continues, risk premium re-prices.",
       "note": "The more probable version. Tests whether the ladder would even trigger.",
-      "long_nav_pct": -13.83,
+      "long_nav_pct": -13.86,
       "hedge_nav_pct": 12.15,
-      "net_nav_pct": -1.68,
-      "usd_on_nav": -841.0,
+      "net_nav_pct": -1.71,
+      "usd_on_nav": -855.0,
       "ladder_mult": 1.0,
       "hard_stop_breached": false,
       "verdict": "inside limits",
@@ -98,28 +98,28 @@
       "name": "AI capex pause",
       "narrative": "Hyperscalers guide capex DOWN. The book is long the sellers of that capex, so this hits revenue expectations directly rather than through market beta.",
       "note": "Hyperscalers shocked POSITIVE: cutting capex lifts their FCF. Now that GOOGL is in the book this is a genuine, if small, internal hedge we did not have before.",
-      "long_nav_pct": -37.88,
-      "hedge_nav_pct": 18.05,
-      "net_nav_pct": -19.82,
-      "usd_on_nav": -9911.0,
+      "long_nav_pct": -37.91,
+      "hedge_nav_pct": 18.06,
+      "net_nav_pct": -19.86,
+      "usd_on_nav": -9928.0,
       "ladder_mult": 0.25,
       "hard_stop_breached": false,
       "verdict": "ladder fires -> gross x0.25",
       "worst_names": [
         {
           "symbol": "IREN",
-          "nav_pct": -1.89
+          "nav_pct": -1.88
         },
         {
           "symbol": "LRCX",
-          "nav_pct": -1.74
-        },
-        {
-          "symbol": "ASML",
-          "nav_pct": -1.7
+          "nav_pct": -1.73
         },
         {
           "symbol": "COHR",
+          "nav_pct": -1.69
+        },
+        {
+          "symbol": "ASML",
           "nav_pct": -1.68
         }
       ]
@@ -129,17 +129,17 @@
       "name": "Memory cycle turns",
       "narrative": "DRAM/NAND pricing rolls over. Memory is the second-largest layer and carries the strongest estimate revisions (MU +50% capped), so it is where the most optimism is priced.",
       "note": "Tests concentration in the layer with the most estimate optimism embedded.",
-      "long_nav_pct": -17.41,
+      "long_nav_pct": -17.44,
       "hedge_nav_pct": 7.71,
-      "net_nav_pct": -9.7,
-      "usd_on_nav": -4852.0,
+      "net_nav_pct": -9.73,
+      "usd_on_nav": -4864.0,
       "ladder_mult": 0.75,
       "hard_stop_breached": false,
       "verdict": "ladder fires -> gross x0.75",
       "worst_names": [
         {
           "symbol": "SKHYNIX",
-          "nav_pct": -1.79
+          "nav_pct": -1.81
         },
         {
           "symbol": "WDC",
@@ -151,7 +151,7 @@
         },
         {
           "symbol": "MU",
-          "nav_pct": -1.5
+          "nav_pct": -1.51
         }
       ]
     },
@@ -160,17 +160,17 @@
       "name": "Regulatory / power freeze",
       "narrative": "Data-centre moratoria spread from New York; interconnection permitting stalls. Gavin Baker (Aug 2026) names regulation as the single biggest risk to the AI buildout, and the binding constraint is already power rather than silicon: grid queues run 4-7 years and turbine order books are sold out to 2028-30.",
       "note": "Power and neocloud take the damage: one cannot deliver the generation, the other cannot add capacity. Hyperscalers barely move \u2014 a build they cannot execute is capex they do not spend. This is the scenario our layer weights are LEAST exposed to, which is worth knowing given how much of the qualitative case (Chamath, Griffin, Musk's turbine purchase) argues for adding power exposure.",
-      "long_nav_pct": -29.85,
+      "long_nav_pct": -29.87,
       "hedge_nav_pct": 13.68,
-      "net_nav_pct": -16.17,
-      "usd_on_nav": -8084.0,
+      "net_nav_pct": -16.19,
+      "usd_on_nav": -8096.0,
       "ladder_mult": 0.25,
       "hard_stop_breached": false,
       "verdict": "ladder fires -> gross x0.25",
       "worst_names": [
         {
           "symbol": "IREN",
-          "nav_pct": -1.89
+          "nav_pct": -1.88
         },
         {
           "symbol": "BE",
@@ -191,17 +191,17 @@
       "name": "AI theme unwind",
       "narrative": "Broad de-rating of the AI complex without a specific catalyst. This is the scenario the REGIME GROSS BRAKE was built for, and the sweep showed the theme IS the edge: W_THESIS=0 collapsed Sharpe 3.1 -> 1.7.",
       "note": "Beta ~0 hedges the MARKET, not a theme unwind. That gap is the point of this row.",
-      "long_nav_pct": -35.11,
-      "hedge_nav_pct": 21.28,
-      "net_nav_pct": -13.83,
-      "usd_on_nav": -6916.0,
+      "long_nav_pct": -35.17,
+      "hedge_nav_pct": 21.29,
+      "net_nav_pct": -13.88,
+      "usd_on_nav": -6942.0,
       "ladder_mult": 0.5,
       "hard_stop_breached": false,
       "verdict": "ladder fires -> gross x0.50",
       "worst_names": [
         {
           "symbol": "COHR",
-          "nav_pct": -2.02
+          "nav_pct": -2.03
         },
         {
           "symbol": "IREN",
@@ -209,7 +209,7 @@
         },
         {
           "symbol": "BE",
-          "nav_pct": -1.82
+          "nav_pct": -1.81
         },
         {
           "symbol": "GLW",
