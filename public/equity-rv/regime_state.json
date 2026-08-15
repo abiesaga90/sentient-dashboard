@@ -1,33 +1,33 @@
 {
-  "as_of": "2026-08-13",
-  "generated_at": "2026-08-13T21:02:22.762406Z",
+  "as_of": "2026-08-14",
+  "generated_at": "2026-08-15T12:27:19.483386Z",
   "state": "GREEN",
   "headline": "Trade ON \u2014 sellers leading, the raise intact, bid on the accelerator. Full book.",
   "signals": [
     {
       "name": "Sellers\u2212Buyers spread",
-      "value": "+nanpp (3mo)",
-      "trend": "pace nan\u2192nan\u2192nan pp/mo",
-      "state": "green",
+      "value": "+12pp (3mo)",
+      "trend": "pace 13\u21924\u219215 pp/mo",
+      "state": "amber",
       "desc": "Coatue gauge \u2014 sellers vs buyers of the shortage"
     },
     {
       "name": "Seller revisions (the raise)",
-      "value": "+18.4",
+      "value": "+18.5",
       "trend": "still raising",
       "state": "green",
       "desc": "earliest to roll \u2014 analysts cutting \u2192 price follows"
     },
     {
       "name": "Layer leadership",
-      "value": "compute-die \u00b7 memory \u00b7 custom-silicon/net",
+      "value": "systems \u00b7 foundry/equip \u00b7 custom-silicon/net",
       "trend": "bid on the accelerator",
       "state": "green",
       "desc": "which slice is the marginal bid"
     },
     {
       "name": "Smart-money rotation (13F)",
-      "value": "40% sellers / 0% operators",
+      "value": "53% sellers / 6% operators",
       "trend": "still seller-heavy",
       "state": "green",
       "desc": "cohort 13F QoQ \u2014 are the funds rotating?"
@@ -52,12 +52,12 @@
     "net_beta_target_now": 0.0,
     "already_applied": false,
     "cond_spread_pace_1mo": {
-      "ok": false,
-      "value_pp_per_mo": NaN
+      "ok": true,
+      "value_pp_per_mo": 14.6
     },
     "cond_soxx_20d_high": {
       "ok": false,
-      "close": 550.739990234375,
+      "close": 550.4199829101562,
       "prior_high": 555.52001953125,
       "window": 20,
       "source": "SOXX"
@@ -67,112 +67,116 @@
   },
   "spread": {
     "1mo": {
-      "sellers": -13.8,
-      "buyers": NaN,
-      "spread_pp": NaN
+      "sellers": 14.2,
+      "buyers": -0.4,
+      "spread_pp": 14.6
     },
     "3mo": {
-      "sellers": -9.0,
-      "buyers": NaN,
-      "spread_pp": NaN
+      "sellers": 11.0,
+      "buyers": -0.7,
+      "spread_pp": 11.7
     },
     "6mo": {
-      "sellers": NaN,
-      "buyers": NaN,
-      "spread_pp": NaN
+      "sellers": 82.4,
+      "buyers": 6.5,
+      "spread_pp": 75.9
     }
   },
   "spread_pace_pp_per_mo": {
-    "1mo": NaN,
-    "3mo": NaN,
-    "6mo": NaN
+    "1mo": 14.6,
+    "3mo": 3.9,
+    "6mo": 12.7
   },
   "spread_history": [
     {
-      "date": "2025-08-25",
-      "spread_pp": 19.1
+      "date": "2025-08-26",
+      "spread_pp": 19.3
     },
     {
-      "date": "2025-09-23",
-      "spread_pp": 24.4
+      "date": "2025-09-24",
+      "spread_pp": 22.3
     },
     {
-      "date": "2025-10-22",
-      "spread_pp": 37.5
+      "date": "2025-10-23",
+      "spread_pp": 38.2
     },
     {
-      "date": "2025-11-20",
-      "spread_pp": 39.4
+      "date": "2025-11-21",
+      "spread_pp": 38.0
     },
     {
-      "date": "2025-12-19",
-      "spread_pp": 29.1
+      "date": "2025-12-22",
+      "spread_pp": 32.5
     },
     {
-      "date": "2026-01-20",
-      "spread_pp": 41.8
+      "date": "2026-01-21",
+      "spread_pp": 38.1
     },
     {
-      "date": "2026-02-18",
-      "spread_pp": 51.4
+      "date": "2026-02-19",
+      "spread_pp": 52.4
     },
     {
-      "date": "2026-03-19",
-      "spread_pp": 56.7
+      "date": "2026-03-20",
+      "spread_pp": 47.8
     },
     {
-      "date": "2026-04-17",
-      "spread_pp": 48.6
+      "date": "2026-04-20",
+      "spread_pp": 4.9
     },
     {
-      "date": "2026-05-18",
-      "spread_pp": 51.6
+      "date": "2026-05-19",
+      "spread_pp": 54.0
     },
     {
-      "date": "2026-06-16",
-      "spread_pp": 68.1
+      "date": "2026-06-17",
+      "spread_pp": 66.2
     },
     {
-      "date": "2026-07-15",
-      "spread_pp": 30.6
+      "date": "2026-07-16",
+      "spread_pp": 17.4
+    },
+    {
+      "date": "2026-08-14",
+      "spread_pp": 11.7
     }
   ],
   "layer_momentum": [
     {
-      "layer": "compute-die",
-      "mom_3mo": NaN
-    },
-    {
-      "layer": "memory",
-      "mom_3mo": -9.0
-    },
-    {
-      "layer": "custom-silicon/net",
-      "mom_3mo": NaN
-    },
-    {
-      "layer": "optical",
-      "mom_3mo": NaN
+      "layer": "systems",
+      "mom_3mo": 41.0
     },
     {
       "layer": "foundry/equip",
-      "mom_3mo": NaN
+      "mom_3mo": 22.0
+    },
+    {
+      "layer": "custom-silicon/net",
+      "mom_3mo": 14.0
+    },
+    {
+      "layer": "memory",
+      "mom_3mo": 13.0
     },
     {
       "layer": "neocloud",
-      "mom_3mo": NaN
+      "mom_3mo": 13.0
+    },
+    {
+      "layer": "compute-die",
+      "mom_3mo": 0.0
+    },
+    {
+      "layer": "optical",
+      "mom_3mo": -8.0
     },
     {
       "layer": "power/grid",
-      "mom_3mo": NaN
-    },
-    {
-      "layer": "systems",
-      "mom_3mo": NaN
+      "mom_3mo": -8.0
     },
     {
       "layer": "materials",
-      "mom_3mo": NaN
+      "mom_3mo": -28.0
     }
   ],
   "smart_money_rotation": {
@@ -183,8 +187,8 @@
       "operator_pct": 3.3
     },
     "2026-06-30": {
-      "seller_pct": 39.5,
-      "operator_pct": 0.1
+      "seller_pct": 52.6,
+      "operator_pct": 5.7
     },
     "rotating_to_operators": false
   },
@@ -193,13 +197,13 @@
       "takeaway": "Sellers of the shortage win (Coatue)",
       "mechanism": "thesis tilt W_THESIS + exclude spenders",
       "status": "LIVE",
-      "live": "spread +nanpp (3mo)"
+      "live": "spread +12pp (3mo)"
     },
     {
       "takeaway": "The 'raise' drives (Coatue/Aletheia/MRVL)",
       "mechanism": "W_REV estimate-revisions leg",
       "status": "LIVE",
-      "live": "seller revisions +18.4"
+      "live": "seller revisions +18.5"
     },
     {
       "takeaway": "EPS-surprise blow-ups = noise",
@@ -229,7 +233,7 @@
       "takeaway": "Follow the gigawatts (operator/power forward)",
       "mechanism": "W_OPERATOR_TILT layer tilt",
       "status": "ARMED",
-      "live": "tilt 0.0 \u00b7 compute-die"
+      "live": "tilt 0.0 \u00b7 systems"
     },
     {
       "takeaway": "Bottleneck trade maturing (Gavin Baker)",

@@ -1,7 +1,7 @@
 {
-  "updated": "2026-08-14",
+  "updated": "2026-08-15",
   "n_claims": 16,
-  "n_flipped": 0,
+  "n_flipped": 1,
   "n_stale": 0,
   "claims": [
     {
@@ -19,8 +19,8 @@
       "cadence": "quarterly",
       "action_if_supported": "Lean the REVISIONS leg over the SURPRISE leg in memory: a raised contracted floor still shows up as a raised estimate even when it stops being a beat.",
       "verdict": "refuted",
-      "verdict_detail": "memory trend +9.7 vs others +2.3 -> relative +7.3",
-      "last_checked": "2026-08-14",
+      "verdict_detail": "memory trend +9.7 vs others +3.1 -> relative +6.6",
+      "last_checked": "2026-08-15",
       "action_taken": "none"
     },
     {
@@ -94,9 +94,9 @@
       "threshold": "worse than -10% NAV makes it material",
       "cadence": "daily",
       "action_if_supported": "Treat added power exposure as raising this tail, not only as adding a cheap layer.",
-      "verdict": "supported",
-      "verdict_detail": "-16.2% NAV, ladder fires -> gross x0.25",
-      "last_checked": "2026-08-14",
+      "verdict": "refuted",
+      "verdict_detail": "-8.7% NAV, ladder fires -> gross x0.75",
+      "last_checked": "2026-08-15",
       "action_taken": "scenario added to the daily stress test"
     },
     {
@@ -114,8 +114,8 @@
       "cadence": "daily",
       "action_if_supported": "Decide the marking basis explicitly before capital; if perps, hedge sizing must move with it.",
       "verdict": "supported",
-      "verdict_detail": "like-for-like basis +4.55% (8 days logged)",
-      "last_checked": "2026-08-14",
+      "verdict_detail": "like-for-like basis +2.39% (9 days logged)",
+      "last_checked": "2026-08-15",
       "action_taken": "perp mark panel shipped alongside the official track; go-live decision documented, engine unchanged"
     },
     {
@@ -171,8 +171,8 @@
       "cadence": "daily",
       "action_if_supported": "Set NET_BETA_TARGET=0.10 (operator approval required; cap <= +0.30).",
       "verdict": "refuted",
-      "verdict_detail": "spread pace +nan pp/mo x \u00b7 SOXX 551 vs 20d high 556 (0.9% to reclaim) x",
-      "last_checked": "2026-08-14",
+      "verdict_detail": "spread pace +14.6 pp/mo OK \u00b7 SOXX 550 vs 20d high 556 (0.9% to reclaim) x",
+      "last_checked": "2026-08-15",
       "action_taken": "none; NET_BETA_TARGET stays 0.00 pending confirmation"
     },
     {
