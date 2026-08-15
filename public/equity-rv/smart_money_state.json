@@ -41,7 +41,7 @@
         ],
         "investable": true,
         "our_stance": "LIGHT. Four names (BE, CEG, FLNC, GEV). The layer-mix panel already flags power as a forward bottleneck we are underweight.",
-        "our_weight_pct": 6.4,
+        "our_weight_pct": 5.0,
         "views": [
           {
             "author": "Chamath Palihapitiya",
@@ -72,7 +72,7 @@
         ],
         "investable": true,
         "our_stance": "HEAVIEST. This is the core of the book and where the beat-and-raise signal concentrates.",
-        "our_weight_pct": 53.5,
+        "our_weight_pct": 34.7,
         "views": [
           {
             "author": "Chamath Palihapitiya",
@@ -105,7 +105,7 @@
         ],
         "investable": true,
         "our_stance": "LIGHT (~3.7%). Deliberately cut in the 2026-07-17 RV reset after the neocloud froth de-rated 30-40%.",
-        "our_weight_pct": 3.7,
+        "our_weight_pct": 6.0,
         "views": [
           {
             "author": "Chamath Palihapitiya",
@@ -318,13 +318,13 @@
     {
       "fund": "Atreides",
       "issuer": "CEREBRAS SYSTEMS INC",
-      "ticker": null,
+      "ticker": "CBRS",
       "sector": null,
       "put_usd": 0,
       "call_usd": 154700000,
       "share_usd": 687329006,
-      "tradeable": false,
-      "our_rank": null
+      "tradeable": true,
+      "our_rank": 5
     },
     {
       "fund": "Light Street",
@@ -335,7 +335,7 @@
       "call_usd": 0,
       "share_usd": 107906464,
       "tradeable": true,
-      "our_rank": 15
+      "our_rank": 18
     },
     {
       "fund": "SAA (Aschenbrenner)",
@@ -357,7 +357,7 @@
       "call_usd": 23878500,
       "share_usd": 1265099645,
       "tradeable": true,
-      "our_rank": 15
+      "our_rank": 18
     },
     {
       "fund": "Appaloosa (Tepper)",
@@ -434,7 +434,7 @@
       "call_usd": 109470,
       "share_usd": 129085,
       "tradeable": true,
-      "our_rank": 19
+      "our_rank": 23
     },
     {
       "fund": "Duquesne (Druckenmiller)",
@@ -492,7 +492,7 @@
       "our_rank": null
     }
   ],
-  "generated_at": "2026-08-15T12:25:26.121261Z",
+  "generated_at": "2026-08-15T12:36:25.920262Z",
   "n_funds": 15,
   "thesis": "Trackable AI-frontier smart money \u2014 crossover funds that backed the private SpaceX / OpenAI / Anthropic rounds AND file 13F-HR, so their public books reveal their picks-and-shovels bets. Full books (not just our overlap) future-proof us: as Binance lists more tokenized stocks, we already know who backs each name.",
   "funds": [
@@ -502,7 +502,7 @@
       "period": "2026-06-30",
       "aum_usd": 110225053010,
       "n_positions": 277,
-      "n_tradeable": 29,
+      "n_tradeable": 41,
       "conc_top10": 44.7,
       "n_options": 0,
       "put_usd": 0,
@@ -510,11 +510,11 @@
       "top_holdings": [
         {
           "issuer": "Space Exploration Technologies Corp",
-          "ticker": null,
+          "ticker": "SPCX",
           "sector": null,
           "pct_aum": 7.97,
           "value_usd": 8781829133,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -587,11 +587,11 @@
         },
         {
           "issuer": "AppLovin",
-          "ticker": null,
+          "ticker": "APP",
           "sector": null,
           "pct_aum": 3.03,
           "value_usd": 3334370197,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -701,7 +701,7 @@
       "period": "2026-06-30",
       "aum_usd": 48629053706,
       "n_positions": 66,
-      "n_tradeable": 16,
+      "n_tradeable": 23,
       "conc_top10": 61.9,
       "n_options": 0,
       "put_usd": 0,
@@ -720,11 +720,11 @@
         },
         {
           "issuer": "LAM RESEARCH CORP",
-          "ticker": null,
+          "ticker": "LRCX",
           "sector": null,
           "pct_aum": 8.41,
           "value_usd": 4091329827,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -742,11 +742,11 @@
         },
         {
           "issuer": "SPACE EXPLORATION TECHN CORP",
-          "ticker": null,
+          "ticker": "SPCX",
           "sector": null,
           "pct_aum": 6.52,
           "value_usd": 3171465731,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -764,11 +764,11 @@
         },
         {
           "issuer": "GE VERNOVA INC",
-          "ticker": null,
+          "ticker": "GEV",
           "sector": null,
           "pct_aum": 6.18,
           "value_usd": 3005484557,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -830,11 +830,11 @@
         },
         {
           "issuer": "CEREBRAS SYSTEMS INC",
-          "ticker": null,
+          "ticker": "CBRS",
           "sector": null,
           "pct_aum": 3.19,
           "value_usd": 1549437188,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -897,7 +897,7 @@
       "period": "2026-06-30",
       "aum_usd": 35079228595,
       "n_positions": 90,
-      "n_tradeable": 8,
+      "n_tradeable": 11,
       "conc_top10": 35.7,
       "n_options": 0,
       "put_usd": 0,
@@ -1096,7 +1096,7 @@
       "period": "2026-06-30",
       "aum_usd": 34783267943,
       "n_positions": 55,
-      "n_tradeable": 6,
+      "n_tradeable": 11,
       "conc_top10": 76.7,
       "n_options": 0,
       "put_usd": 0,
@@ -1104,11 +1104,11 @@
       "top_holdings": [
         {
           "issuer": "SPACE EXPLORATION TECHN CORP",
-          "ticker": null,
+          "ticker": "SPCX",
           "sector": null,
           "pct_aum": 61.91,
           "value_usd": 21535575760,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -1203,11 +1203,11 @@
         },
         {
           "issuer": "REDDIT INC",
-          "ticker": null,
+          "ticker": "RDDT",
           "sector": null,
           "pct_aum": 1.23,
           "value_usd": 427772461,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -1295,7 +1295,7 @@
       "period": "2026-06-30",
       "aum_usd": 26928187141,
       "n_positions": 71,
-      "n_tradeable": 22,
+      "n_tradeable": 27,
       "conc_top10": 47.6,
       "n_options": 0,
       "put_usd": 0,
@@ -1494,7 +1494,7 @@
       "period": "2026-06-30",
       "aum_usd": 23981506027,
       "n_positions": 46,
-      "n_tradeable": 12,
+      "n_tradeable": 17,
       "conc_top10": 67.1,
       "n_options": 0,
       "put_usd": 0,
@@ -1557,11 +1557,11 @@
         },
         {
           "issuer": "LAM RESEARCH CORP",
-          "ticker": null,
+          "ticker": "LRCX",
           "sector": null,
           "pct_aum": 5.72,
           "value_usd": 1370837288,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -1590,11 +1590,11 @@
         },
         {
           "issuer": "GE VERNOVA INC",
-          "ticker": null,
+          "ticker": "GEV",
           "sector": null,
           "pct_aum": 3.91,
           "value_usd": 936963773,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -1623,11 +1623,11 @@
         },
         {
           "issuer": "CEREBRAS SYSTEMS INC",
-          "ticker": null,
+          "ticker": "CBRS",
           "sector": null,
           "pct_aum": 2.76,
           "value_usd": 662779000,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -1693,7 +1693,7 @@
       "period": "2026-06-30",
       "aum_usd": 20169035068,
       "n_positions": 23,
-      "n_tradeable": 7,
+      "n_tradeable": 9,
       "conc_top10": 92.1,
       "n_options": 3,
       "put_usd": 5245000,
@@ -1811,11 +1811,11 @@
         },
         {
           "issuer": "SHARONAI HOLDINGS INC",
-          "ticker": null,
+          "ticker": "SHAZ",
           "sector": null,
           "pct_aum": 2.27,
           "value_usd": 456836112,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -1889,7 +1889,7 @@
       "period": "2026-06-30",
       "aum_usd": 15402068886,
       "n_positions": 190,
-      "n_tradeable": 18,
+      "n_tradeable": 24,
       "conc_top10": 39.4,
       "n_options": 1,
       "put_usd": 0,
@@ -1919,11 +1919,11 @@
         },
         {
           "issuer": "Space Exploration Technologies Corp",
-          "ticker": null,
+          "ticker": "SPCX",
           "sector": null,
           "pct_aum": 4.97,
           "value_usd": 765113281,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -2086,7 +2086,7 @@
       "period": "2026-06-30",
       "aum_usd": 12456319060,
       "n_positions": 35,
-      "n_tradeable": 14,
+      "n_tradeable": 20,
       "conc_top10": 59.3,
       "n_options": 0,
       "put_usd": 0,
@@ -2138,11 +2138,11 @@
         },
         {
           "issuer": "ASTERA LABS INC",
-          "ticker": null,
+          "ticker": "ALAB",
           "sector": null,
           "pct_aum": 6.08,
           "value_usd": 757318364,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -2283,7 +2283,7 @@
       "period": "2026-06-30",
       "aum_usd": 11148289162,
       "n_positions": 46,
-      "n_tradeable": 11,
+      "n_tradeable": 16,
       "conc_top10": 76.3,
       "n_options": 3,
       "put_usd": 2356480000,
@@ -2291,11 +2291,11 @@
       "top_holdings": [
         {
           "issuer": "SPACE EXPLORATION TECHN CORP",
-          "ticker": null,
+          "ticker": "SPCX",
           "sector": null,
           "pct_aum": 41.89,
           "value_usd": 4670106641,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -2313,33 +2313,33 @@
         },
         {
           "issuer": "CEREBRAS SYSTEMS INC",
-          "ticker": null,
+          "ticker": "CBRS",
           "sector": null,
           "pct_aum": 6.17,
           "value_usd": 687329006,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": true
         },
         {
           "issuer": "ASTERA LABS INC",
-          "ticker": null,
+          "ticker": "ALAB",
           "sector": null,
           "pct_aum": 5.27,
           "value_usd": 587736321,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
         },
         {
           "issuer": "CIENA CORP",
-          "ticker": null,
+          "ticker": "CIEN",
           "sector": null,
           "pct_aum": 3.03,
           "value_usd": 337760862,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -2357,11 +2357,11 @@
         },
         {
           "issuer": "PALO ALTO NETWORKS INC",
-          "ticker": null,
+          "ticker": "PANW",
           "sector": null,
           "pct_aum": 2.68,
           "value_usd": 299058853,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -2482,7 +2482,7 @@
       "period": "2026-06-30",
       "aum_usd": 9829676383,
       "n_positions": 20,
-      "n_tradeable": 10,
+      "n_tradeable": 15,
       "conc_top10": 83.3,
       "n_options": 0,
       "put_usd": 0,
@@ -2501,11 +2501,11 @@
         },
         {
           "issuer": "CEREBRAS SYSTEMS INC",
-          "ticker": null,
+          "ticker": "CBRS",
           "sector": null,
           "pct_aum": 16.24,
           "value_usd": 1596733177,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -2578,11 +2578,11 @@
         },
         {
           "issuer": "SNOWFLAKE INC",
-          "ticker": null,
+          "ticker": "SNOW",
           "sector": null,
           "pct_aum": 4.99,
           "value_usd": 490230625,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -2611,11 +2611,11 @@
         },
         {
           "issuer": "SPACE EXPLORATION TECHN CORP",
-          "ticker": null,
+          "ticker": "SPCX",
           "sector": null,
           "pct_aum": 3.09,
           "value_usd": 303530227,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -2644,11 +2644,11 @@
         },
         {
           "issuer": "KLA CORP",
-          "ticker": null,
+          "ticker": "KLAC",
           "sector": null,
           "pct_aum": 1.77,
           "value_usd": 174457773,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -2675,7 +2675,7 @@
       "period": "2026-06-30",
       "aum_usd": 7471257999,
       "n_positions": 25,
-      "n_tradeable": 13,
+      "n_tradeable": 15,
       "conc_top10": 81.6,
       "n_options": 2,
       "put_usd": 254125350,
@@ -2815,11 +2815,11 @@
         },
         {
           "issuer": "LAM RESEARCH CORP",
-          "ticker": null,
+          "ticker": "LRCX",
           "sector": null,
           "pct_aum": 2.22,
           "value_usd": 165748725,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": false,
           "has_put": false,
           "has_call": false
@@ -2872,7 +2872,7 @@
       "period": "2026-06-30",
       "aum_usd": 2834424427,
       "n_positions": 12,
-      "n_tradeable": 2,
+      "n_tradeable": 4,
       "conc_top10": 98.4,
       "n_options": 0,
       "put_usd": 0,
@@ -2880,11 +2880,11 @@
       "top_holdings": [
         {
           "issuer": "SPACE EXPLORATION TECHN CORP",
-          "ticker": null,
+          "ticker": "SPCX",
           "sector": null,
           "pct_aum": 48.22,
           "value_usd": 1366880000,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -2935,11 +2935,11 @@
         },
         {
           "issuer": "CEREBRAS SYSTEMS INC",
-          "ticker": null,
+          "ticker": "CBRS",
           "sector": null,
           "pct_aum": 3.12,
           "value_usd": 88400000,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -3035,7 +3035,7 @@
       "period": "2026-06-30",
       "aum_usd": 850689258,
       "n_positions": 27,
-      "n_tradeable": 8,
+      "n_tradeable": 11,
       "conc_top10": 67.5,
       "n_options": 1,
       "put_usd": 52150644,
@@ -3065,11 +3065,11 @@
         },
         {
           "issuer": "ASTERA LABS INC",
-          "ticker": null,
+          "ticker": "ALAB",
           "sector": null,
           "pct_aum": 7.14,
           "value_usd": 60739765,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -3164,11 +3164,11 @@
         },
         {
           "issuer": "REDDIT INC",
-          "ticker": null,
+          "ticker": "RDDT",
           "sector": null,
           "pct_aum": 3.72,
           "value_usd": 31678350,
-          "tradeable": false,
+          "tradeable": true,
           "is_new": true,
           "has_put": false,
           "has_call": false
@@ -3230,7 +3230,7 @@
       "period": "2026-06-30",
       "aum_usd": 4354220,
       "n_positions": 86,
-      "n_tradeable": 8,
+      "n_tradeable": 11,
       "conc_top10": 52.4,
       "n_options": 9,
       "put_usd": 0,
@@ -3449,6 +3449,27 @@
       "value_usd": 17013500641
     },
     {
+      "ticker": "SPCX",
+      "perp": "SPCXUSDT",
+      "sector": null,
+      "n_funds": 12,
+      "funds": [
+        "ARK Invest",
+        "Altimeter",
+        "Appaloosa (Tepper)",
+        "Atreides",
+        "Baillie Gifford",
+        "Coatue",
+        "D1 Capital",
+        "Dragoneer",
+        "Sands Capital",
+        "Tiger Global",
+        "Viking Global",
+        "Whale Rock"
+      ],
+      "value_usd": 41317112308
+    },
+    {
       "ticker": "GOOGL",
       "perp": "GOOGLUSDT",
       "sector": "Hyperscaler",
@@ -3488,6 +3509,26 @@
         "Whale Rock"
       ],
       "value_usd": 8495813912
+    },
+    {
+      "ticker": "CBRS",
+      "perp": "CBRSUSDT",
+      "sector": null,
+      "n_funds": 11,
+      "funds": [
+        "ARK Invest",
+        "Altimeter",
+        "Atreides",
+        "Baillie Gifford",
+        "Coatue",
+        "D1 Capital",
+        "Dragoneer",
+        "SAA (Aschenbrenner)",
+        "Sands Capital",
+        "Tiger Global",
+        "Whale Rock"
+      ],
+      "value_usd": 4802966259
     },
     {
       "ticker": "NVDA",
@@ -3547,6 +3588,23 @@
       "value_usd": 3265007066
     },
     {
+      "ticker": "LRCX",
+      "perp": "LRCXUSDT",
+      "sector": null,
+      "n_funds": 8,
+      "funds": [
+        "Altimeter",
+        "Appaloosa (Tepper)",
+        "Baillie Gifford",
+        "Coatue",
+        "Duquesne (Druckenmiller)",
+        "Sands Capital",
+        "Tiger Global",
+        "Whale Rock"
+      ],
+      "value_usd": 6611914930
+    },
+    {
       "ticker": "AVGO",
       "perp": "AVGOUSDT",
       "sector": "Semis",
@@ -3596,6 +3654,22 @@
       "value_usd": 4460989823
     },
     {
+      "ticker": "RDDT",
+      "perp": "RDDTUSDT",
+      "sector": null,
+      "n_funds": 7,
+      "funds": [
+        "Baillie Gifford",
+        "Coatue",
+        "D1 Capital",
+        "Duquesne (Druckenmiller)",
+        "Light Street",
+        "Tiger Global",
+        "Viking Global"
+      ],
+      "value_usd": 2902691125
+    },
+    {
       "ticker": "CRWV",
       "perp": "CRWVUSDT",
       "sector": "AI Compute",
@@ -3610,6 +3684,22 @@
         "SAA (Aschenbrenner)"
       ],
       "value_usd": 1994984084
+    },
+    {
+      "ticker": "SNOW",
+      "perp": "SNOWUSDT",
+      "sector": null,
+      "n_funds": 7,
+      "funds": [
+        "ARK Invest",
+        "Altimeter",
+        "Baillie Gifford",
+        "D1 Capital",
+        "Light Street",
+        "Viking Global",
+        "Whale Rock"
+      ],
+      "value_usd": 1758849048
     },
     {
       "ticker": "INTC",
@@ -3640,6 +3730,20 @@
         "Viking Global"
       ],
       "value_usd": 1978668729
+    },
+    {
+      "ticker": "APP",
+      "perp": "APPUSDT",
+      "sector": null,
+      "n_funds": 5,
+      "funds": [
+        "Baillie Gifford",
+        "Coatue",
+        "D1 Capital",
+        "Sands Capital",
+        "Whale Rock"
+      ],
+      "value_usd": 4948987151
     },
     {
       "ticker": "BE",
@@ -3693,6 +3797,19 @@
         "Sands Capital"
       ],
       "value_usd": 1770713009
+    },
+    {
+      "ticker": "ALAB",
+      "perp": "ALABUSDT",
+      "sector": null,
+      "n_funds": 4,
+      "funds": [
+        "Atreides",
+        "Baillie Gifford",
+        "Light Street",
+        "Whale Rock"
+      ],
+      "value_usd": 1511300509
     },
     {
       "ticker": "UBER",
@@ -3779,135 +3896,9 @@
         "SAA (Aschenbrenner)"
       ],
       "value_usd": 467404139
-    },
-    {
-      "ticker": "PLTR",
-      "perp": "PLTRUSDT",
-      "sector": "Software",
-      "n_funds": 3,
-      "funds": [
-        "ARK Invest",
-        "Baillie Gifford",
-        "Sands Capital"
-      ],
-      "value_usd": 376874174
-    },
-    {
-      "ticker": "LLY",
-      "perp": "LLYUSDT",
-      "sector": "Healthcare",
-      "n_funds": 3,
-      "funds": [
-        "ARK Invest",
-        "Duquesne (Druckenmiller)",
-        "Sands Capital"
-      ],
-      "value_usd": 147048307
-    },
-    {
-      "ticker": "CRWD",
-      "perp": "CRWDUSDT",
-      "sector": "Software",
-      "n_funds": 3,
-      "funds": [
-        "ARK Invest",
-        "Baillie Gifford",
-        "Sands Capital"
-      ],
-      "value_usd": 25706372
-    },
-    {
-      "ticker": "RKLB",
-      "perp": "RKLBUSDT",
-      "sector": "Aerospace",
-      "n_funds": 2,
-      "funds": [
-        "ARK Invest",
-        "Baillie Gifford"
-      ],
-      "value_usd": 1221397837
-    },
-    {
-      "ticker": "COHR",
-      "perp": "COHRUSDT",
-      "sector": "AI Compute",
-      "n_funds": 2,
-      "funds": [
-        "Atreides",
-        "Whale Rock"
-      ],
-      "value_usd": 735345727
-    },
-    {
-      "ticker": "HD",
-      "perp": "HDUSDT",
-      "sector": "Retail",
-      "n_funds": 2,
-      "funds": [
-        "Baillie Gifford",
-        "Viking Global"
-      ],
-      "value_usd": 376897478
-    },
-    {
-      "ticker": "DKNG",
-      "perp": "DKNGUSDT",
-      "sector": "Gaming",
-      "n_funds": 2,
-      "funds": [
-        "ARK Invest",
-        "Baillie Gifford"
-      ],
-      "value_usd": 212322872
     }
   ],
   "watch_when_listed": [
-    {
-      "issuer": "SPACE EXPLORATION TECHN CORP",
-      "n_funds": 10,
-      "funds": [
-        "Altimeter",
-        "Appaloosa (Tepper)",
-        "Atreides",
-        "Coatue",
-        "D1 Capital",
-        "Dragoneer",
-        "Sands Capital",
-        "Tiger Global",
-        "Viking Global",
-        "Whale Rock"
-      ],
-      "value_usd": 31770169894
-    },
-    {
-      "issuer": "CEREBRAS SYSTEMS INC",
-      "n_funds": 9,
-      "funds": [
-        "Altimeter",
-        "Atreides",
-        "Coatue",
-        "D1 Capital",
-        "Dragoneer",
-        "SAA (Aschenbrenner)",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
-      ],
-      "value_usd": 4633765786
-    },
-    {
-      "issuer": "LAM RESEARCH CORP",
-      "n_funds": 6,
-      "funds": [
-        "Altimeter",
-        "Appaloosa (Tepper)",
-        "Coatue",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
-      ],
-      "value_usd": 6611870904
-    },
     {
       "issuer": "CARVANA CO",
       "n_funds": 5,
@@ -3921,18 +3912,6 @@
       "value_usd": 2113527460
     },
     {
-      "issuer": "REDDIT INC",
-      "n_funds": 5,
-      "funds": [
-        "Coatue",
-        "D1 Capital",
-        "Light Street",
-        "Tiger Global",
-        "Viking Global"
-      ],
-      "value_usd": 1654415107
-    },
-    {
       "issuer": "NU HLDGS LTD",
       "n_funds": 5,
       "funds": [
@@ -3943,18 +3922,6 @@
         "Tiger Global"
       ],
       "value_usd": 1365589449
-    },
-    {
-      "issuer": "SNOWFLAKE INC",
-      "n_funds": 5,
-      "funds": [
-        "Altimeter",
-        "D1 Capital",
-        "Light Street",
-        "Viking Global",
-        "Whale Rock"
-      ],
-      "value_usd": 1032531442
     },
     {
       "issuer": "SPOTIFY TECHNOLOGY S A",
@@ -3977,17 +3944,6 @@
         "Viking Global"
       ],
       "value_usd": 2195053040
-    },
-    {
-      "issuer": "APPLOVIN CORP",
-      "n_funds": 4,
-      "funds": [
-        "Coatue",
-        "D1 Capital",
-        "Sands Capital",
-        "Whale Rock"
-      ],
-      "value_usd": 1614616954
     },
     {
       "issuer": "MERCADOLIBRE INC",
@@ -4065,16 +4021,6 @@
       "value_usd": 1854312291
     },
     {
-      "issuer": "ASTERA LABS INC",
-      "n_funds": 3,
-      "funds": [
-        "Atreides",
-        "Light Street",
-        "Whale Rock"
-      ],
-      "value_usd": 1405794450
-    },
-    {
       "issuer": "INTUITIVE SURGICAL INC",
       "n_funds": 3,
       "funds": [
@@ -4115,24 +4061,6 @@
       "value_usd": 166255512
     },
     {
-      "issuer": "Space Exploration Technologies Corp",
-      "n_funds": 2,
-      "funds": [
-        "ARK Invest",
-        "Baillie Gifford"
-      ],
-      "value_usd": 9546942414
-    },
-    {
-      "issuer": "GE VERNOVA INC",
-      "n_funds": 2,
-      "funds": [
-        "Coatue",
-        "Tiger Global"
-      ],
-      "value_usd": 3942448330
-    },
-    {
       "issuer": "Spotify Technology SA",
       "n_funds": 2,
       "funds": [
@@ -4140,6 +4068,87 @@
         "Baillie Gifford"
       ],
       "value_usd": 3674674130
+    },
+    {
+      "issuer": "Cloudflare Inc",
+      "n_funds": 2,
+      "funds": [
+        "ARK Invest",
+        "Baillie Gifford"
+      ],
+      "value_usd": 3623844473
+    },
+    {
+      "issuer": "THERMO FISHER SCIENTIFIC INC",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Viking Global"
+      ],
+      "value_usd": 1381015171
+    },
+    {
+      "issuer": "SCHWAB CHARLES CORP",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Viking Global"
+      ],
+      "value_usd": 1209240702
+    },
+    {
+      "issuer": "JOHNSON CONTROLS INTERNATION",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Viking Global"
+      ],
+      "value_usd": 1162243830
+    },
+    {
+      "issuer": "DISNEY WALT CO",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Viking Global"
+      ],
+      "value_usd": 965657578
+    },
+    {
+      "issuer": "SHOPIFY INC",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Sands Capital"
+      ],
+      "value_usd": 921771714
+    },
+    {
+      "issuer": "FERRARI N V",
+      "n_funds": 2,
+      "funds": [
+        "Sands Capital",
+        "Viking Global"
+      ],
+      "value_usd": 921200808
+    },
+    {
+      "issuer": "BOEING CO",
+      "n_funds": 2,
+      "funds": [
+        "Appaloosa (Tepper)",
+        "Viking Global"
+      ],
+      "value_usd": 882077368
+    },
+    {
+      "issuer": "INTERCONTINENTAL EXCHANGE IN",
+      "n_funds": 2,
+      "funds": [
+        "Sands Capital",
+        "Viking Global"
+      ],
+      "value_usd": 841199427
     }
   ],
   "smart_money_puts": [
@@ -4167,7 +4176,7 @@
       "put_funds": [
         "Light Street"
       ],
-      "our_rank": 15
+      "our_rank": 18
     }
   ],
   "crowded_risk": [
@@ -4182,7 +4191,7 @@
       "put_funds": [
         "Light Street"
       ],
-      "our_rank": 15
+      "our_rank": 18
     }
   ],
   "note": "13F-HR, ~45-day lag, US long-equity + puts only. Context/idea-generation, not advice. Crowded-risk = names WE hold long that tracked funds are hedging/shorting via puts (e.g. SAA's chip puts)."
