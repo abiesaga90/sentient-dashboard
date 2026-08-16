@@ -1,0 +1,34 @@
+{
+ "as_of": "2026-08-14",
+ "generated_at": "2026-08-16T05:57:20.332632Z",
+ "ok": false,
+ "overlap": 27,
+ "top_k": 30,
+ "overlap_pct": 90.0,
+ "live_only": [
+  "GIGADEV",
+  "IREN",
+  "NBIS"
+ ],
+ "panel_only": [
+  "QCOM",
+  "SAMSUNG",
+  "SKHY"
+ ],
+ "head_gap": [
+  "IREN"
+ ],
+ "live": {
+  "source": "live",
+  "asof": "2026-08-14",
+  "bars": 1072,
+  "n_scored": 102
+ },
+ "panel": {
+  "source": "panel",
+  "asof": "2026-08-14",
+  "bars": 813,
+  "n_scored": 102
+ },
+ "note": "Selection ships off the PANEL; this measures what the live adapter would have picked instead. Names at the cutoff differ on noise, so the alert fires on the overlap threshold or on any top-10 disagreement, not on any difference at all."
+}
