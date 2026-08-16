@@ -30,7 +30,7 @@
     "note": "These funds almost certainly run shorts; 13F-HR simply cannot show them, so puts are the only bearish expression that ever appears here. Read 'long-only' as a limit of the filing, not a fact about the fund."
   },
   "thesis_stack": {
-    "updated": "2026-08-02",
+    "updated": "2026-08-16",
     "stack_note": "Chamath's six-layer AI stack (Aug 2026) is a different cut of the same territory as our 10-layer supply-chain taxonomy in ai_role.json. `our_layers` maps his layer onto ours; an empty list means the layer has NO tokenized perp and is therefore uninvestable for this book, which is worth showing rather than hiding.",
     "stack": [
       {
@@ -41,7 +41,7 @@
         ],
         "investable": true,
         "our_stance": "LIGHT. Four names (BE, CEG, FLNC, GEV). The layer-mix panel already flags power as a forward bottleneck we are underweight.",
-        "our_weight_pct": 5.0,
+        "our_weight_pct": 5.3,
         "views": [
           {
             "author": "Chamath Palihapitiya",
@@ -72,7 +72,7 @@
         ],
         "investable": true,
         "our_stance": "HEAVIEST. This is the core of the book and where the beat-and-raise signal concentrates.",
-        "our_weight_pct": 34.7,
+        "our_weight_pct": 39.2,
         "views": [
           {
             "author": "Chamath Palihapitiya",
@@ -101,11 +101,12 @@
         "key": "clouds",
         "label": "Clouds",
         "our_layers": [
-          "neocloud"
+          "neocloud",
+          "hyperscaler"
         ],
         "investable": true,
-        "our_stance": "LIGHT (~3.7%). Deliberately cut in the 2026-07-17 RV reset after the neocloud froth de-rated 30-40%.",
-        "our_weight_pct": 6.0,
+        "our_stance": "NO LONGER LIGHT. Neocloud was cut to ~5% in the 2026-07-17 RV reset after the froth de-rated 30-40%, but the spender exclusion came off on 2026-08-03 and GOOGL (4.5% of notional) and AMZN (3.9%) entered the book. Counting both, clouds is now the second-heaviest layer we hold. Chamath is cautious here and Baker is bullish, so this is the layer where tracked capital most disagrees with itself and where our own position changed most recently.",
+        "our_weight_pct": 12.2,
         "views": [
           {
             "author": "Chamath Palihapitiya",
@@ -137,7 +138,8 @@
           "frontier-lab"
         ],
         "investable": false,
-        "our_stance": "PROHIBITED. Pre-IPO instruments are barred from this book (policy 1.3 / Part 4); ANTHROPIC was closed 2026-07-27.",
+        "our_stance": "NO DIRECT POSITION, BARRED NOT ABSENT. The instruments exist: Binance lists ANTHROPIC and OPENAI as PREMARKET perps and this book held ANTHROPIC until 2026-07-27. Policy 1.3 / Part 4 bars pre-IPO instruments from the quant sleeve, which is why the weight is zero. Direct weight is not the same as exposure: Alphabet consolidates DeepMind and Gemini and Amazon carries the Anthropic stake plus Trainium and Bedrock, so at 8.4% of notional the book already owns frontier-lab economics inside two listed names. SpaceX is the weaker case, an equity stake in xAI rather than a lab it operates.",
+        "uninvestable_reason": "policy",
         "our_weight_pct": 0.0,
         "views": [
           {
@@ -155,6 +157,7 @@
         "our_layers": [],
         "investable": false,
         "our_stance": "NOT INVESTABLE. Private companies, no tokenized perp. We cannot express a view here at any size.",
+        "uninvestable_reason": "no_perp",
         "our_weight_pct": 0,
         "views": [
           {
@@ -172,6 +175,7 @@
         "our_layers": [],
         "investable": false,
         "our_stance": "NOT INVESTABLE. Same limit: the winners named are private.",
+        "uninvestable_reason": "no_perp",
         "our_weight_pct": 0,
         "views": [
           {
@@ -226,7 +230,8 @@
           }
         ],
         "vs_our_book": "MIXED. He is most bullish precisely where we are lightest (power/grid), which corroborates our own layer-mix flag. His silicon caution is a venture-entry argument, not a short on listed semis, so it does NOT contradict our semi-heavy book. His two highest-conviction layers are ones we cannot access.",
-        "agrees": false
+        "agrees": false,
+        "stance": "mixed"
       },
       {
         "author": "Gavin Baker",
@@ -253,8 +258,9 @@
             "note": "questions the BofA framing of FCF transferring to semis"
           }
         ],
-        "vs_our_book": "CHALLENGES US. Our universe EXCLUDES hyperscalers as capex spenders (buyers of the shortage) and the Coatue evidence below is the justification. Baker argues those same buyers are under-earning with an FCF inflection ahead, which is the bull case for the exact names our screen removes. Worth watching: if hyperscaler OCF does accelerate to 50%, the spender exclusion is the assumption most exposed.",
-        "agrees": false
+        "vs_our_book": "WE TOOK PART OF THIS BET. Written on 2026-08-01 against a universe that still barred hyperscalers; the exclusion came off two days later, on measurement rather than on his argument, and GOOGL and AMZN are now held at 4.5% and 3.9% of notional. So this is no longer a challenge to a screen we run, it is the bull case for names we own, and what is exposed is our SIZE rather than our exclusion. Still live as a test: if hyperscaler OCF does accelerate toward 50%, the book is under-weight the trade, which is the opposite of the risk this entry used to describe. His power-delivery caveat lands on our lightest layer (power/grid, 5.0% of notional) and is the sharper warning of the two.",
+        "agrees": false,
+        "stance": "partly_taken"
       },
       {
         "author": "Coatue",
@@ -276,8 +282,9 @@
             "note": "the buyers; excluded from our universe"
           }
         ],
-        "vs_our_book": "AGREES, and is load-bearing. This framing IS our supplier/spender split: suppliers are the long book, spenders are excluded. It is already cited as external validation on the Research tab.",
-        "agrees": true
+        "vs_our_book": "ORIGIN OF THE FRAMING, NOT LIVE EVIDENCE. The supplier/spender split still describes how the thesis leg ranks names, and the long book is still supplier-heavy. But the tradeable version of this claim was TESTED AND REFUTED on 2026-08-03 (claims_register: coatue_sellers_vs_buyers): excluding the spenders scored 3.62 vs 3.56 for the full universe, inside noise, with the entire edge in the oldest sub-period and gone in the two most recent. It is backward-looking price evidence, and it justified barring six names for seven weeks. Cite it for where the framing came from; do not cite it as validation of a screen we no longer run.",
+        "agrees": true,
+        "stance": "superseded"
       }
     ]
   },
@@ -324,18 +331,7 @@
       "call_usd": 154700000,
       "share_usd": 687329006,
       "tradeable": true,
-      "our_rank": 5
-    },
-    {
-      "fund": "Light Street",
-      "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
-      "ticker": "TSM",
-      "sector": "Semis",
-      "put_usd": 52150644,
-      "call_usd": 0,
-      "share_usd": 107906464,
-      "tradeable": true,
-      "our_rank": 18
+      "our_rank": 6
     },
     {
       "fund": "SAA (Aschenbrenner)",
@@ -346,7 +342,7 @@
       "call_usd": 44133660,
       "share_usd": 1898778982,
       "tradeable": true,
-      "our_rank": 8
+      "our_rank": 5
     },
     {
       "fund": "SAA (Aschenbrenner)",
@@ -357,7 +353,7 @@
       "call_usd": 23878500,
       "share_usd": 1265099645,
       "tradeable": true,
-      "our_rank": 18
+      "our_rank": 19
     },
     {
       "fund": "Appaloosa (Tepper)",
@@ -380,323 +376,12 @@
       "share_usd": 0,
       "tradeable": false,
       "our_rank": null
-    },
-    {
-      "fund": "ARK Invest",
-      "issuer": "ARK Innovation ETF",
-      "ticker": null,
-      "sector": null,
-      "put_usd": 0,
-      "call_usd": 719298,
-      "share_usd": 7363075,
-      "tradeable": false,
-      "our_rank": null
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "Invesco Exchange Traded Fd T",
-      "ticker": null,
-      "sector": null,
-      "put_usd": 0,
-      "call_usd": 174684,
-      "share_usd": 15830,
-      "tradeable": false,
-      "our_rank": null
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "Ishares Inc",
-      "ticker": null,
-      "sector": null,
-      "put_usd": 0,
-      "call_usd": 145866,
-      "share_usd": 118548,
-      "tradeable": false,
-      "our_rank": null
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "Insmed Inc",
-      "ticker": null,
-      "sector": null,
-      "put_usd": 0,
-      "call_usd": 143937,
-      "share_usd": 151900,
-      "tradeable": false,
-      "our_rank": null
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "Amazon Com Inc",
-      "ticker": "AMZN",
-      "sector": "Hyperscaler",
-      "put_usd": 0,
-      "call_usd": 109470,
-      "share_usd": 129085,
-      "tradeable": true,
-      "our_rank": 23
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "Ishares Tr",
-      "ticker": null,
-      "sector": null,
-      "put_usd": 0,
-      "call_usd": 99149,
-      "share_usd": 0,
-      "tradeable": false,
-      "our_rank": null
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "State Str Spdr S&P 500 Etf T",
-      "ticker": null,
-      "sector": null,
-      "put_usd": 0,
-      "call_usd": 67209,
-      "share_usd": 0,
-      "tradeable": false,
-      "our_rank": null
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "Tesla Inc",
-      "ticker": "TSLA",
-      "sector": "Auto",
-      "put_usd": 0,
-      "call_usd": 52996,
-      "share_usd": 0,
-      "tradeable": true,
-      "our_rank": null
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "Cdw Corp",
-      "ticker": null,
-      "sector": null,
-      "put_usd": 0,
-      "call_usd": 35160,
-      "share_usd": 104629,
-      "tradeable": false,
-      "our_rank": null
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "issuer": "Meta Platforms Inc",
-      "ticker": "META",
-      "sector": "Hyperscaler",
-      "put_usd": 0,
-      "call_usd": 28165,
-      "share_usd": 0,
-      "tradeable": true,
-      "our_rank": null
     }
   ],
-  "generated_at": "2026-08-16T06:03:29.001715Z",
-  "n_funds": 15,
+  "generated_at": "2026-08-16T13:29:12.060736Z",
+  "n_funds": 8,
   "thesis": "Trackable AI-frontier smart money \u2014 crossover funds that backed the private SpaceX / OpenAI / Anthropic rounds AND file 13F-HR, so their public books reveal their picks-and-shovels bets. Full books (not just our overlap) future-proof us: as Binance lists more tokenized stocks, we already know who backs each name.",
   "funds": [
-    {
-      "fund": "Baillie Gifford",
-      "note": "SpaceX + Anthropic",
-      "period": "2026-06-30",
-      "filing_date": "2026-08-06",
-      "stale": false,
-      "aum_usd": 110225053010,
-      "n_positions": 277,
-      "n_tradeable": 41,
-      "conc_top10": 44.7,
-      "n_options": 0,
-      "put_usd": 0,
-      "call_usd": 0,
-      "top_holdings": [
-        {
-          "issuer": "Space Exploration Technologies Corp",
-          "ticker": "SPCX",
-          "sector": null,
-          "pct_aum": 7.97,
-          "value_usd": 8781829133,
-          "tradeable": true,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "NVIDIA",
-          "ticker": "NVDA",
-          "sector": "AI Compute",
-          "pct_aum": 7.6,
-          "value_usd": 8381531192,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Amazon.Com",
-          "ticker": "AMZN",
-          "sector": "Hyperscaler",
-          "pct_aum": 5.82,
-          "value_usd": 6415604182,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "MercadoLibre",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 4.68,
-          "value_usd": 5160761529,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Sea Ltd ADR",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.34,
-          "value_usd": 3680771365,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Spotify Technology SA",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.3,
-          "value_usd": 3640189707,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Cloudflare Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.25,
-          "value_usd": 3580743136,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "AppLovin",
-          "ticker": "APP",
-          "sector": null,
-          "pct_aum": 3.03,
-          "value_usd": 3334370197,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Shopify 'A'",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.94,
-          "value_usd": 3242871167,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Nu Holdings Ltd.",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.79,
-          "value_usd": 3071869222,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "PDD Holdings Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 1.84,
-          "value_usd": 2028631130,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Samsara",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 1.66,
-          "value_usd": 1827702068,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Meta Platforms Inc",
-          "ticker": "META",
-          "sector": "Hyperscaler",
-          "pct_aum": 1.64,
-          "value_usd": 1803398847,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Axon Enterprise Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 1.56,
-          "value_usd": 1715179006,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Coupang",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 1.24,
-          "value_usd": 1367777843,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        }
-      ],
-      "new_buys": [
-        "Space Exploration Technologies Corp",
-        "The Royal Bank of Canada",
-        "Cullen/Frost Bankers",
-        "KLA Corp",
-        "Vale SA ADR",
-        "Idexx Laboratories Inc",
-        "Vistra Energy",
-        "Hims & Hers Health"
-      ],
-      "exits": [
-        "AXIA ENERGIA-ADR PREF",
-        "AptarGroup",
-        "Axia Energia- ADR Pref C",
-        "CME Group Inc",
-        "Cable One Convertible 1.125 2028",
-        "Cognex Corp",
-        "Freshpet Inc",
-        "Full Truck Alliance Co Ltd ADR"
-      ]
-    },
     {
       "fund": "Coatue",
       "note": "OpenAI + Anthropic rounds",
@@ -893,207 +578,6 @@
         "ISHARES BITCOIN TRUST ETF",
         "SOLSTICE ADVANCED MATLS INC",
         "VISA INC"
-      ]
-    },
-    {
-      "fund": "Viking Global",
-      "note": "growth crossover",
-      "period": "2026-06-30",
-      "filing_date": "2026-08-14",
-      "stale": false,
-      "aum_usd": 35079228595,
-      "n_positions": 90,
-      "n_tradeable": 11,
-      "conc_top10": 35.7,
-      "n_options": 0,
-      "put_usd": 0,
-      "call_usd": 0,
-      "top_holdings": [
-        {
-          "issuer": "VISA INC",
-          "ticker": "V",
-          "sector": "Payments",
-          "pct_aum": 6.25,
-          "value_usd": 2193581596,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
-          "ticker": "TSM",
-          "sector": "Semis",
-          "pct_aum": 4.31,
-          "value_usd": 1512988084,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "AIR PRODUCTS AND CHEMICALS I",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.96,
-          "value_usd": 1389776106,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "SHERWIN WILLIAMS CO",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.8,
-          "value_usd": 1334542657,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "FORTIVE CORP",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.47,
-          "value_usd": 1217814611,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "META PLATFORMS INC",
-          "ticker": "META",
-          "sector": "Hyperscaler",
-          "pct_aum": 3.0,
-          "value_usd": 1052011107,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "SCHWAB CHARLES CORP",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.8,
-          "value_usd": 981648443,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "THERMO FISHER SCIENTIFIC INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.77,
-          "value_usd": 971342384,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "JPMORGAN CHASE & CO",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.71,
-          "value_usd": 949056019,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "LENNOX INTL INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.6,
-          "value_usd": 911539959,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "AMAZON COM INC",
-          "ticker": "AMZN",
-          "sector": "Hyperscaler",
-          "pct_aum": 2.51,
-          "value_usd": 882063449,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "FERRARI N V",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.33,
-          "value_usd": 816922007,
-          "tradeable": false,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "CARVANA CO",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.31,
-          "value_usd": 811054510,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "MCDONALDS CORP",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.18,
-          "value_usd": 764749699,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "BRIDGEBIO PHARMA INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.11,
-          "value_usd": 741017831,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        }
-      ],
-      "new_buys": [
-        "FERRARI N V",
-        "MSCI INC",
-        "UNION PAC CORP",
-        "DIGITAL RLTY TR INC",
-        "CARNIVAL CORP LTD",
-        "CVS HEALTH CORP",
-        "FEDEX FGHT HLDG CO INC",
-        "MORGAN STANLEY"
-      ],
-      "exits": [
-        "ALPHABET INC",
-        "AMERICAN INTL GROUP INC",
-        "API GROUP CORP",
-        "APPLE INC",
-        "CARNIVAL CORP",
-        "CBOE GLOBAL MKTS INC",
-        "CELESTICA INC",
-        "CHUBB LTD SWITZ"
       ]
     },
     {
@@ -1295,207 +779,6 @@
         "LIVE NATION ENTERTAINMENT IN",
         "NVIDIA CORPORATION",
         "TAIWAN SEMICONDUCTOR MANUFAC"
-      ]
-    },
-    {
-      "fund": "Sands Capital",
-      "note": "OpenAI + Anthropic",
-      "period": "2026-06-30",
-      "filing_date": "2026-08-13",
-      "stale": false,
-      "aum_usd": 26928187141,
-      "n_positions": 71,
-      "n_tradeable": 27,
-      "conc_top10": 47.6,
-      "n_options": 0,
-      "put_usd": 0,
-      "call_usd": 0,
-      "top_holdings": [
-        {
-          "issuer": "NVIDIA CORPORATION",
-          "ticker": "NVDA",
-          "sector": "AI Compute",
-          "pct_aum": 10.45,
-          "value_usd": 2813156151,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
-          "ticker": "TSM",
-          "sector": "Semis",
-          "pct_aum": 6.96,
-          "value_usd": 1874672381,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "ALPHABET INC",
-          "ticker": "GOOGL",
-          "sector": "Hyperscaler",
-          "pct_aum": 6.49,
-          "value_usd": 1748753286,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "AMAZON COM INC",
-          "ticker": "AMZN",
-          "sector": "Hyperscaler",
-          "pct_aum": 4.3,
-          "value_usd": 1158623890,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "ASML HLDG NV",
-          "ticker": "ASML",
-          "sector": "Semis",
-          "pct_aum": 3.94,
-          "value_usd": 1061750202,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "BLOOM ENERGY CORP",
-          "ticker": "BE",
-          "sector": "Energy Infra",
-          "pct_aum": 3.29,
-          "value_usd": 885869107,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "AXON ENTERPRISE INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.08,
-          "value_usd": 830160818,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "SHOPIFY INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.07,
-          "value_usd": 826900580,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "VISA INC",
-          "ticker": "V",
-          "sector": "Payments",
-          "pct_aum": 3.03,
-          "value_usd": 815558896,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "SPOTIFY TECHNOLOGY S A",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.0,
-          "value_usd": 808622511,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "CLOUDFLARE INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.95,
-          "value_usd": 794585541,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "SEAGATE TECHNOLOGY HLDNGS PL",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.58,
-          "value_usd": 695515065,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "MERCADOLIBRE INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.38,
-          "value_usd": 641966477,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "MICRON TECHNOLOGY INC",
-          "ticker": "MU",
-          "sector": "Memory",
-          "pct_aum": 2.26,
-          "value_usd": 608091515,
-          "tradeable": true,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "CARVANA CO",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.07,
-          "value_usd": 557031040,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        }
-      ],
-      "new_buys": [
-        "MICRON TECHNOLOGY INC",
-        "ADVANCED MICRO DEVICES INC",
-        "SPACE EXPLORATION TECHN CORP",
-        "SANDISK CORP",
-        "SPHERE ENTERTAINMENT CO",
-        "ARM HOLDINGS PLC",
-        "WOODWARD INC",
-        "CROWDSTRIKE HLDGS INC"
-      ],
-      "exits": [
-        "ARISTA NETWORKS INC",
-        "ATLASSIAN CORPORATION",
-        "BOSTON SCIENTIFIC CORP",
-        "FIGMA INC",
-        "FLUTTER ENTMT PLC",
-        "ROBLOX CORP",
-        "SERVICENOW INC",
-        "SNOWFLAKE INC"
       ]
     },
     {
@@ -1895,404 +1178,6 @@
         "NVIDIA CORPORATION",
         "POWER SOLUTIONS INTL INC",
         "VANECK ETF TRUST"
-      ]
-    },
-    {
-      "fund": "ARK Invest",
-      "note": "OpenAI round",
-      "period": "2026-06-30",
-      "filing_date": "2026-08-14",
-      "stale": false,
-      "aum_usd": 15402068886,
-      "n_positions": 190,
-      "n_tradeable": 24,
-      "conc_top10": 39.4,
-      "n_options": 1,
-      "put_usd": 0,
-      "call_usd": 719298,
-      "top_holdings": [
-        {
-          "issuer": "Tesla Inc",
-          "ticker": "TSLA",
-          "sector": "Auto",
-          "pct_aum": 7.54,
-          "value_usd": 1160772073,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Advanced Micro Devices Inc",
-          "ticker": "AMD",
-          "sector": "Semis",
-          "pct_aum": 5.34,
-          "value_usd": 822826048,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Space Exploration Technologies Corp",
-          "ticker": "SPCX",
-          "sector": null,
-          "pct_aum": 4.97,
-          "value_usd": 765113281,
-          "tradeable": true,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Tempus AI Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.77,
-          "value_usd": 580611200,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Robinhood Markets Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.41,
-          "value_usd": 525069168,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "CRISPR Therapeutics AG",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.35,
-          "value_usd": 515999631,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Shopify Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.08,
-          "value_usd": 474523465,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Twist Bioscience Corp",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.04,
-          "value_usd": 468083756,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "10X Genomics Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.49,
-          "value_usd": 383517223,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Amazon.com Inc",
-          "ticker": "AMZN",
-          "sector": "Hyperscaler",
-          "pct_aum": 2.46,
-          "value_usd": 379241133,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Palantir Technologies Inc",
-          "ticker": "PLTR",
-          "sector": "Software",
-          "pct_aum": 2.43,
-          "value_usd": 374777381,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Alphabet Inc",
-          "ticker": "GOOGL",
-          "sector": "Hyperscaler",
-          "pct_aum": 2.39,
-          "value_usd": 368641312,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Coinbase Global Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.38,
-          "value_usd": 367129713,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "ROBLOX Corp",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.28,
-          "value_usd": 351615103,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Beam Therapeutics Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.28,
-          "value_usd": 351260447,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        }
-      ],
-      "new_buys": [
-        "Space Exploration Technologies Corp",
-        "Cerebras Systems Inc",
-        "X-Energy Inc",
-        "Snowflake Inc",
-        "Alamar Biosciences Inc",
-        "Honeywell Aerospace Inc",
-        "Octave Intelligence PLC",
-        "State Street SPDR S&P Biotech ETF"
-      ],
-      "exits": [
-        "Brera Holdings PLC",
-        "Intercontinental Exchange Inc",
-        "Palo Alto Networks Inc",
-        "Pinterest Inc",
-        "Salesforce Inc",
-        "iShares Russell 1000 ETF"
-      ]
-    },
-    {
-      "fund": "Whale Rock",
-      "note": "Anthropic",
-      "period": "2026-06-30",
-      "filing_date": "2026-08-14",
-      "stale": false,
-      "aum_usd": 12456319060,
-      "n_positions": 35,
-      "n_tradeable": 20,
-      "conc_top10": 59.3,
-      "n_options": 0,
-      "put_usd": 0,
-      "call_usd": 0,
-      "top_holdings": [
-        {
-          "issuer": "SANDISK CORP",
-          "ticker": "SNDK",
-          "sector": "Memory",
-          "pct_aum": 10.89,
-          "value_usd": 1356382263,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "ADVANCED MICRO DEVICES INC",
-          "ticker": "AMD",
-          "sector": "Semis",
-          "pct_aum": 7.04,
-          "value_usd": 876970782,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "ALPHABET INC",
-          "ticker": "GOOGL",
-          "sector": "Hyperscaler",
-          "pct_aum": 6.88,
-          "value_usd": 856384314,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "TTM TECHNOLOGIES INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 6.35,
-          "value_usd": 791202137,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "ASTERA LABS INC",
-          "ticker": "ALAB",
-          "sector": null,
-          "pct_aum": 6.08,
-          "value_usd": 757318364,
-          "tradeable": true,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "AMAZON COM INC",
-          "ticker": "AMZN",
-          "sector": "Hyperscaler",
-          "pct_aum": 4.68,
-          "value_usd": 583392445,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "CORNING INC",
-          "ticker": "GLW",
-          "sector": "Hardware",
-          "pct_aum": 4.58,
-          "value_usd": 570630365,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "MKS INC.",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 4.54,
-          "value_usd": 565506710,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "CELESTICA INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 4.32,
-          "value_usd": 538601664,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "BLOOM ENERGY CORP",
-          "ticker": "BE",
-          "sector": "Energy Infra",
-          "pct_aum": 3.91,
-          "value_usd": 486833924,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "COHERENT CORP",
-          "ticker": "COHR",
-          "sector": "AI Compute",
-          "pct_aum": 3.87,
-          "value_usd": 482056146,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "FABRINET",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.36,
-          "value_usd": 418617511,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "SITIME CORP",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.36,
-          "value_usd": 418036238,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "JFROG LTD",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.25,
-          "value_usd": 405181482,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "MACOM TECH SOLUTIONS HLDGS I",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.02,
-          "value_usd": 376104150,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        }
-      ],
-      "new_buys": [
-        "ASTERA LABS INC",
-        "SNOWFLAKE INC",
-        "TWILIO INC",
-        "SEAGATE TECHNOLOGY HLDNGS PL",
-        "INTEL CORP",
-        "SPACE EXPLORATION TECHN CORP",
-        "CEREBRAS SYSTEMS INC"
-      ],
-      "exits": [
-        "ADVANCED ENERGY INDS",
-        "ARM HOLDINGS PLC",
-        "CIENA CORP",
-        "MICROSOFT CORP",
-        "NETFLIX INC.",
-        "ROBLOX CORP",
-        "TOWER SEMICONDUCTOR LTD"
       ]
     },
     {
@@ -3054,981 +1939,319 @@
         "OSCAR HEALTH INC",
         "SAILPOINT INC"
       ]
-    },
-    {
-      "fund": "Light Street",
-      "note": "growth crossover",
-      "period": "2026-06-30",
-      "filing_date": "2026-08-14",
-      "stale": false,
-      "aum_usd": 850689258,
-      "n_positions": 27,
-      "n_tradeable": 11,
-      "conc_top10": 67.5,
-      "n_options": 1,
-      "put_usd": 52150644,
-      "call_usd": 0,
-      "top_holdings": [
-        {
-          "issuer": "TAIWAN SEMICONDUCTOR MANUFAC",
-          "ticker": "TSM",
-          "sector": "Semis",
-          "pct_aum": 12.68,
-          "value_usd": 107906464,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": true,
-          "has_call": false
-        },
-        {
-          "issuer": "ADVANCED MICRO DEVICES INC",
-          "ticker": "AMD",
-          "sector": "Semis",
-          "pct_aum": 7.48,
-          "value_usd": 63609645,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "ASTERA LABS INC",
-          "ticker": "ALAB",
-          "sector": null,
-          "pct_aum": 7.14,
-          "value_usd": 60739765,
-          "tradeable": true,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "GITLAB INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 6.98,
-          "value_usd": 59380850,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "BROADCOM INC",
-          "ticker": "AVGO",
-          "sector": "Semis",
-          "pct_aum": 6.81,
-          "value_usd": 57890188,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "AMKOR TECHNOLOGY INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 6.05,
-          "value_usd": 51460598,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "JFROG LTD",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 5.5,
-          "value_usd": 46757760,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "MKS INC.",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 5.43,
-          "value_usd": 46170240,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "CHIME FINL INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 5.29,
-          "value_usd": 45037343,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "COUPANG INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 4.13,
-          "value_usd": 35174250,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "TOAST INC",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.82,
-          "value_usd": 32479850,
-          "tradeable": false,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "REDDIT INC",
-          "ticker": "RDDT",
-          "sector": null,
-          "pct_aum": 3.72,
-          "value_usd": 31678350,
-          "tradeable": true,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "NVIDIA CORPORATION",
-          "ticker": "NVDA",
-          "sector": "AI Compute",
-          "pct_aum": 3.22,
-          "value_usd": 27356305,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "BLOOM ENERGY CORP",
-          "ticker": "BE",
-          "sector": "Energy Infra",
-          "pct_aum": 2.99,
-          "value_usd": 25477351,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "ASML HLDG NV",
-          "ticker": "ASML",
-          "sector": "Semis",
-          "pct_aum": 2.56,
-          "value_usd": 21798294,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        }
-      ],
-      "new_buys": [
-        "ASTERA LABS INC",
-        "TOAST INC",
-        "REDDIT INC",
-        "MERCADOLIBRE INC",
-        "SNOWFLAKE INC",
-        "MONGODB INC",
-        "ROUNDHILL ETF TRUST",
-        "QUANTINUUM INC"
-      ],
-      "exits": [
-        "AMPLITUDE INC",
-        "BILL HOLDINGS INC",
-        "LUMENTUM HLDGS INC",
-        "SAMSARA INC"
-      ]
-    },
-    {
-      "fund": "Duquesne (Druckenmiller)",
-      "note": "macro crossover",
-      "period": "2026-06-30",
-      "filing_date": "2026-08-14",
-      "stale": false,
-      "aum_usd": 4354220,
-      "n_positions": 86,
-      "n_tradeable": 11,
-      "conc_top10": 52.4,
-      "n_options": 9,
-      "put_usd": 0,
-      "call_usd": 856636,
-      "top_holdings": [
-        {
-          "issuer": "Natera Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 19.86,
-          "value_usd": 864923,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Taiwan Semiconductor Manufac",
-          "ticker": "TSM",
-          "sector": "Semis",
-          "pct_aum": 6.47,
-          "value_usd": 281613,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Stmicroelectronics N V",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 5.34,
-          "value_usd": 232375,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Insmed Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.49,
-          "value_usd": 151900,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": true
-        },
-        {
-          "issuer": "Ypf Sociedad Anonima",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 3.28,
-          "value_usd": 142726,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Amazon Com Inc",
-          "ticker": "AMZN",
-          "sector": "Hyperscaler",
-          "pct_aum": 2.96,
-          "value_usd": 129085,
-          "tradeable": true,
-          "is_new": false,
-          "has_put": false,
-          "has_call": true
-        },
-        {
-          "issuer": "Bbb Foods Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.78,
-          "value_usd": 120915,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Alphabet Inc",
-          "ticker": "GOOGL",
-          "sector": "Hyperscaler",
-          "pct_aum": 2.76,
-          "value_usd": 120184,
-          "tradeable": true,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Ishares Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.72,
-          "value_usd": 118548,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": true
-        },
-        {
-          "issuer": "Seagate Technology Hldngs Pl",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.7,
-          "value_usd": 117730,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Fox Corp",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.64,
-          "value_usd": 114992,
-          "tradeable": false,
-          "is_new": true,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "United Airls Hldgs Inc",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.48,
-          "value_usd": 108084,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Sea Ltd",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.42,
-          "value_usd": 105404,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        },
-        {
-          "issuer": "Cdw Corp",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.4,
-          "value_usd": 104629,
-          "tradeable": false,
-          "is_new": true,
-          "has_put": false,
-          "has_call": true
-        },
-        {
-          "issuer": "Newamsterdam Pharma Company",
-          "ticker": null,
-          "sector": null,
-          "pct_aum": 2.39,
-          "value_usd": 104047,
-          "tradeable": false,
-          "is_new": false,
-          "has_put": false,
-          "has_call": false
-        }
-      ],
-      "new_buys": [
-        "Alphabet Inc",
-        "Fox Corp",
-        "Cdw Corp",
-        "Bitdeer Technologies Group",
-        "Delta Air Lines Inc",
-        "Fluor Corp",
-        "D R Horton Inc",
-        "Advanced Micro Devices Inc"
-      ],
-      "exits": [
-        "Almonty Inds Inc",
-        "Bloom Energy Corp",
-        "Broadcom Inc",
-        "Celestica Inc",
-        "Cloudflare Inc",
-        "Coherent Corp",
-        "Echostar Corp",
-        "Figure Technology Solutio"
-      ]
     }
   ],
   "consensus_tradeable": [
     {
-      "ticker": "AMZN",
-      "perp": "AMZNUSDT",
-      "sector": "Hyperscaler",
-      "n_funds": 14,
-      "funds": [
-        "ARK Invest",
-        "Altimeter",
-        "Appaloosa (Tepper)",
-        "Atreides",
-        "Baillie Gifford",
-        "Coatue",
-        "D1 Capital",
-        "Dragoneer",
-        "Duquesne (Druckenmiller)",
-        "Light Street",
-        "Sands Capital",
-        "Tiger Global",
-        "Viking Global",
-        "Whale Rock"
-      ],
-      "value_usd": 17013500641
-    },
-    {
       "ticker": "SPCX",
       "perp": "SPCXUSDT",
       "sector": null,
-      "n_funds": 12,
+      "n_funds": 7,
       "funds": [
-        "ARK Invest",
         "Altimeter",
         "Appaloosa (Tepper)",
         "Atreides",
-        "Baillie Gifford",
         "Coatue",
         "D1 Capital",
         "Dragoneer",
-        "Sands Capital",
-        "Tiger Global",
-        "Viking Global",
-        "Whale Rock"
+        "Tiger Global"
       ],
-      "value_usd": 41317112308
+      "value_usd": 31150074359
     },
     {
-      "ticker": "GOOGL",
-      "perp": "GOOGLUSDT",
+      "ticker": "AMZN",
+      "perp": "AMZNUSDT",
       "sector": "Hyperscaler",
-      "n_funds": 12,
+      "n_funds": 7,
       "funds": [
-        "ARK Invest",
         "Altimeter",
         "Appaloosa (Tepper)",
         "Atreides",
-        "Baillie Gifford",
         "Coatue",
         "D1 Capital",
-        "Duquesne (Druckenmiller)",
-        "Light Street",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
+        "Dragoneer",
+        "Tiger Global"
       ],
-      "value_usd": 9358760488
-    },
-    {
-      "ticker": "META",
-      "perp": "METAUSDT",
-      "sector": "Hyperscaler",
-      "n_funds": 11,
-      "funds": [
-        "ARK Invest",
-        "Altimeter",
-        "Appaloosa (Tepper)",
-        "Atreides",
-        "Baillie Gifford",
-        "Coatue",
-        "D1 Capital",
-        "Sands Capital",
-        "Tiger Global",
-        "Viking Global",
-        "Whale Rock"
-      ],
-      "value_usd": 8495813912
+      "value_usd": 7582291117
     },
     {
       "ticker": "CBRS",
       "perp": "CBRSUSDT",
       "sector": null,
-      "n_funds": 11,
+      "n_funds": 7,
       "funds": [
-        "ARK Invest",
         "Altimeter",
         "Atreides",
-        "Baillie Gifford",
         "Coatue",
         "D1 Capital",
         "Dragoneer",
         "SAA (Aschenbrenner)",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
+        "Tiger Global"
       ],
-      "value_usd": 4802966259
+      "value_usd": 4620038371
     },
     {
-      "ticker": "NVDA",
-      "perp": "NVDAUSDT",
-      "sector": "AI Compute",
-      "n_funds": 10,
+      "ticker": "GOOGL",
+      "perp": "GOOGLUSDT",
+      "sector": "Hyperscaler",
+      "n_funds": 6,
       "funds": [
-        "ARK Invest",
         "Altimeter",
         "Appaloosa (Tepper)",
         "Atreides",
-        "Baillie Gifford",
         "Coatue",
-        "Light Street",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
+        "D1 Capital",
+        "Tiger Global"
       ],
-      "value_usd": 17464911908
+      "value_usd": 5315866228
     },
     {
-      "ticker": "TSM",
-      "perp": "TSMUSDT",
-      "sector": "Semis",
-      "n_funds": 10,
-      "funds": [
-        "ARK Invest",
-        "Appaloosa (Tepper)",
-        "Coatue",
-        "Duquesne (Druckenmiller)",
-        "Light Street",
-        "SAA (Aschenbrenner)",
-        "Sands Capital",
-        "Tiger Global",
-        "Viking Global",
-        "Whale Rock"
-      ],
-      "value_usd": 12649544961
-    },
-    {
-      "ticker": "AMD",
-      "perp": "AMDUSDT",
-      "sector": "Semis",
-      "n_funds": 10,
-      "funds": [
-        "ARK Invest",
-        "Appaloosa (Tepper)",
-        "Baillie Gifford",
-        "Coatue",
-        "Dragoneer",
-        "Duquesne (Druckenmiller)",
-        "Light Street",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
-      ],
-      "value_usd": 3265007066
-    },
-    {
-      "ticker": "LRCX",
-      "perp": "LRCXUSDT",
-      "sector": null,
-      "n_funds": 8,
+      "ticker": "META",
+      "perp": "METAUSDT",
+      "sector": "Hyperscaler",
+      "n_funds": 6,
       "funds": [
         "Altimeter",
         "Appaloosa (Tepper)",
-        "Baillie Gifford",
+        "Atreides",
         "Coatue",
-        "Duquesne (Druckenmiller)",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
+        "D1 Capital",
+        "Tiger Global"
       ],
-      "value_usd": 6611914930
-    },
-    {
-      "ticker": "AVGO",
-      "perp": "AVGOUSDT",
-      "sector": "Semis",
-      "n_funds": 8,
-      "funds": [
-        "ARK Invest",
-        "Appaloosa (Tepper)",
-        "Baillie Gifford",
-        "Coatue",
-        "Light Street",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
-      ],
-      "value_usd": 4100851735
+      "value_usd": 4702619805
     },
     {
       "ticker": "MU",
       "perp": "MUUSDT",
       "sector": "Memory",
-      "n_funds": 7,
+      "n_funds": 5,
       "funds": [
         "Altimeter",
         "Appaloosa (Tepper)",
         "Atreides",
-        "Baillie Gifford",
         "Coatue",
-        "SAA (Aschenbrenner)",
-        "Sands Capital"
+        "SAA (Aschenbrenner)"
       ],
-      "value_usd": 11997492878
+      "value_usd": 11389309020
     },
     {
-      "ticker": "MSFT",
-      "perp": "MSFTUSDT",
-      "sector": "Hyperscaler",
-      "n_funds": 7,
+      "ticker": "NVDA",
+      "perp": "NVDAUSDT",
+      "sector": "AI Compute",
+      "n_funds": 5,
       "funds": [
-        "ARK Invest",
         "Altimeter",
-        "Baillie Gifford",
+        "Appaloosa (Tepper)",
+        "Atreides",
         "Coatue",
-        "Sands Capital",
-        "Tiger Global",
-        "Viking Global"
+        "Tiger Global"
       ],
-      "value_usd": 4460989823
-    },
-    {
-      "ticker": "RDDT",
-      "perp": "RDDTUSDT",
-      "sector": null,
-      "n_funds": 7,
-      "funds": [
-        "Baillie Gifford",
-        "Coatue",
-        "D1 Capital",
-        "Duquesne (Druckenmiller)",
-        "Light Street",
-        "Tiger Global",
-        "Viking Global"
-      ],
-      "value_usd": 2902691125
+      "value_usd": 5891019766
     },
     {
       "ticker": "CRWV",
       "perp": "CRWVUSDT",
       "sector": "AI Compute",
-      "n_funds": 7,
+      "n_funds": 5,
       "funds": [
-        "ARK Invest",
         "Altimeter",
         "Appaloosa (Tepper)",
         "Atreides",
-        "Baillie Gifford",
         "D1 Capital",
         "SAA (Aschenbrenner)"
       ],
-      "value_usd": 1994984084
+      "value_usd": 1730482196
     },
     {
-      "ticker": "SNOW",
-      "perp": "SNOWUSDT",
-      "sector": null,
-      "n_funds": 7,
+      "ticker": "TSM",
+      "perp": "TSMUSDT",
+      "sector": "Semis",
+      "n_funds": 4,
       "funds": [
-        "ARK Invest",
-        "Altimeter",
-        "Baillie Gifford",
-        "D1 Capital",
-        "Light Street",
-        "Viking Global",
-        "Whale Rock"
+        "Appaloosa (Tepper)",
+        "Coatue",
+        "SAA (Aschenbrenner)",
+        "Tiger Global"
       ],
-      "value_usd": 1758849048
+      "value_usd": 8641647298
+    },
+    {
+      "ticker": "LRCX",
+      "perp": "LRCXUSDT",
+      "sector": null,
+      "n_funds": 4,
+      "funds": [
+        "Altimeter",
+        "Appaloosa (Tepper)",
+        "Coatue",
+        "Tiger Global"
+      ],
+      "value_usd": 5798682526
+    },
+    {
+      "ticker": "AMD",
+      "perp": "AMDUSDT",
+      "sector": "Semis",
+      "n_funds": 4,
+      "funds": [
+        "Appaloosa (Tepper)",
+        "Coatue",
+        "Dragoneer",
+        "Tiger Global"
+      ],
+      "value_usd": 1110816683
+    },
+    {
+      "ticker": "AVGO",
+      "perp": "AVGOUSDT",
+      "sector": "Semis",
+      "n_funds": 3,
+      "funds": [
+        "Appaloosa (Tepper)",
+        "Coatue",
+        "Tiger Global"
+      ],
+      "value_usd": 2927899831
+    },
+    {
+      "ticker": "MSFT",
+      "perp": "MSFTUSDT",
+      "sector": "Hyperscaler",
+      "n_funds": 3,
+      "funds": [
+        "Altimeter",
+        "Coatue",
+        "Tiger Global"
+      ],
+      "value_usd": 2413963120
     },
     {
       "ticker": "INTC",
       "perp": "INTCUSDT",
       "sector": "Semis",
-      "n_funds": 6,
+      "n_funds": 3,
       "funds": [
         "Atreides",
-        "Baillie Gifford",
         "Coatue",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
+        "Tiger Global"
       ],
-      "value_usd": 2426050165
+      "value_usd": 2373782467
     },
     {
-      "ticker": "TSLA",
-      "perp": "TSLAUSDT",
-      "sector": "Auto",
-      "n_funds": 6,
+      "ticker": "RDDT",
+      "perp": "RDDTUSDT",
+      "sector": null,
+      "n_funds": 3,
       "funds": [
-        "ARK Invest",
-        "Atreides",
-        "Baillie Gifford",
         "Coatue",
         "D1 Capital",
-        "Viking Global"
+        "Tiger Global"
       ],
-      "value_usd": 1978668729
-    },
-    {
-      "ticker": "APP",
-      "perp": "APPUSDT",
-      "sector": null,
-      "n_funds": 5,
-      "funds": [
-        "Baillie Gifford",
-        "Coatue",
-        "D1 Capital",
-        "Sands Capital",
-        "Whale Rock"
-      ],
-      "value_usd": 4948987151
-    },
-    {
-      "ticker": "BE",
-      "perp": "BEUSDT",
-      "sector": "Energy Infra",
-      "n_funds": 5,
-      "funds": [
-        "Baillie Gifford",
-        "Light Street",
-        "SAA (Aschenbrenner)",
-        "Sands Capital",
-        "Whale Rock"
-      ],
-      "value_usd": 3296975104
-    },
-    {
-      "ticker": "SNDK",
-      "perp": "SNDKUSDT",
-      "sector": "Memory",
-      "n_funds": 4,
-      "funds": [
-        "Duquesne (Druckenmiller)",
-        "SAA (Aschenbrenner)",
-        "Sands Capital",
-        "Whale Rock"
-      ],
-      "value_usd": 7378292276
-    },
-    {
-      "ticker": "NFLX",
-      "perp": "NFLXUSDT",
-      "sector": null,
-      "n_funds": 4,
-      "funds": [
-        "ARK Invest",
-        "Baillie Gifford",
-        "Coatue",
-        "Sands Capital"
-      ],
-      "value_usd": 1888224979
-    },
-    {
-      "ticker": "ASML",
-      "perp": "ASMLUSDT",
-      "sector": "Semis",
-      "n_funds": 4,
-      "funds": [
-        "Appaloosa (Tepper)",
-        "Coatue",
-        "Light Street",
-        "Sands Capital"
-      ],
-      "value_usd": 1770713009
-    },
-    {
-      "ticker": "ALAB",
-      "perp": "ALABUSDT",
-      "sector": null,
-      "n_funds": 4,
-      "funds": [
-        "Atreides",
-        "Baillie Gifford",
-        "Light Street",
-        "Whale Rock"
-      ],
-      "value_usd": 1511300509
+      "value_usd": 1350994143
     },
     {
       "ticker": "UBER",
       "perp": "UBERUSDT",
       "sector": "Mobility",
-      "n_funds": 4,
+      "n_funds": 3,
       "funds": [
         "Altimeter",
         "Appaloosa (Tepper)",
-        "Baillie Gifford",
         "Tiger Global"
       ],
-      "value_usd": 1349500890
+      "value_usd": 1098108438
     },
     {
       "ticker": "QCOM",
       "perp": "QCOMUSDT",
       "sector": "Semis",
-      "n_funds": 4,
+      "n_funds": 3,
       "funds": [
         "Altimeter",
         "Appaloosa (Tepper)",
-        "Coatue",
-        "Viking Global"
+        "Coatue"
       ],
-      "value_usd": 930230457
+      "value_usd": 650424211
     },
     {
-      "ticker": "V",
-      "perp": "VUSDT",
-      "sector": "Payments",
+      "ticker": "TSLA",
+      "perp": "TSLAUSDT",
+      "sector": "Auto",
       "n_funds": 3,
       "funds": [
-        "Sands Capital",
-        "Tiger Global",
-        "Viking Global"
+        "Atreides",
+        "Coatue",
+        "D1 Capital"
       ],
-      "value_usd": 3283165446
+      "value_usd": 280177642
+    },
+    {
+      "ticker": "GEV",
+      "perp": "GEVUSDT",
+      "sector": null,
+      "n_funds": 2,
+      "funds": [
+        "Coatue",
+        "Tiger Global"
+      ],
+      "value_usd": 3942448330
     },
     {
       "ticker": "NBIS",
       "perp": "NBISUSDT",
       "sector": "AI Compute",
-      "n_funds": 3,
+      "n_funds": 2,
       "funds": [
         "Atreides",
-        "Baillie Gifford",
         "SAA (Aschenbrenner)"
       ],
-      "value_usd": 1250615960
+      "value_usd": 1250604085
     },
     {
-      "ticker": "ARM",
-      "perp": "ARMUSDT",
+      "ticker": "APP",
+      "perp": "APPUSDT",
+      "sector": null,
+      "n_funds": 2,
+      "funds": [
+        "Coatue",
+        "D1 Capital"
+      ],
+      "value_usd": 948265873
+    },
+    {
+      "ticker": "ASML",
+      "perp": "ASMLUSDT",
       "sector": "Semis",
-      "n_funds": 3,
+      "n_funds": 2,
+      "funds": [
+        "Appaloosa (Tepper)",
+        "Coatue"
+      ],
+      "value_usd": 687164513
+    },
+    {
+      "ticker": "SNOW",
+      "perp": "SNOWUSDT",
+      "sector": null,
+      "n_funds": 2,
       "funds": [
         "Altimeter",
-        "Duquesne (Druckenmiller)",
-        "Sands Capital"
+        "D1 Capital"
       ],
-      "value_usd": 810131851
-    },
-    {
-      "ticker": "AAPL",
-      "perp": "AAPLUSDT",
-      "sector": "Consumer Tech",
-      "n_funds": 3,
-      "funds": [
-        "Baillie Gifford",
-        "Sands Capital",
-        "Whale Rock"
-      ],
-      "value_usd": 551507138
-    },
-    {
-      "ticker": "IREN",
-      "perp": "IRENUSDT",
-      "sector": "AI Compute",
-      "n_funds": 3,
-      "funds": [
-        "Baillie Gifford",
-        "Duquesne (Druckenmiller)",
-        "SAA (Aschenbrenner)"
-      ],
-      "value_usd": 467404139
+      "value_usd": 545207461
     }
   ],
   "watch_when_listed": [
     {
-      "issuer": "CARVANA CO",
-      "n_funds": 5,
-      "funds": [
-        "Coatue",
-        "D1 Capital",
-        "Sands Capital",
-        "Viking Global",
-        "Whale Rock"
-      ],
-      "value_usd": 2113527460
-    },
-    {
       "issuer": "NU HLDGS LTD",
-      "n_funds": 5,
+      "n_funds": 4,
       "funds": [
         "Coatue",
         "D1 Capital",
         "Dragoneer",
-        "Sands Capital",
         "Tiger Global"
       ],
-      "value_usd": 1365589449
-    },
-    {
-      "issuer": "SPOTIFY TECHNOLOGY S A",
-      "n_funds": 4,
-      "funds": [
-        "Coatue",
-        "D1 Capital",
-        "Sands Capital",
-        "Tiger Global"
-      ],
-      "value_usd": 2209388656
-    },
-    {
-      "issuer": "SEA LTD",
-      "n_funds": 4,
-      "funds": [
-        "D1 Capital",
-        "Sands Capital",
-        "Tiger Global",
-        "Viking Global"
-      ],
-      "value_usd": 2195053040
-    },
-    {
-      "issuer": "MERCADOLIBRE INC",
-      "n_funds": 4,
-      "funds": [
-        "D1 Capital",
-        "Light Street",
-        "Sands Capital",
-        "Tiger Global"
-      ],
-      "value_usd": 1394506031
-    },
-    {
-      "issuer": "SEAGATE TECHNOLOGY HLDNGS PL",
-      "n_funds": 4,
-      "funds": [
-        "D1 Capital",
-        "Sands Capital",
-        "Tiger Global",
-        "Whale Rock"
-      ],
-      "value_usd": 1143041535
-    },
-    {
-      "issuer": "COUPANG INC",
-      "n_funds": 4,
-      "funds": [
-        "D1 Capital",
-        "Light Street",
-        "Sands Capital",
-        "Tiger Global"
-      ],
-      "value_usd": 978699536
-    },
-    {
-      "issuer": "DOORDASH INC",
-      "n_funds": 4,
-      "funds": [
-        "Coatue",
-        "D1 Capital",
-        "Sands Capital",
-        "Tiger Global"
-      ],
-      "value_usd": 771266940
-    },
-    {
-      "issuer": "QUANTINUUM INC",
-      "n_funds": 4,
-      "funds": [
-        "Atreides",
-        "D1 Capital",
-        "Light Street",
-        "Viking Global"
-      ],
-      "value_usd": 55682759
+      "value_usd": 1198912681
     },
     {
       "issuer": "APPLIED MATLS INC",
@@ -4041,188 +2264,230 @@
       "value_usd": 4415825889
     },
     {
-      "issuer": "SHERWIN WILLIAMS CO",
-      "n_funds": 3,
-      "funds": [
-        "D1 Capital",
-        "Tiger Global",
-        "Viking Global"
-      ],
-      "value_usd": 1854312291
-    },
-    {
-      "issuer": "INTUITIVE SURGICAL INC",
+      "issuer": "SPOTIFY TECHNOLOGY S A",
       "n_funds": 3,
       "funds": [
         "Coatue",
         "D1 Capital",
-        "Sands Capital"
+        "Tiger Global"
       ],
-      "value_usd": 1042052038
+      "value_usd": 1400766145
+    },
+    {
+      "issuer": "DOORDASH INC",
+      "n_funds": 3,
+      "funds": [
+        "Coatue",
+        "D1 Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 342087989
+    },
+    {
+      "issuer": "SEA LTD",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 1364378092
+    },
+    {
+      "issuer": "COUPANG INC",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 812223163
+    },
+    {
+      "issuer": "MERCADOLIBRE INC",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 730897831
     },
     {
       "issuer": "NATERA INC",
-      "n_funds": 3,
+      "n_funds": 2,
       "funds": [
         "Atreides",
-        "Coatue",
-        "Viking Global"
+        "Coatue"
       ],
-      "value_usd": 814395875
+      "value_usd": 708341989
+    },
+    {
+      "issuer": "CORE SCIENTIFIC INC NEW",
+      "n_funds": 2,
+      "funds": [
+        "SAA (Aschenbrenner)",
+        "Tiger Global"
+      ],
+      "value_usd": 686463854
+    },
+    {
+      "issuer": "INTUITIVE SURGICAL INC",
+      "n_funds": 2,
+      "funds": [
+        "Coatue",
+        "D1 Capital"
+      ],
+      "value_usd": 543988062
+    },
+    {
+      "issuer": "DANAHER CORP DEL",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 521541669
+    },
+    {
+      "issuer": "SHERWIN WILLIAMS CO",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 519769634
+    },
+    {
+      "issuer": "APPLIED DIGITAL CORP",
+      "n_funds": 2,
+      "funds": [
+        "SAA (Aschenbrenner)",
+        "Tiger Global"
+      ],
+      "value_usd": 502033307
+    },
+    {
+      "issuer": "CARVANA CO",
+      "n_funds": 2,
+      "funds": [
+        "Coatue",
+        "D1 Capital"
+      ],
+      "value_usd": 464582704
+    },
+    {
+      "issuer": "APOLLO GLOBAL MGMT INC",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 459292435
+    },
+    {
+      "issuer": "UNITY SOFTWARE INC",
+      "n_funds": 2,
+      "funds": [
+        "Atreides",
+        "D1 Capital"
+      ],
+      "value_usd": 394926785
+    },
+    {
+      "issuer": "FERGUSON ENTERPRISES INC",
+      "n_funds": 2,
+      "funds": [
+        "Atreides",
+        "D1 Capital"
+      ],
+      "value_usd": 339333722
+    },
+    {
+      "issuer": "SEAGATE TECHNOLOGY HLDNGS PL",
+      "n_funds": 2,
+      "funds": [
+        "D1 Capital",
+        "Tiger Global"
+      ],
+      "value_usd": 304182475
+    },
+    {
+      "issuer": "AFFIRM HLDGS INC",
+      "n_funds": 2,
+      "funds": [
+        "Atreides",
+        "D1 Capital"
+      ],
+      "value_usd": 259456300
+    },
+    {
+      "issuer": "COMPASS INC",
+      "n_funds": 2,
+      "funds": [
+        "Atreides",
+        "D1 Capital"
+      ],
+      "value_usd": 257490497
+    },
+    {
+      "issuer": "SYNOPSYS INC",
+      "n_funds": 2,
+      "funds": [
+        "Altimeter",
+        "Coatue"
+      ],
+      "value_usd": 204214415
     },
     {
       "issuer": "CHIME FINL INC",
-      "n_funds": 3,
+      "n_funds": 2,
       "funds": [
         "Dragoneer",
-        "Light Street",
         "Tiger Global"
       ],
-      "value_usd": 241502883
+      "value_usd": 196465540
     },
     {
-      "issuer": "GITLAB INC",
-      "n_funds": 3,
+      "issuer": "INNIO NV",
+      "n_funds": 2,
       "funds": [
         "Atreides",
-        "Light Street",
-        "Sands Capital"
+        "Dragoneer"
       ],
-      "value_usd": 166255512
+      "value_usd": 126508427
     },
     {
-      "issuer": "Spotify Technology SA",
+      "issuer": "CIPHER DIGITAL INC",
       "n_funds": 2,
       "funds": [
-        "ARK Invest",
-        "Baillie Gifford"
+        "Atreides",
+        "Tiger Global"
       ],
-      "value_usd": 3674674130
+      "value_usd": 110578521
     },
     {
-      "issuer": "Cloudflare Inc",
+      "issuer": "SERVICETITAN INC",
       "n_funds": 2,
       "funds": [
-        "ARK Invest",
-        "Baillie Gifford"
+        "Atreides",
+        "Dragoneer"
       ],
-      "value_usd": 3623844473
-    },
-    {
-      "issuer": "THERMO FISHER SCIENTIFIC INC",
-      "n_funds": 2,
-      "funds": [
-        "D1 Capital",
-        "Viking Global"
-      ],
-      "value_usd": 1381015171
-    },
-    {
-      "issuer": "SCHWAB CHARLES CORP",
-      "n_funds": 2,
-      "funds": [
-        "D1 Capital",
-        "Viking Global"
-      ],
-      "value_usd": 1209240702
-    },
-    {
-      "issuer": "JOHNSON CONTROLS INTERNATION",
-      "n_funds": 2,
-      "funds": [
-        "D1 Capital",
-        "Viking Global"
-      ],
-      "value_usd": 1162243830
-    },
-    {
-      "issuer": "DISNEY WALT CO",
-      "n_funds": 2,
-      "funds": [
-        "D1 Capital",
-        "Viking Global"
-      ],
-      "value_usd": 965657578
-    },
-    {
-      "issuer": "SHOPIFY INC",
-      "n_funds": 2,
-      "funds": [
-        "D1 Capital",
-        "Sands Capital"
-      ],
-      "value_usd": 921771714
-    },
-    {
-      "issuer": "FERRARI N V",
-      "n_funds": 2,
-      "funds": [
-        "Sands Capital",
-        "Viking Global"
-      ],
-      "value_usd": 921200808
-    },
-    {
-      "issuer": "BOEING CO",
-      "n_funds": 2,
-      "funds": [
-        "Appaloosa (Tepper)",
-        "Viking Global"
-      ],
-      "value_usd": 882077368
-    },
-    {
-      "issuer": "INTERCONTINENTAL EXCHANGE IN",
-      "n_funds": 2,
-      "funds": [
-        "Sands Capital",
-        "Viking Global"
-      ],
-      "value_usd": 841199427
+      "value_usd": 109103903
     }
   ],
   "smart_money_puts": [
     {
       "ticker": "AAPL",
-      "long_usd": 551507138,
+      "long_usd": 0,
       "put_usd": 241615600,
       "call_usd": 0,
       "net_opt_usd": -241615600,
       "two_sided": false,
-      "net_usd": 309891538,
+      "net_usd": -241615600,
       "put_funds": [
         "Appaloosa (Tepper)"
       ],
       "our_rank": null
-    },
-    {
-      "ticker": "TSM",
-      "long_usd": 12649544961,
-      "put_usd": 52150644,
-      "call_usd": 23878500,
-      "net_opt_usd": -28272144,
-      "two_sided": true,
-      "net_usd": 12597394317,
-      "put_funds": [
-        "Light Street"
-      ],
-      "our_rank": 18
     }
   ],
-  "crowded_risk": [
-    {
-      "ticker": "TSM",
-      "long_usd": 12649544961,
-      "put_usd": 52150644,
-      "call_usd": 23878500,
-      "net_opt_usd": -28272144,
-      "two_sided": true,
-      "net_usd": 12597394317,
-      "put_funds": [
-        "Light Street"
-      ],
-      "our_rank": 18
-    }
-  ],
+  "crowded_risk": [],
   "note": "13F-HR, ~45-day lag, US long-equity + puts only. Context/idea-generation, not advice. Crowded-risk = names WE hold long that tracked funds are hedging/shorting via puts (e.g. SAA's chip puts)."
 }
