@@ -1,8 +1,8 @@
 # RETIRED — do not edit this repo
 
 This repo is an archive as of **2026-08-17**. Its Render static site
-(`sentient-dashboard`, `srv-d6qler4r85hc73f02so0`) is **suspended**, so nothing here is served
-to anyone.
+(`sentient-dashboard`, `srv-d6qler4r85hc73f02so0`) was **deleted** on 2026-08-17, so nothing here
+is served to anyone and nothing here can be resumed.
 
 ## Where the live dashboard is
 
