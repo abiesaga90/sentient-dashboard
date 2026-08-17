@@ -1,6 +1,6 @@
 {
   "as_of": "2026-08-14",
-  "generated_at": "2026-08-16T20:19:49.049802Z",
+  "generated_at": "2026-08-17T10:02:14.299895Z",
   "state": "GREEN",
   "headline": "Trade ON \u2014 sellers leading, the raise intact, bid on the accelerator. Full book.",
   "signals": [
@@ -27,10 +27,10 @@
     },
     {
       "name": "Smart-money rotation (13F)",
-      "value": "42% sellers / 26% operators",
-      "trend": "still seller-heavy",
+      "value": "88% sellers / 12% operators of the AI book",
+      "trend": "+0.1pp QoQ, inside the 3pp bar \u00b7 newly reportable, excluded: SPCX 30% of the AI book, CBRS 4% of the AI book",
       "state": "green",
-      "desc": "cohort 13F QoQ \u2014 are the funds rotating?"
+      "desc": "cohort 13F QoQ \u2014 are the funds rotating, like-for-like?"
     },
     {
       "name": "Memory cycle (HBM/DRAM/NAND)",
@@ -57,10 +57,10 @@
     },
     "cond_soxx_20d_high": {
       "ok": false,
-      "close": 144.9499969482422,
-      "prior_high": 160.99000549316406,
+      "close": 550.4199829101562,
+      "prior_high": 555.52001953125,
       "window": 20,
-      "source": "SOXL(proxy)"
+      "source": "SOXX"
     },
     "triggered": false,
     "rule": "NET_BETA_TARGET 0\u2192+0.1 only when 1mo spread pace > 0 AND SOXX > prior 20d high. Alert-only; operator applies via env + rebalance."
@@ -187,13 +187,39 @@
     "prior": "2026-03-31",
     "latest": "2026-06-30",
     "2026-03-31": {
-      "seller_pct": 40.2,
-      "operator_pct": 5.6
+      "seller_pct": 87.8,
+      "operator_pct": 12.2
     },
     "2026-06-30": {
-      "seller_pct": 42.3,
-      "operator_pct": 26.4
+      "seller_pct": 87.7,
+      "operator_pct": 12.3
     },
+    "operator_delta_pp": 0.1,
+    "threshold_pp": 3.0,
+    "n_common": 28,
+    "basis": "like-for-like (names reportable in both quarters), share of the AI-classified book only",
+    "newly_reportable": [
+      {
+        "ticker": "SPCX",
+        "value_usd": 41317112308.0,
+        "pct_of_ai_book": 30.3
+      },
+      {
+        "ticker": "CBRS",
+        "value_usd": 4802966259.0,
+        "pct_of_ai_book": 3.5
+      },
+      {
+        "ticker": "KLAC",
+        "value_usd": 460067924.0,
+        "pct_of_ai_book": 0.3
+      },
+      {
+        "ticker": "MRVL",
+        "value_usd": 16384.0,
+        "pct_of_ai_book": 0.0
+      }
+    ],
     "rotating_to_operators": false
   },
   "map": [

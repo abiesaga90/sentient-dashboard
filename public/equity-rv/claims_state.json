@@ -1,7 +1,7 @@
 {
   "updated": "2026-08-17",
   "n_claims": 20,
-  "n_flipped": 0,
+  "n_flipped": 1,
   "n_stale": 0,
   "claims": [
     {
@@ -113,8 +113,8 @@
       "threshold": "sustained |basis| > 1% is material for go-live",
       "cadence": "daily",
       "action_if_supported": "Decide the marking basis explicitly before capital; if perps, hedge sizing must move with it.",
-      "verdict": "supported",
-      "verdict_detail": "like-for-like basis +2.39% (9 days logged)",
+      "verdict": "refuted",
+      "verdict_detail": "like-for-like basis +0.46% (9 days logged)",
       "last_checked": "2026-08-17",
       "action_taken": "perp mark panel shipped alongside the official track; go-live decision documented, engine unchanged"
     },
@@ -171,7 +171,7 @@
       "cadence": "daily",
       "action_if_supported": "Set NET_BETA_TARGET=0.10 (operator approval required; cap <= +0.30).",
       "verdict": "refuted",
-      "verdict_detail": "spread pace +14.6 pp/mo OK \u00b7 SOXX 145 vs 20d high 161 (11.1% to reclaim) x",
+      "verdict_detail": "spread pace +14.6 pp/mo OK \u00b7 SOXX 550 vs 20d high 556 (0.9% to reclaim) x",
       "last_checked": "2026-08-17",
       "action_taken": "none; NET_BETA_TARGET stays 0.00 pending confirmation"
     },
